@@ -139,7 +139,7 @@
 
 <p>4.修改你的<code class="highlighter-rouge">_config.yml</code>文件中的 <code class="highlighter-rouge">comments_provider</code> 和 <code class="highlighter-rouge">username</code></p>
 
-<p><strong>重要：</strong> 这里的<code class="highlighter-rouge">username</code>，实际上是 disqus 中的shortname</p>
+<p><strong>重要： 这里的<code class="highlighter-rouge">username</code>，实际上是 disqus 中的shortname</strong></p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>comments_provider: disqus
 disqus:
@@ -167,7 +167,7 @@ disqus:
 
 <p>4.扫描完成后，会看到 DNS 记录，自行添加(其中彩色的云朵表示开启SSL，否则就只是DNS)</p>
 
-<p><strong>注意</strong> 如果你的A记录启用的SSL，那么所有关于这个A记录的请求都会转发给 Cloudflare，然后通过 Cloudflare再转发到你的服务器，所以这个时候，你通过 <code class="highlighter-rouge">nslookup kevinguo.me</code> 的时候解析出来的地址，并不是你的服务器地址，而是 Cloudflare的地址;如果你有其他服务(诸如VPS,FTP等)使用的是这个地址的话，最好是再添加一条不走SSL的A记录</p>
+<p><strong>注意 如果你的A记录启用的SSL，那么所有关于这个A记录的请求都会转发给 Cloudflare，然后通过 Cloudflare再转发到你的服务器，所以这个时候，你通过 <code class="highlighter-rouge">nslookup kevinguo.me</code> 的时候解析出来的地址，并不是你的服务器地址，而是 Cloudflare的地址;如果你有其他服务(诸如VPS,FTP等)使用的是这个地址的话，最好是再添加一条不走SSL的A记录</strong></p>
 
 <p><img src="/images/posts/cloudflare-dns.png" alt="cloudflare-dns" /></p>
 

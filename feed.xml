@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-07-12T18:01:55+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客(2)</title><link href="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客(2)" /><published>2017-07-12T00:00:00+08:00</published><updated>2017-07-12T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)</id><content type="html" xml:base="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-07-12T18:10:11+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客(2)</title><link href="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客(2)" /><published>2017-07-12T00:00:00+08:00</published><updated>2017-07-12T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)</id><content type="html" xml:base="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/">&lt;blockquote&gt;
   &lt;p&gt;接上一篇，上一篇我们的博客已经可以自动化部署了，但是我们仍然不满足，还想要有一个好的评论系统和一个安全的https连接&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -20,7 +20,7 @@
 
 &lt;p&gt;4.修改你的&lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;文件中的 &lt;code class=&quot;highlighter-rouge&quot;&gt;comments_provider&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;username&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;重要：&lt;/strong&gt; 这里的&lt;code class=&quot;highlighter-rouge&quot;&gt;username&lt;/code&gt;，实际上是 disqus 中的shortname&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;重要： 这里的&lt;code class=&quot;highlighter-rouge&quot;&gt;username&lt;/code&gt;，实际上是 disqus 中的shortname&lt;/strong&gt;&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;comments_provider: disqus
 disqus:
@@ -48,7 +48,7 @@ disqus:
 
 &lt;p&gt;4.扫描完成后，会看到 DNS 记录，自行添加(其中彩色的云朵表示开启SSL，否则就只是DNS)&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt; 如果你的A记录启用的SSL，那么所有关于这个A记录的请求都会转发给 Cloudflare，然后通过 Cloudflare再转发到你的服务器，所以这个时候，你通过 &lt;code class=&quot;highlighter-rouge&quot;&gt;nslookup kevinguo.me&lt;/code&gt; 的时候解析出来的地址，并不是你的服务器地址，而是 Cloudflare的地址;如果你有其他服务(诸如VPS,FTP等)使用的是这个地址的话，最好是再添加一条不走SSL的A记录&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意 如果你的A记录启用的SSL，那么所有关于这个A记录的请求都会转发给 Cloudflare，然后通过 Cloudflare再转发到你的服务器，所以这个时候，你通过 &lt;code class=&quot;highlighter-rouge&quot;&gt;nslookup kevinguo.me&lt;/code&gt; 的时候解析出来的地址，并不是你的服务器地址，而是 Cloudflare的地址;如果你有其他服务(诸如VPS,FTP等)使用的是这个地址的话，最好是再添加一条不走SSL的A记录&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/images/posts/cloudflare-dns.png&quot; alt=&quot;cloudflare-dns&quot; /&gt;&lt;/p&gt;
 
@@ -88,7 +88,7 @@ disqus:
 
 &lt;p&gt;我们都知道通过jekyll搭建博客最终都是将通过&lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll build&lt;/code&gt;生成的&lt;code class=&quot;highlighter-rouge&quot;&gt;_site&lt;/code&gt;下的静态文件发布出去，那么我们是不是可以直接采用 &lt;code class=&quot;highlighter-rouge&quot;&gt;nginx&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;静态文件&lt;/code&gt;的方式来发布呢，当然是可以的&lt;/p&gt;
 
-&lt;p&gt;准备两个站点仓库&lt;/p&gt;
+&lt;h4 id=&quot;准备两个站点仓库&quot;&gt;准备两个站点仓库&lt;/h4&gt;
 
 &lt;ul&gt;
   &lt;li&gt;主站点Github (保存静态文件)&lt;/li&gt;
@@ -107,7 +107,7 @@ disqus:
 
 &lt;p&gt;&lt;a href=&quot;https://travis-ci.org/&quot;&gt;Travis&lt;/a&gt; 是啥？ 就是个类似jenkins的东西. &lt;a href=&quot;https://jenkins.io/&quot;&gt;Jenkins&lt;/a&gt; 是啥？ 就是个类似Travis的东西.&lt;/p&gt;
 
-&lt;h4 id=&quot;1构建所需docker镜像&quot;&gt;1.构建所需docker镜像&lt;/h4&gt;
+&lt;h4 id=&quot;构建所需docker镜像&quot;&gt;构建所需docker镜像&lt;/h4&gt;
 
 &lt;p&gt;既然博客是通过 docker 化部署，采用&lt;code class=&quot;highlighter-rouge&quot;&gt;nginx&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;静态文件&lt;/code&gt; 的方式发布，那么我们第一步就是要构建我们博客所需的镜像，&lt;code class=&quot;highlighter-rouge&quot;&gt;Dockerfile&lt;/code&gt; 内容如下&lt;/p&gt;
 
@@ -155,7 +155,7 @@ nginx -g &lt;span class=&quot;s2&quot;&gt;&quot;daemon off;&quot;&lt;/span&gt;
 &lt;/div&gt;
 &lt;p&gt;下一步就是 &lt;code class=&quot;highlighter-rouge&quot;&gt;静态文件&lt;/code&gt; 了&lt;/p&gt;
 
-&lt;h4 id=&quot;2静态文件的自动更新&quot;&gt;2.静态文件的自动更新&lt;/h4&gt;
+&lt;h4 id=&quot;静态文件的自动更新&quot;&gt;静态文件的自动更新&lt;/h4&gt;
 
 &lt;p&gt;通过上面 &lt;code class=&quot;highlighter-rouge&quot;&gt;Dockerfile&lt;/code&gt; 文件中的内容，你会发现，我是将 &lt;code class=&quot;highlighter-rouge&quot;&gt;kevinguo.me.git&lt;/code&gt;下的内容clone到 &lt;code class=&quot;highlighter-rouge&quot;&gt;/usr/share/nginx/html&lt;/code&gt;，也就是说，我实际上是发布的 &lt;code class=&quot;highlighter-rouge&quot;&gt;kevinguo.me.git&lt;/code&gt; 下的静态文件，那么 &lt;code class=&quot;highlighter-rouge&quot;&gt;kevinguo.me.git&lt;/code&gt; 下面的内容又是怎么来的呢&lt;/p&gt;
 
@@ -173,7 +173,7 @@ nginx -g &lt;span class=&quot;s2&quot;&gt;&quot;daemon off;&quot;&lt;/span&gt;
 
 &lt;p&gt;3.Travis CI push静态文件到Github 通过 Github的token实现授权配置，准备 Github上的token&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt; 这里的&lt;code class=&quot;highlighter-rouge&quot;&gt;token&lt;/code&gt;，复制之后，最好自己保存好哟，因为只显示一次，如果丢失只能再次生成了&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注意： 这里的&lt;code class=&quot;highlighter-rouge&quot;&gt;token&lt;/code&gt;，复制之后，最好自己保存好哟，因为只显示一次，如果丢失只能再次生成了&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/images/posts/github-token.png&quot; alt=&quot;github-token.png&quot; /&gt;&lt;/p&gt;
 

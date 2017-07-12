@@ -127,7 +127,7 @@
 
 <p>我们都知道通过jekyll搭建博客最终都是将通过<code class="highlighter-rouge">jekyll build</code>生成的<code class="highlighter-rouge">_site</code>下的静态文件发布出去，那么我们是不是可以直接采用 <code class="highlighter-rouge">nginx</code> + <code class="highlighter-rouge">静态文件</code>的方式来发布呢，当然是可以的</p>
 
-<p>准备两个站点仓库</p>
+<h4 id="准备两个站点仓库">准备两个站点仓库</h4>
 
 <ul>
   <li>主站点Github (保存静态文件)</li>
@@ -146,7 +146,7 @@
 
 <p><a href="https://travis-ci.org/">Travis</a> 是啥？ 就是个类似jenkins的东西. <a href="https://jenkins.io/">Jenkins</a> 是啥？ 就是个类似Travis的东西.</p>
 
-<h4 id="1构建所需docker镜像">1.构建所需docker镜像</h4>
+<h4 id="构建所需docker镜像">构建所需docker镜像</h4>
 
 <p>既然博客是通过 docker 化部署，采用<code class="highlighter-rouge">nginx</code> + <code class="highlighter-rouge">静态文件</code> 的方式发布，那么我们第一步就是要构建我们博客所需的镜像，<code class="highlighter-rouge">Dockerfile</code> 内容如下</p>
 
@@ -194,7 +194,7 @@ nginx -g <span class="s2">"daemon off;"</span>
 </div>
 <p>下一步就是 <code class="highlighter-rouge">静态文件</code> 了</p>
 
-<h4 id="2静态文件的自动更新">2.静态文件的自动更新</h4>
+<h4 id="静态文件的自动更新">静态文件的自动更新</h4>
 
 <p>通过上面 <code class="highlighter-rouge">Dockerfile</code> 文件中的内容，你会发现，我是将 <code class="highlighter-rouge">kevinguo.me.git</code>下的内容clone到 <code class="highlighter-rouge">/usr/share/nginx/html</code>，也就是说，我实际上是发布的 <code class="highlighter-rouge">kevinguo.me.git</code> 下的静态文件，那么 <code class="highlighter-rouge">kevinguo.me.git</code> 下面的内容又是怎么来的呢</p>
 
@@ -212,7 +212,7 @@ nginx -g <span class="s2">"daemon off;"</span>
 
 <p>3.Travis CI push静态文件到Github 通过 Github的token实现授权配置，准备 Github上的token</p>
 
-<p><strong>注意：</strong> 这里的<code class="highlighter-rouge">token</code>，复制之后，最好自己保存好哟，因为只显示一次，如果丢失只能再次生成了</p>
+<p><strong>注意： 这里的<code class="highlighter-rouge">token</code>，复制之后，最好自己保存好哟，因为只显示一次，如果丢失只能再次生成了</strong></p>
 
 <p><img src="/images/posts/github-token.png" alt="github-token.png" /></p>
 
