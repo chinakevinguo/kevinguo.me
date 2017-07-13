@@ -1,5 +1,11 @@
 {
   
+  "2017-07-13-jekyll-create-a-static-blog-3": {
+    "title": "jekyll 搭建静态博客之https番外篇",
+    "url": " /2017/07/13/jekyll-create-a-static-blog(3)/",
+    "category": "jekyll"
+  },
+  
   "2017-07-12-jekyll-create-a-static-blog-2": {
     "title": "jekyll 搭建静态博客(2)",
     "url": " /2017/07/12/jekyll-create-a-static-blog(2)/",
@@ -603,6 +609,12 @@
   "2017-07-12-jekyll-create-a-static-blog-2": {
     "title": "jekyll 搭建静态博客(2)",
     "url": "/2017/07/12/jekyll-create-a-static-blog(2)/",
+    "category": "[&quot;jekyll&quot;, &quot;travis&quot;]"
+  },
+  
+  "2017-07-13-jekyll-create-a-static-blog-3": {
+    "title": "jekyll 搭建静态博客之https番外篇",
+    "url": "/2017/07/13/jekyll-create-a-static-blog(3)/",
     "category": "[&quot;jekyll&quot;, &quot;travis&quot;]"
   }
   
