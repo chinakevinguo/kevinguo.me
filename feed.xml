@@ -1,4 +1,178 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-07-13T14:48:54+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/"></content><author><name>KevinGuo</name></author><summary type="html"></summary></entry><entry><title type="html">jekyll 搭建静态博客(2)</title><link href="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客(2)" /><published>2017-07-12T00:00:00+08:00</published><updated>2017-07-12T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)</id><content type="html" xml:base="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-07-13T15:19:43+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
+  &lt;p&gt;上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;!--more--&gt;
+&lt;h3 id=&quot;前提&quot;&gt;前提&lt;/h3&gt;
+
+&lt;p&gt;首先记得将 cloudflare 上有关你的站点的https配置删掉，如果没有做过，则忽略&lt;/p&gt;
+
+&lt;h3 id=&quot;搭建过程&quot;&gt;搭建过程&lt;/h3&gt;
+
+&lt;p&gt;搭建过程比较简单&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;准备好你前端的 nginx 服务器&lt;/li&gt;
+  &lt;li&gt;准备好你后端的 docker 容器&lt;/li&gt;
+  &lt;li&gt;clone let’s encrypt 到服务器&lt;/li&gt;
+  &lt;li&gt;生成证书&lt;/li&gt;
+  &lt;li&gt;配置你的 nginx&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;1.准备 nginx&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;yum update
+
+yum install nginx
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.clone let’s encrypt 到服务器&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/certbot/certbot.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.准备 docker 容器&lt;/p&gt;
+
+&lt;p&gt;一条命令即可&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;always -p 127.0.0.1:1080:80 chinakevinguo_jekyll_kevinguo_me
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;4.生成证书&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;注意：如果你开了防火墙，记得一定要将防火墙关闭，否则生成证书的时候可能会报错&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;systemctl stop firewalld
+
+&lt;span class=&quot;c&quot;&gt;# 将这里的域名，换成你自己的域名&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;certbot
+./certbot-auto certonly --nginx -d kevinguo.me -d www.kevinguo.me
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;成功后，内容如下&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;IMPORTANT NOTES:
+ - Congratulations! Your certificate and chain have been saved at
+   /etc/letsencrypt/live/kevinguo.me/fullchain.pem. Your cert will
+   expire on 2017-10-11. To obtain a new or tweaked version of this
+   certificate &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;the future, simply run certbot-auto again. To
+   non-interactively renew &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;all&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; of your certificates, run
+   certbot-auto renew
+ - If you like Certbot, please consider supporting our work by:
+
+   Donating to ISRG / Lets Encrypt:   https://letsencrypt.org/donate
+   Donating to EFF:                    https://eff.org/donate-le
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;5.配置你的 nginx&lt;/p&gt;
+
+&lt;p&gt;nginx 的配置尽量模块化，这里通过 nginx 作为代理，访问后端的 docker 容器&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;nginx.conf&lt;/strong&gt; 内容如下&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user nginx;
+worker_processes auto;
+pid /run/nginx.pid;
+
+&lt;span class=&quot;c&quot;&gt;# Load dynamic modules. See /usr/share/nginx/README.dynamic.&lt;/span&gt;
+include /usr/share/nginx/modules/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.conf;
+
+events &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    use epoll;
+    worker_connections 1024;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+http &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    server_tokens off;
+    log_format  main  &lt;span class=&quot;s1&quot;&gt;'$remote_addr||$time_local||&quot;$request&quot;||'&lt;/span&gt;
+                      &lt;span class=&quot;s1&quot;&gt;'$status||$body_bytes_sent||&quot;$http_referer&quot;'&lt;/span&gt;
+                      &lt;span class=&quot;s1&quot;&gt;'||$http_x_forwarded_for||'&lt;/span&gt;
+                      &lt;span class=&quot;s1&quot;&gt;'||$upstream_status||$upstream_addr||$request_time||$upstream_response_time||'&lt;/span&gt; ;
+
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
+
+    include             /etc/nginx/mime.types;
+    default_type        application/octet-stream;
+
+    gzip on;
+    gzip_disable &lt;span class=&quot;s2&quot;&gt;&quot;msie6&quot;&lt;/span&gt;;
+    gzip_proxied any;
+    gzip_min_length 1000;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+    include /etc/nginx/conf.d/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.conf;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;对应站点.conf&lt;/strong&gt; 内容如下&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;upstream chinakevinguo_jekyll_kevinguo_me &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    server 127.0.0.1:1080;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    listen 80 default_server;
+    listen &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;::]:80 default_server;
+    server_name kevinguo.me www.kevinguo.me;
+
+    &lt;span class=&quot;c&quot;&gt;# Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return &lt;/span&gt;301 https://&lt;span class=&quot;nv&quot;&gt;$server_name$request_uri&lt;/span&gt;;
+    &lt;span class=&quot;c&quot;&gt;#return 404;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    listen 443 ssl http2 default_server;
+    listen &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;::]:443 ssl http2 default_server;
+    server_name kevinguo.me www.kevinguo.me;
+
+    &lt;span class=&quot;c&quot;&gt;# certs sent to the client in SERVER HELLO are concatenated in ssl_certificate&lt;/span&gt;
+    ssl_certificate /etc/letsencrypt/live/kevinguo.me/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kevinguo.me/privkey.pem;
+    ssl_dhparam /etc/letsencrypt/live/kevinguo.me/dhparam.pem;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_tickets off;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers &lt;span class=&quot;s1&quot;&gt;'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS'&lt;/span&gt;;
+    ssl_prefer_server_ciphers on;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    &lt;span class=&quot;c&quot;&gt;# HSTS (ngx_http_headers_module is required) (15768000 seconds = 6 months)&lt;/span&gt;
+    add_header Strict-Transport-Security max-age&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;15768000;
+
+
+    add_header X-Frame-Options DENY;
+    add_header  X-Content-Type-Options  nosniff;
+    add_header X-XSS-Protection &lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;;
+    access_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_access.log ;
+    error_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_error.log ;
+
+    location / &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+       root html;
+       index index.html;
+       proxy_pass         http://chinakevinguo_jekyll_kevinguo_me;
+       proxy_set_header   Host             &lt;span class=&quot;nv&quot;&gt;$host&lt;/span&gt;:443;
+       proxy_set_header   X-Real-IP        &lt;span class=&quot;nv&quot;&gt;$remote_addr&lt;/span&gt;;
+       proxy_set_header   X-Forwarded-For  &lt;span class=&quot;nv&quot;&gt;$proxy_add_x_forwarded_for&lt;/span&gt;;
+       proxy_connect_timeout   10s;
+       proxy_send_timeout      100s;
+       proxy_read_timeout      300s;
+       proxy_next_upstream error timeout http_404;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;最后，来访问试试看呢&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证</summary></entry><entry><title type="html">jekyll 搭建静态博客(2)</title><link href="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客(2)" /><published>2017-07-12T00:00:00+08:00</published><updated>2017-07-12T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)</id><content type="html" xml:base="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/">&lt;blockquote&gt;
   &lt;p&gt;接上一篇，上一篇我们的博客已经可以自动化部署了，但是我们仍然不满足，还想要有一个好的评论系统和一个安全的https连接&lt;/p&gt;
 &lt;/blockquote&gt;
 

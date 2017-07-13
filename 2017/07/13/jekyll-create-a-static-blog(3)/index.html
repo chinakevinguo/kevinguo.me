@@ -30,8 +30,8 @@
     <meta name="keywords" content="jekyll,travis">
     <meta name="og:keywords" content="jekyll,travis">
       
-    <meta name="description" content="">
-    <meta name="og:description" content="">
+    <meta name="description" content="  上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证">
+    <meta name="og:description" content="  上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证">
       
     
     
@@ -117,7 +117,181 @@
 <div class="columns">
   <div class="column three-fourths" >
     <article class="article-content markdown-body">
-    
+    <blockquote>
+  <p>上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证</p>
+</blockquote>
+
+<!--more-->
+<h3 id="前提">前提</h3>
+
+<p>首先记得将 cloudflare 上有关你的站点的https配置删掉，如果没有做过，则忽略</p>
+
+<h3 id="搭建过程">搭建过程</h3>
+
+<p>搭建过程比较简单</p>
+
+<ul>
+  <li>准备好你前端的 nginx 服务器</li>
+  <li>准备好你后端的 docker 容器</li>
+  <li>clone let’s encrypt 到服务器</li>
+  <li>生成证书</li>
+  <li>配置你的 nginx</li>
+</ul>
+
+<p>1.准备 nginx</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>yum update
+
+yum install nginx
+</code></pre>
+</div>
+
+<p>2.clone let’s encrypt 到服务器</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/certbot/certbot.git
+</code></pre>
+</div>
+
+<p>3.准备 docker 容器</p>
+
+<p>一条命令即可</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart<span class="o">=</span>always -p 127.0.0.1:1080:80 chinakevinguo_jekyll_kevinguo_me
+</code></pre>
+</div>
+
+<p>4.生成证书</p>
+
+<p><strong>注意：如果你开了防火墙，记得一定要将防火墙关闭，否则生成证书的时候可能会报错</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl stop firewalld
+
+<span class="c"># 将这里的域名，换成你自己的域名</span>
+<span class="nb">cd </span>certbot
+./certbot-auto certonly --nginx -d kevinguo.me -d www.kevinguo.me
+</code></pre>
+</div>
+
+<p>成功后，内容如下</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>IMPORTANT NOTES:
+ - Congratulations! Your certificate and chain have been saved at
+   /etc/letsencrypt/live/kevinguo.me/fullchain.pem. Your cert will
+   expire on 2017-10-11. To obtain a new or tweaked version of this
+   certificate <span class="k">in </span>the future, simply run certbot-auto again. To
+   non-interactively renew <span class="k">*</span>all<span class="k">*</span> of your certificates, run
+   certbot-auto renew
+ - If you like Certbot, please consider supporting our work by:
+
+   Donating to ISRG / Lets Encrypt:   https://letsencrypt.org/donate
+   Donating to EFF:                    https://eff.org/donate-le
+</code></pre>
+</div>
+
+<p>5.配置你的 nginx</p>
+
+<p>nginx 的配置尽量模块化，这里通过 nginx 作为代理，访问后端的 docker 容器</p>
+
+<p><strong>nginx.conf</strong> 内容如下</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user nginx;
+worker_processes auto;
+pid /run/nginx.pid;
+
+<span class="c"># Load dynamic modules. See /usr/share/nginx/README.dynamic.</span>
+include /usr/share/nginx/modules/<span class="k">*</span>.conf;
+
+events <span class="o">{</span>
+    use epoll;
+    worker_connections 1024;
+<span class="o">}</span>
+
+http <span class="o">{</span>
+    server_tokens off;
+    log_format  main  <span class="s1">'$remote_addr||$time_local||"$request"||'</span>
+                      <span class="s1">'$status||$body_bytes_sent||"$http_referer"'</span>
+                      <span class="s1">'||$http_x_forwarded_for||'</span>
+                      <span class="s1">'||$upstream_status||$upstream_addr||$request_time||$upstream_response_time||'</span> ;
+
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
+
+    include             /etc/nginx/mime.types;
+    default_type        application/octet-stream;
+
+    gzip on;
+    gzip_disable <span class="s2">"msie6"</span>;
+    gzip_proxied any;
+    gzip_min_length 1000;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+    include /etc/nginx/conf.d/<span class="k">*</span>.conf;
+    <span class="o">}</span>
+
+</code></pre>
+</div>
+
+<p><strong>对应站点.conf</strong> 内容如下</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>upstream chinakevinguo_jekyll_kevinguo_me <span class="o">{</span>
+    server 127.0.0.1:1080;
+<span class="o">}</span>
+server <span class="o">{</span>
+    listen 80 default_server;
+    listen <span class="o">[</span>::]:80 default_server;
+    server_name kevinguo.me www.kevinguo.me;
+
+    <span class="c"># Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.</span>
+    <span class="k">return </span>301 https://<span class="nv">$server_name$request_uri</span>;
+    <span class="c">#return 404;</span>
+<span class="o">}</span>
+
+server <span class="o">{</span>
+    listen 443 ssl http2 default_server;
+    listen <span class="o">[</span>::]:443 ssl http2 default_server;
+    server_name kevinguo.me www.kevinguo.me;
+
+    <span class="c"># certs sent to the client in SERVER HELLO are concatenated in ssl_certificate</span>
+    ssl_certificate /etc/letsencrypt/live/kevinguo.me/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kevinguo.me/privkey.pem;
+    ssl_dhparam /etc/letsencrypt/live/kevinguo.me/dhparam.pem;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_tickets off;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers <span class="s1">'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS'</span>;
+    ssl_prefer_server_ciphers on;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    <span class="c"># HSTS (ngx_http_headers_module is required) (15768000 seconds = 6 months)</span>
+    add_header Strict-Transport-Security max-age<span class="o">=</span>15768000;
+
+
+    add_header X-Frame-Options DENY;
+    add_header  X-Content-Type-Options  nosniff;
+    add_header X-XSS-Protection <span class="s2">"1"</span>;
+    access_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_access.log ;
+    error_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_error.log ;
+
+    location / <span class="o">{</span>
+       root html;
+       index index.html;
+       proxy_pass         http://chinakevinguo_jekyll_kevinguo_me;
+       proxy_set_header   Host             <span class="nv">$host</span>:443;
+       proxy_set_header   X-Real-IP        <span class="nv">$remote_addr</span>;
+       proxy_set_header   X-Forwarded-For  <span class="nv">$proxy_add_x_forwarded_for</span>;
+       proxy_connect_timeout   10s;
+       proxy_send_timeout      100s;
+       proxy_read_timeout      300s;
+       proxy_next_upstream error timeout http_404;
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>最后，来访问试试看呢</p>
 
     </article>
     <div class="share">
