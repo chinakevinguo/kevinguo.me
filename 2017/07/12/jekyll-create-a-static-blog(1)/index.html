@@ -265,6 +265,7 @@ rvm:
 before_install:
 - openssl aes-256-cbc -K <span class="nv">$encrypted_3870315c7a22_key</span> -iv <span class="nv">$encrypted_3870315c7a22_iv</span> -in id_rsa.enc -out ~/.ssh/id_rsa -d
 - chmod 600 ~/.ssh/id_rsa
+- <span class="nb">echo</span> -e <span class="s2">"Host 主机IP地址</span><span class="se">\n\t</span><span class="s2">StrictHostKeyChecking no</span><span class="se">\n</span><span class="s2">"</span> &gt;&gt; ~/.ssh/config
 install:
   - gem install jekyll
   - gem install html-proofer

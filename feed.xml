@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-17T23:44:42+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-17T23:49:24+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
   &lt;p&gt;上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -66,6 +66,12 @@ yum install nginx
 
    Donating to ISRG / Lets Encrypt:   https://letsencrypt.org/donate
    Donating to EFF:                    https://eff.org/donate-le
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后生成&lt;code class=&quot;highlighter-rouge&quot;&gt;dhparam&lt;/code&gt;证书，可能会花费一段时间&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;openssl dhparam -out /etc/letsencrypt/live/kevinguo.me/dhparam.pem 2048
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -398,6 +404,7 @@ rvm:
 before_install:
 - openssl aes-256-cbc -K &lt;span class=&quot;nv&quot;&gt;$encrypted_3870315c7a22_key&lt;/span&gt; -iv &lt;span class=&quot;nv&quot;&gt;$encrypted_3870315c7a22_iv&lt;/span&gt; -in id_rsa.enc -out ~/.ssh/id_rsa -d
 - chmod 600 ~/.ssh/id_rsa
+- &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; -e &lt;span class=&quot;s2&quot;&gt;&quot;Host 主机IP地址&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n\t&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;StrictHostKeyChecking no&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &amp;gt;&amp;gt; ~/.ssh/config
 install:
   - gem install jekyll
   - gem install html-proofer
