@@ -74,6 +74,8 @@
                 
                 <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
                 <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
                 <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
@@ -126,9 +128,9 @@
 </code></pre>
 </div>
 <p>2.将ansible-client上的id_rsa.pub复制到其他所有节点</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">ip</span><span class="o">=(</span>172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94<span class="o">)</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">IP</span><span class="o">=(</span>172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94<span class="o">)</span>
 
-<span class="gp">$ </span><span class="k">for </span>x <span class="k">in</span> <span class="k">${</span><span class="nv">ip</span><span class="p">[*]</span><span class="k">}</span>; <span class="k">do </span>ssh-copy-id -i ~/.ssh/id_rsa.pub <span class="nv">$x</span>; <span class="k">done</span>
+<span class="gp">$ </span><span class="k">for </span>x <span class="k">in</span> <span class="k">${</span><span class="nv">IP</span><span class="p">[*]</span><span class="k">}</span>; <span class="k">do </span>ssh-copy-id -i ~/.ssh/id_rsa.pub <span class="nv">$x</span>; <span class="k">done</span>
 </code></pre>
 </div>
 
@@ -145,7 +147,7 @@
 </div>
 
 <p>3.ansible安装</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>yum install pycrypto python2-cryptography -y
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>yum install pycrypto python2-cryptography python-netaddr epel-release python-pip python34 python34-pip -y
 <span class="gp">$ </span>pip install ansible
 </code></pre>
 </div>
@@ -255,6 +257,10 @@
                 
                 <li>
                     <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-01T11:53:31+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-17T20:08:15+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
   &lt;p&gt;上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -1214,12 +1214,17 @@ clusters:
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;至此， 基本上可以搭建一个基础的HA kubernetes 集群了，下一章将主要讲解如何配置一些常用插件&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到github上</summary></entry><entry><title type="html">kargo容器化部署kubernetes高可用集群(1)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)/" rel="alternate" type="text/html" title="kargo容器化部署kubernetes高可用集群(1)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)/">&lt;blockquote&gt;
-  &lt;p&gt;捣鼓kubernetes有一段时间了，先后用过&lt;code class=&quot;highlighter-rouge&quot;&gt;yum&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;kubeadm&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;custom&lt;/code&gt;等方式，但都不尽如人意，不是缺胳膊就是短腿，后来有幸翻到&lt;a href=&quot;https://mritd.me/&quot;&gt;漠然&lt;/a&gt;大神的&lt;a href=&quot;https://mritd.me/2017/03/03/set-up-kubernetes-ha-cluster-by-kargo/&quot;&gt;快速部署kubernetes高可用集群&lt;/a&gt;，并且请教了无数次才最终搭建成功，在此，再次膜拜漠然大神，同时该篇blog也参考了漠神的的博客，主要是为了记录下来，方便以后查看。&lt;/p&gt;
+&lt;p&gt;至此， 基本上可以搭建一个基础的HA kubernetes 集群了，下一章将主要讲解如何配置一些常用插件&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到github上</summary></entry><entry><title type="html">kubespray容器化部署kubernetes高可用集群(1)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)/" rel="alternate" type="text/html" title="kubespray容器化部署kubernetes高可用集群(1)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)/">&lt;blockquote&gt;
+  &lt;p&gt;捣鼓kubernetes有一段时间了，先后用过&lt;code class=&quot;highlighter-rouge&quot;&gt;yum&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;kubeadm&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;custom&lt;/code&gt;等方式，但都不尽如人意，不是缺胳膊就是短腿，后来有幸翻到&lt;a href=&quot;https://mritd.me/&quot;&gt;漠然&lt;/a&gt;大神的&lt;a href=&quot;https://mritd.me/2017/03/03/set-up-kubernetes-ha-cluster-by-kubespray/&quot;&gt;快速部署kubernetes高可用集群&lt;/a&gt;，并且请教了无数次才最终搭建成功，在此，再次膜拜漠然大神，同时该篇blog也参考了漠神的的博客，主要是为了记录下来，方便以后查看。&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;!--more--&gt;
 &lt;h1 id=&quot;一基础环境&quot;&gt;一、基础环境&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;docker版本1.12.6&lt;/li&gt;
+  &lt;li&gt;CentOS 7&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h2 id=&quot;1准备好要部署的机器&quot;&gt;1.准备好要部署的机器&lt;/h2&gt;
 
@@ -1256,7 +1261,7 @@ clusters:
       &lt;td style=&quot;text-align: left&quot;&gt;k8s-node02-ingress02&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;192.168.1.1&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.31&lt;/td&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;ansible-client&lt;/td&gt;
     &lt;/tr&gt;
   &lt;/tbody&gt;
@@ -1276,35 +1281,43 @@ clusters:
   &lt;tbody&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;quay.io/coreos/hyperkube&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v1.6.1_coreos.0&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v1.6.7_coreos.0&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;quay.io/coreos/etcd&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v3.1.5&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v3.1.10&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;calico/ctl&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v1.1.0-rc8&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v1.1.3&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;calico/node&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v1.1.0-rc8&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v2.4.1&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;calico/cni&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v1.5.6&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v1.10.0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;calico/kube-policy-controller&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v0.7.0&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;quay.io/calico/routereflector&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v0.3.0&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/kubernetes-dashboard-amd64&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v1.6.0&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v1.6.3&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/nginx-ingress-controller&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;0.9.0-beta.3&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;0.9.0-beta.11&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/defaultbackend&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;1.0&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;1.3&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/cluster-proportional-autoscaler-amd64&lt;/td&gt;
@@ -1323,16 +1336,16 @@ clusters:
       &lt;td style=&quot;text-align: left&quot;&gt;v2.4.1&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/kubedns-amd64&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;1.9&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/k8s-dns-sidecar-amd64&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;1.14.4&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/kube-dnsmasq-amd64&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;1.3&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/k8s-dns-kube-dns-amd64&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;1.14.4&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/exechealthz-amd64&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;1.1&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;1.14.4&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;andyshinn/dnsmasq&lt;/td&gt;
@@ -1344,11 +1357,11 @@ clusters:
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/heapster-grafana-amd64&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v4.0.2&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v4.4.1&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/heapster-amd64&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v1.3.0-beta.1&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v1.4.0&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/heapster-influxdb-amd64&lt;/td&gt;
@@ -1358,28 +1371,36 @@ clusters:
       &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/google_containers/pause-amd64&lt;/td&gt;
       &lt;td style=&quot;text-align: left&quot;&gt;3.0&lt;/td&gt;
     &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;lachlanevenson/k8s-helm&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v2.2.2&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;gcr.io/kubernetes-helm/tiller&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v2.2.2&lt;/td&gt;
+    &lt;/tr&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
 
 &lt;h2 id=&quot;4load所有下载的镜像&quot;&gt;4.load所有下载的镜像&lt;/h2&gt;
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 在ansible-client上操作&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ip&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;i &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[*]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;scp -r kargo_images_v1.6.1 &lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;:~/; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;i &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[*]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;scp -r kubespray_images_v1.6.7 &lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;:~/; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# 对所有要部署的节点操作&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;images&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;ls -l ~/kargo_images_v1.6.1|awk -F&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'{ print $9 }'&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;x &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;images&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[*]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;docker load -i &lt;span class=&quot;nv&quot;&gt;$x&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IMAGES&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;ls -l ~/kubespray_images_v1.6.7|awk -F&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'{ print $9 }'&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;x &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;images&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[*]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;docker load -i kubespray_images_v1.6.7/&lt;span class=&quot;nv&quot;&gt;$x&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;h1 id=&quot;二搭建集群&quot;&gt;二、搭建集群&lt;/h1&gt;
 
-&lt;h2 id=&quot;1获取kargo源码&quot;&gt;1.获取kargo源码&lt;/h2&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;git clone https://github.com/kubernetes-incubator/kargo.git
+&lt;h2 id=&quot;1获取kubespray源码&quot;&gt;1.获取kubespray源码&lt;/h2&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;git clone https://github.com/kubernetes-incubator/kubespray.git
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
 &lt;h2 id=&quot;2编辑配置文件&quot;&gt;2.编辑配置文件&lt;/h2&gt;
 
-&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;vim ~/kargo/inventory/group_vars/k8s-cluster.yml
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;vim ~/kubespray/inventory/group_vars/k8s-cluster.yml
 
 ---
 &lt;span class=&quot;c&quot;&gt;# 启动集群的基础系统,支持ubuntu, coreos, centos, none&lt;/span&gt;
@@ -1416,7 +1437,7 @@ kube_users_dir: &lt;span class=&quot;s2&quot;&gt;&quot;{ { kube_config_dir } }/u
 kube_api_anonymous_auth: &lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;
 
 &lt;span class=&quot;c&quot;&gt;## kubernetes使用版本&lt;/span&gt;
-kube_version: v1.6.1
+kube_version: v1.6.7
 
 &lt;span class=&quot;c&quot;&gt;# 安装过程中缓存文件下载位置(最少1G)&lt;/span&gt;
 local_release_dir: &lt;span class=&quot;s2&quot;&gt;&quot;/tmp/releases&quot;&lt;/span&gt;
@@ -1526,8 +1547,8 @@ helm_enabled: &lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 定义集群IP&lt;/span&gt;
 &lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;# 利用kargo自带的python脚本生成配置&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CONFIG_FILE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;~/kargo/inventory/inventory.cfg python3 ~/kargo/contrib/inventory_builder/inventory.py &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt; IP[*] &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# 利用kubespray自带的python脚本生成配置&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CONFIG_FILE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;~/kubespray/inventory/inventory.cfg python3 ~/kubespray/contrib/inventory_builder/inventory.py &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt; IP[*] &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -1569,7 +1590,7 @@ kube-master
 &lt;p&gt;提前修改ansbile中有关docker,efk,etcd的配置，因为后面在部署的过程中，ansible会检测docker的版本并下载最新的版本，但是由于墙的原因，导致无法下载，会一直卡在下载的地方，所以这里，我们要提前修改，同时需要升级etcd的版本，默认的3.0.6的版本，存在不稳定因素。&lt;/p&gt;
 
 &lt;p&gt;修改docker配置,将下面关于docker安装的部分全部注释掉&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim ~/kargo/roles/docker/tasks/main.yml
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim ~/kubespray/roles/docker/tasks/main.yml
 
 &lt;span class=&quot;c&quot;&gt;# - name: ensure docker repository public key is installed&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;#  action: &quot;{ { docker_repo_key_info.pkg_key } }&quot;&lt;/span&gt;
@@ -1612,11 +1633,14 @@ kube-master
 &lt;span class=&quot;c&quot;&gt;#  notify: restart docker&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;#  when: not (ansible_os_family in [&quot;CoreOS&quot;, &quot;Container Linux by CoreOS&quot;] or is_atomic) and (docker_package_info.pkgs|length &amp;gt; 0)&lt;/span&gt;
 
+&lt;span class=&quot;c&quot;&gt;# 如果你是自己安装的docker,记得将这段注释掉,除非你觉得template中的docker.service你能用&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#- name: Set docker systemd config&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#  include: systemd.yml&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
 &lt;p&gt;修改efk配置，注释掉&lt;code class=&quot;highlighter-rouge&quot;&gt;KIBANA_BASE_URL&lt;/code&gt;这段，否则后面你搭建efk之后，无法访问kibana&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim ~/kargo/roles/kubernetes-apps/efk/kibana/templates/kibana-deployment.yml.j2
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim ~/kubespray/roles/kubernetes-apps/efk/kibana/templates/kibana-deployment.yml.j2
 
 &lt;span class=&quot;c&quot;&gt;#          - name: &quot;KIBANA_BASE_URL&quot;&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;#            value: &quot;{ { kibana_base_url } }&quot;&lt;/span&gt;
@@ -1626,14 +1650,28 @@ kube-master
 
 &lt;p&gt;修改download配置，更改etcd和kubedns版本&lt;/p&gt;
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim ~/kargo/roles/download/defaults/main.yml
-etcd_version: v3.1.5
-kubedns_version: 1.9
+&lt;p&gt;&lt;strong&gt;1.6.7版本中,为了使用更高版本的calico node,我自己多添加了一个变量&lt;code class=&quot;highlighter-rouge&quot;&gt;calico_node_version&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim ~/kubespray/roles/download/defaults/main.yml
+etcd_version: v3.1.10
+calico_node_version: &lt;span class=&quot;s2&quot;&gt;&quot;v2.4.1&quot;&lt;/span&gt;
+kubedns_version: 1.14.4
+calico_policy_version: &lt;span class=&quot;s2&quot;&gt;&quot;v0.7.0&quot;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;6在ansible-client上一键部署&quot;&gt;6.在ansible-client上一键部署&lt;/h2&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ansible-playbook -i ~/kargo/inventory/inventory.cfg cluster.yml -b -v --private-key&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;~/.ssh/id_rsa
+&lt;p&gt;&lt;strong&gt;注意: 如果你修改了kubedns_version版本，那么也需要修改/root/kubespray/roles/kubernetes-apps/ansible/defaults/main.yml文件中的kubedns_version版本&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;可选6修改dockerservice&quot;&gt;(可选)6.修改docker.service&lt;/h2&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 如果你的docker.service中没有MountFlags则不需要这一步&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# 注释掉/usr/lib/systemd/system/docker.service 中的MountFlags=slave&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;7在ansible-client上一键部署&quot;&gt;7.在ansible-client上一键部署&lt;/h2&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ansible-playbook -i ~/kubespray/inventory/inventory.cfg cluster.yml -b -v --private-key&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;~/.ssh/id_rsa
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -1651,9 +1689,9 @@ kubedns_version: 1.9
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;p&gt;2.将ansible-client上的id_rsa.pub复制到其他所有节点&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ip&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
 
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;x &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;ip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[*]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;ssh-copy-id -i ~/.ssh/id_rsa.pub &lt;span class=&quot;nv&quot;&gt;$x&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;x &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[*]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;ssh-copy-id -i ~/.ssh/id_rsa.pub &lt;span class=&quot;nv&quot;&gt;$x&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -1670,7 +1708,7 @@ kubedns_version: 1.9
 &lt;/div&gt;
 
 &lt;p&gt;3.ansible安装&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;yum install pycrypto python2-cryptography -y
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;yum install pycrypto python2-cryptography python-netaddr epel-release python-pip python34 python34-pip -y
 &lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;pip install ansible
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">为kargo kubernetes准备ansible客户端</summary></entry><entry><title type="html">Maven之setting.xml</title><link href="https://kevinguo.me/2017/07/06/Maven-setting.xml/" rel="alternate" type="text/html" title="Maven之setting.xml" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/Maven-setting.xml</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/Maven-setting.xml/">&lt;h3 id=&quot;什么是maven&quot;&gt;什么是Maven&lt;/h3&gt;
