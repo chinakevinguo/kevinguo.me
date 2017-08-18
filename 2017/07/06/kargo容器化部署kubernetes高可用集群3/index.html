@@ -289,7 +289,7 @@ kubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system
 <p>下面的图说明一切问题
 <img src="/images/posts/Ingress.png" alt="" /></p>
 
-<p><strong>注意</strong> 如果你进入 Ingress Controller里面看过它的 nginx 配置，你会发现实际上，Ingress是直接将请求转发到了服务的 endpoint IP，并没有转发给 Service Cluster IP，据说是为了提高性能，那么这个 Service Cluster IP 存在的意义在哪呢，如果你也在问这个问题，那么你得重新学习下 Service Cluster IP在 kubernetes 集群中的作用了</p>
+<p><strong>注意：</strong> 如果你进入 Ingress Controller里面看过它的 nginx 配置，你会发现实际上，Ingress是直接将请求转发到了服务的 endpoint IP，并没有转发给 Service Cluster IP，据说是为了提高性能，那么这个 Service Cluster IP 存在的意义在哪呢，如果你也在问这个问题，那么你得重新学习下 Service Cluster IP在 kubernetes 集群中的作用了</p>
 
 <p>这里简单说一下，Cluster IP是kubernetes 集群中的一个虚拟IP，仅仅是为了方便集群内部通信和服务发现的</p>
 
@@ -310,7 +310,7 @@ kubectl label node k8s-node02 <span class="nv">role</span><span class="o">=</spa
 
 <p>3.进入ingress的<code class="highlighter-rouge">examples/daemonset/nginx</code>目录，修改yml文件</p>
 
-<p><strong>注意：官方给出的 daemonset 版本的yml文件中，没有绑定宿主机的80端口，也就是说前端 Nginx 没有监听宿主机的80端口（尚且不知为何），所以需要自己加一下<code class="highlighter-rouge">hostNetwork</code>；同时因为我是将ingress部署到我指定的前端，所以还需要加上<code class="highlighter-rouge">nodeSelector</code>,截图如下</strong></p>
+<p><strong>注意：官方给出的 daemonset 版本的yml文件中，没有绑定宿主机的80端口，也就是说前端 Nginx 没有监听宿主机的80端口（尚且不知为何），所以需要自己加一下<code class="highlighter-rouge">hostNetwork</code>；同时因为我是将ingress部署到我指定的前端，所以还需要在文件末尾加上<code class="highlighter-rouge">nodeSelector</code>,截图如下</strong></p>
 
 <p><img src="/images/posts/ingress-daemonset.png" alt="" /></p>
 
@@ -378,7 +378,7 @@ kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
 
 <p>elasticsearch-ingress.yml</p>
 
-<div class="language-yml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
 <span class="s">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
 <span class="s">metadata</span><span class="pi">:</span>
   <span class="s">name</span><span class="pi">:</span> <span class="s">elasticsearch-ingress</span>
@@ -394,6 +394,17 @@ kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
         <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
 </code></pre>
 </div>
+
+<p>执行创建</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create -f elasticsearch-ingress.yml
+kubectl create -f dashboard-ingress.yml
+kubectl create -f kibana-ingress.yml
+</code></pre>
+</div>
+
+<p>创建完成后，我们来看看据诶过如何呢</p>
+
 <p>Dashboard and heapster
 <img src="/images/posts/dashboard-heapster.png" alt="" /></p>
 
