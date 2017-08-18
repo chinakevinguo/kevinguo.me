@@ -30,21 +30,21 @@
     "category": "saltstack"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a4-3": {
+  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a43": {
     "title": "kargo容器化部署kubernetes高可用集群(3)",
-    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(3)/",
+    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43/",
     "category": "kubernetes"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a4-2": {
+  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a42": {
     "title": "kargo容器化部署kubernetes高可用集群(2)",
-    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(2)/",
+    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42/",
     "category": "kubernetes"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a4-1": {
+  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a41": {
     "title": "kubespray容器化部署kubernetes高可用集群(1)",
-    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)/",
+    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41/",
     "category": "kubernetes"
   },
   
@@ -570,21 +570,21 @@
     "category": "[&quot;ansible&quot;, &quot;kargo&quot;]"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a4-1": {
+  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a41": {
     "title": "kubespray容器化部署kubernetes高可用集群(1)",
-    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)/",
+    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a4-2": {
+  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a42": {
     "title": "kargo容器化部署kubernetes高可用集群(2)",
-    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(2)/",
+    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a4-3": {
+  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a43": {
     "title": "kargo容器化部署kubernetes高可用集群(3)",
-    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(3)/",
+    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   },
   

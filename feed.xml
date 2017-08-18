@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-18T00:00:48+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-18T19:41:51+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
   &lt;p&gt;上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -513,12 +513,12 @@ env:
             &lt;span class=&quot;s&quot;&gt;2.2.4&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">Pillar 主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息</summary></entry><entry><title type="html">kargo容器化部署kubernetes高可用集群(3)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(3)/" rel="alternate" type="text/html" title="kargo容器化部署kubernetes高可用集群(3)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(3)/">&lt;blockquote&gt;
+&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">Pillar 主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息</summary></entry><entry><title type="html">kargo容器化部署kubernetes高可用集群(3)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43/" rel="alternate" type="text/html" title="kargo容器化部署kubernetes高可用集群(3)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43/">&lt;blockquote&gt;
   &lt;p&gt;上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;!--more--&gt;
-&lt;p&gt;其实这一章好像没什么好讲的，无非就是几个yaml文件，只要你集群搭建成功了，直接去&lt;a href=&quot;https://github.com/chinakevinguo/kubernetes-custom/tree/master/kubernetes%20%E6%8F%92%E4%BB%B6&quot;&gt;这里&lt;/a&gt;下载yml文件运行即可&lt;/p&gt;
+&lt;p&gt;目前尚不确定kubernetes各个插件版本之间的兼容性，我使用kubespray部署的各个IMAGE在&lt;a href=&quot;https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41&quot;&gt;第一章&lt;/a&gt;中已经列出来了，中途在部署heapster和kibana的时候出了点问题，其他还未发现什么问题&lt;/p&gt;
 
 &lt;p&gt;目前，我所用到的插件如下：&lt;/p&gt;
 
@@ -530,15 +530,271 @@ env:
   &lt;li&gt;heapster&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;运行结果如下&lt;/p&gt;
+&lt;h3 id=&quot;kubernetes-dashboard&quot;&gt;kubernetes-dashboard&lt;/h3&gt;
 
+&lt;p&gt;1.从&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes&lt;/code&gt;官方git下载&lt;a href=&quot;https://github.com/kubernetes/kubernetes.git&quot;&gt;最新源码&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/kubernetes/kubernetes.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.进入dashboard所在的目录，执行yml文件&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;/kubernetes/cluster/addons/dashboard
+kubectl create -f .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.确认dashboard是否成功创建&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 确认deployment&lt;/span&gt;
+kubectl get deployment -n kube-system |grep dashboard
+
+&lt;span class=&quot;c&quot;&gt;# 确认svc&lt;/span&gt;
+kubectl get svc -n kube-system |grep dashboard
+
+&lt;span class=&quot;c&quot;&gt;# 确认ep&lt;/span&gt;
+kubectl get ep -n kube-system |grep dashboard
+
+&lt;span class=&quot;c&quot;&gt;# 确认pods&lt;/span&gt;
+kubectl get pods -n kube-system |grep dashboard
+
+&lt;span class=&quot;c&quot;&gt;# 查看日志是否有报错&lt;/span&gt;
+kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看&lt;/p&gt;
+
+&lt;h3 id=&quot;efk&quot;&gt;EFK&lt;/h3&gt;
+
+&lt;p&gt;1.从&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes&lt;/code&gt;官方git下载&lt;a href=&quot;https://github.com/kubernetes/kubernetes.git&quot;&gt;最新源码&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/kubernetes/kubernetes.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.为你要运行fluentd的节点添加label，因为&lt;code class=&quot;highlighter-rouge&quot;&gt;fluentd-es-ds.yml&lt;/code&gt;文件中有&lt;code class=&quot;highlighter-rouge&quot;&gt;beta.kubernetes.io/fluentd-ds-ready: &quot;true&quot;&lt;/code&gt;标签&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true
+&lt;/span&gt;kubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true
+&lt;/span&gt;kubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.确认标签添加是否成功&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@k8s-master01 ~]# kubectl get nodes -l beta.kubernetes.io/fluentd-ds-ready
+NAME           STATUS    AGE       VERSION
+k8s-node01     Ready     19h       v1.6.7+coreos.0
+k8s-node02     Ready     19h       v1.6.7+coreos.0
+k8s-registry   Ready     19h       v1.6.7+coreos.0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;4.进入fluentd-elasticsearch所在的目录，执行yml文件&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;/kubernetes/cluster/addons/fluentd-elasticsearch
+kubectl create -f .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;5.确认EFK是否创建成功&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 确认elasticsearch是否创建成功&lt;/span&gt;
+kubectl get statefulset -n kube-system |grep elasticsearch
+kubectl get svc -n kube-system|grep elasticsearch
+kubectl get ep -n kube-system |grep elasticsearch
+kubectl get pods -n kube-system |grep elasticsearch
+
+&lt;span class=&quot;c&quot;&gt;# 确认fluentd是否创建成功&lt;/span&gt;
+kubectl get ds -n kube-system |grep fluentd
+kubectl get pods -n kube-system -o wide |grep fluentd
+
+&lt;span class=&quot;c&quot;&gt;# 确认kibana是否创建成功&lt;/span&gt;
+kubectl get deployment -n kube-system |grep kibana
+kubectl get svc -n kube-system|grep kibana
+kubectl get ep -n kube-system |grep kibana
+kubectl get pods -n kube-system |grep kibana
+
+&lt;span class=&quot;c&quot;&gt;# 查看日志是否有报错&lt;/span&gt;
+kubectl logs elasticsearch-logging-0
+kubectl logs fluentd-es-v2.0.1-kn2h2 -n kube-system
+kubectl logs kibana-logging-3636197754-tnwjh -n kube-system
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看&lt;/p&gt;
+
+&lt;h3 id=&quot;heapster&quot;&gt;heapster&lt;/h3&gt;
+
+&lt;p&gt;heapster比较简单&lt;/p&gt;
+
+&lt;p&gt;1.从&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes&lt;/code&gt;官方git下载&lt;a href=&quot;https://github.com/kubernetes/heapster.git&quot;&gt;最新源码&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/kubernetes/heapster.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.进入heapster的deploy目录，执行kube.sh&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;/heapster/deploy
+sh kube.sh start
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.确认heapster是否创建成功&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 确认heapster是否创建成功&lt;/span&gt;
+kubectl get deployment -n kube-system |grep heapster
+kubectl get svc -n kube-system |grep heapster
+kubectl get ep -n kube-system |grep heapster
+kubectl get pods -n kube-system |grep heapster
+
+&lt;span class=&quot;c&quot;&gt;# 确认influxdb是否创建成功&lt;/span&gt;
+kubectl get deployment -n kube-system |grep influxdb
+kubectl get svc -n kube-system |grep influxdb
+kubectl get ep -n kube-system |grep influxdb
+kubectl get pods -n kube-system |grep influxdb
+
+&lt;span class=&quot;c&quot;&gt;# 确认grafana是否创建成功&lt;/span&gt;
+kubectl get deployment -n kube-system |grep grafana
+kubectl get svc -n kube-system |grep grafana
+kubectl get ep -n kube-system |grep grafana
+kubectl get pods -n kube-system |grep grafana
+
+&lt;span class=&quot;c&quot;&gt;# 查看日志是否有报错&lt;/span&gt;
+kubectl logs heapster-1528902802-wcf24 -n kube-system
+kubectl logs monitoring-grafana-2527507788-jsw1n -n kube-system
+kubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看&lt;/p&gt;
+
+&lt;h3 id=&quot;ingress&quot;&gt;ingress&lt;/h3&gt;
+
+&lt;p&gt;我们知道kubernetes暴露服务的方式目前有三种: LoadBlancer Service、NodePort Service、Ingress，前两个这里暂时不讲，这里主要解释下什么是Ingress&lt;/p&gt;
+
+&lt;h4 id=&quot;什么是-ingress&quot;&gt;什么是 ingress&lt;/h4&gt;
+
+&lt;p&gt;Ingress Controller 实质上可以理解为一个监视器，Ingress Controller 通过不断跟kubernetes API打交道，实时感知后端service、pod等变化，比如新增和减少pod，service增加与减少等；当得到这些变化信息后，Ingress Controller 再结合Ingress 生成配置，然后更新反向代理负载均衡器，并刷新配置，达到服务发现的作用&lt;/p&gt;
+
+&lt;p&gt;下面的图说明一切问题
+&lt;img src=&quot;/images/posts/Ingress.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt; 如果你进入 Ingress Controller里面看过它的 nginx 配置，你会发现实际上，Ingress是直接将请求转发到了服务的 endpoint IP，并没有转发给 Service Cluster IP，据说是为了提高性能，那么这个 Service Cluster IP 存在的意义在哪呢，如果你也在问这个问题，那么你得重新学习下 Service Cluster IP在 kubernetes 集群中的作用了&lt;/p&gt;
+
+&lt;p&gt;这里简单说一下，Cluster IP是kubernetes 集群中的一个虚拟IP，仅仅是为了方便集群内部通信和服务发现的&lt;/p&gt;
+
+&lt;p&gt;概念说了这么多，下面就开始实际操作吧&lt;/p&gt;
+
+&lt;p&gt;1.从&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes&lt;/code&gt;官方git下载&lt;a href=&quot;https://github.com/kubernetes/ingress.git&quot;&gt;最新源码&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/kubernetes/ingress.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.为你要运行 Ingress 的节点添加label标签：role=frontal&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl label node k8s-node01 &lt;span class=&quot;nv&quot;&gt;role&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;frontal
+kubectl label node k8s-node02 &lt;span class=&quot;nv&quot;&gt;role&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;frontal
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.进入ingress的&lt;code class=&quot;highlighter-rouge&quot;&gt;examples/daemonset/nginx&lt;/code&gt;目录，修改yml文件&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;注意：官方给出的 daemonset 版本的yml文件中，没有绑定宿主机的80端口，也就是说前端 Nginx 没有监听宿主机的80端口（尚且不知为何），所以需要自己加一下&lt;code class=&quot;highlighter-rouge&quot;&gt;hostNetwork&lt;/code&gt;；同时因为我是将ingress部署到我指定的前端，所以还需要加上&lt;code class=&quot;highlighter-rouge&quot;&gt;nodeSelector&lt;/code&gt;,截图如下&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/ingress-daemonset.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/ingress-nodeselector.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;执行创建&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;/ingress/examples/daemonset/nginx
+
+kubectl create -f nginx-ingress-daemonset.yaml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;4.确认 Ingress controller 是否创建成功&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 确认 ingress 是否创建成功&lt;/span&gt;
+kubectl get ds -n kube-system |grep ing
+kubectl get pods -n kube-system |grep ingress
+
+&lt;span class=&quot;c&quot;&gt;# 查看日志是否有报错&lt;/span&gt;
+kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看&lt;/p&gt;
+
+&lt;p&gt;5.Ingress controller已经创建成功了，那么现在我们来创建ingress 检验一下前面创建的服务是否成功&lt;/p&gt;
+
+&lt;p&gt;dashboard-ingress.yml&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;extensions/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Ingress&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;dashboard-ingress&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;host&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;dashboard.kevinguo.me&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;paths&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;backend&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;serviceName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;servicePort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;80&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;kibana-ingress.yml&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;extensions/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Ingress&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kibana-ingress&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;host&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kibana.kevinguo.me&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;paths&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;backend&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;serviceName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kibana-logging&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;servicePort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;5601&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;elasticsearch-ingress.yml&lt;/p&gt;
+
+&lt;div class=&quot;language-yml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;extensions/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Ingress&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;elasticsearch-ingress&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;host&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;elasticsearch.kevinguo.me&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;paths&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;backend&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;serviceName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;elasticsearch-logging&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;servicePort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;9200&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 &lt;p&gt;Dashboard and heapster
 &lt;img src=&quot;/images/posts/dashboard-heapster.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;EFK
 &lt;img src=&quot;/images/posts/kibana.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;后期再研究新的东西了再加吧，头疼，下班了&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。</summary></entry><entry><title type="html">kargo容器化部署kubernetes高可用集群(2)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(2)/" rel="alternate" type="text/html" title="kargo容器化部署kubernetes高可用集群(2)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(2)</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(2)/">&lt;blockquote&gt;
+&lt;p&gt;后期再研究新的东西了再加吧，头疼，下班了&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。</summary></entry><entry><title type="html">kargo容器化部署kubernetes高可用集群(2)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42/" rel="alternate" type="text/html" title="kargo容器化部署kubernetes高可用集群(2)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42/">&lt;blockquote&gt;
   &lt;p&gt;上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到&lt;a href=&quot;https://github.com/chinakevinguo/kubernetes-custom/tree/master/kubernetes%20%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%E7%BB%84%E4%BB%B6&quot;&gt;github&lt;/a&gt;上&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -1224,7 +1480,7 @@ clusters:
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;至此， 基本上可以搭建一个基础的HA kubernetes 集群了，下一章将主要讲解如何配置一些常用插件&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到github上</summary></entry><entry><title type="html">kubespray容器化部署kubernetes高可用集群(1)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)/" rel="alternate" type="text/html" title="kubespray容器化部署kubernetes高可用集群(1)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4(1)/">&lt;blockquote&gt;
+&lt;p&gt;至此， 基本上可以搭建一个基础的HA kubernetes 集群了，下一章将主要讲解如何配置一些常用插件&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到github上</summary></entry><entry><title type="html">kubespray容器化部署kubernetes高可用集群(1)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41/" rel="alternate" type="text/html" title="kubespray容器化部署kubernetes高可用集群(1)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41/">&lt;blockquote&gt;
   &lt;p&gt;捣鼓kubernetes有一段时间了，先后用过&lt;code class=&quot;highlighter-rouge&quot;&gt;yum&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;kubeadm&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;custom&lt;/code&gt;等方式，但都不尽如人意，不是缺胳膊就是短腿，后来有幸翻到&lt;a href=&quot;https://mritd.me/&quot;&gt;漠然&lt;/a&gt;大神的&lt;a href=&quot;https://mritd.me/2017/03/03/set-up-kubernetes-ha-cluster-by-kubespray/&quot;&gt;快速部署kubernetes高可用集群&lt;/a&gt;，并且请教了无数次才最终搭建成功，在此，再次膜拜漠然大神，同时该篇blog也参考了漠神的的博客，主要是为了记录下来，方便以后查看。&lt;/p&gt;
 &lt;/blockquote&gt;
 
