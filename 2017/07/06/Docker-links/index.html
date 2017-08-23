@@ -30,8 +30,8 @@
     <meta name="keywords" content="docker">
     <meta name="og:keywords" content="docker">
       
-    <meta name="description" content="传统容器链接本章节主要介绍了在我们安装Docker的时候，自动创建的docker 默认bridge网络中的传统容器link。在Docker network 功能之前，你可以使用docker的link功能来允许容器彼此发现，将一个容器的信息安全的传输到另一个容器。随着docker network功能的引入，您仍然可以创建link。但是link功能在默认的bridge网络和用户自定义网络上还是有所不同。">
-    <meta name="og:description" content="传统容器链接本章节主要介绍了在我们安装Docker的时候，自动创建的docker 默认bridge网络中的传统容器link。在Docker network 功能之前，你可以使用docker的link功能来允许容器彼此发现，将一个容器的信息安全的传输到另一个容器。随着docker network功能的引入，您仍然可以创建link。但是link功能在默认的bridge网络和用户自定义网络上还是有所不同。">
+    <meta name="description" content="传统容器链接">
+    <meta name="og:description" content="传统容器链接">
       
     
     
@@ -114,7 +114,8 @@
 <div class="columns">
   <div class="column three-fourths" >
     <article class="article-content markdown-body">
-    <h1 id="传统容器链接">传统容器链接</h1>
+    <h3 id="传统容器链接">传统容器链接</h3>
+
 <p>本章节主要介绍了在我们安装Docker的时候，自动创建的docker 默认<code class="highlighter-rouge">bridge</code>网络中的传统容器link。
 <!--more-->
 在Docker network 功能之前，你可以使用docker的link功能来允许容器彼此发现，将一个容器的信息安全的传输到另一个容器。随着docker network功能的引入，您仍然可以创建link。但是link功能在默认的bridge网络和用户自定义网络上还是有所不同。</p>
@@ -123,7 +124,7 @@
   <p><strong>Warning:</strong> <code class="highlighter-rouge">--link</code>是docker的一个传统功能。它以后可能会被移除。除非你确定你非要使用它，否则，我们建议你最好使用用户自定义网络。用户自定义网络唯一不支持的是，你可以使用–link来在容器之间共享环境变量。但是，你可以使用其他方式(如volumes)等方式来在容器中共享环境变量。</p>
 </blockquote>
 
-<h1 id="使用端口映射连接">使用端口映射连接</h1>
+<h3 id="使用端口映射连接">使用端口映射连接</h3>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -P training/webapp python app.py
 </code></pre>
@@ -166,11 +167,13 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 </code></pre>
 </div>
 
-<h1 id="使用link连接">使用link连接</h1>
-<p>本节主要是讲解的传统的link功能，关于用户自定义网络的link，可参考<a href="http://www.oo3p.com/2016/12/22/Docker-network-command/">docker network command</a>
+<h3 id="使用link连接">使用link连接</h3>
+
+<p>本节主要是讲解的传统的link功能，关于用户自定义网络的link，可参考<a href="https://kevinguo.me/2017/07/06/Docker-network-command/">docker network command</a>
 端口映射不是容器彼此连接的唯一方式，你还可以将多个容器连接到一起，并将信息从一个发动到另一个。当容器被连接后，关于源容器的信息，可以发动到接受容器，这允许接收者看到源容器的数据。</p>
 
-<h2 id="命名的重要性">命名的重要性</h2>
+<h4 id="命名的重要性">命名的重要性</h4>
+
 <p>为了建立链接，docker依赖于你的容器名。你可以看到，当你创建容器的时候，它会创建一个默认的容器名，实际上，你可以自定义容器名，给容器命名有两个好处：
 1.好记
 2.方便连接</p>
@@ -180,8 +183,9 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 </code></pre>
 </div>
 
-<h1 id="连接之间的通信">连接之间的通信</h1>
-<p>link 允许容器之间互相发现 ，并将一个容器的信息安全的传送到另外一个容器。在设置link时，将会在源容器和接受容器之间创建一个导管，然后接收容器可以访问源容器的某些指定的数据。</p>
+<h3 id="连接之间的通信">连接之间的通信</h3>
+
+<p>link 允许容器之间互相发现 ，并将一个容器的信息安全的传送到另外一个容器。在设置link时，会在两个容器间创建一个父子关系，其中父容器可以访问子容器内部的某些信息。</p>
 
 <p>首先，我们来创建一个数据库的容器</p>
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d --name db training/postgres
@@ -194,16 +198,17 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 </div>
 <p>这将会把新的web容器和之前的db容器连接起来，web容器可以访问db容器的信息</p>
 
-<p>我们知道link允许源容器向接收容器提供自身的信息。在我们上面的例子中，接收容器web可以访问源容器db提供的数据库信息，为此，我们在创建源容器的时候，不需要在容器外部暴露任何端口，你会发现，上面在创建db容器的时候没有指定<code class="highlighter-rouge">-p</code>或<code class="highlighter-rouge">-P</code>,这样做的好处就是避免了暴露源容器（数据库）端口的风险。</p>
+<p>我们知道link允许子容器向父容器提供自身的信息。在我们上面的例子中，父容器web可以访问子容器db提供的数据库信息，为此，我们在创建子容器的时候，不需要在容器外部暴露任何端口，你会发现，上面在创建db容器的时候没有指定<code class="highlighter-rouge">-p</code>或<code class="highlighter-rouge">-P</code>,这样做的好处就是避免了暴露子容器（数据库）端口的风险。</p>
 
-<p>docker以两种方式将源容器的连接信息暴露给接收容器：</p>
+<p>docker以两种方式将子容器的连接信息暴露给父容器：</p>
 <ul>
   <li>环境变量</li>
   <li>更新/etc/hosts配置文件</li>
 </ul>
 
-<h2 id="环境变量">环境变量</h2>
-<p>当你链接容器的时候docker会创建几个环境变量。docker会基于<code class="highlighter-rouge">--link</code>目标参数在目标容器中创建环境变量。它还将从源容器暴露所有来自docker主机的环境变量，包括：</p>
+<h4 id="环境变量">环境变量</h4>
+
+<p>当你链接容器的时候docker会创建几个环境变量。docker会基于<code class="highlighter-rouge">--link</code>目标参数在目标容器中创建环境变量。它还将从子容器暴露所有来自docker主机的环境变量，包括：</p>
 <ul>
   <li>Dockerfile中指定的ENV</li>
   <li>启动容器时通过<code class="highlighter-rouge">-e</code>,<code class="highlighter-rouge">--env</code>和<code class="highlighter-rouge">--env-file</code>选项指定的环境变量</li>
@@ -246,9 +251,12 @@ DB_NAME=/web/db
 ```
 你可以看到docker已经创建了一些列有关源db容器的环境变量，每个变量的前缀都是`DB_`,这个DB就是你在上面指定的别名。如果别名是db1,那么这个前缀就是`DB1_`.你可以使用这些环境变量来配置应用程序连接到db容器上的数据库，连接是安全的，只有目标容器web能够访问源容器db。
 
-## 有关docker环境变量的重要注意事项
+#### 有关docker环境变量的重要注意事项
+
 与`/etc/hosts file`中的host条目不一样，如果重新启动源容器，不会自动更新存储在环境变量中的IP地址，我们建议使用/etc/hosts来解析连接容器的IP地址。
-## 更新/etc/hosts配置文件
+
+#### 更新/etc/hosts配置文件
+
 除了环境变量，Docker还会将源容器的主机条目添加到/etc/hosts文件中：
 ```bash
 $ docker exec -ti web cat /etc/hosts
