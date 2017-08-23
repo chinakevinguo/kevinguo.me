@@ -1,4 +1,100 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-23T16:43:18+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">High Availability Ranchers for docker hosts</title><link href="https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/" rel="alternate" type="text/html" title="High Availability Ranchers for docker hosts" /><published>2017-08-22T00:00:00+08:00</published><updated>2017-08-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts</id><content type="html" xml:base="https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/">&lt;h3 id=&quot;前言&quot;&gt;前言&lt;/h3&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-23T18:55:34+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">Docker基础-理解容器之间的通信</title><link href="https://kevinguo.me/2017/08/23/Docker-container-communication/" rel="alternate" type="text/html" title="Docker基础-理解容器之间的通信" /><published>2017-08-23T00:00:00+08:00</published><updated>2017-08-23T00:00:00+08:00</updated><id>https://kevinguo.me/2017/08/23/Docker-container-communication</id><content type="html" xml:base="https://kevinguo.me/2017/08/23/Docker-container-communication/">&lt;p&gt;本节主要是讲解docker容器是如何在默认的&lt;code class=&quot;highlighter-rouge&quot;&gt;bridge&lt;/code&gt;网络上进行通信的。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;和外网通信&quot;&gt;和外网通信&lt;/h3&gt;
+
+&lt;p&gt;容器能否和外网进行通信，取决两个因素。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;主机上的&lt;code class=&quot;highlighter-rouge&quot;&gt;ip_forward&lt;/code&gt;是否打开，默认为true&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;iptables&lt;/code&gt;规则是否允许被修改，默认为true&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;如果在启动 Docker 服务的时候设定 –ip-forward=true, Docker 就会自动设定系统的 ip_forward 参数为 1。如果你的系统上打开了&lt;code class=&quot;highlighter-rouge&quot;&gt;ip_froward&lt;/code&gt;，而你在docker中设定&lt;code class=&quot;highlighter-rouge&quot;&gt;--ip-forward=flase&lt;/code&gt;，这不会起作用。&lt;/p&gt;
+
+&lt;p&gt;关于&lt;code class=&quot;highlighter-rouge&quot;&gt;ip_froward&lt;/code&gt;的实验&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -d --name  db  training/postgres
+
+&lt;span class=&quot;c&quot;&gt;# 这时候首先去将ip_froward设置为false，发现无法ping通外网&lt;/span&gt;
+ docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping www.baidu.com
+
+&lt;span class=&quot;c&quot;&gt;# 这时候再将ip_forward设置为true，发现可以ping通外网&lt;/span&gt;
+docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping www.baidu.com
+PING www.a.shifen.com &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;103.235.46.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
+64 bytes from 103.235.46.39: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;54 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;56.3 ms
+64 bytes from 103.235.46.39: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;54 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;56.3 ms
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;默认情况下，docker会在启动容器的时候，在iptables中添加规则，如果你设定&lt;code class=&quot;highlighter-rouge&quot;&gt;--iptables=false&lt;/code&gt;，docker将不会修改你的防火墙规则。&lt;/p&gt;
+
+&lt;p&gt;关于&lt;code class=&quot;highlighter-rouge&quot;&gt;--iptables&lt;/code&gt;的实验&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 首先，确认下有没有关于docker0的防火墙规则，有就删除掉&lt;/span&gt;
+iptables -S |grep docker0
+
+&lt;span class=&quot;c&quot;&gt;# 然后测试ping外网，发现无法ping通&lt;/span&gt;
+docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping www.baidu.com
+
+&lt;span class=&quot;c&quot;&gt;# 这时候将iptables改为true，查看防火墙规则，又添加了关于docker0的规则&lt;/span&gt;
+iptables -S |grep docker
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+
+&lt;span class=&quot;c&quot;&gt;# 测试发现能ping通外网&lt;/span&gt;
+
+docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping www.baidu.com
+PING www.a.shifen.com &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;103.235.46.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
+64 bytes from 103.235.46.39: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;54 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;56.3 ms
+64 bytes from 103.235.46.39: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;54 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;56.3 ms
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;默认情况下，容器可以和任何外部地址进行通信。除非你设定仅仅只有那些地址可以访问内部的容器。如下，设定只有8.8.8.8能访问内部容器&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;容器之间通信&quot;&gt;容器之间通信&lt;/h3&gt;
+
+&lt;p&gt;容器之间是否能进行通信，取决于系统层面的两个因素。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;容器网络是否连接到&lt;code class=&quot;highlighter-rouge&quot;&gt;docker0&lt;/code&gt;网络，默认是连接到docker0&lt;/li&gt;
+  &lt;li&gt;你的&lt;code class=&quot;highlighter-rouge&quot;&gt;iptables&lt;/code&gt;是否允许被修改，默认为true,你的&lt;code class=&quot;highlighter-rouge&quot;&gt;--icc&lt;/code&gt;状态，默认为true&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;注意：如果你使用默认的&lt;code class=&quot;highlighter-rouge&quot;&gt;iptables=true&lt;/code&gt;，则当&lt;code class=&quot;highlighter-rouge&quot;&gt;--icc=true&lt;/code&gt;时会添加 ACCEPT 规则，当&lt;code class=&quot;highlighter-rouge&quot;&gt;--icc=false&lt;/code&gt;时会添加 DROP 规则; 当然如果你的&lt;code class=&quot;highlighter-rouge&quot;&gt;iptables=false&lt;/code&gt;则无所谓了，反正不会修改你的防火墙规则&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;关于&lt;code class=&quot;highlighter-rouge&quot;&gt;--icc&lt;/code&gt;的实验&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 设置--icc=false发现容器之间无法ping通,如果你发现你依然能ping通，那可能是前面的防火墙配置，执行iptables -F 清空下再试&lt;/span&gt;
+docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping 172.17.0.3
+
+
+&lt;span class=&quot;c&quot;&gt;# 设置--icc=true发现容器之间可以ping通&lt;/span&gt;
+docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping 172.17.0.3
+PING 172.17.0.3 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;172.17.0.3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
+64 bytes from 172.17.0.3: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.128 ms
+64 bytes from 172.17.0.3: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.110 ms
+64 bytes from 172.17.0.3: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.096 ms
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;注意：所以，我们启动docker之前，就要确定好，到底是否需要允许docker修改iptables，是否允许容器之间通信，是否允许容器访问外网等&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;主机之间的容器通信&quot;&gt;主机之间的容器通信&lt;/h3&gt;
+
+&lt;p&gt;官网上说的是将默认FORWARD DROP策略改为 ACCEPT，其实没那个必要，使用overlay网络就好了,比如:flannel,weave,calico等等…&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">本节主要是讲解docker容器是如何在默认的bridge网络上进行通信的。</summary></entry><entry><title type="html">High Availability Ranchers for docker hosts</title><link href="https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/" rel="alternate" type="text/html" title="High Availability Ranchers for docker hosts" /><published>2017-08-22T00:00:00+08:00</published><updated>2017-08-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts</id><content type="html" xml:base="https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/">&lt;h3 id=&quot;前言&quot;&gt;前言&lt;/h3&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;由于公司目前有部分业务跑在docker上，但又还没有上诸如:swarm,kubernetes之类的容器编排工具，但是又想要能对docker主机及容器进行一个简单可视化的管理，筛选来，筛选去，发现无论是:DockerUI、Shipyard、portainer还是Daocloud都不能符合我们的心意，最终决定使用&lt;code class=&quot;highlighter-rouge&quot;&gt;rancher&lt;/code&gt;来进行管理。&lt;/p&gt;
@@ -2125,35 +2221,4 @@ calico_policy_version: &lt;span class=&quot;s2&quot;&gt;&quot;v0.7.0&quot;&lt;/s
 相关node信息
 &lt;img src=&quot;/images/posts/nodes.png&quot; alt=&quot;&quot; /&gt;
 相关pod信息
-&lt;img src=&quot;/images/posts/pods.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">捣鼓kubernetes有一段时间了，先后用过yum,kubeadm,custom等方式，但都不尽如人意，不是缺胳膊就是短腿，后来有幸翻到漠然大神的快速部署kubernetes高可用集群，并且请教了无数次才最终搭建成功，在此，再次膜拜漠然大神，同时该篇blog也参考了漠神的的博客，主要是为了记录下来，方便以后查看。</summary></entry><entry><title type="html">ansible客户端配置</title><link href="https://kevinguo.me/2017/07/06/ansible-client/" rel="alternate" type="text/html" title="ansible客户端配置" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/ansible-client</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/ansible-client/">&lt;p&gt;为kargo kubernetes准备ansible客户端&lt;/p&gt;
-
-&lt;!--more--&gt;
-
-&lt;p&gt;1.ansible-client 免密钥登录所有要部署的节点&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ssh-keygen -t rsa -P &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;2.将ansible-client上的id_rsa.pub复制到其他所有节点&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;x &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[*]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;ssh-copy-id -i ~/.ssh/id_rsa.pub &lt;span class=&quot;nv&quot;&gt;$x&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;2.ansible-client 上安装pip,python,setuptools,最好能先&lt;code class=&quot;highlighter-rouge&quot;&gt;yum update&lt;/code&gt;一下&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# setuptools安装&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;wget https://bootstrap.pypa.io/get-pip.py
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python get-pip.py
-
-&lt;span class=&quot;c&quot;&gt;# pip安装&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;wget https://pypi.python.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz#md5&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;35f01da33009719497f01a4ba69d63c9
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;tar zxvf pip-9.0.1.tar.gz
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python setup.py install
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;3.ansible安装&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;yum install pycrypto python2-cryptography python-netaddr epel-release python-pip python34 python34-pip -y
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;pip install ansible
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">为kargo kubernetes准备ansible客户端</summary></entry></feed>
+&lt;img src=&quot;/images/posts/pods.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">捣鼓kubernetes有一段时间了，先后用过yum,kubeadm,custom等方式，但都不尽如人意，不是缺胳膊就是短腿，后来有幸翻到漠然大神的快速部署kubernetes高可用集群，并且请教了无数次才最终搭建成功，在此，再次膜拜漠然大神，同时该篇blog也参考了漠神的的博客，主要是为了记录下来，方便以后查看。</summary></entry></feed>
