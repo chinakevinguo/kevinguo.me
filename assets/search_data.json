@@ -1,5 +1,11 @@
 {
   
+  "2017-08-22-rancher-for-docker-hosts": {
+    "title": "High Availability Ranchers for docker hosts",
+    "url": " /2017/08/22/Rancher-for-docker-hosts/",
+    "category": "rancher"
+  },
+  
   "2017-07-13-jekyll-create-a-static-blog-3": {
     "title": "jekyll 搭建静态博客之https番外篇",
     "url": " /2017/07/13/jekyll-create-a-static-blog(3)/",
@@ -30,21 +36,21 @@
     "category": "saltstack"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a43": {
-    "title": "kargo容器化部署kubernetes高可用集群(3)",
-    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43/",
+  "2017-07-06-kubespray-deploy-kubernetes-3": {
+    "title": "kubespray容器化部署kubernetes高可用集群(3)",
+    "url": " /2017/07/06/kubespray-deploy-kubernetes-3/",
     "category": "kubernetes"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a42": {
-    "title": "kargo容器化部署kubernetes高可用集群(2)",
-    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42/",
+  "2017-07-06-kubespray-deploy-kubernetes-2": {
+    "title": "kubespray容器化部署kubernetes高可用集群(2)",
+    "url": " /2017/07/06/kubespray-deploy-kubernetes-2/",
     "category": "kubernetes"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a41": {
+  "2017-07-06-kubespray-deploy-kubernetes-1": {
     "title": "kubespray容器化部署kubernetes高可用集群(1)",
-    "url": " /2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41/",
+    "url": " /2017/07/06/kubespray-deploy-kubernetes-1/",
     "category": "kubernetes"
   },
   
@@ -570,21 +576,21 @@
     "category": "[&quot;ansible&quot;, &quot;kargo&quot;]"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a41": {
+  "2017-07-06-kubespray-deploy-kubernetes-1": {
     "title": "kubespray容器化部署kubernetes高可用集群(1)",
-    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41/",
+    "url": "/2017/07/06/kubespray-deploy-kubernetes-1/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a42": {
-    "title": "kargo容器化部署kubernetes高可用集群(2)",
-    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42/",
+  "2017-07-06-kubespray-deploy-kubernetes-2": {
+    "title": "kubespray容器化部署kubernetes高可用集群(2)",
+    "url": "/2017/07/06/kubespray-deploy-kubernetes-2/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   },
   
-  "2017-07-06-kargo-e5-ae-b9-e5-99-a8-e5-8c-96-e9-83-a8-e7-bd-b2kubernetes-e9-ab-98-e5-8f-af-e7-94-a8-e9-9b-86-e7-be-a43": {
-    "title": "kargo容器化部署kubernetes高可用集群(3)",
-    "url": "/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43/",
+  "2017-07-06-kubespray-deploy-kubernetes-3": {
+    "title": "kubespray容器化部署kubernetes高可用集群(3)",
+    "url": "/2017/07/06/kubespray-deploy-kubernetes-3/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   },
   
@@ -616,6 +622,12 @@
     "title": "jekyll 搭建静态博客之https番外篇",
     "url": "/2017/07/13/jekyll-create-a-static-blog(3)/",
     "category": "[&quot;jekyll&quot;, &quot;travis&quot;]"
+  },
+  
+  "2017-08-22-rancher-for-docker-hosts": {
+    "title": "High Availability Ranchers for docker hosts",
+    "url": "/2017/08/22/Rancher-for-docker-hosts/",
+    "category": "[&quot;rancher&quot;, &quot;docker&quot;]"
   }
   
 }

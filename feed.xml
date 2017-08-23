@@ -1,4 +1,172 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-18T19:49:14+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-08-23T09:37:20+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">High Availability Ranchers for docker hosts</title><link href="https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/" rel="alternate" type="text/html" title="High Availability Ranchers for docker hosts" /><published>2017-08-22T00:00:00+08:00</published><updated>2017-08-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts</id><content type="html" xml:base="https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/">&lt;h3 id=&quot;前言&quot;&gt;前言&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;由于公司目前有部分业务跑在docker上，但又还没有上诸如:swarm,kubernetes之类的容器编排工具，但是又想要能对docker主机及容器进行一个简单可视化的管理，筛选来，筛选去，发现无论是:DockerUI、Shipyard、portainer还是Daocloud都不能符合我们的心意，最终决定使用&lt;code class=&quot;highlighter-rouge&quot;&gt;rancher&lt;/code&gt;来进行管理。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;rancher是什么&quot;&gt;Rancher是什么&lt;/h3&gt;
+
+&lt;p&gt;借用官方文档里面的话来说，Rancher是一个开源的容器管理平台。&lt;/p&gt;
+
+&lt;p&gt;实际上Rancher能够整合目前市面上大多数的容器编排工具，如：swarm、kubernetes、mesos等，而且，它本身最拥有一个最基础的编排工具cattle，本次我们使用的就是它的cattle编排器。&lt;/p&gt;
+
+&lt;h3 id=&quot;环境准备&quot;&gt;环境准备&lt;/h3&gt;
+
+&lt;p&gt;所有系统均为&lt;code class=&quot;highlighter-rouge&quot;&gt;CentOS 7.2&lt;/code&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;IP&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;ROLE&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.44&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Rancher Server 01&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.45&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Rancher Server 02&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.227&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;External MySQL Server&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.183&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Nginx LB&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;所需镜像如下&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;IMAGE&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;VERSION&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/server&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;latest&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/agent&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v1.2.5&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/scheduler&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v0.8.2&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/healthcheck&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v0.3.1&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/dns&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v0.15.1&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/metadata&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v0.9.3&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/net&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v0.11.7&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/net&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;holder&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;rancher/network-manager&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;v0.7.7&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;rancher-server&quot;&gt;Rancher Server&lt;/h3&gt;
+
+&lt;h5 id=&quot;ecternal-mysql-server&quot;&gt;Ecternal mySQL Server&lt;/h5&gt;
+
+&lt;p&gt;使用如下命令，创建&lt;code class=&quot;highlighter-rouge&quot;&gt;cattle&lt;/code&gt;数据库和&lt;code class=&quot;highlighter-rouge&quot;&gt;cattle&lt;/code&gt;用户&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;CREATE DATABASE IF NOT EXISTS cattle COLLATE &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'utf8_general_ci'&lt;/span&gt; CHARACTER SET &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'utf8'&lt;/span&gt;;
+GRANT ALL ON cattle.&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; TO &lt;span class=&quot;s1&quot;&gt;'cattle'&lt;/span&gt;@&lt;span class=&quot;s1&quot;&gt;'%'&lt;/span&gt; IDENTIFIED BY &lt;span class=&quot;s1&quot;&gt;'cattle'&lt;/span&gt;;
+GRANT ALL ON cattle.&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; TO &lt;span class=&quot;s1&quot;&gt;'cattle'&lt;/span&gt;@&lt;span class=&quot;s1&quot;&gt;'localhost'&lt;/span&gt; IDENTIFIED BY &lt;span class=&quot;s1&quot;&gt;'cattle'&lt;/span&gt;;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;rancher-server-1&quot;&gt;Rancher Server&lt;/h5&gt;
+
+&lt;p&gt;在每台Node上执行如下命令&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -d --restart&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;unless-stopped -p 8080:8080 -p 9345:9345 rancher/server &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+     --db-host myhost.example.com --db-port 3306 --db-user username --db-pass password --db-name cattle &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+     --advertise-address &amp;lt;IP_of_the_Node&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt; 如果你改变了&lt;code class=&quot;highlighter-rouge&quot;&gt;-p 8080:8080&lt;/code&gt;端口，则需要额外添加一个参数&lt;code class=&quot;highlighter-rouge&quot;&gt;--addvertise-http-port &amp;lt;host_port&amp;gt;&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;nginx-lb&quot;&gt;Nginx LB&lt;/h5&gt;
+
+&lt;p&gt;在nginx的Vhost中添加如下两个文件&lt;/p&gt;
+
+&lt;p&gt;rancher-upstream.conf&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;upstream rancher-server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        server 172.30.33.44:8080;
+        server 172.30.33.45:8080;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+map &lt;span class=&quot;nv&quot;&gt;$http_upgrade&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$connection_upgrade&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    default Upgrade;
+    &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt;      close;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;         
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;rancher.conf&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        listen 80;
+        server_name rancher.quark.com;
+
+        access_log  logs/rancher_access.log main;
+        location / &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;#internal;&lt;/span&gt;
+        proxy_set_header Host &lt;span class=&quot;nv&quot;&gt;$host&lt;/span&gt;;
+        proxy_set_header X-Forwarded-Proto &lt;span class=&quot;nv&quot;&gt;$scheme&lt;/span&gt;;
+        proxy_set_header X-Forwarded-Port &lt;span class=&quot;nv&quot;&gt;$server_port&lt;/span&gt;;
+        proxy_set_header X-Forwarded-For &lt;span class=&quot;nv&quot;&gt;$proxy_add_x_forwarded_for&lt;/span&gt;;
+        proxy_pass http://rancher-server;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade &lt;span class=&quot;nv&quot;&gt;$http_upgrade&lt;/span&gt;;
+        proxy_set_header Connection &lt;span class=&quot;nv&quot;&gt;$connection_upgrade&lt;/span&gt;;
+        proxy_read_timeout 900s;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;       
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;rancher-agent&quot;&gt;Rancher agent&lt;/h3&gt;
+
+&lt;p&gt;上面的步骤完成后，我们来访问我们的rancher ui，然后来添加host
+&lt;img src=&quot;/images/posts/rancher-add-agent.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;依次添加完你的docker host之后，如下图
+&lt;img src=&quot;/images/posts/rancher-ui.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;后记&quot;&gt;后记&lt;/h3&gt;
+
+&lt;p&gt;rancher上还有很多功能，感兴趣的同学可以去自行研究下，我这里只是一个临时的需求，所以就不做过多的实例了。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">前言</summary></entry><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
   &lt;p&gt;上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -513,7 +681,7 @@ env:
             &lt;span class=&quot;s&quot;&gt;2.2.4&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">Pillar 主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息</summary></entry><entry><title type="html">kargo容器化部署kubernetes高可用集群(3)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43/" rel="alternate" type="text/html" title="kargo容器化部署kubernetes高可用集群(3)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A43/">&lt;blockquote&gt;
+&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">Pillar 主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息</summary></entry><entry><title type="html">kubespray容器化部署kubernetes高可用集群(3)</title><link href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/" rel="alternate" type="text/html" title="kubespray容器化部署kubernetes高可用集群(3)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/">&lt;blockquote&gt;
   &lt;p&gt;上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -805,7 +973,7 @@ kubectl create -f kibana-ingress.yml
 &lt;p&gt;EFK
 &lt;img src=&quot;/images/posts/kibana.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;后期再研究新的东西了再加吧，头疼，下班了&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。</summary></entry><entry><title type="html">kargo容器化部署kubernetes高可用集群(2)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42/" rel="alternate" type="text/html" title="kargo容器化部署kubernetes高可用集群(2)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A42/">&lt;blockquote&gt;
+&lt;p&gt;后期再研究新的东西了再加吧，头疼，下班了&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。</summary></entry><entry><title type="html">kubespray容器化部署kubernetes高可用集群(2)</title><link href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-2/" rel="alternate" type="text/html" title="kubespray容器化部署kubernetes高可用集群(2)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-2</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-2/">&lt;blockquote&gt;
   &lt;p&gt;上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到&lt;a href=&quot;https://github.com/chinakevinguo/kubernetes-custom/tree/master/kubernetes%20%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A4%E7%BB%84%E4%BB%B6&quot;&gt;github&lt;/a&gt;上&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -1491,7 +1659,7 @@ clusters:
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;至此， 基本上可以搭建一个基础的HA kubernetes 集群了，下一章将主要讲解如何配置一些常用插件&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到github上</summary></entry><entry><title type="html">kubespray容器化部署kubernetes高可用集群(1)</title><link href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41/" rel="alternate" type="text/html" title="kubespray容器化部署kubernetes高可用集群(1)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41/">&lt;blockquote&gt;
+&lt;p&gt;至此， 基本上可以搭建一个基础的HA kubernetes 集群了，下一章将主要讲解如何配置一些常用插件&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到github上</summary></entry><entry><title type="html">kubespray容器化部署kubernetes高可用集群(1)</title><link href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-1/" rel="alternate" type="text/html" title="kubespray容器化部署kubernetes高可用集群(1)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-1</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-1/">&lt;blockquote&gt;
   &lt;p&gt;捣鼓kubernetes有一段时间了，先后用过&lt;code class=&quot;highlighter-rouge&quot;&gt;yum&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;kubeadm&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;custom&lt;/code&gt;等方式，但都不尽如人意，不是缺胳膊就是短腿，后来有幸翻到&lt;a href=&quot;https://mritd.me/&quot;&gt;漠然&lt;/a&gt;大神的&lt;a href=&quot;https://mritd.me/2017/03/03/set-up-kubernetes-ha-cluster-by-kubespray/&quot;&gt;快速部署kubernetes高可用集群&lt;/a&gt;，并且请教了无数次才最终搭建成功，在此，再次膜拜漠然大神，同时该篇blog也参考了漠神的的博客，主要是为了记录下来，方便以后查看。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -1988,114 +2156,4 @@ calico_policy_version: &lt;span class=&quot;s2&quot;&gt;&quot;v0.7.0&quot;&lt;/s
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;yum install pycrypto python2-cryptography python-netaddr epel-release python-pip python34 python34-pip -y
 &lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;pip install ansible
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">为kargo kubernetes准备ansible客户端</summary></entry><entry><title type="html">Maven之setting.xml</title><link href="https://kevinguo.me/2017/07/06/Maven-setting.xml/" rel="alternate" type="text/html" title="Maven之setting.xml" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/Maven-setting.xml</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/Maven-setting.xml/">&lt;h3 id=&quot;什么是maven&quot;&gt;什么是Maven&lt;/h3&gt;
-&lt;p&gt;Maven是一个项目管理和综合工具，用java编写，能简化和标准化项目建设过程。处理编译，部署，文档，团队协作和其他任务的无缝连接。 Maven增加可重用性并负责建立相关的任务。&lt;/p&gt;
-
-&lt;!--more--&gt;
-
-&lt;h3 id=&quot;maven资源库&quot;&gt;Maven资源库&lt;/h3&gt;
-&lt;blockquote&gt;
-  &lt;ul&gt;
-    &lt;li&gt;Maven本地资源库&lt;/li&gt;
-    &lt;li&gt;Maven私服库&lt;/li&gt;
-    &lt;li&gt;Maven中央仓库
-一般在打包编译的时候，会先从本地仓库中查找，如果本地仓库没有，就会去设定好的私服仓库去查找，私服仓库上如果有就下载下来，没有私服仓库就会去中央仓库查找&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;maven的settingsxml文件&quot;&gt;Maven的settings.xml文件&lt;/h3&gt;
-&lt;p&gt;在安装好maven之后，我们首先要做的是根据我们的需求配置maven的settings.xml文件
-settings.xml对于maven来说，相当于全局性的配置，用于所有的项目。在Maven2中存在两个settings.xml，一个位于maven2的安装目录conf下面，作为全局性配置。对于团队设置，保持一致的定义是关键，所以conf下的settings.xml就作为团队共同的配置文件。而对于每个单独的成员，如果有特殊的需要自定义的设置，如用户信息之类，就可以在~/.m2/settings.xml中进行设定&lt;/p&gt;
-
-&lt;h3 id=&quot;settingsxml的基本结构如下&quot;&gt;settings.xml的基本结构如下&lt;/h3&gt;
-&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;settings&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://maven.apache.org/POM/4.0.0&quot;&lt;/span&gt;  
-          &lt;span class=&quot;na&quot;&gt;xmlns:xsi=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&lt;/span&gt;  
-          &lt;span class=&quot;na&quot;&gt;xsi:schemaLocation=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://maven.apache.org/POM/4.0.0&lt;/span&gt;  
-                               &lt;span class=&quot;err&quot;&gt;http://maven.apache.org/xsd/settings-1.0.0.xsd&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;localRepository/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;interactiveMode/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;usePluginRegistry/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;offline/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;pluginGroups/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;servers/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;mirrors/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;proxies/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;profiles/&amp;gt;&lt;/span&gt;  
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;activeProfiles/&amp;gt;&lt;/span&gt;  
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/settings&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#表示本地仓库的位置，默认在~/.m2/repository&lt;/span&gt;
-&amp;lt;localRepository&amp;gt;/path/to/local/repo&amp;lt;localRepository/&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#如果不想每次编译都去查找中心库，就设置为true，前提是你必须已经下载好了必须的依赖包，默认是false&lt;/span&gt;
-&amp;lt;offline&amp;gt;false&amp;lt;offline/&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#在POM文件中定义了distributionManagement元素，然而特定的username和password不能用于pom.xml，所以通过此配置来保存server信息，这里的id必须和后面repository中定义的id一致，主要是用来部署到nexus私服&lt;/span&gt;
-&amp;lt;server&amp;gt;
-  &amp;lt;id&amp;gt;release&amp;lt;/id&amp;gt;
-  &amp;lt;username&amp;gt;admin&amp;lt;/username&amp;gt;
-  &amp;lt;password&amp;gt;admin123&amp;lt;/password&amp;gt;
-&amp;lt;/server&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#表示镜像仓库，指定库的镜像，这里的mirrorOf表示此镜像是那个库的镜像，*表示所有库&lt;/span&gt;
-&amp;lt;mirrors&amp;gt;
-&amp;lt;mirror&amp;gt;
-  &amp;lt;id&amp;gt;nexus&amp;lt;/id&amp;gt;
-  &amp;lt;mirrorOf&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&amp;lt;/mirrorOf&amp;gt;
-  &amp;lt;name&amp;gt;Nexus Repository&amp;lt;/name&amp;gt;
-  &amp;lt;url&amp;gt;http://192.168.56.22:8081/nexus/content/groups/public/&amp;lt;/url&amp;gt;
-&amp;lt;/mirror&amp;gt;
-&amp;lt;mirrors/&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#代理服务器设置，主要用于无法直接访问中心的库用户设置&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;&amp;lt;proxies&amp;gt;  &lt;/span&gt;
-   &amp;lt;proxy&amp;gt;  
-     &amp;lt;id&amp;gt;myproxy&amp;lt;/id&amp;gt;  
-     &amp;lt;active&amp;gt;true&amp;lt;/active&amp;gt;  
-     &amp;lt;protocol&amp;gt;http&amp;lt;/protocol&amp;gt;  
-     &amp;lt;host&amp;gt;proxy.somewhere.com&amp;lt;/host&amp;gt;  
-     &amp;lt;port&amp;gt;8080&amp;lt;/port&amp;gt;  
-     &amp;lt;username&amp;gt;proxyuser&amp;lt;/username&amp;gt;  
-     &amp;lt;password&amp;gt;somepassword&amp;lt;/password&amp;gt;  
-     &amp;lt;nonProxyHosts&amp;gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.google.com|ibiblio.org&amp;lt;/nonProxyHosts&amp;gt;  
-   &amp;lt;/proxy&amp;gt;  
- &amp;lt;/proxies&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#自定义配置，可以指定repositories，properties，pluginRepositories，activation等元素&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;#这里的repositories表示，开发团队自己的开发库，定义这个库，一般是为了方便distributionManagement发布&lt;/span&gt;
-&amp;lt;profiles&amp;gt;
-&amp;lt;profile&amp;gt;
-      &amp;lt;id&amp;gt;nexus&amp;lt;/id&amp;gt;
-      &amp;lt;repositories&amp;gt;
-        &amp;lt;repository&amp;gt;
-            &amp;lt;id&amp;gt;public&amp;lt;/id&amp;gt;
-            &amp;lt;name&amp;gt;public&amp;lt;/name&amp;gt;
-            &amp;lt;url&amp;gt;http://192.168.56.22:8081/nexus/content/groups/public/&amp;lt;/url&amp;gt;
-            &amp;lt;releases&amp;gt;&amp;lt;enabled&amp;gt;true&amp;lt;/enabled&amp;gt;&amp;lt;/releases&amp;gt;
-            &amp;lt;snapshots&amp;gt;&amp;lt;enabled&amp;gt;false&amp;lt;/enabled&amp;gt;&amp;lt;/snapshots&amp;gt;
-        &amp;lt;/repository&amp;gt;
-      &amp;lt;/repositories&amp;gt;
-&amp;lt;/profile&amp;gt;
-&amp;lt;/profiles&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#properties作为maven的占位符之，包括5中类型值：&lt;/span&gt;
-env.x：返回当前的环境变量
-project.x：返回pom文件中定义的project元素值
-settings.x：返回settings.xml中定义的元素
-java系统属性：返回经过java.lang.System.getProperties&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;返回的值
-x：用户自定义的值
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#激活指定的profile，通过profile id 来指定&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;&amp;lt;activeProfiles&amp;gt;  &lt;/span&gt;
-    &amp;lt;activeProfile&amp;gt;env-test&amp;lt;/activeProfile&amp;gt;
-&amp;lt;/activeProfiles&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">什么是Maven Maven是一个项目管理和综合工具，用java编写，能简化和标准化项目建设过程。处理编译，部署，文档，团队协作和其他任务的无缝连接。 Maven增加可重用性并负责建立相关的任务。</summary></entry></feed>
+&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">为kargo kubernetes准备ansible客户端</summary></entry></feed>
