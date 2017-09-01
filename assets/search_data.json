@@ -1,5 +1,17 @@
 {
   
+  "2017-09-01-kubernetes-one-section": {
+    "title": "kubernetes 入门",
+    "url": " /2017/09/01/kubernetes-one-section/",
+    "category": "kubernetes"
+  },
+  
+  "2017-09-01-docker-consul-consul-template-registrator-nginx": {
+    "title": "docker+consul+consul-template+registrator+nginx 的容器服务注册发现",
+    "url": " /2017/09/01/docker-consul-consul-template-registrator-nginx/",
+    "category": "consul"
+  },
+  
   "2017-08-23-docker-container-communication": {
     "title": "Docker基础-理解容器之间的通信",
     "url": " /2017/08/23/Docker-container-communication/",
@@ -352,6 +364,8 @@
   
   
   
+  
+  
 
   
   "2017-07-06-docker-command-usage": {
@@ -640,6 +654,18 @@
     "title": "Docker基础-理解容器之间的通信",
     "url": "/2017/08/23/Docker-container-communication/",
     "category": "[&quot;docker&quot;]"
+  },
+  
+  "2017-09-01-docker-consul-consul-template-registrator-nginx": {
+    "title": "docker+consul+consul-template+registrator+nginx 的容器服务注册发现",
+    "url": "/2017/09/01/docker-consul-consul-template-registrator-nginx/",
+    "category": "[&quot;consul&quot;, &quot;docker&quot;, &quot;registrator&quot;]"
+  },
+  
+  "2017-09-01-kubernetes-one-section": {
+    "title": "kubernetes 入门",
+    "url": "/2017/09/01/kubernetes-one-section/",
+    "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   }
   
 }

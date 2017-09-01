@@ -193,6 +193,14 @@
 <lastmod>2017-08-23T00:00:00+08:00</lastmod>
 </url>
 <url>
+<loc>https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx/</loc>
+<lastmod>2017-09-01T00:00:00+08:00</lastmod>
+</url>
+<url>
+<loc>https://kevinguo.me/2017/09/01/kubernetes-one-section/</loc>
+<lastmod>2017-09-01T00:00:00+08:00</lastmod>
+</url>
+<url>
 <loc>https://kevinguo.me/404.html</loc>
 </url>
 <url>
@@ -227,5 +235,8 @@
 </url>
 <url>
 <loc>https://kevinguo.me/page6/</loc>
+</url>
+<url>
+<loc>https://kevinguo.me/page7/</loc>
 </url>
 </urlset>

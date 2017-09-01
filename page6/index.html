@@ -110,6 +110,57 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-Registry/">Docker基础-docker registry的几种方式</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        Registry
+Registry用来管理您的IMAGE镜像，常见的有:
+Private Registry:私有仓库，自己搭建
+DockerHub：由Docker维护
+Docker Trusted Registry：采购
+
+今天我们主要介绍，如何搭建自己的Private Registry
+Why use it
+官网列了三条，其实就一句话，能够自己管理自己的IMAGE
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-Overview/">Docker基础-docker 简介</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        什么是Docker
+Docker是一个提供开发、传输及运行应用程序的开放平台，Docker能将应用程序和基础架构平台进行分离，以便快速交付，使用Docker，你能用像管理基础架构一样的的方式来管理你的应用程序，通过利用Docker来开发，测试，部署，传输代码，可以显著的提高开发部署的效率。
+
+Docker使用Google公司推出的Go语言进行开发实现，基于Linux内核的Control groups,Union file systems，Namespace等技术，对进程进行封装隔离，属于操作系统层面的虚拟化技术。由于隔离的进程独立于宿主机和其他被隔离的进程，因此也称其为容器。最初实现是基于LXC，从0.7之后开始去除LXC，转而使用自行开发的libcontainer，从1.11开始，则进一步演进为使用RUNC和containerd
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="/2017/07/06/Docker-Overview-of-Docker-Compose/">Docker基础-docker compose简介</a>
                     </h3>
                     <p class="repo-list-description">
@@ -218,46 +269,6 @@ $ docker run --log-driver=fluentd --log-opt fluentd-address=myhost.local:24224 -
                     </h3>
                     <p class="repo-list-description">
                         在compose文件中引用环境变量
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-Configure-run-docker-on-various-distributions/">Docker基础-docker在各个平台的基本配置</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        在安装完docker之后，docker daemon会用默认的配置来运行。
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-Command-Usage/">Docker基础-docker常用命令</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        Docker Command
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -473,8 +484,12 @@ $ docker run --log-driver=fluentd --log-opt fluentd-address=myhost.local:24224 -
               <a href="javascript:;"  class="active btn btn-outline">6</a>
           
         
+          
+              <a href="/page7"  class="btn btn-outline">7</a>
+          
         
-            <button disabled="disabled" href="javascript:;" class="btn btn-outline">&raquo;</button>
+        
+            <a href="/page7"  class="btn btn-outline">&raquo;</a>
         
         </div>
     </div>

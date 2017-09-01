@@ -110,6 +110,49 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-config-dns/">Docker基础-docker在自定义的网络上定义DNS</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        在自定义网络上的内嵌dns
+这一章主要讲了在用户自定义网络中，容器内嵌dns的操作。连接到用户自定义网络的容器的DNS查询和连接到默认网桥网络的容器的查询方式不同。
+
+  Note: 为了保持向后的兼容性，默认网桥中的DNS配置保留，没有进行更改。有关默认网桥中DNS配置的详细信息，可以参考DNS in default bridge network
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-build-bridges/">Docker基础-自定义docker bridge</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        这篇主要解释了怎么绑定你自己的bridge来替换docker默认的bridge，这个默认的bridge网络是在安装docker的时候自动安装的。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="/2017/07/06/Docker-bind/">Docker基础-bridge绑定容器端口</a>
                     </h3>
                     <p class="repo-list-description">
@@ -218,57 +261,6 @@ docker compose和docker swarm旨在实现完全集成，这意味着你可以将
                     </h3>
                     <p class="repo-list-description">
                         该章节介绍的功能都是实验性的，在变成正式版本之前，可能发生变动
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-Registry/">Docker基础-docker registry的几种方式</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        Registry
-Registry用来管理您的IMAGE镜像，常见的有:
-Private Registry:私有仓库，自己搭建
-DockerHub：由Docker维护
-Docker Trusted Registry：采购
-
-今天我们主要介绍，如何搭建自己的Private Registry
-Why use it
-官网列了三条，其实就一句话，能够自己管理自己的IMAGE
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-Overview/">Docker基础-docker 简介</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        什么是Docker
-Docker是一个提供开发、传输及运行应用程序的开放平台，Docker能将应用程序和基础架构平台进行分离，以便快速交付，使用Docker，你能用像管理基础架构一样的的方式来管理你的应用程序，通过利用Docker来开发，测试，部署，传输代码，可以显著的提高开发部署的效率。
-
-Docker使用Google公司推出的Go语言进行开发实现，基于Linux内核的Control groups,Union file systems，Namespace等技术，对进程进行封装隔离，属于操作系统层面的虚拟化技术。由于隔离的进程独立于宿主机和其他被隔离的进程，因此也称其为容器。最初实现是基于LXC，从0.7之后开始去除LXC，转而使用自行开发的libcontainer，从1.11开始，则进一步演进为使用RUNC和containerd
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -482,6 +474,10 @@ Docker使用Google公司推出的Go语言进行开发实现，基于Linux内核�
         
           
               <a href="/page6"  class="btn btn-outline">6</a>
+          
+        
+          
+              <a href="/page7"  class="btn btn-outline">7</a>
           
         
         
