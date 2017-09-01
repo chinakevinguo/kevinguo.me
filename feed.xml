@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-01T18:03:36+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes 入门</title><link href="https://kevinguo.me/2017/09/01/kubernetes-one-section/" rel="alternate" type="text/html" title="kubernetes 入门" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/kubernetes-one-section</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/kubernetes-one-section/">&lt;h2 id=&quot;入门概念&quot;&gt;入门概念&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-01T18:08:28+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes 入门</title><link href="https://kevinguo.me/2017/09/01/kubernetes-one-section/" rel="alternate" type="text/html" title="kubernetes 入门" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/kubernetes-one-section</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/kubernetes-one-section/">&lt;h2 id=&quot;入门概念&quot;&gt;入门概念&lt;/h2&gt;
 
 &lt;p&gt;为什么要使用kubernetes&lt;/p&gt;
 
@@ -741,7 +741,7 @@ docker build -t docker-consul .
 
 &lt;p&gt;启动nginx&lt;/p&gt;
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -p 8080:80 -d --name nginx -e &lt;span class=&quot;nv&quot;&gt;CONSUL_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;163.44.165.142:8500 --volume ~/docker-consul/service.ctmpl:/templates/service.ctmpl  nginx-consul
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -p 8080:80 -d --name nginx -e &lt;span class=&quot;nv&quot;&gt;CONSUL_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$HOST_IP&lt;/span&gt;:8500 --volume ~/docker-consul/service.ctmpl:/templates/service.ctmpl  nginx-consul
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -789,7 +789,7 @@ server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
 
 &lt;p&gt;我们发现我们的python-micro-service 服务目前有4个，而且当我们通过如下命令访问的时候，也是4个轮询着被访问&lt;/p&gt;
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;curl 163.44.165.142:8080; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ----; sleep 1; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;curl &lt;span class=&quot;nv&quot;&gt;$HOST_IP&lt;/span&gt;:8080; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ----; sleep 1; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;;
 Hello World from node4----
 Hello World from node1----
 Hello World from node2----
@@ -801,7 +801,7 @@ Hello World from node3----
 
 &lt;p&gt;&lt;img src=&quot;/images/posts/consul-ui-service.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;curl 163.44.165.142:8080; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ----; sleep 1; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;curl &lt;span class=&quot;nv&quot;&gt;$HOST_IP&lt;/span&gt;:8080; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ----; sleep 1; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;;
 Hello World from node1----
 Hello World from node2----
 Hello World from node3----
