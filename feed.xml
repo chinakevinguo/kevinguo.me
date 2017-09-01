@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-01T18:08:28+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes 入门</title><link href="https://kevinguo.me/2017/09/01/kubernetes-one-section/" rel="alternate" type="text/html" title="kubernetes 入门" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/kubernetes-one-section</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/kubernetes-one-section/">&lt;h2 id=&quot;入门概念&quot;&gt;入门概念&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-01T20:48:16+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes 入门</title><link href="https://kevinguo.me/2017/09/01/kubernetes-one-section/" rel="alternate" type="text/html" title="kubernetes 入门" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/kubernetes-one-section</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/kubernetes-one-section/">&lt;h2 id=&quot;入门概念&quot;&gt;入门概念&lt;/h2&gt;
 
 &lt;p&gt;为什么要使用kubernetes&lt;/p&gt;
 
@@ -682,7 +682,129 @@ php-apache   Deployment/php-apache   90% / 50%   1         10        8          
 &lt;h5 id=&quot;consuletcd等服务发现机制&quot;&gt;consul、etcd等服务发现机制&lt;/h5&gt;
 
 &lt;p&gt;consul：这个具体还没实施过，大致意思就是，容器启动时注册自己的ip+port到consul，然后consul自己做健康检查，最终将其发往fabio，fabio是个大路由，前端统一反代到fabio。
-etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后再写一个service discover的脚本循环查询注册进去的service，对比template中的内容，然后生成新的配置文件进行更新。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">入门概念</summary></entry><entry><title type="html">docker+consul+consul-template+registrator+nginx 的容器服务注册发现</title><link href="https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx/" rel="alternate" type="text/html" title="docker+consul+consul-template+registrator+nginx 的容器服务注册发现" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx/">&lt;h3 id=&quot;前言&quot;&gt;前言&lt;/h3&gt;
+etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后再写一个service discover的脚本循环查询注册进去的service，对比template中的内容，然后生成新的配置文件进行更新。&lt;/p&gt;
+
+&lt;h4 id=&quot;kubernetes-service-暴露&quot;&gt;kubernetes service 暴露&lt;/h4&gt;
+
+&lt;p&gt;目前kubernetes service 暴露的方式有如下几种&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;ClusterIP 只提供kubernetes集群内部的服务发现&lt;/li&gt;
+  &lt;li&gt;NodePort 在每个节点上提供端口暴露服务&lt;/li&gt;
+  &lt;li&gt;LoadBlancer 只能在云平台上使用，使用云平台提供的LB来暴露服务&lt;/li&gt;
+  &lt;li&gt;ExternalName 与另一个域名绑定，通过该service访问另一个服务&lt;/li&gt;
+  &lt;li&gt;ingress/traefik 使用第三方插件将pod暴露出来&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;而无论是ClusterIP 还是 NodePort 都是通过kube-proxy来对service进行实现的，而kube-proxy又有两种方式来实现负载，userspace和iptables，下面我来说一下kubernetes默认的iptables方式的kube-proxy&lt;/p&gt;
+
+&lt;p&gt;首先，我们来新建一个NodePort类型的服务&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;v1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Service&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;myweb-service&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;NodePort&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;ports&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;8080&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;nodePort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;30001&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;selector&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;myweb&lt;/span&gt;         
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;myweb-service 代理了后端的一个pod，ip为10.233.88.53，看看iptables&lt;/p&gt;
+
+&lt;p&gt;下面来逐条分析&lt;/p&gt;
+
+&lt;p&gt;如果是通过node的30001来访问，则会进入如下的链&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 看看和NodePort  30001有关的iptables&lt;/span&gt;
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;iptables -S -t nat |grep 30001
+-A KUBE-NODEPORTS -p tcp -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m tcp --dport 30001 -j KUBE-MARK-MASQ
+-A KUBE-NODEPORTS -p tcp -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m tcp --dport 30001 -j KUBE-SVC-KINM4OXG42E5QTAT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后进一步跳转到&lt;code class=&quot;highlighter-rouge&quot;&gt;KUBE-SVC-KINM4OXG42E5QTAT&lt;/code&gt;的链&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -j KUBE-SEP-I4OJ7A6SXM5YG2QP
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后会跳转到&lt;code class=&quot;highlighter-rouge&quot;&gt;KUBE-SEP-I4OJ7A6SXM5YG2QP&lt;/code&gt;链，最终将请求转发到10.233.88.53的pod上&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-A KUBE-SEP-I4OJ7A6SXM5YG2QP -p tcp -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m tcp -j DNAT --to-destination 10.233.88.53:8080
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;注意：如果service代理了多个pod的话，会利用iptables的–probability特性，按一定的比例转发，如下&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;假若我们的myweb-service代理了3个pod&lt;/p&gt;
+
+&lt;p&gt;如果是通过node的30001来访问，则会进入如下的链&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 看看和NodePort  30001有关的iptables&lt;/span&gt;
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;iptables -S -t nat |grep 30001
+-A KUBE-NODEPORTS -p tcp -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m tcp --dport 30001 -j KUBE-MARK-MASQ
+-A KUBE-NODEPORTS -p tcp -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m tcp --dport 30001 -j KUBE-SVC-KINM4OXG42E5QTAT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后进一步跳转到&lt;code class=&quot;highlighter-rouge&quot;&gt;KUBE-SEP-5I5KUCBAI2CKFMN2&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;KUBE-SEP-I4OJ7A6SXM5YG2QP&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;KUBE-SEP-FDQHGZ7N6PHRDJRL&lt;/code&gt;的链&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 有分为30%，50%，20%的几率&lt;/span&gt;
+-A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m statistic --mode random --probability 0.33332999982 -j KUBE-SEP-5I5KUCBAI2CKFMN2
+
+-A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-I4OJ7A6SXM5YG2QP
+
+-A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -j KUBE-SEP-FDQHGZ7N6PHRDJRL
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后会分别跳到上面每个链下对应的链，最终转发到对应的pod上&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# KUBE-SEP-5I5KUCBAI2CKFMN2&lt;/span&gt;
+-A KUBE-SEP-5I5KUCBAI2CKFMN2 -p tcp -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m tcp -j DNAT --to-destination 10.233.87.108:8080
+
+&lt;span class=&quot;c&quot;&gt;# KUBE-SEP-I4OJ7A6SXM5YG2QP&lt;/span&gt;
+-A KUBE-SEP-I4OJ7A6SXM5YG2QP -p tcp -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m tcp -j DNAT --to-destination 10.233.88.53:8080
+
+&lt;span class=&quot;c&quot;&gt;# KUBE-SEP-FDQHGZ7N6PHRDJRL&lt;/span&gt;
+-A KUBE-SEP-FDQHGZ7N6PHRDJRL -p tcp -m comment --comment &lt;span class=&quot;s2&quot;&gt;&quot;default/myweb-service:&quot;&lt;/span&gt; -m tcp -j DNAT --to-destination 10.233.96.254:8080
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;好了，说完了NodePort，然后我们再说ClusterIP&lt;/p&gt;
+
+&lt;p&gt;继续从上面看到尾就行了。&lt;/p&gt;
+
+&lt;p&gt;ingress和traefik留到后面单独留个篇幅来说吧，这里就不说了。&lt;/p&gt;
+
+&lt;h3 id=&quot;volume&quot;&gt;Volume&lt;/h3&gt;
+
+&lt;p&gt;kubernetes 的volume要说的内容就很多了。&lt;/p&gt;
+
+&lt;p&gt;首先volume是一个在pod中能被多个容器访问的共享目录，它是定义在pod上，然后挂载到容器下，而且它的生命周期只和pod有关。常见的存储类型有如下几种&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;emptyDir&lt;/li&gt;
+  &lt;li&gt;hostPath&lt;/li&gt;
+  &lt;li&gt;Persistent Volume(GCE Persistent Disks、NFS、RBD、ISCSCI、AWS ElasticBlockStore、GlusterFS)，这就设计到分布式存储和外部存储的一些操作了，后续再讲吧 (这些内容前面好像提到过？？？)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;emptydir&quot;&gt;emptyDir&lt;/h4&gt;
+&lt;h4 id=&quot;hostpath&quot;&gt;hostPath&lt;/h4&gt;
+&lt;h4 id=&quot;persistent-volume&quot;&gt;persistent volume&lt;/h4&gt;
+
+&lt;h3 id=&quot;namespace&quot;&gt;Namespace&lt;/h3&gt;
+
+&lt;h3 id=&quot;annotation&quot;&gt;Annotation&lt;/h3&gt;</content><author><name>KevinGuo</name></author><summary type="html">入门概念</summary></entry><entry><title type="html">docker+consul+consul-template+registrator+nginx 的容器服务注册发现</title><link href="https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx/" rel="alternate" type="text/html" title="docker+consul+consul-template+registrator+nginx 的容器服务注册发现" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx/">&lt;h3 id=&quot;前言&quot;&gt;前言&lt;/h3&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;以前了解过一段时间的consul，只知道consul是一个服务发现的工具，但是具体是怎么注册的，又是怎么服务发现的，一点也不清楚，这次趁着研究kubernetes的服务发现，顺带研究了下consul，在此记录下来。&lt;/p&gt;
