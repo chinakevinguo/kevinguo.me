@@ -916,16 +916,521 @@ etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后
 <ul>
   <li>emptyDir</li>
   <li>hostPath</li>
-  <li>Persistent Volume(GCE Persistent Disks、NFS、RBD、ISCSCI、AWS ElasticBlockStore、GlusterFS)，这就设计到分布式存储和外部存储的一些操作了，后续再讲吧 (这些内容前面好像提到过？？？)</li>
+  <li>GCE Persistent Disks</li>
+  <li>NFS</li>
+  <li>RBD</li>
+  <li>ISCSCI</li>
+  <li>AWS ElasticBlockStore</li>
+  <li>GlusterFS</li>
+  <li>secret</li>
+  <li>PersistentVolume</li>
+  <li>downwardAPI</li>
+  <li>projected</li>
+  <li>configmap</li>
+  <li>local</li>
 </ul>
 
+<p><strong>注意：gitRepo实际上也是挂载一个空目录，从GIT仓库中clone内容下来供pod使用，所以它的数据也无法永久保存</strong></p>
+
 <h4 id="emptydir">emptyDir</h4>
+
+<p>正如它的名字一样，这是一个空的目录，它是在Pod被分配到node节点上的时候被创建的，无需在宿主机node上指定对应的目录文件。而且当pod从节点上被删除之后，emptyDir中的数据也会被删除，emptyDir 一般用在如下几个地方</p>
+
+<ul>
+  <li>暂存空间，例如用于基于磁盘的归并排序或长计算的检查点的暂存空间</li>
+  <li>临时目录，临时储存那些无需持久化的数据</li>
+</ul>
+
+<p>默认情况下，<code class="highlighter-rouge">emptyDir</code> 数据存储在SSD或者网络存储上。但是，你也可以设置<code class="highlighter-rouge">emptyDir.medium</code>为<code class="highlighter-rouge">Memory</code>来启用<code class="highlighter-rouge">tmpfs</code>,tmpfs会将数据写入到内存中，因此，当机器重启之后，数据也会永久删除，并且，因为是存放在内存中，这些数据会占用你容器内存的limit指标。</p>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">test-pd</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">image</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">test-container</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/cache</span>
+      <span class="s">name</span><span class="pi">:</span> <span class="s">cache-volume</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">cache-volume</span>
+    <span class="s">emptyDir</span><span class="pi">:</span>
+      <span class="s">medium</span><span class="pi">:</span> <span class="s">Memory</span>
+</code></pre>
+</div>
+
+<h4 id="secret">secret</h4>
+
+<p>secret volume 使用来传递敏感信息，比如说密码之类的。我们可以将在kubernetes中定义的secret直接挂载为文件让pod访问。secret volume实际是通过tmpfs(内存文件系统)来实现的，所以这些信息不会持久保存。</p>
+
+<h4 id="downwardapi">downwardAPI</h4>
+
+<p>如果你想将pod或container里面的字段暴露给其他正在运行的容器，那么downwardAPI正是你所需要的，它会将pod或container里面的字段以文件的形式存储下来，然后挂载到对应的容器中。</p>
+
+<p>目前能暴露的字段</p>
+<ul>
+  <li>node’s name</li>
+  <li>pod’s name</li>
+  <li>pod’s namespace</li>
+  <li>pod’s ip</li>
+  <li>pod’s serviceAccount name</li>
+  <li>pod’s UID</li>
+  <li>pod’s labels</li>
+  <li>pod’s annotations</li>
+  <li>容器 CPU limit</li>
+  <li>容器 CPU request</li>
+  <li>容器 memory limit</li>
+  <li>容器 memory request</li>
+</ul>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-downwardapi-volume-example</span>
+  <span class="s">labels</span><span class="pi">:</span>
+    <span class="s">zone</span><span class="pi">:</span> <span class="s">us-est-coast</span>
+    <span class="s">cluster</span><span class="pi">:</span> <span class="s">test-cluster1</span>
+    <span class="s">rack</span><span class="pi">:</span> <span class="s">rack-22</span>
+  <span class="s">annotations</span><span class="pi">:</span>
+    <span class="s">build</span><span class="pi">:</span> <span class="s">two</span>
+    <span class="s">builder</span><span class="pi">:</span> <span class="s">john-doe</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">client-container</span>
+      <span class="s">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/busybox</span>
+      <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">sh"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">-c"</span><span class="pi">]</span>
+      <span class="s">args</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">while true; do</span>
+          <span class="s">if [[ -e /etc/labels ]]; then</span>
+            <span class="s">echo -en '\n\n'; cat /etc/labels; fi;</span>
+          <span class="s">if [[ -e /etc/annotations ]]; then</span>
+            <span class="s">echo -en '\n\n'; cat /etc/annotations; fi;</span>
+          <span class="s">sleep 5;</span>
+        <span class="s">done;</span>
+      <span class="s">volumeMounts</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">podinfo</span>
+          <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/etc</span>
+          <span class="s">readOnly</span><span class="pi">:</span> <span class="s">false</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">podinfo</span>
+      <span class="s">downwardAPI</span><span class="pi">:</span>
+        <span class="s">items</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">labels"</span>
+            <span class="s">fieldRef</span><span class="pi">:</span>
+              <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">metadata.labels</span>
+          <span class="pi">-</span> <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">annotations"</span>
+            <span class="s">fieldRef</span><span class="pi">:</span>
+              <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">metadata.annotations</span>
+</code></pre>
+</div>
+
+<h4 id="projected">projected</h4>
+
+<p>projected volume 可以将几个volume内容隐射到同样的目录中，当前只支持secret、configmap、downwardAPI</p>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">volume-test</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">container-test</span>
+    <span class="s">image</span><span class="pi">:</span> <span class="s">busybox</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">all-in-one</span>
+      <span class="s">mountPath</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/projected-volume"</span>
+      <span class="s">readOnly</span><span class="pi">:</span> <span class="s">true</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">all-in-one</span>
+    <span class="s">projected</span><span class="pi">:</span>
+      <span class="s">sources</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">secret</span><span class="pi">:</span>
+          <span class="s">name</span><span class="pi">:</span> <span class="s">mysecret</span>
+          <span class="s">items</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">key</span><span class="pi">:</span> <span class="s">username</span>
+              <span class="s">path</span><span class="pi">:</span> <span class="s">my-group/my-username</span>
+      <span class="pi">-</span> <span class="s">downwardAPI</span><span class="pi">:</span>
+          <span class="s">items</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">labels"</span>
+              <span class="s">fieldRef</span><span class="pi">:</span>
+                <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">metadata.labels</span>
+            <span class="pi">-</span> <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">cpu_limit"</span>
+              <span class="s">resourceFieldRef</span><span class="pi">:</span>
+                <span class="s">containerName</span><span class="pi">:</span> <span class="s">container-test</span>
+                <span class="s">resource</span><span class="pi">:</span> <span class="s">limits.cpu</span>
+      <span class="pi">-</span> <span class="s">configMap</span><span class="pi">:</span>
+          <span class="s">name</span><span class="pi">:</span> <span class="s">myconfigmap</span>
+          <span class="s">items</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">key</span><span class="pi">:</span> <span class="s">config</span>
+              <span class="s">path</span><span class="pi">:</span> <span class="s">my-group/my-config</span>
+</code></pre>
+</div>
+
+<h4 id="local">local</h4>
+
+<p>local volume在1.7中目前还是alpha版本，主要是用来将本地的disk，分区或者目录进行挂载。local volume只能以静态创建的PV使用。相对于HostPath，localhost可以直接以持久化的方式使用（它总是通过NodeAffinity调度在某个指定的节点上），而hostpath是无法直接以pv来使用的。</p>
+
 <h4 id="hostpath">hostPath</h4>
+
+<p>hostPath 就是将宿主机上的目录或文件挂在到pod里。比如我们常用到<code class="highlighter-rouge">hostPath</code>的几个例子</p>
+
+<ul>
+  <li>容器应用程序的日志，需要永久保存时，可以使用hostPath隐射宿主机上的高速文件存储</li>
+  <li>运行的容器需要访问Docker内部结构：使用hostPath映射/var/lib/docker</li>
+  <li>在容器中运行cAdvisor，使用hostPath映射/dev/cgroups</li>
+</ul>
+
+<p>而当我们在使用hostPath的时候需要注意以下几点</p>
+
+<ul>
+  <li>在不同Node上具有相同配置的pod(通过podTemplate创建的)，可能会因为宿主机上的目录和文件不同而导致volume上目录和文件的访问结果不一致</li>
+  <li>如果使用资源配额，无法将hostPath在宿主机上使用的资源纳入管理</li>
+  <li>如果宿主机上的目录是root权限，那么你也必须以root身份来运行你的进程，或者，修改你的目录权限以便于能让hostPath卷有写权限</li>
+</ul>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">test-pd</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">image</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">test-container</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
+      <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+    <span class="s">hostPath</span><span class="pi">:</span>
+      <span class="s">path</span><span class="pi">:</span> <span class="s">/data</span>
+</code></pre>
+</div>
+
+<p>其实hostPath也能算是持久存储的一种，只不过局限性太大了。这里我们详细的讲讲外部存储和分布式存储在kubernetes中的使用(aws和gce的就不讲了，没环境)。</p>
+
+<p><a href="https://github.com/kubernetes/kubernetes/tree/master/examples/volumes">详细的例子</a>大家可以参考官方的例子</p>
+
+<h4 id="nfs">NFS</h4>
+
+<p>NFS是Network File System的缩写，即网络文件系统。kubernetes中通过简单的配置就可以挂载NFS到Pod中，而NFS中的数据是可以永久保存的，同时NFS支持同时写操作。</p>
+
+<p>首先，你得有个已经搭建好的NFS服务</p>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">test-pd</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">image</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">test-container</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
+      <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+    <span class="s">nfs</span><span class="pi">:</span>
+      <span class="s">server</span><span class="pi">:</span> <span class="s">163.xx.xx.xx</span>
+      <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
+</code></pre>
+</div>
+
 <h4 id="persistent-volume">persistent volume</h4>
+
+<p>事实上，我们可以单独在Pod中指定外部存储，也可以将这些外部存使用PersistentVolume资源化。</p>
+
+<p>之前我们提到的volume都是定义在pod上的，和 pod 是一种静态绑定关系，属于”计算资源”的一部分，而实际上，“网络存储”是独立于“计算资源”之外而存在的一种实体资源。比如我们在使用虚机的情况下，我们通常会定义一个网络存储，然后从中划出一定的空间连接到虚拟机。而persistent volume和与之关联的persistent volume claim就起到了类似的作用。</p>
+
+<p>PersistentVolume(PV)是集群中的一块网络存储，用来提供网络存储资源 。跟Node一样，也是集群的资源。PV 跟volume类似，不过会有独立于Pod的生命周期。
+PersistentVolumeClaim(PVC)是对PV的请求。PVC有点类似于Pod，pod消耗node的资源，而PVC消耗PV的资源。Pod请求CPU和内存，而PVC请求特定大小和访问模式的数据卷。</p>
+
+<p>PV的访问模式有三种：</p>
+
+<ul>
+  <li>ReadWriteOnce(RWO):最基本的访问方式，可读可写，但只支持被耽搁pod挂载</li>
+  <li>ReadOnlyMany(ROX):可以以只读的方式被多个pod挂载</li>
+  <li>ReadWriteMany(RWX):以读写的方式被多个POD挂载。</li>
+</ul>
+
+<p>并不是所有存储都支持这三种方式，像共享方式，目前支持的还比较少，比较常用的是NFS。在PVC绑定PV时通常根据两个条件来绑定，一个实存储大小，一个是访问方式。
+<strong>需要注意的是，虽然PV支持三种访问模式，但它同时只支持一种方式来访问PV</strong></p>
+
+<h5 id="创建pv的方式有两种">创建PV的方式有两种</h5>
+
+<p>有两种创建PV的方式：静态和动态</p>
+
+<h6 id="静态">静态</h6>
+
+<p>所谓静态，就是管理员手动创建一堆PV，组成一个PV池，供PVC来绑定。</p>
+
+<h6 id="动态">动态</h6>
+<p>经过API抽象，用户可以通过PVC使用存储资源，通常用户还会关心PV的很多属性，例如对不同的应用场景需要不同的性能，仅仅提供存储大小和访问模式不能满足要求。集群管理员一方面要提供不同PV的多种属性，一方面要隐藏底层的细节，还有一点是不再需要管理员手动去创建PV,这就引入了<code class="highlighter-rouge">StorageClass</code>资源。管理员用存储级别StorageClass描述存储的分类，不同的分类可以对应不同的质量服务Qos等级、备份策略和其他自定义的策略。kubernetes本身不参与存储级别的划分，StorageClass概念在有的存储系统里被称为”profiles”</p>
+
+<p>所谓动态，就是当所有的静态PV都不匹配用户的PVC时，集群通过storageClass的对象由存储系统根据PVC的要求自动创建。这种基于<code class="highlighter-rouge">StorageClass</code>的PV，管理员必须事先创建和配置这样的storage class。请求等级配置为<code class="highlighter-rouge">" "</code>的PVC，有效地禁用了它自身的动态供给功能。</p>
+
+<h6 id="class">class</h6>
+
+<p>我们可以根据不同的需求创建不同类型的PV(这种PV是基于<code class="highlighter-rouge">StorageClass</code>，是自动创建的)，然后我们可以通过为PVC指定<code class="highlighter-rouge">storageClassName</code>来请求PV，如果集群中有这个class，那么当用户请求的时候，kubernetes会自动的创建PV，如果集群中有默认的storageclass，那么你只需要创建PVC即可，无需指定<code class="highlighter-rouge">storageClassName</code>,剩下的都有默认的动态配置来搞定。</p>
+
+<p>举个例子：比如我现在需要两种类型的存储，一种是SSD，一种是普通的硬盘，那么这时候，我就可以创建两种class的<code class="highlighter-rouge">StorageClass</code>,然后在创建PVC时，指定不同的<code class="highlighter-rouge">storageClassName</code>即可，如下：</p>
+
+<p>每个<code class="highlighter-rouge">StorageClass</code>都包含<code class="highlighter-rouge">provisioner</code>和<code class="highlighter-rouge">parameters</code>这个两个字段，具体怎么配置这些storageclass，有哪些存储支持storageclass,请参考<a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">官网</a></p>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">kind</span><span class="pi">:</span> <span class="s">StorageClass</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">storage.k8s.io/v1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">slow</span>
+<span class="s">provisioner</span><span class="pi">:</span> <span class="s">kubernetes.io/gce-pd</span>
+<span class="s">parameters</span><span class="pi">:</span>
+  <span class="s">type</span><span class="pi">:</span> <span class="s">pd-standard</span>
+</code></pre>
+</div>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">kind</span><span class="pi">:</span> <span class="s">StorageClass</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">storage.k8s.io/v1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">fast</span>
+<span class="s">provisioner</span><span class="pi">:</span> <span class="s">kubernetes.io/gce-pd</span>
+<span class="s">parameters</span><span class="pi">:</span>
+  <span class="s">type</span><span class="pi">:</span> <span class="s">pd-ssd</span>
+</code></pre>
+</div>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">PersistentVolumeClaim</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">pvc-fast</span>
+  <span class="s">storageClassName</span><span class="pi">:</span> <span class="s">fast</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">accessModes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">ReadOnlyMany</span>
+  <span class="s">resources</span><span class="pi">:</span>
+    <span class="s">requests</span><span class="pi">:</span>
+      <span class="s">storage</span><span class="pi">:</span> <span class="s">2Gi</span>
+</code></pre>
+</div>
+<p>当用户请求资源的时候，如果是通过pvc-fast请求，这时候就会绑定到一个SSD，而不会绑定到普通硬盘。</p>
+
+<h6 id="绑定">绑定</h6>
+
+<p>在动态配置的情况下，当用户创建或者之前就已经创建了具有特定数量或具有某些访问模式的PVC的时候。master中的loop control会监视新的PVC，找到匹配的PV，然后将它们绑定到一起。如果这个PV是通过动态提供给PVC，那么loop control会始终绑定这个PV给这个PVC。否则，用户可能会一直请求PV，但是实际上又没有那么多PV资源。还需要注意的事，一旦绑定了PVC，就不能再绑定其他。</p>
+
+<h6 id="使用">使用</h6>
+
+<p>Pod使用PVC和使用Volume一样。集群检查PVC然后找到绑定的pv，然后隐射给pod使用。
+一旦用户拥有了一个PVC，并且PVC被绑定，那么只要用户还需要，PV就一直属于这个用户。</p>
+
+<h6 id="回收">回收</h6>
+
+<p>当用户不在需要PV时，我们可以删除PVC来回收PV，<code class="highlighter-rouge">PersistentVolume</code>中的回收策略会告诉kubernetes当PVC被释放后该怎么做，目前，支持的策略如下</p>
+
+<ul>
+  <li>Retained(保留)</li>
+</ul>
+
+<p>当PVC被删除后，PV仍然被保留下来，并且会变成<code class="highlighter-rouge">released</code>。但是它还不能被其他PVC使用，因为现在PV上仍然有上一个PVC所请求的数据。</p>
+
+<ul>
+  <li>Recycled(再利用)</li>
+</ul>
+
+<p>当PVC被删除后，kubernetes会将PV里的数据删除，然后把PV变成Available，然后又可以被新的PVC绑定</p>
+
+<p>这个原理实际上是：在删除PVC之后，会运行一个POD来执行一个(<code class="highlighter-rouge">rm -rf /thevolume/*</code>)的操作，删除pv下的所有数据</p>
+
+<p><strong>默认回收运行的POD用的image是gcr上的busybox，而且image策略是always，因为这个原因，你可能始终无法回收PV，这时候，就需要去重新配置回收POD的模板了，模板内容如下</strong></p>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">recycler-for-nfs</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">default</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">restartPolicy</span><span class="pi">:</span> <span class="s">Never</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">vol</span>
+    <span class="s">nfs</span><span class="pi">:</span>
+      <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
+      <span class="s">server</span><span class="pi">:</span> <span class="s">163.xx.xx.xx</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">pv-recycler</span>
+    <span class="s">image</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gcr.io/google_containers/busybox"</span>
+    <span class="s">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
+    <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">/bin/sh"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">-c"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">test</span><span class="nv"> </span><span class="s">-e</span><span class="nv"> </span><span class="s">/scrub</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">rm</span><span class="nv"> </span><span class="s">-rf</span><span class="nv"> </span><span class="s">/scrub/..?*</span><span class="nv"> </span><span class="s">/scrub/.[!.]*</span><span class="nv"> </span><span class="s">/scrub/*</span><span class="nv">  </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">-z</span><span class="nv"> </span><span class="se">\"</span><span class="s">$(ls</span><span class="nv"> </span><span class="s">-A</span><span class="nv"> </span><span class="s">/scrub)</span><span class="se">\"</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1"</span><span class="pi">]</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">vol</span>
+      <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/scrub</span>
+</code></pre>
+</div>
+
+<p>写好模板了，还需要在<code class="highlighter-rouge">kube-controller-manager</code>中去配置模板，<a href="https://kubernetes.io/docs/admin/kube-controller-manager/">更多详细信息</a>可参考官网</p>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="c1"># 指定nfs回收模板的位置</span>
+<span class="pi">-</span> <span class="s">--pv-recycler-pod-template-filepath-nfs=/etc/kubernetes/recycler-for-nfs.yaml</span>
+
+<span class="c1"># 在容器下挂载模板文件</span>
+<span class="s">volumeMounts</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/etc/kubernetes/recycler-for-nfs.yaml"</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">recycler-nfs</span>
+
+<span class="c1"># 将宿主机上的模板文件挂载到pod</span>
+<span class="s">volumes</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">recycler-nfs</span>
+  <span class="s">hostPath</span><span class="pi">:</span>
+    <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/etc/kubernetes/recycler-for-nfs.yaml"</span>
+</code></pre>
+</div>
+
+<p>下面我们来新建PV和PVC来测试一下</p>
+
+<p>nfs-pv.yaml</p>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">PersistentVolume</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">nfs</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">capacity</span><span class="pi">:</span>
+    <span class="s">storage</span><span class="pi">:</span> <span class="s">5Gi</span>
+  <span class="s">accessModes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">ReadWriteOnce</span>
+  <span class="s">persistentVolumeReclaimPolicy</span><span class="pi">:</span> <span class="s">Recycle</span>
+  <span class="s">nfs</span><span class="pi">:</span>
+    <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
+    <span class="s">server</span><span class="pi">:</span> <span class="s">163.44.165.142</span>
+</code></pre>
+</div>
+
+<p>nfs-pvc.yaml</p>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">PersistentVolumeClaim</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">nfs</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">accessModes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">ReadWriteOnce</span>
+  <span class="s">resources</span><span class="pi">:</span>
+    <span class="s">requests</span><span class="pi">:</span>
+      <span class="s">storage</span><span class="pi">:</span> <span class="s">5Gi</span>
+</code></pre>
+</div>
+
+<p>nfs-nginx.yaml</p>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">test-pd</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">image</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">test-container</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
+      <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+    <span class="s">persistentVolumeClaim</span><span class="pi">:</span>
+      <span class="s">claimName</span><span class="pi">:</span> <span class="s">nfs</span>
+
+</code></pre>
+</div>
+
+<p>命令如下：</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建PV,PVC以及关联的POD</span>
+kubectl create -f nfs-pv.yaml
+kubectl create -f nfs-pvc.yaml
+kubectl create -f nfs-nginx.yaml
+
+<span class="c"># 查看创建的PV</span>
+<span class="gp">$ </span>kubectl get pv
+NAME      CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS    CLAIM         STORAGECLASS   REASON    AGE
+nfs       5Gi        RWO           Recycle         Bound     default/nfs                            1h
+
+<span class="c"># 查看创建的PVC</span>
+<span class="gp">$ </span>kubectl get pvc
+NAME      STATUS    VOLUME    CAPACITY   ACCESSMODES   STORAGECLASS   AGE
+nfs       Bound     nfs       5Gi        RWO                          8m
+
+<span class="c"># 然后我们进入pod中新建一个文件recycle-file</span>
+<span class="gp">$ </span>kubectl <span class="nb">exec</span> -ti <span class="nb">test</span>-pd /bin/bash
+<span class="gp">$ </span>touch recycle-file
+</code></pre>
+</div>
+
+<p>我们发现nfs的回收策略是<code class="highlighter-rouge">Recycle</code>，当前状态是<code class="highlighter-rouge">Bound</code>，那么假如我现在将PVC删除掉呢，下面我们来操作试试看</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl delete -f nfs-nginx.yaml
+kubectl delete -f nfs-pvc.yaml
+
+<span class="c"># 查看现在的pv</span>
+<span class="gp">$ </span>kubectl get pv
+NAME      CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS     CLAIM         STORAGECLASS   REASON    AGE
+nfs       5Gi        RWO           Recycle         Released   default/nfs                            1h
+
+<span class="c"># 过了一会儿，再看pv</span>
+<span class="gp">$ </span>kubectl get pv
+NAME      CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS      CLAIM     STORAGECLASS   REASON    AGE
+nfs       5Gi        RWO           Recycle         Available                                      1h
+
+<span class="c"># 再重新使用PVC关联POD</span>
+kubectl create -f nfs-pvc.yaml
+kubectl create -f nfs-nginx.yaml
+
+<span class="c"># 进入pod中看看数据是否还存在</span>
+<span class="gp">$ </span>kubectl <span class="nb">exec</span> -ti <span class="nb">test</span>-pd ls /test-pd
+</code></pre>
+</div>
+
+<p>我们发现当我们的回收策略是<code class="highlighter-rouge">Recycle</code>时，删除PVC之后，PV的状态先是<code class="highlighter-rouge">Released</code>，然后过一会儿之后，会变成<code class="highlighter-rouge">Available</code>状态，而且PV上的数据也已经被删除了，这时候就可以再次被其他的PVC使用了。</p>
+
+<p><strong>注意：当前只有NFS和HostPath支持回收利用操作</strong></p>
+
+<ul>
+  <li>Delete(删除)</li>
+</ul>
+
+<p>当PVC被删除后，kubernetes会删除PV及里面的数据。</p>
+
+<p><strong>注意：当前只有AWS EBS,GCE PD,AZURE DISK,OPENSTACK CINDER卷支持删除操作</strong></p>
+
+<p><strong>注意：动态PV，总会在PVC被删除后被删除</strong></p>
+
+<h6 id="pv阶段状态">PV阶段状态</h6>
+
+<p>一个volume会处于下面的几个状态之一</p>
+
+<ul>
+  <li>Avaliable 尚未绑定到PVC上的可用资源</li>
+  <li>Bound 已经被绑定到PVC</li>
+  <li>Released PVC已被删除，但是资源尚未回收</li>
+  <li>Failed 自动回收失败</li>
+</ul>
+
+<h6 id="capacity">Capacity</h6>
+
+<p>通常，我们在创建PV的时候，会从存储上给它划定一定大小的容量，这就使用capacity来指定即可。</p>
+
+<h6 id="resource">resource</h6>
+
+<p>pvc，就像pod一样，可以指定request资源的大小</p>
+
+<h6 id="selector">selector</h6>
+
+<p>PVC也可以指定标签选择器进行深度过滤PV，只有匹配了selector的PV才能绑定给PVC</p>
+
+<ul>
+  <li>matchLabels 单个匹配</li>
+  <li>matchExpressions 表达式匹配</li>
+</ul>
 
 <h3 id="namespace">Namespace</h3>
 
+<p>Namespace一般用于实现多租户的资源隔离。namespace 通过将集群内部的资源分配到不同的Namespace中，形成逻辑上不同项目、小组或环境的隔离，同时利用resource quota实现资源的管控限制，而随着kubernetes访问控制的深入，namespace开始与kubernetes的认证和授权机制结合。</p>
+
 <h3 id="annotation">Annotation</h3>
+
+<p>annotation 和label类似，也是使用 key/value的形式进行定义。不同的是label具有严格的命名规则，它定义的是kubernetes对象的元数据，并且用于label selector，而annotation测试用户任意定义的”附加”信息，以便于外部工具进行查找，很多时候，kubernetes的模块会通过annotation的方式标记资源的特殊信息。</p>
 
     </article>
     <div class="share">
