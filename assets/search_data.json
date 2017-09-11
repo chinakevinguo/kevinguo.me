@@ -1,5 +1,11 @@
 {
   
+  "2017-09-06-kubernetes-ceph-1": {
+    "title": "kubernetes ceph 笔记 1",
+    "url": " /2017/09/06/kubernetes-ceph-1/",
+    "category": "kubernetes"
+  },
+  
   "2017-09-01-kubernetes-one-section": {
     "title": "kubernetes 入门",
     "url": " /2017/09/01/kubernetes-one-section/",
@@ -666,6 +672,12 @@
     "title": "kubernetes 入门",
     "url": "/2017/09/01/kubernetes-one-section/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
+  },
+  
+  "2017-09-06-kubernetes-ceph-1": {
+    "title": "kubernetes ceph 笔记 1",
+    "url": "/2017/09/06/kubernetes-ceph-1/",
+    "category": "[&quot;kubernetes&quot;, &quot;ceph&quot;]"
   }
   
 }

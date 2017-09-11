@@ -1,4 +1,330 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-05T18:40:02+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes 入门</title><link href="https://kevinguo.me/2017/09/01/kubernetes-one-section/" rel="alternate" type="text/html" title="kubernetes 入门" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/kubernetes-one-section</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/kubernetes-one-section/">&lt;h2 id=&quot;入门概念&quot;&gt;入门概念&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-11T21:31:26+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes ceph 笔记 1</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 1" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-1</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/">&lt;blockquote&gt;
+  &lt;p&gt;该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群
+；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;简介&quot;&gt;简介&lt;/h3&gt;
+
+&lt;p&gt;Ceph是一个符合POSIX、开源的分布式存储系统，不论你是想提供&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph 对象存储&lt;/code&gt;或&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph 块设备&lt;/code&gt;，还是想部署一个&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph文件系统&lt;/code&gt;或者把ceph作为他用，所有 &lt;code class=&quot;highlighter-rouge&quot;&gt;Ceph存储集群&lt;/code&gt; 的部署都始于部署一个个 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph节点&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;网络&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph存储集群&lt;/code&gt;，ceph 存储集群至少需要一个 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph monitor&lt;/code&gt;和两个&lt;code class=&quot;highlighter-rouge&quot;&gt;osd守护进程&lt;/code&gt;。而运行&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph文件系统客户端&lt;/code&gt;，则必须需要MDS(元数据服务器)。&lt;/p&gt;
+
+&lt;p&gt;基础组件:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Ceph OSDs: Ceph OSD 守护进程的功能是存储数据，处理数据的复制、恢复、回填、再均衡，并通过检查其他OSD守护进程的心跳来向 Ceph Monitors 提供一些监控信息。当Ceph 存储集群设定为有2个副本时，至少需要2个OSD守护进程，集群才能到到&lt;code class=&quot;highlighter-rouge&quot;&gt;active+clean&lt;/code&gt;状态(Ceph 默认有3个副本，你可以调整&lt;code class=&quot;highlighter-rouge&quot;&gt;osd poll default size&lt;/code&gt;)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Ceph Monitors: Ceph Monitor基于PAXOS算法维护着 展示集群状态的各种图表，包括监视器图、OSD图、PG图、CRUSH图。Ceph 保存着发生在Monitors、OSD和PG上的每一次状态变更的历史信息(称为 epoch)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;MDSs：Ceph MDS为 Ceph 文件系统存储元数据(也就是说，Ceph块设备和Ceph对象存储是不是用MDS)。MDS使得POSIX文件系统的用户们，可以在部队Ceph存储集群造成负担的前提下，执行诸如 &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt;等基本命令&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;下图展示了Ceph的基础架构图&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/ceph-soft-topu.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;1基础存储系统rados&quot;&gt;1.基础存储系统RADOS&lt;/h4&gt;
+
+&lt;p&gt;RADOS (Reliable Autonomic Distributed Object Store),这一层本身就是一个完整的对象存储系统，包括Ceph的基础服务(OSD,MON,MDS)，所有存储在ceph中的用户数据实际上最终都是由这一层来存储的。而Ceph的高可用，高扩展性，高自动化等特性本质上也是有这一层所提供的，因此，RADOS是ceph的核心精华部分。&lt;/p&gt;
+
+&lt;h4 id=&quot;2基础库librados&quot;&gt;2.基础库LibRados&lt;/h4&gt;
+
+&lt;p&gt;这一层是对RADOS进行抽象和封装，并向上层提供不同的API，这样上层的RBD、RGW、CephFS才能访问RADOS，RADOS所提供的原生librados API包括C和C++两种。&lt;/p&gt;
+
+&lt;h4 id=&quot;3高层存储应用接口&quot;&gt;3.高层存储应用接口&lt;/h4&gt;
+
+&lt;p&gt;这一层包含了RGW、RBD和CephFS这几个部分，其作用是在librados库的基础上提供抽象层次更高，更便于应用和用户端使用的上层接口。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;RGW: 是一个提供与S3和Swift兼容的RESTful API的gateway，以供对应的对象存储应用开发使用。通过RGW可以将RADOS响应转化为HTTP响应，同样也可以将外部的HTTP响应状花为RADOS调用。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;RBD：提供一个标准的块设备接口服务。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;CephFS: 提供一个POSIX兼容的分布式文件系统。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;4client层&quot;&gt;4.client层&lt;/h4&gt;
+
+&lt;p&gt;这一层其实就是不同场景下对于ceph各个应用接口的各种应用方式，例如基于librados直接开发的对象存储应用，基于RGW开发的对象存储应用，基于RBD实现的云硬盘等等。&lt;/p&gt;
+
+&lt;h4 id=&quot;5其他&quot;&gt;5.其他&lt;/h4&gt;
+
+&lt;p&gt;一个Cluster逻辑上可以划分为多个Pool，一个Pool由若干个逻辑PG组成。&lt;/p&gt;
+
+&lt;p&gt;一个文件会被切分为多个Object，每个Object会被映射到一个PG，每个PG 会根据CRUSH算法映射到一组OSD，其中第一个OSD（Primary OSD）为主，其余是备，OSD间通过心跳来互相监控存活状态。&lt;/p&gt;
+
+&lt;p&gt;CRUSH： CRUSH是ceph使用的数据分布算法，类似一致性哈希，让数据分配到预期的地方。&lt;/p&gt;
+
+&lt;h3 id=&quot;一快速安装&quot;&gt;一.快速安装&lt;/h3&gt;
+
+&lt;h4 id=&quot;11-安装前准备&quot;&gt;1.1 安装前准备&lt;/h4&gt;
+
+&lt;p&gt;所需机器如下&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;IP&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;HostName&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;OS&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;role&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.31&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;deploy-node&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;deploy node&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.90&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;k8s-master01&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;monitor osd node1&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.91&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;k8s-master02&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;osd node2&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.92&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;k8s-master03&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;osd node3&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h5 id=&quot;在管理节点上操作&quot;&gt;在管理节点上操作&lt;/h5&gt;
+
+&lt;p&gt;1.执行如下命令&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo yum install -y yum-utils &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sudo yum-config-manager --add-repo https://dl.fedoraproject.org/pub/epel/7/x86_64/ &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sudo yum install --nogpgcheck -y epel-release &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sudo rm /etc/yum.repos.d/dl.fedoraproject.org&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.将软件包源加入软件仓库&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;vim /etc/yum.repos.d/ceph.repo
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph]
+&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ceph
+&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://mirrors.163.com/ceph/rpm-jewel/el7/x86_64/
+&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph-noarch]
+&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cephnoarch
+&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://mirrors.163.com/ceph/rpm-jewel/el7/noarch/
+&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.更新并安装&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-deploy&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo yum update &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sudo yum install ceph-deploy
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;4.配置从部署机器到所有其他节点的免密钥登录，具体参考&lt;a href=&quot;https://kevinguo.me/2017/07/06/ansible-client/&quot;&gt;这里&lt;/a&gt;&lt;/p&gt;
+
+&lt;h5 id=&quot;在节点上操作&quot;&gt;在节点上操作&lt;/h5&gt;
+
+&lt;p&gt;1.安装epel源&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;yum install yum-plugin-priorities
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;yum install epel-release -y
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.校对时间，由于ceph使用Paxos算法保证数据一致性，所以安装前要先保证各个节点的时间同步&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo yum install ntp ntpdate ntp-doc
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ntpdate 0.cn.pool.ntp.org
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.开放所需端口或关闭防火墙&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;system stop firewalld
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo firewall-cmd --zone&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;public --add-port&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;6789/tcp --permanent
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;4.关闭selinux&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo setenforce 0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;12-创建集群&quot;&gt;1.2 创建集群&lt;/h4&gt;
+
+&lt;p&gt;1.由于ceph-deploy工具部署集群前需要创建一些集群配置信息，其保存在&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph.conf&lt;/code&gt;文件中，这个文件将来会被复制到每个节点的 &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/ceph/ceph.conf&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建集群配置目录&lt;/span&gt;
+mkdir ceph-cluster &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;ceph-cluster
+&lt;span class=&quot;c&quot;&gt;# 创建 monitor-node&lt;/span&gt;
+ceph-deploy new k8s-master01
+&lt;span class=&quot;c&quot;&gt;# 追加 OSD 副本数量(测试虚拟机总共有3台)&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;osd pool default size = 3&quot;&lt;/span&gt; &amp;gt;&amp;gt; ceph.conf
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.创建集群使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-deploy&lt;/code&gt;工具在部署节点上执行即可&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 安装ceph&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy install k8s-master01 k8s-master02 k8s-master03
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 添加ceph 163源&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph]
+&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ceph
+&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://mirrors.163.com/ceph/rpm-jewel/el7/x86_64/
+&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph-noarch]
+&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cephnoarch
+&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://mirrors.163.com/ceph/rpm-jewel/el7/noarch/
+&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;yum install ceph ceph-radosgw -y
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.初始化monitor node 和密钥文件&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy mon create-initial
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;4.在osd节点上创建一个目录作为 osd 存储，并修改其权限,千万别创建在&lt;code class=&quot;highlighter-rouge&quot;&gt;/usr/local&lt;/code&gt;目录下，否则，你的osd可能会无法挂载&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ssh k8s-master01
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo mkdir /data/osd1
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;chown -R ceph:ceph osd1
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;exit&lt;/span&gt;
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ssh k8s-master2
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo mkdir /data/osd2
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;chown -R ceph:ceph osd2
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;exit&lt;/span&gt;
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ssh k8s-master3
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo mkdir /data/osd3
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;chown -R ceph:ceph osd3
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;exit&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;5.然后，在管理节点上初始化 osd&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy osd prepare k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;6.最后，在管理节点上激活 osd&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy osd activate k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;7.在管理节点上部署 ceph cli 工具和密钥文件&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy admin k8s-master01 k8s-master02 k8s-master03
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;8.确保你对 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph.client.admin.keyring&lt;/code&gt;有正确的操作权限，在每个节点上执行&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo chmod +r /etc/ceph/ceph.client.admin.keyring
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;9.最后，检查集群的健康状态&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph health
+HEALTH_OK
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph osd tree
+ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
+-1 0.14067 root default                                            
+-2 0.04689     host k8s-master01                                   
+ 0 0.04689         osd.0              up  1.00000          1.00000
+-3 0.04689     host k8s-master02                                   
+ 1 0.04689         osd.1              up  1.00000          1.00000
+-4 0.04689     host k8s-master03                                   
+ 2 0.04689         osd.2              up  1.00000          1.00000
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;我们看到状态是OK的，而且每个节点上的osd的状态都是up的&lt;/p&gt;
+
+&lt;p&gt;如果在某些地方碰到麻烦，想从头再来，可以用下列命令来清楚配置：&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy purgedata &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}]&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy forgetkeys
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;用下列命令可以连Ceph安装包一起清除：&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy purge &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;二操作集群&quot;&gt;二.操作集群&lt;/h3&gt;
+
+&lt;h4 id=&quot;21-基础操作&quot;&gt;2.1 基础操作&lt;/h4&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建MDS&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy mds create &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# 创建RGW&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy rgw create &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# 添加mon&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;public network = 172.30.33.0/24&quot;&lt;/span&gt; &amp;gt;&amp;gt; ceph.conf
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy mon add &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# 查看仲裁&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph quorum_status --format json-pretty
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;22-对象存储测试&quot;&gt;2.2 对象存储测试&lt;/h4&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建pool&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# rados mkpool {pool-name}&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rados mkpool &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool
+
+&lt;span class=&quot;c&quot;&gt;# 创建测试文件&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;testfile &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+
+&lt;span class=&quot;c&quot;&gt;# 创建一个对象(这时候也将对象放入了pool中)&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# rados put {object-name} {file-path} --pool={pool-name}&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rados put &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-object testfile --pool&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool
+
+&lt;span class=&quot;c&quot;&gt;# 检查存储池，确认ceph存储了此对象&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rados -p &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool ls
+
+&lt;span class=&quot;c&quot;&gt;# 定位对象位置&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph osd map &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-object
+
+&lt;span class=&quot;c&quot;&gt;# 删除对象&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rados -p data rm &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-object
+
+&lt;span class=&quot;c&quot;&gt;# 删除存储池&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rados rmpool &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool --yes-i-really-really-mean-it
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。</summary></entry><entry><title type="html">kubernetes 入门</title><link href="https://kevinguo.me/2017/09/01/kubernetes-one-section/" rel="alternate" type="text/html" title="kubernetes 入门" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/kubernetes-one-section</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/kubernetes-one-section/">&lt;h2 id=&quot;入门概念&quot;&gt;入门概念&lt;/h2&gt;
 
 &lt;p&gt;为什么要使用kubernetes&lt;/p&gt;
 
@@ -2216,296 +2542,4 @@ env:
             &lt;span class=&quot;s&quot;&gt;2.2.4&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">Pillar 主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息</summary></entry><entry><title type="html">kubespray容器化部署kubernetes高可用集群(3)</title><link href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/" rel="alternate" type="text/html" title="kubespray容器化部署kubernetes高可用集群(3)" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/">&lt;blockquote&gt;
-  &lt;p&gt;上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;!--more--&gt;
-&lt;p&gt;目前尚不确定kubernetes各个插件版本之间的兼容性，我使用kubespray部署的各个IMAGE在&lt;a href=&quot;https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41&quot;&gt;第一章&lt;/a&gt;中已经列出来了，中途在部署heapster和kibana的时候出了点问题，其他还未发现什么问题&lt;/p&gt;
-
-&lt;p&gt;目前，我所用到的插件如下：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;ingress&lt;/li&gt;
-  &lt;li&gt;kubedns&lt;/li&gt;
-  &lt;li&gt;dashboard&lt;/li&gt;
-  &lt;li&gt;efk&lt;/li&gt;
-  &lt;li&gt;heapster&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;kubernetes-dashboard&quot;&gt;kubernetes-dashboard&lt;/h3&gt;
-
-&lt;p&gt;1.从&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes&lt;/code&gt;官方git下载&lt;a href=&quot;https://github.com/kubernetes/kubernetes.git&quot;&gt;最新源码&lt;/a&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/kubernetes/kubernetes.git
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;2.进入dashboard所在的目录，执行yml文件&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;/kubernetes/cluster/addons/dashboard
-kubectl create -f .
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;3.确认dashboard是否成功创建&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 确认deployment&lt;/span&gt;
-kubectl get deployment -n kube-system |grep dashboard
-
-&lt;span class=&quot;c&quot;&gt;# 确认svc&lt;/span&gt;
-kubectl get svc -n kube-system |grep dashboard
-
-&lt;span class=&quot;c&quot;&gt;# 确认ep&lt;/span&gt;
-kubectl get ep -n kube-system |grep dashboard
-
-&lt;span class=&quot;c&quot;&gt;# 确认pods&lt;/span&gt;
-kubectl get pods -n kube-system |grep dashboard
-
-&lt;span class=&quot;c&quot;&gt;# 查看日志是否有报错&lt;/span&gt;
-kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看&lt;/p&gt;
-
-&lt;h3 id=&quot;efk&quot;&gt;EFK&lt;/h3&gt;
-
-&lt;p&gt;1.从&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes&lt;/code&gt;官方git下载&lt;a href=&quot;https://github.com/kubernetes/kubernetes.git&quot;&gt;最新源码&lt;/a&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/kubernetes/kubernetes.git
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;2.为你要运行fluentd的节点添加label，因为&lt;code class=&quot;highlighter-rouge&quot;&gt;fluentd-es-ds.yml&lt;/code&gt;文件中有&lt;code class=&quot;highlighter-rouge&quot;&gt;beta.kubernetes.io/fluentd-ds-ready: &quot;true&quot;&lt;/code&gt;标签&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true
-&lt;/span&gt;kubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true
-&lt;/span&gt;kubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;3.确认标签添加是否成功&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@k8s-master01 ~]# kubectl get nodes -l beta.kubernetes.io/fluentd-ds-ready
-NAME           STATUS    AGE       VERSION
-k8s-node01     Ready     19h       v1.6.7+coreos.0
-k8s-node02     Ready     19h       v1.6.7+coreos.0
-k8s-registry   Ready     19h       v1.6.7+coreos.0
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;4.进入fluentd-elasticsearch所在的目录，执行yml文件&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;/kubernetes/cluster/addons/fluentd-elasticsearch
-kubectl create -f .
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;5.确认EFK是否创建成功&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 确认elasticsearch是否创建成功&lt;/span&gt;
-kubectl get statefulset -n kube-system |grep elasticsearch
-kubectl get svc -n kube-system|grep elasticsearch
-kubectl get ep -n kube-system |grep elasticsearch
-kubectl get pods -n kube-system |grep elasticsearch
-
-&lt;span class=&quot;c&quot;&gt;# 确认fluentd是否创建成功&lt;/span&gt;
-kubectl get ds -n kube-system |grep fluentd
-kubectl get pods -n kube-system -o wide |grep fluentd
-
-&lt;span class=&quot;c&quot;&gt;# 确认kibana是否创建成功&lt;/span&gt;
-kubectl get deployment -n kube-system |grep kibana
-kubectl get svc -n kube-system|grep kibana
-kubectl get ep -n kube-system |grep kibana
-kubectl get pods -n kube-system |grep kibana
-
-&lt;span class=&quot;c&quot;&gt;# 查看日志是否有报错&lt;/span&gt;
-kubectl logs elasticsearch-logging-0
-kubectl logs fluentd-es-v2.0.1-kn2h2 -n kube-system
-kubectl logs kibana-logging-3636197754-tnwjh -n kube-system
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看&lt;/p&gt;
-
-&lt;h3 id=&quot;heapster&quot;&gt;heapster&lt;/h3&gt;
-
-&lt;p&gt;heapster比较简单&lt;/p&gt;
-
-&lt;p&gt;1.从&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes&lt;/code&gt;官方git下载&lt;a href=&quot;https://github.com/kubernetes/heapster.git&quot;&gt;最新源码&lt;/a&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/kubernetes/heapster.git
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;2.进入heapster的deploy目录，执行kube.sh&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;/heapster/deploy
-sh kube.sh start
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;3.确认heapster是否创建成功&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 确认heapster是否创建成功&lt;/span&gt;
-kubectl get deployment -n kube-system |grep heapster
-kubectl get svc -n kube-system |grep heapster
-kubectl get ep -n kube-system |grep heapster
-kubectl get pods -n kube-system |grep heapster
-
-&lt;span class=&quot;c&quot;&gt;# 确认influxdb是否创建成功&lt;/span&gt;
-kubectl get deployment -n kube-system |grep influxdb
-kubectl get svc -n kube-system |grep influxdb
-kubectl get ep -n kube-system |grep influxdb
-kubectl get pods -n kube-system |grep influxdb
-
-&lt;span class=&quot;c&quot;&gt;# 确认grafana是否创建成功&lt;/span&gt;
-kubectl get deployment -n kube-system |grep grafana
-kubectl get svc -n kube-system |grep grafana
-kubectl get ep -n kube-system |grep grafana
-kubectl get pods -n kube-system |grep grafana
-
-&lt;span class=&quot;c&quot;&gt;# 查看日志是否有报错&lt;/span&gt;
-kubectl logs heapster-1528902802-wcf24 -n kube-system
-kubectl logs monitoring-grafana-2527507788-jsw1n -n kube-system
-kubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看&lt;/p&gt;
-
-&lt;h3 id=&quot;ingress&quot;&gt;ingress&lt;/h3&gt;
-
-&lt;p&gt;我们知道kubernetes暴露服务的方式目前有三种: LoadBlancer Service、NodePort Service、Ingress，前两个这里暂时不讲，这里主要解释下什么是Ingress&lt;/p&gt;
-
-&lt;h4 id=&quot;什么是-ingress&quot;&gt;什么是 ingress&lt;/h4&gt;
-
-&lt;p&gt;Ingress Controller 实质上可以理解为一个监视器，Ingress Controller 通过不断跟kubernetes API打交道，实时感知后端service、pod等变化，比如新增和减少pod，service增加与减少等；当得到这些变化信息后，Ingress Controller 再结合Ingress 生成配置，然后更新反向代理负载均衡器，并刷新配置，达到服务发现的作用&lt;/p&gt;
-
-&lt;p&gt;下面的图说明一切问题
-&lt;img src=&quot;/images/posts/Ingress.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt; 如果你进入 Ingress Controller里面看过它的 nginx 配置，你会发现实际上，Ingress是直接将请求转发到了服务的 endpoint IP，并没有转发给 Service Cluster IP，据说是为了提高性能，那么这个 Service Cluster IP 存在的意义在哪呢，如果你也在问这个问题，那么你得重新学习下 Service Cluster IP在 kubernetes 集群中的作用了&lt;/p&gt;
-
-&lt;p&gt;这里简单说一下，Cluster IP是kubernetes 集群中的一个虚拟IP，仅仅是为了方便集群内部通信和服务发现的&lt;/p&gt;
-
-&lt;p&gt;概念说了这么多，下面就开始实际操作吧&lt;/p&gt;
-
-&lt;p&gt;1.从&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes&lt;/code&gt;官方git下载&lt;a href=&quot;https://github.com/kubernetes/ingress.git&quot;&gt;最新源码&lt;/a&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/kubernetes/ingress.git
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;2.为你要运行 Ingress 的节点添加label标签：role=frontal&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl label node k8s-node01 &lt;span class=&quot;nv&quot;&gt;role&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;frontal
-kubectl label node k8s-node02 &lt;span class=&quot;nv&quot;&gt;role&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;frontal
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;3.进入ingress的&lt;code class=&quot;highlighter-rouge&quot;&gt;examples/daemonset/nginx&lt;/code&gt;目录，修改yml文件&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;注意：官方给出的 daemonset 版本的yml文件中，没有绑定宿主机的80端口，也就是说前端 Nginx 没有监听宿主机的80端口（尚且不知为何），所以需要自己加一下&lt;code class=&quot;highlighter-rouge&quot;&gt;hostNetwork&lt;/code&gt;；同时因为我是将ingress部署到我指定的前端，所以还需要在文件末尾加上&lt;code class=&quot;highlighter-rouge&quot;&gt;nodeSelector&lt;/code&gt;,截图如下&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/ingress-daemonset.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/ingress-nodeselector.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;执行创建&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;pwd&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;/ingress/examples/daemonset/nginx
-
-kubectl create -f nginx-ingress-daemonset.yaml
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;4.确认 Ingress controller 是否创建成功&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 确认 ingress 是否创建成功&lt;/span&gt;
-kubectl get ds -n kube-system |grep ing
-kubectl get pods -n kube-system |grep ingress
-
-&lt;span class=&quot;c&quot;&gt;# 查看日志是否有报错&lt;/span&gt;
-kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看&lt;/p&gt;
-
-&lt;p&gt;5.Ingress controller已经创建成功了，那么现在我们来创建ingress 检验一下前面创建的服务是否成功&lt;/p&gt;
-
-&lt;p&gt;dashboard-ingress.yml&lt;/p&gt;
-
-&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;extensions/v1beta1&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Ingress&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;dashboard-ingress&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;host&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;dashboard.kevinguo.me&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-      &lt;span class=&quot;s&quot;&gt;paths&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;backend&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-          &lt;span class=&quot;s&quot;&gt;serviceName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
-          &lt;span class=&quot;s&quot;&gt;servicePort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;80&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;kibana-ingress.yml&lt;/p&gt;
-
-&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;extensions/v1beta1&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Ingress&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kibana-ingress&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;host&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kibana.kevinguo.me&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-      &lt;span class=&quot;s&quot;&gt;paths&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;backend&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-          &lt;span class=&quot;s&quot;&gt;serviceName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kibana-logging&lt;/span&gt;
-          &lt;span class=&quot;s&quot;&gt;servicePort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;5601&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;elasticsearch-ingress.yml&lt;/p&gt;
-
-&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;extensions/v1beta1&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Ingress&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;elasticsearch-ingress&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;host&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;elasticsearch.kevinguo.me&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-      &lt;span class=&quot;s&quot;&gt;paths&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;backend&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-          &lt;span class=&quot;s&quot;&gt;serviceName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;elasticsearch-logging&lt;/span&gt;
-          &lt;span class=&quot;s&quot;&gt;servicePort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;9200&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;执行创建&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create -f elasticsearch-ingress.yml
-kubectl create -f dashboard-ingress.yml
-kubectl create -f kibana-ingress.yml
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;创建完成后，我们来看看据诶过如何呢&lt;/p&gt;
-
-&lt;p&gt;Dashboard and heapster
-&lt;img src=&quot;/images/posts/dashboard-heapster.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;EFK
-&lt;img src=&quot;/images/posts/kibana.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;后期再研究新的东西了再加吧，头疼，下班了&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。</summary></entry></feed>
+&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">Pillar 主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息</summary></entry></feed>
