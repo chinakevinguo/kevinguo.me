@@ -144,7 +144,7 @@
 
 <p>下图展示了Ceph的基础架构图</p>
 
-<p><img src="/images/posts/ceph-soft-topu.png" alt="" /></p>
+<p><img src="/images/posts/Ceph-soft-topu.png" alt="" /></p>
 
 <h4 id="1基础存储系统rados">1.基础存储系统RADOS</h4>
 
@@ -436,8 +436,9 @@ ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
 <span class="c"># 检查存储池，确认ceph存储了此对象</span>
 <span class="gp">$ </span>rados -p <span class="nb">test</span>-pool ls
 
-<span class="c"># 定位对象位置</span>
+<span class="c"># 定位对象，会输出对象位置</span>
 <span class="gp">$ </span>ceph osd map <span class="nb">test</span>-pool <span class="nb">test</span>-object
+osdmap e42 pool <span class="s1">'test-pool'</span> <span class="o">(</span>3<span class="o">)</span> object <span class="s1">'test-file'</span> -&gt; pg 3.b79653d4 <span class="o">(</span>3.4<span class="o">)</span> -&gt; up <span class="o">([</span>1,5,2,3,4], p1<span class="o">)</span> acting <span class="o">([</span>1,5,2,3,4], p1<span class="o">)</span>
 
 <span class="c"># 删除对象</span>
 <span class="gp">$ </span>rados -p data rm <span class="nb">test</span>-object
@@ -446,6 +447,245 @@ ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
 <span class="gp">$ </span>rados rmpool <span class="nb">test</span>-pool <span class="nb">test</span>-pool --yes-i-really-really-mean-it
 </code></pre>
 </div>
+<p>随着集群的运行，对象的位置可能会动态改变。Ceph有动态均衡机制，无需手动干预即可完成。</p>
+
+<h4 id="23-块存储测试">2.3 块存储测试</h4>
+
+<p><strong>官方建议RBD和OSD最好不要在同一台物理机上(除非它们都是VM)</strong></p>
+
+<p>1.确认你使用了合适的内核版本，详情<a href="http://docs.ceph.com/docs/master/start/os-recommendations/">参见</a></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>lab_release -a
+uname -a
+</code></pre>
+</div>
+
+<p>2.在管理节点上用 <code class="highlighter-rouge">ceph-deploy</code>安装ceph</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ceph-deploy install <span class="o">{</span>rbd-client<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>3.在管理节点上部署ceph cli工具和密钥</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ceph-deploy admin <span class="o">{</span>rbd-client<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>4.在rbd节点上创建块设备image</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rbd create <span class="nb">test</span>-block --size 4096
+</code></pre>
+</div>
+
+<p>5.映射image到块设备</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rbd map <span class="nb">test</span>-block --name client.admin
+</code></pre>
+</div>
+
+<p><strong>在上面的map映射操作时，会出现如下报错</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>rbd map <span class="nb">test</span>-block --name client.admin
+rbd: sysfs write failed
+RBD image feature <span class="nb">set </span>mismatch. You can disable features unsupported by the kernel with <span class="s2">"rbd feature disable"</span>.
+In some cases useful info is found <span class="k">in </span>syslog - try <span class="s2">"dmesg | tail"</span> or so.
+rbd: map failed: <span class="o">(</span>6<span class="o">)</span> No such device or address
+</code></pre>
+</div>
+
+<p><strong>大致意思是说features不匹配，可以通过disable features关掉一些特性来让内核支持。这是因为在Ceph高本本进行 map image时，默认ceph在创建image(上文test-block)时，会增加很多features，这些features需要内核支持，centos7上的支持有限，所以，我们需要关掉一些</strong></p>
+
+<p>我们可以用 <code class="highlighter-rouge">rbd info data</code> 看看创建的image目前有哪些features</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>rbd info <span class="nb">test</span>-block
+rbd image <span class="s1">'test-block'</span>:
+	size 4096 MB <span class="k">in </span>1024 objects
+	order 22 <span class="o">(</span>4096 kB objects<span class="o">)</span>
+	block_name_prefix: rbd_data.10bb238e1f29
+	format: 2
+	features: layering, exclusive-lock, object-map, fast-diff, deep-flatten
+	flags:
+</code></pre>
+</div>
+
+<p>在features中，我们可以看到默认开启了很多：</p>
+
+<ul>
+  <li>layering 支持分层</li>
+  <li>exclusive-lock 支持独占锁</li>
+  <li>object-map 支持对象映射(依赖exclusive-lock)</li>
+  <li>fast-diff 快速计算差异(依赖object-map)</li>
+  <li>deep-flatten 支持快照扁平化操作</li>
+</ul>
+
+<p><strong>而实际上在CentOS7的3.10内核中只支持layering，所以我们需要手动关闭一些features，然后重新map；如果想要一劳永逸，可以在 ceph.conf 中加入 rbd_default_features = 1 来设置默认 features(数值仅是 layering 对应的 bit 码所对应的整数值)</strong></p>
+
+<p>6.关闭不支持的特性之后重新map</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 关闭不支持的features</span>
+<span class="gp">$ </span>rbd feature disable <span class="nb">test</span>-block exclusive-lock, object-map, fast-diff, deep-flatten
+
+<span class="c"># 重新map</span>
+<span class="gp">$ </span>rbd map <span class="nb">test</span>-block --name client.admin
+/dev/rbd0
+</code></pre>
+</div>
+
+<p>7.格式化之后挂载到系统目录</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 格式化</span>
+<span class="gp">$ </span>mkfs.xfs /dev/rbd0
+meta-data<span class="o">=</span>/dev/rbd0              <span class="nv">isize</span><span class="o">=</span>512    <span class="nv">agcount</span><span class="o">=</span>9, <span class="nv">agsize</span><span class="o">=</span>130048 blks
+         <span class="o">=</span>                       <span class="nv">sectsz</span><span class="o">=</span>512   <span class="nv">attr</span><span class="o">=</span>2, <span class="nv">projid32bit</span><span class="o">=</span>1
+         <span class="o">=</span>                       <span class="nv">crc</span><span class="o">=</span>1        <span class="nv">finobt</span><span class="o">=</span>0, <span class="nv">sparse</span><span class="o">=</span>0
+data     <span class="o">=</span>                       <span class="nv">bsize</span><span class="o">=</span>4096   <span class="nv">blocks</span><span class="o">=</span>1048576, <span class="nv">imaxpct</span><span class="o">=</span>25
+         <span class="o">=</span>                       <span class="nv">sunit</span><span class="o">=</span>1024   <span class="nv">swidth</span><span class="o">=</span>1024 blks
+naming   <span class="o">=</span>version 2              <span class="nv">bsize</span><span class="o">=</span>4096   ascii-ci<span class="o">=</span>0 <span class="nv">ftype</span><span class="o">=</span>1
+log      <span class="o">=</span>internal log           <span class="nv">bsize</span><span class="o">=</span>4096   <span class="nv">blocks</span><span class="o">=</span>2560, <span class="nv">version</span><span class="o">=</span>2
+         <span class="o">=</span>                       <span class="nv">sectsz</span><span class="o">=</span>512   <span class="nv">sunit</span><span class="o">=</span>8 blks, lazy-count<span class="o">=</span>1
+realtime <span class="o">=</span>none                   <span class="nv">extsz</span><span class="o">=</span>4096   <span class="nv">blocks</span><span class="o">=</span>0, <span class="nv">rtextents</span><span class="o">=</span>0
+
+<span class="c"># 挂载</span>
+<span class="gp">$ </span>mkdir <span class="nb">test</span>-block
+<span class="gp">$ </span>mount /dev/rbd0 <span class="nb">test</span>-block
+
+<span class="c"># 写入测试</span>
+<span class="gp">$ </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span><span class="nb">test</span>-block/test-file <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
+1+0 records <span class="k">in
+</span>1+0 records out
+1073741824 bytes <span class="o">(</span>1.1 GB<span class="o">)</span> copied, 2.96071 s, 363 MB/s
+
+<span class="gp">$ </span>ls <span class="nb">test</span>-block/
+<span class="nb">test</span>-file
+</code></pre>
+</div>
+
+<h4 id="24-cephfs-测试">2.4 CephFS 测试</h4>
+
+<p>1.创建MDS</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph-deploy mds create k8s-node01 k8s-node02 k8s-registry
+</code></pre>
+</div>
+
+<p>2.创建pool和fs，创建pool需要指定PG数量</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ceph osd pool create cephfs_data 32
+ceph osd pool create cephfs_metadata 32
+ceph fs new <span class="nb">test</span>-fs cephfs_metadata cephfs_data
+</code></pre>
+</div>
+
+<p><strong>PG 概念：</strong></p>
+
+<blockquote>
+  <p>当Ceph集群接受到存储请求时，ceph会将一个文件会切分为多个Object，每个Object会被映射到一个PG，每个PG 会根据CRUSH算法映射到一组OSD(根据副本数)；一般来说增加PG的数量能降低OSD负载，一般每个OSD大约分配50～100PG，关于PG数量指定，一般遵循以下公式</p>
+  <ul>
+    <li>集群PG总数 = (OSD总数 * 100)/数据最大副本数</li>
+    <li>单个存储池PG数 = (OSD总数 * 100)/数据最大副本数/存储池数</li>
+  </ul>
+</blockquote>
+
+<p><strong>注意：PG的最终结果应当以最接近以上计算公式的2的N次幂(向上取值)；如我的虚拟机环境的每个存储池 PG数 = 6(OSD) * 100 / 5(副本数) / 4（4个存储池）= 30，向上取2的N次幂为32(即，2的5次方=32，最接近30)</strong></p>
+
+<p>3.挂载CephFS有两种方式，一种是使用内核驱动挂载，一种是使用 <code class="highlighter-rouge">ceph-fuse</code>用户空间挂载</p>
+
+<p>内核挂载需要提取ceph管理key，方式如下：</p>
+
+<p>在密钥文件中找到与某用户对于的密钥</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat /etc/ceph/ceph.client.admin.keyring
+<span class="o">[</span>client.admin]
+	key <span class="o">=</span> <span class="nv">AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA</span><span class="o">==</span>
+</code></pre>
+</div>
+
+<p>复制密钥到文件中保存，并确保其权限</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA=="</span> &gt; ceph-key
+</code></pre>
+</div>
+
+<p>创建目录挂载</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mkdir <span class="nb">test</span>-fs
+mount -t ceph 172.30.33.90:6789:/ /root/test-fs -o <span class="nv">name</span><span class="o">=</span>admin,secretfile<span class="o">=</span>ceph-key
+
+<span class="c">#写入数据测试</span>
+<span class="gp">$ </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span><span class="nb">test</span>-fs/test-fs <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
+1+0 records <span class="k">in
+</span>1+0 records out
+1073741824 bytes <span class="o">(</span>1.1 GB<span class="o">)</span> copied, 2.77355 s, 387 MB/s
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">ceph-fuse</code>用户空间挂载的方式也比较简单，需要先安装ceph-fuse，同时也需要key</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 按照前面的步骤添加ceph源</span>
+<span class="gp">$ </span>vi /etc/yum.repos.d/ceph.repo
+<span class="o">[</span>ceph]
+<span class="nv">name</span><span class="o">=</span>ceph
+<span class="nv">baseurl</span><span class="o">=</span>http://mirrors.163.com/ceph/rpm-jewel/el7/x86_64/
+<span class="nv">gpgcheck</span><span class="o">=</span>0
+<span class="o">[</span>ceph-noarch]
+<span class="nv">name</span><span class="o">=</span>cephnoarch
+<span class="nv">baseurl</span><span class="o">=</span>http://mirrors.163.com/ceph/rpm-jewel/el7/noarch/
+<span class="nv">gpgcheck</span><span class="o">=</span>0
+
+<span class="c"># 安装ceph-fuse</span>
+yum install ceph-fuse -y
+
+<span class="c"># 复制配置和ceph key到client端</span>
+sudo mkdir -p /etc/ceph
+sudo scp root@172.30.33.91:/etc/ceph/ceph.conf /etc/ceph/ceph.conf
+sudo scp root@172.30.33.91:/etc/ceph/ceph.client.admin.keyring /etc/ceph/ceph.client.admin.keyring
+
+<span class="c"># 创建目录挂载</span>
+mkdir <span class="nb">test</span>-fs-fuse
+<span class="gp">$ </span>sudo ceph-fuse -m 172.30.33.91:6789 <span class="nb">test</span>-fs-fuse
+ceph-fuse[60551]: starting ceph client
+2017-09-12 14:47:24.137929 7f63d9719ec0 -1 init, newargv <span class="o">=</span> 0x7f63e51d4840 <span class="nv">newargc</span><span class="o">=</span>11
+ceph-fuse[60551]: starting fuse
+
+<span class="c"># 写入数据测试</span>
+<span class="gp">$ </span>sudo dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span><span class="nb">test</span>-fs-fuse/test-fs-fuse <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
+1+0 records <span class="k">in
+</span>1+0 records out
+1073741824 bytes <span class="o">(</span>1.1 GB<span class="o">)</span> copied, 10.5426 s, 102 MB/s
+
+<span class="c"># 查看确认，发现我们上面通过内核挂载的文件也还在</span>
+<span class="gp">$ </span>ls -lh
+total 2.0G
+-rw-r--r-- 1 root root 1.0G Sep 12 13:59 <span class="nb">test</span>-fs
+-rw-r--r-- 1 root root 1.0G Sep 12 14:49 <span class="nb">test</span>-fs-fuse
+</code></pre>
+</div>
+
+<h4 id="25-ceph对象网关">2.5 Ceph对象网关</h4>
+
+<p>1.对象网关创建</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建RGW</span>
+<span class="gp">$ </span>ceph-deploy rgw create k8s-node02
+</code></pre>
+</div>
+
+<p>2.直接访问<code class="highlighter-rouge">http://ceph-node-ip:7480</code>返回结果如下</p>
+
+<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;ListAllMyBucketsResult</span> <span class="na">xmlns=</span><span class="s">"http://s3.amazonaws.com/doc/2006-03-01/"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;Owner&gt;</span>
+<span class="nt">&lt;ID&gt;</span>anonymous<span class="nt">&lt;/ID&gt;</span>
+<span class="nt">&lt;DisplayName/&gt;</span>
+<span class="nt">&lt;/Owner&gt;</span>
+<span class="nt">&lt;Buckets/&gt;</span>
+<span class="nt">&lt;/ListAllMyBucketsResult&gt;</span>
+</code></pre>
+</div>
+
+<p>这就说明网关OK了，但是因为没有读写环境，所以暂时测不了。</p>
+
+<p>本文参考了<a href="http://docs.ceph.com/docs/master/start/">ceph官方文档</a>及漠然的<a href="https://mritd.me/2017/05/27/ceph-note-1/">ceph笔记(一)</a>部分</p>
 
     </article>
     <div class="share">

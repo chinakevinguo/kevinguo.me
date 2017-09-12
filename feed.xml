@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-11T21:31:26+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes ceph 笔记 1</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 1" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-1</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-12T15:05:20+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes ceph 笔记 1</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 1" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-1</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/">&lt;blockquote&gt;
   &lt;p&gt;该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群
 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -23,7 +23,7 @@
 
 &lt;p&gt;下图展示了Ceph的基础架构图&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/posts/ceph-soft-topu.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/posts/Ceph-soft-topu.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;h4 id=&quot;1基础存储系统rados&quot;&gt;1.基础存储系统RADOS&lt;/h4&gt;
 
@@ -315,8 +315,9 @@ ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
 &lt;span class=&quot;c&quot;&gt;# 检查存储池，确认ceph存储了此对象&lt;/span&gt;
 &lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rados -p &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool ls
 
-&lt;span class=&quot;c&quot;&gt;# 定位对象位置&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# 定位对象，会输出对象位置&lt;/span&gt;
 &lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph osd map &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-object
+osdmap e42 pool &lt;span class=&quot;s1&quot;&gt;'test-pool'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; object &lt;span class=&quot;s1&quot;&gt;'test-file'&lt;/span&gt; -&amp;gt; pg 3.b79653d4 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;3.4&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; -&amp;gt; up &lt;span class=&quot;o&quot;&gt;([&lt;/span&gt;1,5,2,3,4], p1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; acting &lt;span class=&quot;o&quot;&gt;([&lt;/span&gt;1,5,2,3,4], p1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
 
 &lt;span class=&quot;c&quot;&gt;# 删除对象&lt;/span&gt;
 &lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rados -p data rm &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-object
@@ -324,7 +325,246 @@ ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
 &lt;span class=&quot;c&quot;&gt;# 删除存储池&lt;/span&gt;
 &lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rados rmpool &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pool --yes-i-really-really-mean-it
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。</summary></entry><entry><title type="html">kubernetes 入门</title><link href="https://kevinguo.me/2017/09/01/kubernetes-one-section/" rel="alternate" type="text/html" title="kubernetes 入门" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/kubernetes-one-section</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/kubernetes-one-section/">&lt;h2 id=&quot;入门概念&quot;&gt;入门概念&lt;/h2&gt;
+&lt;/div&gt;
+&lt;p&gt;随着集群的运行，对象的位置可能会动态改变。Ceph有动态均衡机制，无需手动干预即可完成。&lt;/p&gt;
+
+&lt;h4 id=&quot;23-块存储测试&quot;&gt;2.3 块存储测试&lt;/h4&gt;
+
+&lt;p&gt;&lt;strong&gt;官方建议RBD和OSD最好不要在同一台物理机上(除非它们都是VM)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;1.确认你使用了合适的内核版本，详情&lt;a href=&quot;http://docs.ceph.com/docs/master/start/os-recommendations/&quot;&gt;参见&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;lab_release -a
+uname -a
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.在管理节点上用 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-deploy&lt;/code&gt;安装ceph&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ceph-deploy install &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;rbd-client&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.在管理节点上部署ceph cli工具和密钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ceph-deploy admin &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;rbd-client&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;4.在rbd节点上创建块设备image&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rbd create &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block --size 4096
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;5.映射image到块设备&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rbd map &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block --name client.admin
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;在上面的map映射操作时，会出现如下报错&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rbd map &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block --name client.admin
+rbd: sysfs write failed
+RBD image feature &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;mismatch. You can disable features unsupported by the kernel with &lt;span class=&quot;s2&quot;&gt;&quot;rbd feature disable&quot;&lt;/span&gt;.
+In some cases useful info is found &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;syslog - try &lt;span class=&quot;s2&quot;&gt;&quot;dmesg | tail&quot;&lt;/span&gt; or so.
+rbd: map failed: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;6&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; No such device or address
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;大致意思是说features不匹配，可以通过disable features关掉一些特性来让内核支持。这是因为在Ceph高本本进行 map image时，默认ceph在创建image(上文test-block)时，会增加很多features，这些features需要内核支持，centos7上的支持有限，所以，我们需要关掉一些&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;我们可以用 &lt;code class=&quot;highlighter-rouge&quot;&gt;rbd info data&lt;/code&gt; 看看创建的image目前有哪些features&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rbd info &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block
+rbd image &lt;span class=&quot;s1&quot;&gt;'test-block'&lt;/span&gt;:
+	size 4096 MB &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;1024 objects
+	order 22 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4096 kB objects&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+	block_name_prefix: rbd_data.10bb238e1f29
+	format: 2
+	features: layering, exclusive-lock, object-map, fast-diff, deep-flatten
+	flags:
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;在features中，我们可以看到默认开启了很多：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;layering 支持分层&lt;/li&gt;
+  &lt;li&gt;exclusive-lock 支持独占锁&lt;/li&gt;
+  &lt;li&gt;object-map 支持对象映射(依赖exclusive-lock)&lt;/li&gt;
+  &lt;li&gt;fast-diff 快速计算差异(依赖object-map)&lt;/li&gt;
+  &lt;li&gt;deep-flatten 支持快照扁平化操作&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;而实际上在CentOS7的3.10内核中只支持layering，所以我们需要手动关闭一些features，然后重新map；如果想要一劳永逸，可以在 ceph.conf 中加入 rbd_default_features = 1 来设置默认 features(数值仅是 layering 对应的 bit 码所对应的整数值)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;6.关闭不支持的特性之后重新map&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 关闭不支持的features&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rbd feature disable &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block exclusive-lock, object-map, fast-diff, deep-flatten
+
+&lt;span class=&quot;c&quot;&gt;# 重新map&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rbd map &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block --name client.admin
+/dev/rbd0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;7.格式化之后挂载到系统目录&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 格式化&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mkfs.xfs /dev/rbd0
+meta-data&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/rbd0              &lt;span class=&quot;nv&quot;&gt;isize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;512    &lt;span class=&quot;nv&quot;&gt;agcount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;9, &lt;span class=&quot;nv&quot;&gt;agsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;130048 blks
+         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;sectsz&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;512   &lt;span class=&quot;nv&quot;&gt;attr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2, &lt;span class=&quot;nv&quot;&gt;projid32bit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;crc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1        &lt;span class=&quot;nv&quot;&gt;finobt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0, &lt;span class=&quot;nv&quot;&gt;sparse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+data     &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;bsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096   &lt;span class=&quot;nv&quot;&gt;blocks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1048576, &lt;span class=&quot;nv&quot;&gt;imaxpct&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;25
+         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;sunit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024   &lt;span class=&quot;nv&quot;&gt;swidth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024 blks
+naming   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;version 2              &lt;span class=&quot;nv&quot;&gt;bsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096   ascii-ci&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 &lt;span class=&quot;nv&quot;&gt;ftype&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+log      &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;internal log           &lt;span class=&quot;nv&quot;&gt;bsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096   &lt;span class=&quot;nv&quot;&gt;blocks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2560, &lt;span class=&quot;nv&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2
+         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;sectsz&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;512   &lt;span class=&quot;nv&quot;&gt;sunit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;8 blks, lazy-count&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+realtime &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;none                   &lt;span class=&quot;nv&quot;&gt;extsz&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096   &lt;span class=&quot;nv&quot;&gt;blocks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0, &lt;span class=&quot;nv&quot;&gt;rtextents&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+
+&lt;span class=&quot;c&quot;&gt;# 挂载&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mkdir &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mount /dev/rbd0 &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block
+
+&lt;span class=&quot;c&quot;&gt;# 写入测试&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block/test-file &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+1+0 records &lt;span class=&quot;k&quot;&gt;in
+&lt;/span&gt;1+0 records out
+1073741824 bytes &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.1 GB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; copied, 2.96071 s, 363 MB/s
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-block/
+&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-file
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;24-cephfs-测试&quot;&gt;2.4 CephFS 测试&lt;/h4&gt;
+
+&lt;p&gt;1.创建MDS&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy mds create k8s-node01 k8s-node02 k8s-registry
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.创建pool和fs，创建pool需要指定PG数量&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ceph osd pool create cephfs_data 32
+ceph osd pool create cephfs_metadata 32
+ceph fs new &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-fs cephfs_metadata cephfs_data
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;PG 概念：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;当Ceph集群接受到存储请求时，ceph会将一个文件会切分为多个Object，每个Object会被映射到一个PG，每个PG 会根据CRUSH算法映射到一组OSD(根据副本数)；一般来说增加PG的数量能降低OSD负载，一般每个OSD大约分配50～100PG，关于PG数量指定，一般遵循以下公式&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;集群PG总数 = (OSD总数 * 100)/数据最大副本数&lt;/li&gt;
+    &lt;li&gt;单个存储池PG数 = (OSD总数 * 100)/数据最大副本数/存储池数&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;注意：PG的最终结果应当以最接近以上计算公式的2的N次幂(向上取值)；如我的虚拟机环境的每个存储池 PG数 = 6(OSD) * 100 / 5(副本数) / 4（4个存储池）= 30，向上取2的N次幂为32(即，2的5次方=32，最接近30)&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;3.挂载CephFS有两种方式，一种是使用内核驱动挂载，一种是使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-fuse&lt;/code&gt;用户空间挂载&lt;/p&gt;
+
+&lt;p&gt;内核挂载需要提取ceph管理key，方式如下：&lt;/p&gt;
+
+&lt;p&gt;在密钥文件中找到与某用户对于的密钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat /etc/ceph/ceph.client.admin.keyring
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;client.admin]
+	key &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;复制密钥到文件中保存，并确保其权限&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA==&quot;&lt;/span&gt; &amp;gt; ceph-key
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;创建目录挂载&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-fs
+mount -t ceph 172.30.33.90:6789:/ /root/test-fs -o &lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;admin,secretfile&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ceph-key
+
+&lt;span class=&quot;c&quot;&gt;#写入数据测试&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-fs/test-fs &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+1+0 records &lt;span class=&quot;k&quot;&gt;in
+&lt;/span&gt;1+0 records out
+1073741824 bytes &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.1 GB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; copied, 2.77355 s, 387 MB/s
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-fuse&lt;/code&gt;用户空间挂载的方式也比较简单，需要先安装ceph-fuse，同时也需要key&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 按照前面的步骤添加ceph源&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;vi /etc/yum.repos.d/ceph.repo
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph]
+&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ceph
+&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://mirrors.163.com/ceph/rpm-jewel/el7/x86_64/
+&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph-noarch]
+&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cephnoarch
+&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://mirrors.163.com/ceph/rpm-jewel/el7/noarch/
+&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
+
+&lt;span class=&quot;c&quot;&gt;# 安装ceph-fuse&lt;/span&gt;
+yum install ceph-fuse -y
+
+&lt;span class=&quot;c&quot;&gt;# 复制配置和ceph key到client端&lt;/span&gt;
+sudo mkdir -p /etc/ceph
+sudo scp root@172.30.33.91:/etc/ceph/ceph.conf /etc/ceph/ceph.conf
+sudo scp root@172.30.33.91:/etc/ceph/ceph.client.admin.keyring /etc/ceph/ceph.client.admin.keyring
+
+&lt;span class=&quot;c&quot;&gt;# 创建目录挂载&lt;/span&gt;
+mkdir &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-fs-fuse
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo ceph-fuse -m 172.30.33.91:6789 &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-fs-fuse
+ceph-fuse[60551]: starting ceph client
+2017-09-12 14:47:24.137929 7f63d9719ec0 -1 init, newargv &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x7f63e51d4840 &lt;span class=&quot;nv&quot;&gt;newargc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;11
+ceph-fuse[60551]: starting fuse
+
+&lt;span class=&quot;c&quot;&gt;# 写入数据测试&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-fs-fuse/test-fs-fuse &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+1+0 records &lt;span class=&quot;k&quot;&gt;in
+&lt;/span&gt;1+0 records out
+1073741824 bytes &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.1 GB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; copied, 10.5426 s, 102 MB/s
+
+&lt;span class=&quot;c&quot;&gt;# 查看确认，发现我们上面通过内核挂载的文件也还在&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lh
+total 2.0G
+-rw-r--r-- 1 root root 1.0G Sep 12 13:59 &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-fs
+-rw-r--r-- 1 root root 1.0G Sep 12 14:49 &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-fs-fuse
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;25-ceph对象网关&quot;&gt;2.5 Ceph对象网关&lt;/h4&gt;
+
+&lt;p&gt;1.对象网关创建&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建RGW&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ceph-deploy rgw create k8s-node02
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.直接访问&lt;code class=&quot;highlighter-rouge&quot;&gt;http://ceph-node-ip:7480&lt;/code&gt;返回结果如下&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;ListAllMyBucketsResult&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;Owner&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;ID&amp;gt;&lt;/span&gt;anonymous&lt;span class=&quot;nt&quot;&gt;&amp;lt;/ID&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;DisplayName/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Owner&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;Buckets/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/ListAllMyBucketsResult&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;这就说明网关OK了，但是因为没有读写环境，所以暂时测不了。&lt;/p&gt;
+
+&lt;p&gt;本文参考了&lt;a href=&quot;http://docs.ceph.com/docs/master/start/&quot;&gt;ceph官方文档&lt;/a&gt;及漠然的&lt;a href=&quot;https://mritd.me/2017/05/27/ceph-note-1/&quot;&gt;ceph笔记(一)&lt;/a&gt;部分&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。</summary></entry><entry><title type="html">kubernetes 入门</title><link href="https://kevinguo.me/2017/09/01/kubernetes-one-section/" rel="alternate" type="text/html" title="kubernetes 入门" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/kubernetes-one-section</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/kubernetes-one-section/">&lt;h2 id=&quot;入门概念&quot;&gt;入门概念&lt;/h2&gt;
 
 &lt;p&gt;为什么要使用kubernetes&lt;/p&gt;
 
