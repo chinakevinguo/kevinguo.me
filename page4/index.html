@@ -110,6 +110,26 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-install-docker-compose/">Docker基础-docker compose安装</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        你可以在macOS，windows 和64位的linux系统上运行compose。在安装它之前，你需要先安装docker。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="/2017/07/06/Docker-getting-started-compose/">Docker基础-docker compose基础知识</a>
                     </h3>
                     <p class="repo-list-description">
@@ -245,35 +265,6 @@
                     </h3>
                     <p class="repo-list-description">
                         Docker container networking
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-container-communication/">Docker基础-docker容器之间通信</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        本章节主要讲了容器之间是如何在默认网桥上进行通信的，这个bridge网络是在docker安装的时候，系统默认创建的。
-
-  Note: docker允许创建除了默认bridge网络之外的bridge网络
-
-  和外网通信
-  容器能否和外网通信是由两个因素决定的。第一个因素是宿主机是否转发容器的IP包。第二个因素是宿主机的iptables是否允许这个特定的连接。
-IP包转发是由系统参数ip_forward来进行管理的。如果此参数是1，则只允许在容器之间传递数据包，此时容器是不能访问外网的。通常，你只需要保持docker服务器的默认设置(ip-forward=true)即可,并且当服务器启动时，docker会将ip_forward设置为1，并且系统内核已经启用，那么这时候哪怕你设置ip-forward=false也不会起作用。
-检查内核上的设置或手动打开：
-```bash
-$ sysctl net.ipv4.conf.all.forwarding
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">

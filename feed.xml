@@ -1,4 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-12T15:55:42+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes ceph 笔记 1</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 1" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-1</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-15T16:00:31+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes ceph 笔记 2</title><link href="https://kevinguo.me/2017/09/12/kubernetes-ceph-2/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 2" /><published>2017-09-12T00:00:00+08:00</published><updated>2017-09-12T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/12/kubernetes-ceph-2</id><content type="html" xml:base="https://kevinguo.me/2017/09/12/kubernetes-ceph-2/">&lt;blockquote&gt;
+  &lt;p&gt;其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;寻址流程&quot;&gt;寻址流程&lt;/h3&gt;
+
+&lt;p&gt;通过对Ceph系统中寻址流程的了解来熟悉Ceph中的几个概念，寻址流程如下图&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/Addressing.png&quot; alt=&quot;寻址流程&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。</summary></entry><entry><title type="html">kubernetes ceph 笔记 1</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 1" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-1</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/">&lt;blockquote&gt;
   &lt;p&gt;该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群
 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -2729,57 +2737,4 @@ env:
       &lt;source id=&quot;mp4&quot; src=&quot;http://media.w3.org/2010/05/sintel/trailer.mp4&quot; type=&quot;video/mp4&quot; /&gt;
       &lt;source id=&quot;webm&quot; src=&quot;http://media.w3.org/2010/05/sintel/trailer.webm&quot; type=&quot;video/webm&quot; /&gt;
       &lt;source id=&quot;ogv&quot; src=&quot;http://media.w3.org/2010/05/sintel/trailer.ogv&quot; type=&quot;video/ogg&quot; /&gt;
-    &lt;/video&gt;</content><author><name>KevinGuo</name></author><summary type="html">就是加个视频链接，测试一下看看行不行，代码如下</summary></entry><entry><title type="html">saltstack之pillar</title><link href="https://kevinguo.me/2017/07/06/saltstack%E4%B9%8Bpillar/" rel="alternate" type="text/html" title="saltstack之pillar" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/saltstack%E4%B9%8Bpillar</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/saltstack%E4%B9%8Bpillar/">&lt;h1 id=&quot;pillar&quot;&gt;&lt;strong&gt;Pillar&lt;/strong&gt;&lt;/h1&gt;
-&lt;p&gt;主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息&lt;/p&gt;
-
-&lt;!--more--&gt;
-&lt;h6 id=&quot;1在master上开启pillar_roots&quot;&gt;1.在master上开启pillar_roots&lt;/h6&gt;
-
-&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;pillar_roots&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/srv/pillar&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;!--more--&gt;
-&lt;h6 id=&quot;2在master的srvpillar目录下新建topslspackagesslsservicessls&quot;&gt;2.在master的/srv/pillar目录下新建&lt;em&gt;top.sls&lt;/em&gt;，&lt;em&gt;packages.sls&lt;/em&gt;，&lt;em&gt;services.sls&lt;/em&gt;&lt;/h6&gt;
-
-&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;root@saltstack-node1 pillar&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;# cat top.sls&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;*'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;packages&lt;/span&gt;
-    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;services&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;root@saltstack-node1 pillar&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;# cat packages.sls&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;zabbix&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;package-name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;zabbix&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;2.2.4&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;root@saltstack-node1 pillar&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;# cat services.sls&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;zabbix&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;10050&lt;/span&gt;
-  &lt;span class=&quot;s&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;admin&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h6 id=&quot;3执行pillaritem-zabbix查看指定的信息&quot;&gt;3.执行pillar.item zabbix查看指定的信息&lt;/h6&gt;
-
-&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;root@saltstack-node1 pillar&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;# salt 'saltstack-node2*' pillar.item zabbix&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;saltstack-node2.example.com&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;----------&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;zabbix&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;----------&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;package-name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-            &lt;span class=&quot;s&quot;&gt;zabbix&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-            &lt;span class=&quot;s&quot;&gt;10050&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-            &lt;span class=&quot;s&quot;&gt;admin&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
-            &lt;span class=&quot;s&quot;&gt;2.2.4&lt;/span&gt;
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">Pillar 主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息</summary></entry></feed>
+    &lt;/video&gt;</content><author><name>KevinGuo</name></author><summary type="html">就是加个视频链接，测试一下看看行不行，代码如下</summary></entry></feed>

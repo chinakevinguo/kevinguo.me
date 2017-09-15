@@ -110,6 +110,28 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-Use-compose-with-swarm/">Docker基础-在swarm上使用docker compose</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        现在看到的是旧版本的独立版的swarm。如果你使用的是docker 1.12或更高的版本，swarm mode已经继承到了docker engine中。大多数用户都使用集成的swarm mode。可参考Getting started with swarm mode和Swarm mode CLI commands，独立的swarm没有集成到docker engine API和CLI commands中。
+
+docker compose和docker swarm旨在实现完全集成，这意味着你可以将一个compose应用程序指向一个swarm集群，并使其全部工作，就像使用单个主机一样。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="/2017/07/06/Docker-Stacks-and-Distributed-Application-Bundles/">Docker基础-docker stacks</a>
                     </h3>
                     <p class="repo-list-description">
@@ -249,26 +271,6 @@ $ docker run --log-driver=fluentd --log-opt fluentd-address=myhost.local:24224 -
                     </h3>
                     <p class="repo-list-description">
                         默认情况下，容器没有资源约束，可以使用与主机的内核调度程序允许的的资源一样多的资源。docker提供了在运行docker run指定选项来控制容器内存，cpu或IO的方法。这部分提供了有关何时应该设置这类限制以及设置这些限制可能有什么影响的详细信息。
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-Keep-containers-alive-during-daemon-downtime/">Docker基础-当docker daemon停止时依然保持容器运行</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        默认情况下，当docker daemon停止，它会关闭所有正在运行的容器。从docker1.12起，你可以配置当docker daemon不可用时依然保持容器继续运行。live restore选项有助于减少由于docker daemon崩溃，中断或升级而导致的容器停机时间。
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
