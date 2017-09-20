@@ -110,6 +110,26 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-Using-compose-in-production/">Docker基础-docker compose应用在生产环境</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        当你使用compose定义你的app用于开发环境时，同样也可以使用这个配置来在不同的环境，如CI，临时和生产环境运行应用程序。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="/2017/07/06/Docker-Use-compose-with-swarm/">Docker基础-在swarm上使用docker compose</a>
                     </h3>
                     <p class="repo-list-description">
@@ -251,26 +271,6 @@ compose 非常适用于开发，测试和临时环境以及CI工作流。我们�
                         tag 选项指定你该为容器的日志如何命名。默认是容器ID的前12个字符。要覆盖默认值，可指定一个tag选项:
 
 $ docker run --log-driver=fluentd --log-opt fluentd-address=myhost.local:24224 --log-opt tag="mailer"
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-Limit-container-resources/">Docker基础-docker limit资源限制</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        默认情况下，容器没有资源约束，可以使用与主机的内核调度程序允许的的资源一样多的资源。docker提供了在运行docker run指定选项来控制容器内存，cpu或IO的方法。这部分提供了有关何时应该设置这类限制以及设置这些限制可能有什么影响的详细信息。
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">

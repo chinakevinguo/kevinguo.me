@@ -214,13 +214,31 @@
       <td style="text-align: center">172.30.33.91</td>
       <td style="text-align: center">k8s-master02</td>
       <td style="text-align: center">centos7.3.1611</td>
-      <td style="text-align: center">osd node2</td>
+      <td style="text-align: center">monitor osd node2</td>
     </tr>
     <tr>
       <td style="text-align: center">172.30.33.92</td>
       <td style="text-align: center">k8s-master03</td>
       <td style="text-align: center">centos7.3.1611</td>
-      <td style="text-align: center">osd node3</td>
+      <td style="text-align: center">monitor osd node3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">172.30.33.89</td>
+      <td style="text-align: center">k8s-registry</td>
+      <td style="text-align: center">centos7.3.1611</td>
+      <td style="text-align: center">osd mds</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">172.30.33.93</td>
+      <td style="text-align: center">k8s-node01</td>
+      <td style="text-align: center">centos7.3.1611</td>
+      <td style="text-align: center">osd mds</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">172.30.33.94</td>
+      <td style="text-align: center">k8s-node02</td>
+      <td style="text-align: center">centos7.3.1611</td>
+      <td style="text-align: center">osd mds</td>
     </tr>
   </tbody>
 </table>
@@ -451,7 +469,7 @@ osdmap e42 pool <span class="s1">'test-pool'</span> <span class="o">(</span>3<sp
 
 <h4 id="23-块存储测试">2.3 块存储测试</h4>
 
-<p><strong>官方建议RBD和OSD最好不要在同一台物理机上(除非它们都是VM)</strong></p>
+<p><strong>官方建议使用RBD的客户端最好不要和OSD在同一台物理机上(除非它们都是VM)</strong></p>
 
 <p>1.确认你使用了合适的内核版本，详情<a href="http://docs.ceph.com/docs/master/start/os-recommendations/">参见</a></p>
 

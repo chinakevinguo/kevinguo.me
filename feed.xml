@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-18T21:57:48+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes ceph 笔记 2</title><link href="https://kevinguo.me/2017/09/12/kubernetes-ceph-2/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 2" /><published>2017-09-12T00:00:00+08:00</published><updated>2017-09-12T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/12/kubernetes-ceph-2</id><content type="html" xml:base="https://kevinguo.me/2017/09/12/kubernetes-ceph-2/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-20T15:35:17+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes ceph 笔记 2</title><link href="https://kevinguo.me/2017/09/12/kubernetes-ceph-2/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 2" /><published>2017-09-12T00:00:00+08:00</published><updated>2017-09-12T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/12/kubernetes-ceph-2</id><content type="html" xml:base="https://kevinguo.me/2017/09/12/kubernetes-ceph-2/">&lt;blockquote&gt;
   &lt;p&gt;其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -200,9 +200,461 @@ ID  WEIGHT  TYPE NAME                 UP/DOWN REWEIGHT PRIMARY-AFFINITY
 -10 0.04689     rack rack03                                             
  -4 0.04689         host k8s-master03                                   
   2 0.04689             osd.2              up  1.00000          1.00000
-
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。</summary></entry><entry><title type="html">kubernetes ceph 笔记 1</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 1" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-1</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/">&lt;blockquote&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;ceph硬件配置&quot;&gt;Ceph硬件配置&lt;/h3&gt;
+
+&lt;h4 id=&quot;mon需求&quot;&gt;MON需求&lt;/h4&gt;
+
+&lt;p&gt;Ceph monitor通过维护整个集群的map从而完成集群的健康处理；但是monitor并不参与实际的数据存储，所以实际上monitor节点CPU占用、内存占用都比较少；一般单核CPU加几个G的内存即可满足需求；虽然monitor节点不参与实际存储工作，但是monitor的网卡至少应该是冗余的，否则一旦网络出现故障则集群健康会难以保证。&lt;/p&gt;
+
+&lt;h4 id=&quot;osd需求&quot;&gt;OSD需求&lt;/h4&gt;
+
+&lt;p&gt;OSD作为Ceph的主要存储设备，其会占用一定的CPU和内存资源，一般推荐做法是每个节点的每块硬盘作为一个OSD；同时OSD还需写入日志，所以应当为OSD集成日志留充足的空间；在出现故障时，OSD需求的资源可能会更多，所以OSD节点根据实际情况(每个OSD会有一个线程)应该分配更多的CPU和内存；固态硬盘也会增加OSD存取速度和恢复速度&lt;/p&gt;
+
+&lt;h4 id=&quot;mds需求&quot;&gt;MDS需求&lt;/h4&gt;
+
+&lt;p&gt;MDS服务专门为CephFS存储元数据，所以相对于monitor和OSD节点，这个MDS节点的CPU需求会大得多，同时内存占用也是海量的，所以MDS一般会使用一个强劲的物理机单独搭建。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。</summary></entry><entry><title type="html">kubernetes ceph 笔记 3</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-3/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 3" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-3</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-3/">&lt;blockquote&gt;
+  &lt;p&gt;前面花了两章的时间介绍了ceph存储集群，简单的讲了ceph的组件、架构、寻址过程以及关于rbd,cephfs,cephGW,rados,osd,mon,mds,pool,pg,object等的操作过程，这一章主要记录下kubernetes使用ceph的相关配置过程。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;通过&lt;a href=&quot;https://kubernetes.io/docs/concepts/storage/persistent-volumes/#ceph-rbd&quot;&gt;官网&lt;/a&gt;，我们发现在kubernetes中使用的是ceph的RBD&lt;/p&gt;
+
+&lt;h3 id=&quot;部署集群&quot;&gt;部署集群&lt;/h3&gt;
+
+&lt;p&gt;具体的集群部署这里就不在赘述，请参考&lt;a href=&quot;https://kevinguo.me/2017/09/06/kubernetes-ceph-1/&quot;&gt;kubernetes ceph 笔记 1&lt;/a&gt;、&lt;a href=&quot;https://kevinguo.me/2017/09/12/kubernetes-ceph-2/&quot;&gt;kubernetes ceph 笔记 2&lt;/a&gt;，这里我们只是额外添加一组实验所需的osd，命令如下&lt;/p&gt;
+
+&lt;h5 id=&quot;添加osd&quot;&gt;添加osd&lt;/h5&gt;
+
+&lt;p&gt;为每台机器添加一个sdc的硬盘，我这里用目录代替硬盘&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 在每台osd节点上执行&lt;/span&gt;
+sudo mkdir -p /data/sdc
+chown ceph.ceph /data/sdc
+
+&lt;span class=&quot;c&quot;&gt;#在管理节点上执行`ceph-deploy`来准备OSD&lt;/span&gt;
+ceph-deploy osd prepare k8s-master01:/data/sdc k8s-master02:/data/sdc k8s-master03:/data/sdc k8s-node01:/data/sdc k8s-node02:/data/sdc k8s-registry:/data/sdc
+
+&lt;span class=&quot;c&quot;&gt;# 激活OSD&lt;/span&gt;
+ceph-deploy osd activate k8s-master01:/data/sdc k8s-master02:/data/sdc k8s-master03:/data/sdc k8s-node01:/data/sdc k8s-node02:/data/sdc k8s-registry:/data/sdc
+
+&lt;span class=&quot;c&quot;&gt;# 检测集群状态&lt;/span&gt;
+ceph halth
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;创建rbd&quot;&gt;创建RBD&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建存储池&lt;/span&gt;
+rados mkpool data
+
+&lt;span class=&quot;c&quot;&gt;# 创建image&lt;/span&gt;
+rbd create data --size 10G -p data
+
+&lt;span class=&quot;c&quot;&gt;# 关闭不支持特性&lt;/span&gt;
+rbd feature disable data exclusive-lock, object-map, fast-diff, deep-flatten -p data
+
+&lt;span class=&quot;c&quot;&gt;# 映射image到块设备(每个节点都需要隐射)&lt;/span&gt;
+rbd map data --name client.admin -p data
+
+&lt;span class=&quot;c&quot;&gt;# 格式化块设备&lt;/span&gt;
+mkfs.xfs /dev/rbd0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;kubernetes-使用ceph&quot;&gt;Kubernetes 使用Ceph&lt;/h3&gt;
+
+&lt;h4 id=&quot;pv--pvc方式&quot;&gt;PV &amp;amp; PVC方式&lt;/h4&gt;
+
+&lt;p&gt;传统使用分布式存储的方式一般为 &lt;code class=&quot;highlighter-rouge&quot;&gt;PV &amp;amp; PVC&lt;/code&gt; 的方式，也就是说管理员必须预先创建好PV 和 PVC ，然后对应的deployment或者replication挂载PVC来使用&lt;/p&gt;
+
+&lt;h5 id=&quot;创建secret&quot;&gt;创建secret&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 获取管理 key 并进行 base64 编码&lt;/span&gt;
+ceph auth get-key client.admin | base64
+
+&lt;span class=&quot;c&quot;&gt;# 创建一个secret 配置(key 为上一条命令生成)&lt;/span&gt;
+vim ceph-secret.yml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-secret
+data:
+  key: &lt;span class=&quot;nv&quot;&gt;QVFCZmVyWlpFS1hGTHhBQWhsekVscG0yTWhoYkJHQjRUbk5Wa0E9PQ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# 创建secret&lt;/span&gt;
+kubectl create -f ceph-secret.yml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;创建pv&quot;&gt;创建PV&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#创建ceph-pv文件&lt;/span&gt;
+vim ceph-pv.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ceph-pv
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  rbd:
+    monitors:
+      - 172.30.33.90:6789
+      - 172.30.33.91:6789
+      - 172.30.33.92:6789
+    pool: data
+    image: data
+    user: admin
+    secretRef:
+      name: ceph-secret
+    fsType: xfs
+    readOnly: &lt;span class=&quot;nb&quot;&gt;false
+  &lt;/span&gt;persistentVolumeReclaimPolicy: Recycle
+
+&lt;span class=&quot;c&quot;&gt;# 创建PV&lt;/span&gt;
+kubectl create -f ceph-pv.yml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;创建pvc&quot;&gt;创建PVC&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 新建ceph-pvc.yml文件&lt;/span&gt;
+vim ceph-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ceph-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+
+&lt;span class=&quot;c&quot;&gt;# 创建PVC&lt;/span&gt;
+kubectl create -f ceph-pvc.yml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;创建一个测试的deployment来挂载&quot;&gt;创建一个测试的deployment来挂载&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 新建nginx.yml&lt;/span&gt;
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ceph-nginx
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ceph-nginx
+    spec:
+      containers:
+      - name: ceph-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: &lt;span class=&quot;s2&quot;&gt;&quot;/data&quot;&lt;/span&gt;
+            name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ceph-pvc
+
+&lt;span class=&quot;c&quot;&gt;# 创建nginx deployment&lt;/span&gt;
+kubectl create -f ceph-nginx.yml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;配置k8s-node&quot;&gt;配置k8s node&lt;/h5&gt;
+
+&lt;p&gt;我们创建好PV 和 PVC之后，进行查看时可能会出现&lt;code class=&quot;highlighter-rouge&quot;&gt;with: rbd: failed to modprobe rbd error:exit status 1&lt;/code&gt;的报错，所以这时候我们需要对所有k8s-node进行如下配置&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 在所有k8s node上安装ceph-common&lt;/span&gt;
+yum install -y ceph-common
+
+&lt;span class=&quot;c&quot;&gt;# 拷贝ceph.conf和ceph.client.admin.keyring到/etc/ceph/目录下&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# 配置kubelet有关ceph的参数，增加如下内容&lt;/span&gt;
+vim /usr/local/bin/kubelet
+
+-v /sbin/modprobe:/sbin/modprobe:ro &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-v /lib/modules:/lib/modules:ro &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-v /etc/ceph:/etc/ceph:ro &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# 重启kubelet&lt;/span&gt;
+systemctl restart kubelet
+
+&lt;span class=&quot;c&quot;&gt;# 查看pod是否启动成功&lt;/span&gt;
+kubectl get pods
+NAME                          READY     STATUS    RESTARTS   AGE
+ceph-nginx-2497831062-569lw   1/1       Running   0          15m
+ceph-nginx-2497831062-589j9   1/1       Running   0          59m
+ceph-nginx-2497831062-5t01s   1/1       Running   0          12m
+
+&lt;span class=&quot;c&quot;&gt;# 然后进入其中一个pod，写入一个1G的文件&lt;/span&gt;
+kubectl &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti ceph-nginx-2497831062-569lw  /bin/bash
+
+dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-file &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
+
+&lt;span class=&quot;c&quot;&gt;# 然后查看是否已经占用了rbd中的空间呢&lt;/span&gt;
+ceph df
+GLOBAL:
+    SIZE     AVAIL     RAW USED     %RAW USED
+    575G      344G         230G         40.09
+POOLS:
+    NAME                      ID     USED      %USED     MAX AVAIL     OBJECTS
+    data                      14     1038M      1.50        68277M         280
+
+&lt;span class=&quot;c&quot;&gt;# 然后我们删除这个pod&lt;/span&gt;
+kubectl delete pods ceph-nginx-2497831062-569lw
+
+&lt;span class=&quot;c&quot;&gt;# 查看新的pod,发现文件依旧在&lt;/span&gt;
+kubectl &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti ceph-nginx-2497831062-rgkcl ls /data
+&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-file
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;storageclass方式之statefulset&quot;&gt;StorageClass方式之StatefulSet&lt;/h4&gt;
+
+&lt;p&gt;重头戏来了，洋洋洒洒写了近3篇文章，最终就是要使用这个StorageClass这个东西；这个东西在前面的&lt;a href=&quot;https://kevinguo.me/2017/09/01/kubernetes-one-section/#%E5%8A%A8%E6%80%81&quot;&gt;kubernetes入门&lt;/a&gt;有简单的提到过，就是说动态创建PV，不用再事先固定PV的大小，直接创建PVC即可分配使用。&lt;/p&gt;
+
+&lt;h5 id=&quot;创建secret-1&quot;&gt;创建secret&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 获取管理 key 并进行 base64 编码&lt;/span&gt;
+ceph auth get-key client.admin | base64
+
+&lt;span class=&quot;c&quot;&gt;# 创建一个secret 配置(key 为上一条命令生成)&lt;/span&gt;
+vim ceph-storageclass-secret.yml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-storageclass-secret
+data:
+  key: &lt;span class=&quot;nv&quot;&gt;QVFCZmVyWlpFS1hGTHhBQWhsekVscG0yTWhoYkJHQjRUbk5Wa0E9PQ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;: kubernetes.io/rbd
+
+&lt;span class=&quot;c&quot;&gt;# 创建一个namespace的secret&lt;/span&gt;
+vim ceph-storageclass-secret-system.yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-storageclass-secret
+  namespace: kube-system
+data:
+  key: &lt;span class=&quot;nv&quot;&gt;QVFCZmVyWlpFS1hGTHhBQWhsekVscG0yTWhoYkJHQjRUbk5Wa0E9PQ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;: kubernetes.io/rbd
+
+&lt;span class=&quot;c&quot;&gt;# 创建secret&lt;/span&gt;
+kubectl create -f ceph-storageclass-secret.yml
+kubectl create -f ceph-storageclass-secret-system.yml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;创建一个storageclass&quot;&gt;创建一个storageclass&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 新建ceph-storageclass.yml文件&lt;/span&gt;
+vim ceph-storageclass.yml
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ceph-storageclass
+provisioner: kubernetes.io/rbd
+parameters:
+  monitors: 172.30.33.90:6789,172.30.33.91:6789,172.30.33.92:6789
+  adminId: admin
+  adminSecretName: cehp-storageclass-secret
+  adminSecretNamespace: kube-system
+  pool: data
+  userId: admin
+  userSecretName: ceph-storageclass-secret
+
+&lt;span class=&quot;c&quot;&gt;# 新建storageclass&lt;/span&gt;
+kubectl create -f ceph-storageclass.yml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;创建statefulset&quot;&gt;创建statefulset&lt;/h5&gt;
+
+&lt;p&gt;我们在使用StorageClass的时候，可以自己手动创建PVC，然后所有pods共享一个pvc；也可以定义&lt;code class=&quot;highlighter-rouge&quot;&gt;volumeClaimTemplates&lt;/code&gt;来为自动为每个pod创建一个单独的pvc，如下所示&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 新建ceph-storageclass-nginx.yml&lt;/span&gt;
+vim ceph-storageclass-nginx.yml
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: ceph-storageclass-nginx
+spec:
+  serviceName: &lt;span class=&quot;s2&quot;&gt;&quot;ceph-storageclass-nginx-service&quot;&lt;/span&gt;
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ceph-storageclass-nginx
+    spec:
+      containers:
+      - name: ceph-storageclass-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: &lt;span class=&quot;s2&quot;&gt;&quot;/data&quot;&lt;/span&gt;
+            name: data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      annotations:
+        volume.beta.kubernetes.io/storage-class: ceph-storageclass-pvc
+    spec:
+      accessModes: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ReadWriteOnce&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+      resources:
+        requests:
+          storage: 5Gi
+
+&lt;span class=&quot;c&quot;&gt;# 新建ceph-storageclass-nginx-service.yml&lt;/span&gt;
+vim ce ph-storageclass-nginx-service.yml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ceph-storageclass-nginx-service
+  labels:
+    app: ceph-storageclass-nginx-service
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: ceph-storageclass-nginx
+
+&lt;span class=&quot;c&quot;&gt;# 创建statefulSet&lt;/span&gt;
+kubectl create -f ceph-storageclass-nginx.yml
+kubectl create -f ceph-storageclass-nginx-service.yml
+
+&lt;span class=&quot;c&quot;&gt;# 查看pods&lt;/span&gt;
+kubectl get pods
+NAME                          READY     STATUS    RESTARTS   AGE
+ceph-storageclass-nginx-0     1/1       Running   0          11m
+ceph-storageclass-nginx-1     1/1       Running   0          11m
+ceph-storageclass-nginx-2     1/1       Running   0          11m
+
+&lt;span class=&quot;c&quot;&gt;# 查看自动创建的pv和pvc&lt;/span&gt;
+kubectl get pv
+NAME                                       CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS    CLAIM                                    STORAGECLASS        REASON    AGE
+pvc-1af65cba-9dca-11e7-84a9-00155d201312   5Gi        RWO           Delete          Bound     default/data-ceph-storageclass-nginx-0   ceph-storageclass             15m
+pvc-934ed5ad-9dca-11e7-84a9-00155d201312   5Gi        RWO           Delete          Bound     default/data-ceph-storageclass-nginx-1   ceph-storageclass             12m
+pvc-9ff7359d-9dca-11e7-84a9-00155d201312   5Gi        RWO           Delete          Bound     default/data-ceph-storageclass-nginx-2   ceph-storageclass             11m
+
+
+kubectl get pvc
+NAME                             STATUS    VOLUME                                     CAPACITY   ACCESSMODES   STORAGECLASS        AGE
+data-ceph-storageclass-nginx-0   Bound     pvc-1af65cba-9dca-11e7-84a9-00155d201312   5Gi        RWO           ceph-storageclass   15m
+data-ceph-storageclass-nginx-1   Bound     pvc-934ed5ad-9dca-11e7-84a9-00155d201312   5Gi        RWO           ceph-storageclass   12m
+data-ceph-storageclass-nginx-2   Bound     pvc-9ff7359d-9dca-11e7-84a9-00155d201312   5Gi        RWO           ceph-storageclass   11m
+
+&lt;span class=&quot;c&quot;&gt;# 进入pod查看使用情况，发现/data使用大小5G&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@k8s-master01 k8s-quark]# kubectl &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti ceph-storageclass-nginx-1 -- df -Th
+Filesystem                                                                                      Type   Size  Used Avail Use% Mounted on
+/dev/rbd1                                                                                       ext4   4.8G   10M  4.6G   1% /data
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;storageclass方式之deployment&quot;&gt;StorageClass方式之Deployment&lt;/h4&gt;
+
+&lt;p&gt;我们接着使用上面创建的StorageClass，只不过这个时候我们需要手动来创建一个PVC&lt;/p&gt;
+
+&lt;h5 id=&quot;创建pvc-1&quot;&gt;创建PVC&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 新建ceph-storageclass-pvc.yml&lt;/span&gt;
+vim ceph-storageclass-pvc.yml
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pvc
+  annotations:
+    volume.beta.kubernetes.io/storage-class: ceph-storageclass
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+
+&lt;span class=&quot;c&quot;&gt;# 创建PVC&lt;/span&gt;
+kubectl create -f ceph-storageclass-pvc.yml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;创建deployment&quot;&gt;创建deployment&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 新建ceph-storageclass-nginx-deployment.yml&lt;/span&gt;
+vim ceph-storageclass-nginx-deployment.yml
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ceph-nginx
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ceph-nginx
+    spec:
+      containers:
+      - name: ceph-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: &lt;span class=&quot;s2&quot;&gt;&quot;/data&quot;&lt;/span&gt;
+            name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: &lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pvc
+
+&lt;span class=&quot;c&quot;&gt;# 创建deployment&lt;/span&gt;
+kubectl create -f ceph-storageclass-nginx-deployment.yml
+
+&lt;span class=&quot;c&quot;&gt;# 查看pods&lt;/span&gt;
+kubectl get pods
+NAME                          READY     STATUS    RESTARTS   AGE
+ceph-nginx-3206996150-29q7j   1/1       Running   0          7m
+ceph-nginx-3206996150-94tzk   1/1       Running   0          7m
+ceph-nginx-3206996150-xvkzh   1/1       Running   0          7m
+
+&lt;span class=&quot;c&quot;&gt;# 查看PV和PVC&lt;/span&gt;
+kubectl get pvc
+NAME                             STATUS    VOLUME                                     CAPACITY   ACCESSMODES   STORAGECLASS        AGE
+&lt;span class=&quot;nb&quot;&gt;test&lt;/span&gt;-pvc                         Bound     pvc-76a48238-9dcf-11e7-84a9-00155d201312   50Gi       RWX           ceph-storageclass   9m
+
+kubectl get pv
+NAME                                       CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS    CLAIM                                    STORAGECLASS        REASON    AGE
+pvc-76a48238-9dcf-11e7-84a9-00155d201312   50Gi       RWX           Delete          Bound     default/test-pvc                         ceph-storageclass             10m
+
+&lt;span class=&quot;c&quot;&gt;# 进入pod 查看使用情况，看到/data总共50G&lt;/span&gt;
+kubectl &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti ceph-nginx-3206996150-29q7j -- df -Th
+Filesystem                                                                                      Type   Size  Used Avail Use% Mounted on
+/dev/rbd0                                                                                       ext4    50G   52M   47G   1% /data
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;至此kubernetes结合ceph RBD的实验基本上已经完成，我们发现，storageclass确实是个好东西，省去了创建PV的步骤，并且，可以根据PVC中定义的class来选择创建不同的PVC&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">前面花了两章的时间介绍了ceph存储集群，简单的讲了ceph的组件、架构、寻址过程以及关于rbd,cephfs,cephGW,rados,osd,mon,mds,pool,pg,object等的操作过程，这一章主要记录下kubernetes使用ceph的相关配置过程。</summary></entry><entry><title type="html">kubernetes ceph 笔记 1</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 1" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-1</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/">&lt;blockquote&gt;
   &lt;p&gt;该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群
 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -297,13 +749,31 @@ ID  WEIGHT  TYPE NAME                 UP/DOWN REWEIGHT PRIMARY-AFFINITY
       &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.91&lt;/td&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;k8s-master02&lt;/td&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;osd node2&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;monitor osd node2&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.92&lt;/td&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;k8s-master03&lt;/td&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;osd node3&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;monitor osd node3&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.89&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;k8s-registry&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;osd mds&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.93&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;k8s-node01&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;osd mds&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.94&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;k8s-node02&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;osd mds&lt;/td&gt;
     &lt;/tr&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
@@ -534,7 +1004,7 @@ osdmap e42 pool &lt;span class=&quot;s1&quot;&gt;'test-pool'&lt;/span&gt; &lt;sp
 
 &lt;h4 id=&quot;23-块存储测试&quot;&gt;2.3 块存储测试&lt;/h4&gt;
 
-&lt;p&gt;&lt;strong&gt;官方建议RBD和OSD最好不要在同一台物理机上(除非它们都是VM)&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;官方建议使用RBD的客户端最好不要和OSD在同一台物理机上(除非它们都是VM)&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;1.确认你使用了合适的内核版本，详情&lt;a href=&quot;http://docs.ceph.com/docs/master/start/os-recommendations/&quot;&gt;参见&lt;/a&gt;&lt;/p&gt;
 
@@ -2915,22 +3385,4 @@ env:
 
 &lt;p&gt;博客发布成功&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/posts/jekyll-blog-done.png&quot; alt=&quot;jekyll-blog-done&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">这段时间将原来在hexo上的博客迁到了jekyll上；采用Jekyll生成静态站点，Travis CI自动化部署，记录下来，以免以后忘记了</summary></entry><entry><title type="html">video</title><link href="https://kevinguo.me/2017/07/06/video-test/" rel="alternate" type="text/html" title="video" /><published>2017-07-06T00:00:00+08:00</published><updated>2017-07-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/06/video-test</id><content type="html" xml:base="https://kevinguo.me/2017/07/06/video-test/">&lt;blockquote&gt;
-  &lt;p&gt;就是加个视频链接，测试一下看看行不行，代码如下&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;!--more--&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;video&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;video&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;controls=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;preload=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;none&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;height=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;498&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;width=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;510&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;poster=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://media.w3.org/2010/05/sintel/poster.png&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-      &lt;span class=&quot;nt&quot;&gt;&amp;lt;source&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;mp4&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://media.w3.org/2010/05/sintel/trailer.mp4&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;video/mp4&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-      &lt;span class=&quot;nt&quot;&gt;&amp;lt;source&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;webm&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://media.w3.org/2010/05/sintel/trailer.webm&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;video/webm&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-      &lt;span class=&quot;nt&quot;&gt;&amp;lt;source&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ogv&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://media.w3.org/2010/05/sintel/trailer.ogv&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;video/ogg&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/video&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;h6 id=&quot;效果如下&quot;&gt;效果如下&lt;/h6&gt;
-&lt;video id=&quot;video&quot; controls=&quot;&quot; preload=&quot;none&quot;&gt;
-      &lt;source id=&quot;mp4&quot; src=&quot;http://media.w3.org/2010/05/sintel/trailer.mp4&quot; type=&quot;video/mp4&quot; /&gt;
-      &lt;source id=&quot;webm&quot; src=&quot;http://media.w3.org/2010/05/sintel/trailer.webm&quot; type=&quot;video/webm&quot; /&gt;
-      &lt;source id=&quot;ogv&quot; src=&quot;http://media.w3.org/2010/05/sintel/trailer.ogv&quot; type=&quot;video/ogg&quot; /&gt;
-    &lt;/video&gt;</content><author><name>KevinGuo</name></author><summary type="html">就是加个视频链接，测试一下看看行不行，代码如下</summary></entry></feed>
+&lt;p&gt;&lt;img src=&quot;/images/posts/jekyll-blog-done.png&quot; alt=&quot;jekyll-blog-done&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">这段时间将原来在hexo上的博客迁到了jekyll上；采用Jekyll生成静态站点，Travis CI自动化部署，记录下来，以免以后忘记了</summary></entry></feed>

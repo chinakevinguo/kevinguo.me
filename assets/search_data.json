@@ -6,6 +6,12 @@
     "category": "kubernetes"
   },
   
+  "2017-09-06-kubernetes-ceph-3": {
+    "title": "kubernetes ceph 笔记 3",
+    "url": " /2017/09/06/kubernetes-ceph-3/",
+    "category": "kubernetes"
+  },
+  
   "2017-09-06-kubernetes-ceph-1": {
     "title": "kubernetes ceph 笔记 1",
     "url": " /2017/09/06/kubernetes-ceph-1/",
@@ -683,6 +689,12 @@
   "2017-09-06-kubernetes-ceph-1": {
     "title": "kubernetes ceph 笔记 1",
     "url": "/2017/09/06/kubernetes-ceph-1/",
+    "category": "[&quot;kubernetes&quot;, &quot;ceph&quot;]"
+  },
+  
+  "2017-09-06-kubernetes-ceph-3": {
+    "title": "kubernetes ceph 笔记 3",
+    "url": "/2017/09/06/kubernetes-ceph-3/",
     "category": "[&quot;kubernetes&quot;, &quot;ceph&quot;]"
   },
   
