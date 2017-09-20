@@ -110,26 +110,6 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-View-a-containers-logs/">Docker基础-docker容器日志处理方式</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        docker logs显示了正在运行的容器的日志信息。默认情况下，docker logs显示命令的输出，就好象在终端中交互运行命令时一样。UNIX和Linux命令通常在运行时打开3个I/O流，成为STDIN,STDOUT和STDERR。STDIN为标准输入，其可以包括来自键盘的输入或来自另一个命令的输入。STDOUT为标准输出，STDERR为错误输出。默认情况下，docker日志显示STDOUT和STDERR。更多关于Linux上的I/O信息，可参考 Linux Documentation Project article on I/O redirection
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
                       <a href="/2017/07/06/Docker-Using-compose-in-production/">Docker基础-docker compose应用在生产环境</a>
                     </h3>
                     <p class="repo-list-description">
@@ -269,6 +249,28 @@ compose 非常适用于开发，测试和临时环境以及CI工作流。我们�
                     </h3>
                     <p class="repo-list-description">
                         注意： 本文涉及的compose只适用于compose文件格式为version 2的版本，v1(旧的)不支持网络功能
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-Log-tag-for-logging-driver/">Docker基础-docker 容器日志命名</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        tag 选项指定你该为容器的日志如何命名。默认是容器ID的前12个字符。要覆盖默认值，可指定一个tag选项:
+
+$ docker run --log-driver=fluentd --log-opt fluentd-address=myhost.local:24224 --log-opt tag="mailer"
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
