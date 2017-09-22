@@ -1,4 +1,566 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-20T15:49:05+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes ceph 笔记 3</title><link href="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 3" /><published>2017-09-20T00:00:00+08:00</published><updated>2017-09-20T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/20/kubernetes-ceph-3</id><content type="html" xml:base="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-09-22T21:17:23+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">手动搭建kubernetes HA集群</title><link href="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群" /><published>2017-09-22T00:00:00+08:00</published><updated>2017-09-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/22/manual-deploy-kubernetes</id><content type="html" xml:base="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/">&lt;blockquote&gt;
+  &lt;p&gt;原有的环境需要迁移，现在需要重新搭建一套kubernetes，而且原来一直是用kargo来搭建，所有组件都是基于docker容器的，感觉有点不稳妥，所以正好这个时候有机会，可以纯手动部署一下，所有的关键组件都以二进制形式部署，并添加为系统服务，这里记录一下。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;该文档参考了诸多大神的文档,&lt;a href=&quot;https://mritd.me/2017/07/21/set-up-kubernetes-ha-cluster-by-binary/&quot;&gt;漠然&lt;/a&gt;、&lt;a href=&quot;http://blog.frognew.com/2017/04/install-ha-kubernetes-1.6-cluster.html&quot;&gt;青蛙小白&lt;/a&gt;，谨请原谅&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;一环境准备&quot;&gt;一.环境准备&lt;/h3&gt;
+
+&lt;h5 id=&quot;11-系统环境&quot;&gt;1.1 系统环境&lt;/h5&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;IP&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;HostName&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;节点&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;OS&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.29.151.1&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;k8s-mon-master01&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;master MON etcd&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;centOS7.4.1708&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.29.151.2&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;k8s-mon-master02&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;master MON etcd&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;centOS7.4.1708&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.29.151.3&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;k8s-mon-master03&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;master MON etcd&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;centOS7.4.1708&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.29.151.4&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;k8s-harbor&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;harbor&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;centOS7.4.1708&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.29.151.5&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;k8s-mds-node01&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;node MDS&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;centOS7.4.1708&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.29.151.6&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;k8s-mds-node02&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;node MDS&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;centOS7.4.1708&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.29.151.7&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;k8s-mds-node03&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;node MDS&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;centOS7.4.1708&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;172.29.151.8&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;k8s-console&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;console&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;centOS7.4.1708&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h5 id=&quot;12-系统组件&quot;&gt;1.2 系统组件&lt;/h5&gt;
+
+&lt;p&gt;在安装之前，我们要确认，我们具体需要准备哪些系统组件&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;docker&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/coreos/etcd/releases/download/v3.2.7/etcd-v3.2.7-linux-amd64.tar.gz&quot;&gt;etcd-3.2.7&lt;/a&gt;(etcd、etcdctl)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dl.k8s.io/v1.7.6/kubernetes-server-linux-amd64.tar.gz&quot;&gt;kubernetes-server-1.7.6&lt;/a&gt;(kube-apiserver、kube-controller-manager、kube-scheduler)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dl.k8s.io/v1.7.6/kubernetes-node-linux-amd64.tar.gz&quot;&gt;kubernetes-node-1.7.6&lt;/a&gt;(kube-proxy、kubelet、kubectl)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h5 id=&quot;13-自签名证书&quot;&gt;1.3 自签名证书&lt;/h5&gt;
+
+&lt;p&gt;因为所有的组件之间都是通过证书认证的方式来进行通信的，所以我们还得确认下，我们到底需要哪些证书&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;CA&lt;/li&gt;
+  &lt;li&gt;etcd&lt;/li&gt;
+  &lt;li&gt;kube-apiserver&lt;/li&gt;
+  &lt;li&gt;kube-controller-manager&lt;/li&gt;
+  &lt;li&gt;kube-scheduler&lt;/li&gt;
+  &lt;li&gt;kube-proxy&lt;/li&gt;
+  &lt;li&gt;kubelet&lt;/li&gt;
+  &lt;li&gt;kube-admin&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h5 id=&quot;14-系统配置&quot;&gt;1.4 系统配置&lt;/h5&gt;
+
+&lt;p&gt;关闭所有节点的selinux&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vi /etc/selinux/config
+&lt;span class=&quot;nv&quot;&gt;SELINUX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;disable
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;在所有节点上创建 &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/sysctl.d/k8s.conf&lt;/code&gt;文件，添加如下内容&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net.bridge.bridge-nf-call-ip6tables &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 1
+net.bridge.bridge-nf-call-iptables &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 1
+
+&lt;span class=&quot;c&quot;&gt;# 执行命令使其生效&lt;/span&gt;
+sysctl -p /etc/sysctl.d/k8s.conf
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;在所有节点上编辑 &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/hosts&lt;/code&gt;文件，配置host通信&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vi /etc/hosts
+
+172.29.151.1 k8s-mon-master01
+172.29.151.2 k8s-mon-master02
+172.29.151.3 k8s-mon-master03
+172.29.151.4 k8s-harbor
+172.29.151.5 k8s-mds-node01
+172.29.151.6 k8s-mds-node02
+172.29.151.7 k8s-mds-node03
+172.29.151.8 k8s-console
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;15-创建基本用户&quot;&gt;1.5 创建基本用户&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 在master节点上创建etcd用户&lt;/span&gt;
+useradd etcd -d /var/lib/etcd -c &lt;span class=&quot;s2&quot;&gt;&quot;Etcd user&quot;&lt;/span&gt; -r -s /sbin/nologin
+
+&lt;span class=&quot;c&quot;&gt;# 在maaster节点和node节点上创建kube用户&lt;/span&gt;
+useradd kube  -M -c &lt;span class=&quot;s2&quot;&gt;&quot;Kubernetes user&quot;&lt;/span&gt; -r -s /sbin/nologin
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;16-在console上配置免密钥登录&quot;&gt;1.6 在console上配置免密钥登录&lt;/h5&gt;
+
+&lt;p&gt;所有证书分发，二进制文件分发，配置文件分发，都将在 &lt;code class=&quot;highlighter-rouge&quot;&gt;k8s-console&lt;/code&gt; 上执行，所以该节点主机对集群内所有节点设置了免密钥登录&lt;/p&gt;
+
+&lt;p&gt;具体过程可参考&lt;a href=&quot;https://kevinguo.me/2017/07/06/ansible-client/&quot;&gt;免密钥登录&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;二创建验证&quot;&gt;二.创建验证&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;因为所有组件和apiserver进行通信，都需要使用证书来进行认证，所以这里我们使用CloudFlare的PKI工具集 cfssl 来生成CA证书和其密钥文件&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;如果你的kube-controller-manager、kube-scheduler同apiserver之间通信不需要进行证书认证(毕竟他们都在同一台机器上)，那么下面有关kube-controller-manager、kube-scheduler的证书步骤可以忽略；而在该实验中，我考虑到后面假若它们不在同一台机器上，所以也记录了kube-controller-manager、kube-scheduler的证书创建配置过程&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h5 id=&quot;21-安装cfssl&quot;&gt;2.1 安装cfssl&lt;/h5&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+
+wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+
+chmod +x cfssl_linux-amd64 cfssljson_linux-amd64
+
+mv cfssl_linux-amd64 /usr/local/bin/cfssl
+mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;22-创建ca证书配置生成ca证书和私钥&quot;&gt;2.2 创建CA证书配置，生成CA证书和私钥&lt;/h5&gt;
+
+&lt;p&gt;先用 &lt;code class=&quot;highlighter-rouge&quot;&gt;cfssl&lt;/code&gt; 命令生成包含默认配置的 &lt;code class=&quot;highlighter-rouge&quot;&gt;config.json&lt;/code&gt;和 &lt;code class=&quot;highlighter-rouge&quot;&gt;csr.json&lt;/code&gt;文件&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir /opt/ssl
+&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cfssl print-defaults config &amp;gt; config.json
+cfssl print-defaults csr &amp;gt; csr.json
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后分别修改这两个文件为如下内容&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;config.json&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;signing&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;default&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;expiry&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;87600h&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;profiles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;kubernetes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;usages&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;signing&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;key encipherment&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;server auth&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+            &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;client auth&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;expiry&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;87600h&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;csr.json&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kubernetes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;algo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rsa&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;size&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2048&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;names&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;ST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Wuhan&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;L&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Hubei&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;O&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;k8s&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;OU&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;System&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;生成CA 证书和私钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cfssl gencert -initca csr.json | cfssljson -bare ca
+
+&lt;span class=&quot;c&quot;&gt;# CA有关证书列表如下&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@k8s-console ssl]# tree
+.
+├── ca.csr
+├── ca-key.pem
+├── ca.pem
+├── config.json
+└── csr.json
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;24-创建etcd证书配置生成-etcd-证书和私钥&quot;&gt;2.4 创建etcd证书配置，生成 etcd 证书和私钥&lt;/h5&gt;
+
+&lt;p&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;/opt/ssl&lt;/code&gt; 下添加文件 &lt;code class=&quot;highlighter-rouge&quot;&gt;etcd-csr.json&lt;/code&gt;，内容如下&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;etcd-csr.json&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;etcd&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;hosts&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;127.0.0.1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.3&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;algo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rsa&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;size&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2048&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;names&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;ST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Wuhan&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;L&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Hubei&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;O&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;k8s&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;OU&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;System&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;生成etcd证书和密钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cfssl gencert -ca&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-ca-key&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca-key.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-config&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/config.json &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-profile&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;kubernetes etcd-csr.json | cfssljson -bare etcd
+
+&lt;span class=&quot;c&quot;&gt;# etcd 有关证书证书列表如下&lt;/span&gt;
+ls etcd&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+etcd.csr  etcd-csr.json  etcd-key.pem  etcd.pem
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;25-创建kube-apiserver证书配置生成kube-apiserver证书和私钥&quot;&gt;2.5 创建kube-apiserver证书配置，生成kube-apiserver证书和私钥&lt;/h5&gt;
+
+&lt;p&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;/opt/ssl&lt;/code&gt; 下添加文件 &lt;code class=&quot;highlighter-rouge&quot;&gt;kube-apiserver-csr.json&lt;/code&gt;，内容如下&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;kube-apiserver-csr.json&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kubernetes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;hosts&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;127.0.0.1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.20.151.3&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;10.254.0.1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;localhost&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kubernetes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kubernetes.default&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kubernetes.default.svc&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kubernetes.default.svc.cluster&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kubernetes.default.svc.cluster.local&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;algo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rsa&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;size&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2048&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;names&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;ST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Wuhan&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;L&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Hubei&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;O&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;k8s&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;OU&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;System&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;生成kube-apiserver证书和私钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cfssl gencert -ca&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-ca-key&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca-key.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-config&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/config.json &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-profile&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;kubernetes kube-apiserver-csr.json | cfssljson -bare kube-apiserver
+
+&lt;span class=&quot;c&quot;&gt;# 列出kube-apiserver有关证书&lt;/span&gt;
+ls kube-apiserver&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+kube-apiserver.csr  kube-apiserver-csr.json  kube-apiserver-key.pem  kube-apiserver.pem
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;26-创建kube-controller-manager证书配置生成kube-controller-manager证书和私钥&quot;&gt;2.6 创建kube-controller-manager证书配置，生成kube-controller-manager证书和私钥&lt;/h5&gt;
+
+&lt;p&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;/opt/ssl&lt;/code&gt; 下添加文件 &lt;code class=&quot;highlighter-rouge&quot;&gt;kube-controller-manager-csr.json&lt;/code&gt;，内容如下&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;kube-controller-manager-csr.json&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;system:kube-controller-manager&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;hosts&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.20.151.3&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;algo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rsa&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;size&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2048&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;names&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;ST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Wuhan&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;L&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Hubei&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;O&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;system:kube-controller-manager&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;OU&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;System&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;生成kube-controller-manager证书和私钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cfssl gencert -ca&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-ca-key&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca-key.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-config&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/config.json &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-profile&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;kubernetes kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
+
+&lt;span class=&quot;c&quot;&gt;# 列出kube-controller-manager有关证书&lt;/span&gt;
+ls kube-controller-manager&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+kube-controller-manager.csr  kube-controller-manager-csr.json  kube-controller-manager-key.pem  kube-controller-manager.pem
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;27-创建kube-scheduler证书配置生成kube-scheduler证书和私钥&quot;&gt;2.7 创建kube-scheduler证书配置，生成kube-scheduler证书和私钥&lt;/h5&gt;
+
+&lt;p&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;/opt/ssl&lt;/code&gt; 下添加文件 &lt;code class=&quot;highlighter-rouge&quot;&gt;kube-scheduler-csr.json&lt;/code&gt;，内容如下&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;kube-scheduler-csr.json&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;system:kube-scheduler&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;hosts&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.3&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;algo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rsa&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;size&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2048&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;names&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;ST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Wuhan&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;L&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Hubei&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;O&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;system:kube-scheduler&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;OU&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;System&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;生成kube-scheduler证书和私钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cfssl gencert -ca&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-ca-key&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca-key.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-config&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/config.json &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-profile&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;kubernetes kube-scheduler-csr.json | cfssljson -bare kube-scheduler
+
+&lt;span class=&quot;c&quot;&gt;# 列出kube-scheduler有关证书&lt;/span&gt;
+ls kube-scheduler&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+kube-scheduler.csr  kube-scheduler-csr.json  kube-scheduler-key.pem  kube-scheduler.pem
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;28-创建kube-admin证书配置生成kube-admin证书和私钥&quot;&gt;2.8 创建kube-admin证书配置，生成kube-admin证书和私钥&lt;/h5&gt;
+
+&lt;p&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;/opt/ssl&lt;/code&gt; 下添加文件 &lt;code class=&quot;highlighter-rouge&quot;&gt;kube-admin-csr.json&lt;/code&gt;，内容如下&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;kube-admin-csr.json&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;kube-admin&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;hosts&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;172.29.151.8&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;algo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rsa&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;size&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2048&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;names&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;ST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Wuhan&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;L&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Hubei&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;O&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;system:masters&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;OU&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;System&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;生成kube-admin证书和私钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cfssl gencert -ca&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-ca-key&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca-key.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-config&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/config.json &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-profile&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;kubernetes kube-admin-csr.json | cfssljson -bare kube-admin
+
+&lt;span class=&quot;c&quot;&gt;# 列出kube-admin有关证书&lt;/span&gt;
+ls kube-admin&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+kube-admin.csr  kube-admin-csr.json  kube-admin-key.pem  kube-admin.pem
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;29-创建kube-proxy证书配置生成kube-proxy证书和私钥&quot;&gt;2.9 创建kube-proxy证书配置，生成kube-proxy证书和私钥&lt;/h5&gt;
+
+&lt;p&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;/opt/ssl&lt;/code&gt; 下添加文件 &lt;code class=&quot;highlighter-rouge&quot;&gt;kube-proxy-csr.json&lt;/code&gt;，内容如下&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;kube-proxy-csr.json&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;system:kube-proxy&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;hosts&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;algo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rsa&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;size&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2048&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;names&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;C&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;CN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;ST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Wuhan&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;L&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Hubei&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;O&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;system:kube-proxy&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;OU&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;System&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;生成kube-proxy证书和私钥&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cfssl gencert -ca&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-ca-key&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/ca-key.pem &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-config&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/opt/ssl/config.json &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+-profile&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;kubernetes kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+&lt;span class=&quot;c&quot;&gt;# 列出kube-proxy有关证书&lt;/span&gt;
+ls kube-proxy&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+kube-proxy.csr  kube-proxy-csr.json  kube-proxy-key.pem  kube-proxy.pem
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;210-kubelet-证书和私钥&quot;&gt;2.10 kubelet 证书和私钥&lt;/h5&gt;
+
+&lt;p&gt;kubelet 其实也可以手动通过CA来进行签发，但是这只能针对少数机器，毕竟我们在进行证书签发的时候，是需要绑定对应Node的IP的，如果node太多了，加IP就会很幸苦， 所以这里我们使用TLS 认证，由apiserver自动给符合条件的node签发证书，允许节点加入集群，具体过程，在安装kubelet的时候再说。&lt;/p&gt;
+
+&lt;h5 id=&quot;211-证书分发&quot;&gt;2.11 证书分发&lt;/h5&gt;
+
+&lt;p&gt;既然证书都创建好了，那么这时候，我们就需要将对应的证书分发到对应的节点上去&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;master&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;IP &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;seq 1 3&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;;&lt;span class=&quot;k&quot;&gt;do
+  &lt;/span&gt;ssh root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt; mkdir -p /etc/kubernetes/ssl
+  ssh root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt; mkdir -p /etc/etcd/ssl
+  scp ca&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem kube-apiserver&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem kube-controller-manager&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem kube-scheduler&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt;:/etc/kubernetes/ssl/
+  ssh root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt; chown -R kube:kube /etc/kubernetes/ssl
+  scp ca&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem etcd&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt;:/etc/etcd/ssl
+  ssh root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt; chown -R etcd:etcd /etc/etcd/ssl
+&lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;node&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;IP &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;seq 5 7&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;;&lt;span class=&quot;k&quot;&gt;do
+  &lt;/span&gt;ssh root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt; mkdir -p /etc/kubernetes/ssl
+  scp ca&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem kube-proxy&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt;:/etc/kubernetes/ssl/
+  ssh root@172.29.151.&lt;span class=&quot;nv&quot;&gt;$IP&lt;/span&gt; chown -R kube:kube /etc/kubernetes/ssl
+&lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;console&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /opt/ssl
+
+cp kube-admin&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.pem /etc/kubernetes/ssl/
+chown -R kube:kube /etc/kubernetes/ssl/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">原有的环境需要迁移，现在需要重新搭建一套kubernetes，而且原来一直是用kargo来搭建，所有组件都是基于docker容器的，感觉有点不稳妥，所以正好这个时候有机会，可以纯手动部署一下，所有的关键组件都以二进制形式部署，并添加为系统服务，这里记录一下。</summary></entry><entry><title type="html">kubernetes ceph 笔记 3</title><link href="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 3" /><published>2017-09-20T00:00:00+08:00</published><updated>2017-09-20T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/20/kubernetes-ceph-3</id><content type="html" xml:base="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/">&lt;blockquote&gt;
   &lt;p&gt;前面花了两章的时间介绍了ceph存储集群，简单的讲了ceph的组件、架构、寻址过程以及关于rbd,cephfs,cephGW,rados,osd,mon,mds,pool,pg,object等的操作过程，这一章主要记录下kubernetes使用ceph的相关配置过程。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -1405,6 +1967,39 @@ kubernetes里所有资源的调度中心&lt;/p&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;&lt;strong&gt;注意：我们在指定&lt;code class=&quot;highlighter-rouge&quot;&gt;label selector&lt;/code&gt;时，需要和&lt;code class=&quot;highlighter-rouge&quot;&gt;.spec.template.metadata.labels&lt;/code&gt;下的值相同，如果不指定&lt;code class=&quot;highlighter-rouge&quot;&gt;label selector&lt;/code&gt;则默认保持和&lt;code class=&quot;highlighter-rouge&quot;&gt;.spec.template.metadata.labels&lt;/code&gt;的值相同&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;init容器&quot;&gt;init容器&lt;/h4&gt;
+
+&lt;p&gt;init容器在1.6版本已经推出了beta版本，但是以前的语法仍然被保留，未来可能会被抛弃掉，所以建议使用最新的语法。&lt;/p&gt;
+
+&lt;p&gt;init容器主要作用是为了执行一些在pod就绪前的一些初始化步骤，比如：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;把一些安全级别的程序放在init container中执行，避免放在images中暴露&lt;/li&gt;
+  &lt;li&gt;它们必须在应用程序启动之前完成，并且只有在init容器成功完成后，应用容器才能启动，这就提供了一种简单的阻塞或延迟应用容器启动的方法&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;1.6之后的写法如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;v1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Pod&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;myapp-pod&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;myapp&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# init 容器&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;initContainers&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;init-myservice&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;busybox&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;sh'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;-c'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;until&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;nslookup&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;myservice;do&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;waiting&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;myservice;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;2;done;'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# 业务容器&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;containers&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;myapp-container&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;busybox&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;sh'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;-c'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;The&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;running!&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;3600'&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;h3 id=&quot;replicationcontrollerrc&quot;&gt;ReplicationController(RC)&lt;/h3&gt;
 &lt;p&gt;我们将上面那个例子的yaml文件直接拿来解析&lt;/p&gt;
@@ -3201,188 +3796,4 @@ disqus:
 
 &lt;p&gt;&lt;img src=&quot;/images/posts/cloudflare-always-https.png&quot; alt=&quot;cloudflare-always-https&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;9.最后，访问你的blog试试呢&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">接上一篇，上一篇我们的博客已经可以自动化部署了，但是我们仍然不满足，还想要有一个好的评论系统和一个安全的https连接</summary></entry><entry><title type="html">jekyll 搭建静态博客(1)</title><link href="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(1)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客(1)" /><published>2017-07-12T00:00:00+08:00</published><updated>2017-07-12T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(1)</id><content type="html" xml:base="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(1)/">&lt;blockquote&gt;
-  &lt;p&gt;这段时间将原来在hexo上的博客迁到了jekyll上；采用Jekyll生成静态站点，Travis CI自动化部署，记录下来，以免以后忘记了&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;!--more--&gt;
-
-&lt;h3 id=&quot;整体思路&quot;&gt;整体思路&lt;/h3&gt;
-
-&lt;p&gt;我们都知道通过jekyll搭建博客最终都是将通过&lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll build&lt;/code&gt;生成的&lt;code class=&quot;highlighter-rouge&quot;&gt;_site&lt;/code&gt;下的静态文件发布出去，那么我们是不是可以直接采用 &lt;code class=&quot;highlighter-rouge&quot;&gt;nginx&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;静态文件&lt;/code&gt;的方式来发布呢，当然是可以的&lt;/p&gt;
-
-&lt;h4 id=&quot;准备两个站点仓库&quot;&gt;准备两个站点仓库&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;主站点Github (保存静态文件)&lt;/li&gt;
-  &lt;li&gt;镜像站点Github (触发 travis ，生成静态文件)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;我们只需要将 Travis CI生成的静态文件推送到 主站点Github，博客通过 docker 化部署，采用 &lt;code class=&quot;highlighter-rouge&quot;&gt;nginx&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;静态文件&lt;/code&gt; 方式；每次容器启动后都要从主站点Github pull 最新的静态文件，流程如下&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;本地提交博客 Markdown 文件到镜像站点Github&lt;/li&gt;
-  &lt;li&gt;Github 触发 Travis CI 执行jekyll 编译&lt;/li&gt;
-  &lt;li&gt;Travis CI 将编译后的静态文件push到主站点Github&lt;/li&gt;
-  &lt;li&gt;Travis CI 通知服务器重启容器&lt;/li&gt;
-  &lt;li&gt;容器重启拉去最新静态文件完成更新&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://travis-ci.org/&quot;&gt;Travis&lt;/a&gt; 是啥？ 就是个类似jenkins的东西. &lt;a href=&quot;https://jenkins.io/&quot;&gt;Jenkins&lt;/a&gt; 是啥？ 就是个类似Travis的东西.&lt;/p&gt;
-
-&lt;h4 id=&quot;构建所需docker镜像&quot;&gt;构建所需docker镜像&lt;/h4&gt;
-
-&lt;p&gt;既然博客是通过 docker 化部署，采用&lt;code class=&quot;highlighter-rouge&quot;&gt;nginx&lt;/code&gt; + &lt;code class=&quot;highlighter-rouge&quot;&gt;静态文件&lt;/code&gt; 的方式发布，那么我们第一步就是要构建我们博客所需的镜像，&lt;code class=&quot;highlighter-rouge&quot;&gt;Dockerfile&lt;/code&gt; 内容如下&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;FROM nginx:1.11.10-alpine
-
-MAINTAINER KevinGuo &lt;span class=&quot;s2&quot;&gt;&quot;chinakevinguo@live.com&quot;&lt;/span&gt;
-
-ENV TZ &lt;span class=&quot;s1&quot;&gt;'Asia/Shanghai'&lt;/span&gt;
-
-RUN apk upgrade --no-cache &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; apk add --no-cache bash git &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm -rf /usr/share/nginx/html &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; git clone https://github.com/chinakevinguo/kevinguo.me.git /usr/share/nginx/html &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Asia/Shanghai&quot;&lt;/span&gt; &amp;gt; /etc/timezone &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm -rf /var/cache/apk/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-
-ADD entrypoint.sh /entrypoint.sh
-
-WORKDIR /usr/share/nginx/html
-
-CMD &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;/entrypoint.sh&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;容器每次重启的时候都会去主站点Github上拉取最新的静态文件，并且启动 nginx，&lt;code class=&quot;highlighter-rouge&quot;&gt;entrypoint.sh&lt;/code&gt;内容如下&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
-
-git pull
-nginx -g &lt;span class=&quot;s2&quot;&gt;&quot;daemon off;&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;最后执行&lt;code class=&quot;highlighter-rouge&quot;&gt;docker build&lt;/code&gt;，生成我们所需的镜像&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker build -t chinakevinguo_jekyll_kevinguo_me .
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;博客所需镜像制作完成后，启动容器&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;always -p 80:80 -p 443:443 chinakevinguo_jekyll_kevinguo_me
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;p&gt;下一步就是 &lt;code class=&quot;highlighter-rouge&quot;&gt;静态文件&lt;/code&gt; 了&lt;/p&gt;
-
-&lt;h4 id=&quot;静态文件的自动更新&quot;&gt;静态文件的自动更新&lt;/h4&gt;
-
-&lt;p&gt;通过上面 &lt;code class=&quot;highlighter-rouge&quot;&gt;Dockerfile&lt;/code&gt; 文件中的内容，你会发现，我是将 &lt;code class=&quot;highlighter-rouge&quot;&gt;kevinguo.me.git&lt;/code&gt;下的内容clone到 &lt;code class=&quot;highlighter-rouge&quot;&gt;/usr/share/nginx/html&lt;/code&gt;，也就是说，我实际上是发布的 &lt;code class=&quot;highlighter-rouge&quot;&gt;kevinguo.me.git&lt;/code&gt; 下的静态文件，那么 &lt;code class=&quot;highlighter-rouge&quot;&gt;kevinguo.me.git&lt;/code&gt; 下面的内容又是怎么来的呢&lt;/p&gt;
-
-&lt;p&gt;实际上这些文件是 Travis CI 基于镜像站点(chinakevinguo.github.io) 完成 build 后在 &lt;code class=&quot;highlighter-rouge&quot;&gt;_site&lt;/code&gt;目录下生成的镜像文件&lt;/p&gt;
-
-&lt;h5 id=&quot;travis-配置&quot;&gt;Travis 配置&lt;/h5&gt;
-
-&lt;p&gt;1.使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;Github&lt;/code&gt; 账号登录 Travis，右上方按钮点击同步项目，下方打开需要继承的项目，最后点击齿轮进入项目配置页面&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/travis.png&quot; alt=&quot;travis&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;2.打开 &lt;code class=&quot;highlighter-rouge&quot;&gt;Build only if .travis.yml is present&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/travis-yml.png&quot; alt=&quot;travis-yml&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;3.Travis CI push静态文件到Github 通过 Github的token实现授权配置，准备 Github上的token&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;注意： 这里的&lt;code class=&quot;highlighter-rouge&quot;&gt;token&lt;/code&gt;，复制之后，最好自己保存好哟，因为只显示一次，如果丢失只能再次生成了&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/github-token.png&quot; alt=&quot;github-token.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;4.配置Travis CI 部署所需环境变量，&lt;code class=&quot;highlighter-rouge&quot;&gt;$JEKYLL_GITHUB_TOKEN&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/travis-token.png&quot; alt=&quot;travis-token&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;5.Travis CI 和服务器之间通过密钥认证，并且对密钥进行了加密，所以我们需要在服务器上进行一些加密操作，并将密钥传到Travis上&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# clone 镜像站点&lt;/span&gt;
-git clone git@github.com:chinakevinguo/chinakevinguo.github.io.git
-
-&lt;span class=&quot;c&quot;&gt;# 在镜像站点(chinakevinguo.github.io)下，新建`.travis.yml`文件&lt;/span&gt;
-touch .travis.yml
-
-&lt;span class=&quot;c&quot;&gt;# 生成公钥和私钥&lt;/span&gt;
-ssh-keygen
-
-&lt;span class=&quot;c&quot;&gt;# 安装travis命令行工具，如无法使用gem指令需先安装ruby&lt;/span&gt;
-gem install travis
-
-&lt;span class=&quot;c&quot;&gt;# --auto自动登录github账户&lt;/span&gt;
-travis login --auto
-
-&lt;span class=&quot;c&quot;&gt;# 在.travis.yml同级目录下执行，此处的--add参数表示自动添加脚本到.travis.yml文件中&lt;/span&gt;
-travis encrypt-file ~/.ssh/id_rsa --add
-
-&lt;span class=&quot;c&quot;&gt;# 在服务器上执行ssh-copy-id操作，实现ssh连接的时候免密钥登陆&lt;/span&gt;
-ssh-copy-id root@kevinguo.me
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;执行完成后会发现&lt;code class=&quot;highlighter-rouge&quot;&gt;travis&lt;/code&gt;网站项目里的环境变量多了两个参数&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/travis-key.png&quot; alt=&quot;travis-key&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;并且在&lt;code class=&quot;highlighter-rouge&quot;&gt;.travis.yml&lt;/code&gt;里的 &lt;code class=&quot;highlighter-rouge&quot;&gt;before_install&lt;/code&gt;周期中多了下面2行&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;- openssl aes-256-cbc -K &lt;span class=&quot;nv&quot;&gt;$encrypted_3870315c7a22_key&lt;/span&gt; -iv &lt;span class=&quot;nv&quot;&gt;$encrypted_3870315c7a22_iv&lt;/span&gt;
-  -in id_rsa.enc -out ~&lt;span class=&quot;se&quot;&gt;\/&lt;/span&gt;.ssh/id_rsa -d
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;默认生成的命令会在&lt;code class=&quot;highlighter-rouge&quot;&gt;/&lt;/code&gt;前面带转义符&lt;code class=&quot;highlighter-rouge&quot;&gt;\&lt;/code&gt;，我们不需要，手动删除即可&lt;/p&gt;
-
-&lt;p&gt;6.进一步修改 &lt;code class=&quot;highlighter-rouge&quot;&gt;.travis.yml&lt;/code&gt; 文件，内容如下&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;language: ruby
-rvm:
-- 2.3.3
-before_install:
-- openssl aes-256-cbc -K &lt;span class=&quot;nv&quot;&gt;$encrypted_3870315c7a22_key&lt;/span&gt; -iv &lt;span class=&quot;nv&quot;&gt;$encrypted_3870315c7a22_iv&lt;/span&gt; -in id_rsa.enc -out ~/.ssh/id_rsa -d
-- chmod 600 ~/.ssh/id_rsa
-- &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; -e &lt;span class=&quot;s2&quot;&gt;&quot;Host 主机IP地址&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n\t&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;StrictHostKeyChecking no&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &amp;gt;&amp;gt; ~/.ssh/config
-install:
-  - gem install jekyll
-  - gem install html-proofer
-script:
-- bundle install
-- bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll build
-after_success:
-- git clone https://github.com/chinakevinguo/kevinguo.me.git
-- &lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;kevinguo.me &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm -rf &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; cp -r ../_site/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; .
-- git config user.name &lt;span class=&quot;s2&quot;&gt;&quot;chinakevinguo&quot;&lt;/span&gt;
-- git config user.email &lt;span class=&quot;s2&quot;&gt;&quot;chinakevinguo@live.com&quot;&lt;/span&gt;
-- git add --all .
-- git commit -m &lt;span class=&quot;s2&quot;&gt;&quot;Travis CI Auto Builder&quot;&lt;/span&gt;
-- git push --force https://&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;JEKYLL_GITHUB_TOKEN&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;@github.com/chinakevinguo/kevinguo.me.git master
-- ssh root@host.kevinguo.me &lt;span class=&quot;s2&quot;&gt;&quot;docker restart chinakevinguo_jekyll_kevinguo_me&quot;&lt;/span&gt;
-branches:
-  only:
-  - master
-env:
-  global:
-  - &lt;span class=&quot;nv&quot;&gt;NOKOGIRI_USE_SYSTEM_LIBRARIES&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true
-&lt;/span&gt;addons:
-  ssh_known_hosts: host.kevinguo.me
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;7.修改镜像站点下的其他内容，比如&lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;，将一些内容替换成你自己的,下一篇，我将会介绍 &lt;code class=&quot;highlighter-rouge&quot;&gt;disqus&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;cloudflare&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;8.所有内容都修改好后，&lt;code class=&quot;highlighter-rouge&quot;&gt;push&lt;/code&gt;到 Github上，会发现触发了 Travis CI，并且将生成的静态文件 &lt;code class=&quot;highlighter-rouge&quot;&gt;push&lt;/code&gt; 到了主站点仓库 &lt;code class=&quot;highlighter-rouge&quot;&gt;kevinguo.me&lt;/code&gt;，然后重启了容器&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/travis-done.png&quot; alt=&quot;travis-done&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;博客发布成功&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/jekyll-blog-done.png&quot; alt=&quot;jekyll-blog-done&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">这段时间将原来在hexo上的博客迁到了jekyll上；采用Jekyll生成静态站点，Travis CI自动化部署，记录下来，以免以后忘记了</summary></entry></feed>
+&lt;p&gt;9.最后，访问你的blog试试呢&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">接上一篇，上一篇我们的博客已经可以自动化部署了，但是我们仍然不满足，还想要有一个好的评论系统和一个安全的https连接</summary></entry></feed>

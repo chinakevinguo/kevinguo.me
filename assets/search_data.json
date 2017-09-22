@@ -1,5 +1,11 @@
 {
   
+  "2017-09-22-manual-deploy-kubernetes": {
+    "title": "手动搭建kubernetes HA集群",
+    "url": " /2017/09/22/manual-deploy-kubernetes/",
+    "category": "kubernetes"
+  },
+  
   "2017-09-20-kubernetes-ceph-3": {
     "title": "kubernetes ceph 笔记 3",
     "url": " /2017/09/20/kubernetes-ceph-3/",
@@ -702,6 +708,12 @@
     "title": "kubernetes ceph 笔记 3",
     "url": "/2017/09/20/kubernetes-ceph-3/",
     "category": "[&quot;kubernetes&quot;, &quot;ceph&quot;]"
+  },
+  
+  "2017-09-22-manual-deploy-kubernetes": {
+    "title": "手动搭建kubernetes HA集群",
+    "url": "/2017/09/22/manual-deploy-kubernetes/",
+    "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   }
   
 }

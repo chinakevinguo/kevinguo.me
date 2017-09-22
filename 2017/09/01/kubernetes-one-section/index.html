@@ -287,6 +287,39 @@ kubernetes里所有资源的调度中心</p>
 
 <p><strong>注意：我们在指定<code class="highlighter-rouge">label selector</code>时，需要和<code class="highlighter-rouge">.spec.template.metadata.labels</code>下的值相同，如果不指定<code class="highlighter-rouge">label selector</code>则默认保持和<code class="highlighter-rouge">.spec.template.metadata.labels</code>的值相同</strong></p>
 
+<h4 id="init容器">init容器</h4>
+
+<p>init容器在1.6版本已经推出了beta版本，但是以前的语法仍然被保留，未来可能会被抛弃掉，所以建议使用最新的语法。</p>
+
+<p>init容器主要作用是为了执行一些在pod就绪前的一些初始化步骤，比如：</p>
+
+<ul>
+  <li>把一些安全级别的程序放在init container中执行，避免放在images中暴露</li>
+  <li>它们必须在应用程序启动之前完成，并且只有在init容器成功完成后，应用容器才能启动，这就提供了一种简单的阻塞或延迟应用容器启动的方法</li>
+</ul>
+
+<p>1.6之后的写法如下：</p>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">myapp-pod</span>
+  <span class="s">labels</span><span class="pi">:</span>
+    <span class="s">app</span><span class="pi">:</span> <span class="s">myapp</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="c1"># init 容器</span>
+  <span class="s">initContainers</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">init-myservice</span>
+      <span class="s">image</span><span class="pi">:</span> <span class="s">busybox</span>
+      <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s1">'</span><span class="s">sh'</span><span class="pi">,</span><span class="s1">'</span><span class="s">-c'</span><span class="pi">,</span><span class="s1">'</span><span class="s">until</span><span class="nv"> </span><span class="s">nslookup</span><span class="nv"> </span><span class="s">myservice;do</span><span class="nv"> </span><span class="s">echo</span><span class="nv"> </span><span class="s">waiting</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">myservice;</span><span class="nv"> </span><span class="s">sleep</span><span class="nv"> </span><span class="s">2;done;'</span><span class="pi">]</span>
+  <span class="c1"># 业务容器</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">myapp-container</span>
+    <span class="s">image</span><span class="pi">:</span> <span class="s">busybox</span>
+    <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s1">'</span><span class="s">sh'</span><span class="pi">,</span><span class="s1">'</span><span class="s">-c'</span><span class="pi">,</span><span class="s1">'</span><span class="s">echo</span><span class="nv"> </span><span class="s">The</span><span class="nv"> </span><span class="s">app</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">running!</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">sleep</span><span class="nv"> </span><span class="s">3600'</span><span class="pi">]</span>
+</code></pre>
+</div>
+
 <h3 id="replicationcontrollerrc">ReplicationController(RC)</h3>
 <p>我们将上面那个例子的yaml文件直接拿来解析</p>
 <div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="c1"># api版本，类型，全局唯一名称，这是所有kubernetes yaml文件都需要的</span>
