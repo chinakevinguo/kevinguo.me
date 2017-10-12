@@ -194,7 +194,9 @@
 
 <h5 id="12-系统组件">1.2 系统组件</h5>
 
-<p>在安装之前，我们要确认，我们具体需要准备哪些系统组件</p>
+<blockquote>
+  <p>在安装之前，我们要确认，我们具体需要准备哪些系统组件</p>
+</blockquote>
 
 <ul>
   <li>docker</li>
@@ -205,7 +207,9 @@
 
 <h5 id="13-自签名证书">1.3 自签名证书</h5>
 
-<p>因为所有的组件之间都是通过证书认证的方式来进行通信的，所以我们还得确认下，我们到底需要哪些证书</p>
+<blockquote>
+  <p>因为所有的组件之间都是通过证书认证的方式来进行通信的，所以我们还得确认下，我们到底需要哪些证书</p>
+</blockquote>
 
 <ul>
   <li>CA</li>
@@ -220,14 +224,23 @@
 
 <h5 id="14-系统配置">1.4 系统配置</h5>
 
-<p>关闭所有节点的selinux</p>
+<blockquote>
+  <p>关闭所有节点的selinux、iptables、firewalld</p>
+</blockquote>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>vi /etc/selinux/config
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl stop iptables
+systemctl stop firewalld
+systemctl disable iptables
+systemctl disable firewalld
+
+vi /etc/selinux/config
 <span class="nv">SELINUX</span><span class="o">=</span>disable
 </code></pre>
 </div>
 
-<p>在所有节点上创建 <code class="highlighter-rouge">/etc/sysctl.d/k8s.conf</code>文件，添加如下内容</p>
+<blockquote>
+  <p>在所有节点上创建 <code class="highlighter-rouge">/etc/sysctl.d/k8s.conf</code>文件，添加如下内容</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>net.bridge.bridge-nf-call-ip6tables <span class="o">=</span> 1
 net.bridge.bridge-nf-call-iptables <span class="o">=</span> 1
@@ -237,7 +250,9 @@ sysctl -p /etc/sysctl.d/k8s.conf
 </code></pre>
 </div>
 
-<p>在所有节点上编辑 <code class="highlighter-rouge">/etc/hosts</code>文件，配置host通信</p>
+<blockquote>
+  <p>在所有节点上编辑 <code class="highlighter-rouge">/etc/hosts</code>文件，配置host通信</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>vi /etc/hosts
 
@@ -264,9 +279,13 @@ useradd kube  -M -c <span class="s2">"Kubernetes user"</span> -r -s /sbin/nologi
 
 <h5 id="16-在console上配置免密钥登录">1.6 在console上配置免密钥登录</h5>
 
-<p>所有证书分发，二进制文件分发，配置文件分发，都将在 <code class="highlighter-rouge">k8s-console</code> 上执行，所以该节点主机对集群内所有节点设置了免密钥登录</p>
+<blockquote>
+  <p>所有证书分发，二进制文件分发，配置文件分发，都将在 <code class="highlighter-rouge">k8s-console</code> 上执行，所以该节点主机对集群内所有节点设置了免密钥登录</p>
+</blockquote>
 
-<p>具体过程可参考<a href="https://kevinguo.me/2017/07/06/ansible-client/">免密钥登录</a></p>
+<blockquote>
+  <p>具体过程可参考<a href="https://kevinguo.me/2017/07/06/ansible-client/">免密钥登录</a></p>
+</blockquote>
 
 <h3 id="二创建验证">二.创建验证</h3>
 
@@ -274,7 +293,9 @@ useradd kube  -M -c <span class="s2">"Kubernetes user"</span> -r -s /sbin/nologi
   <p>因为所有组件和apiserver进行通信，都需要使用证书来进行认证，所以这里我们使用CloudFlare的PKI工具集 cfssl 来生成CA证书和其密钥文件</p>
 </blockquote>
 
-<p><strong>如果你的kube-controller-manager、kube-scheduler同apiserver之间通信不需要进行证书认证(毕竟他们都在同一台机器上)，那么下面有关kube-controller-manager、kube-scheduler的证书步骤可以忽略；而在该实验中，我考虑到后面假若它们不在同一台机器上，所以也记录了kube-controller-manager、kube-scheduler的证书创建配置过程</strong></p>
+<blockquote>
+  <p><strong>如果你的kube-controller-manager、kube-scheduler同apiserver之间通信不需要进行证书认证(毕竟他们都在同一台机器上)，那么下面有关kube-controller-manager、kube-scheduler的证书步骤可以忽略；而在该实验中，我考虑到后面假若它们不在同一台机器上，所以也记录了kube-controller-manager、kube-scheduler的证书创建配置过程</strong></p>
+</blockquote>
 
 <h5 id="21-安装cfssl">2.1 安装cfssl</h5>
 
@@ -291,7 +312,9 @@ mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
 
 <h5 id="22-创建ca证书配置生成ca证书和私钥">2.2 创建CA证书配置，生成CA证书和私钥</h5>
 
-<p>先用 <code class="highlighter-rouge">cfssl</code> 命令生成包含默认配置的 <code class="highlighter-rouge">config.json</code>和 <code class="highlighter-rouge">csr.json</code>文件</p>
+<blockquote>
+  <p>先用 <code class="highlighter-rouge">cfssl</code> 命令生成包含默认配置的 <code class="highlighter-rouge">config.json</code>和 <code class="highlighter-rouge">csr.json</code>文件</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>mkdir /opt/ssl
 <span class="nb">cd</span> /opt/ssl
@@ -301,7 +324,9 @@ cfssl print-defaults csr &gt; csr.json
 </code></pre>
 </div>
 
-<p>然后分别修改这两个文件为如下内容</p>
+<blockquote>
+  <p>然后分别修改这两个文件为如下内容</p>
+</blockquote>
 
 <p><strong>config.json</strong></p>
 
@@ -347,7 +372,9 @@ cfssl print-defaults csr &gt; csr.json
 </span></code></pre>
 </div>
 
-<p>生成CA 证书和私钥</p>
+<blockquote>
+  <p>生成CA 证书和私钥</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
 
@@ -366,7 +393,9 @@ cfssl gencert -initca csr.json | cfssljson -bare ca
 
 <h5 id="24-创建etcd证书配置生成-etcd-证书和私钥">2.4 创建etcd证书配置，生成 etcd 证书和私钥</h5>
 
-<p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">etcd-csr.json</code>，内容如下</p>
+<blockquote>
+  <p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">etcd-csr.json</code>，内容如下</p>
+</blockquote>
 
 <p><strong>etcd-csr.json</strong></p>
 
@@ -395,7 +424,9 @@ cfssl gencert -initca csr.json | cfssljson -bare ca
 </span></code></pre>
 </div>
 
-<p>生成etcd证书和密钥</p>
+<blockquote>
+  <p>生成etcd证书和密钥</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
 
@@ -412,7 +443,9 @@ etcd.csr  etcd-csr.json  etcd-key.pem  etcd.pem
 
 <h5 id="25-创建kube-apiserver证书配置生成kube-apiserver证书和私钥">2.5 创建kube-apiserver证书配置，生成kube-apiserver证书和私钥</h5>
 
-<p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-apiserver-csr.json</code>，内容如下</p>
+<blockquote>
+  <p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-apiserver-csr.json</code>，内容如下</p>
+</blockquote>
 
 <p><strong>kube-apiserver-csr.json</strong></p>
 
@@ -422,7 +455,7 @@ etcd.csr  etcd-csr.json  etcd-key.pem  etcd.pem
     </span><span class="s2">"127.0.0.1"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"172.29.151.1"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"172.29.151.2"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"172.20.151.3"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"172.29.151.3"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"10.254.0.1"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"localhost"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"kubernetes"</span><span class="p">,</span><span class="w">
@@ -448,7 +481,9 @@ etcd.csr  etcd-csr.json  etcd-key.pem  etcd.pem
 </span></code></pre>
 </div>
 
-<p>生成kube-apiserver证书和私钥</p>
+<blockquote>
+  <p>生成kube-apiserver证书和私钥</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
 
@@ -465,7 +500,9 @@ kube-apiserver.csr  kube-apiserver-csr.json  kube-apiserver-key.pem  kube-apiser
 
 <h5 id="26-创建kube-controller-manager证书配置生成kube-controller-manager证书和私钥">2.6 创建kube-controller-manager证书配置，生成kube-controller-manager证书和私钥</h5>
 
-<p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-controller-manager-csr.json</code>，内容如下</p>
+<blockquote>
+  <p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-controller-manager-csr.json</code>，内容如下</p>
+</blockquote>
 
 <p><strong>kube-controller-manager-csr.json</strong></p>
 
@@ -474,7 +511,7 @@ kube-apiserver.csr  kube-apiserver-csr.json  kube-apiserver-key.pem  kube-apiser
   </span><span class="nt">"hosts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="s2">"172.29.151.1"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"172.29.151.2"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"172.20.151.3"</span><span class="w">
+    </span><span class="s2">"172.29.151.3"</span><span class="w">
   </span><span class="p">],</span><span class="w">
   </span><span class="nt">"key"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nt">"algo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rsa"</span><span class="p">,</span><span class="w">
@@ -493,7 +530,9 @@ kube-apiserver.csr  kube-apiserver-csr.json  kube-apiserver-key.pem  kube-apiser
 </span></code></pre>
 </div>
 
-<p>生成kube-controller-manager证书和私钥</p>
+<blockquote>
+  <p>生成kube-controller-manager证书和私钥</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
 
@@ -511,7 +550,9 @@ kube-controller-manager.csr  kube-controller-manager-csr.json  kube-controller-m
 
 <h5 id="27-创建kube-scheduler证书配置生成kube-scheduler证书和私钥">2.7 创建kube-scheduler证书配置，生成kube-scheduler证书和私钥</h5>
 
-<p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-scheduler-csr.json</code>，内容如下</p>
+<blockquote>
+  <p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-scheduler-csr.json</code>，内容如下</p>
+</blockquote>
 
 <p><strong>kube-scheduler-csr.json</strong></p>
 
@@ -539,7 +580,9 @@ kube-controller-manager.csr  kube-controller-manager-csr.json  kube-controller-m
 </span></code></pre>
 </div>
 
-<p>生成kube-scheduler证书和私钥</p>
+<blockquote>
+  <p>生成kube-scheduler证书和私钥</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
 
@@ -556,7 +599,9 @@ kube-scheduler.csr  kube-scheduler-csr.json  kube-scheduler-key.pem  kube-schedu
 
 <h5 id="28-创建kube-admin证书配置生成kube-admin证书和私钥">2.8 创建kube-admin证书配置，生成kube-admin证书和私钥</h5>
 
-<p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-admin-csr.json</code>，内容如下</p>
+<blockquote>
+  <p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-admin-csr.json</code>，内容如下</p>
+</blockquote>
 
 <p><strong>kube-admin-csr.json</strong></p>
 
@@ -582,7 +627,9 @@ kube-scheduler.csr  kube-scheduler-csr.json  kube-scheduler-key.pem  kube-schedu
 </span></code></pre>
 </div>
 
-<p>生成kube-admin证书和私钥</p>
+<blockquote>
+  <p>生成kube-admin证书和私钥</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
 
@@ -599,7 +646,9 @@ kube-admin.csr  kube-admin-csr.json  kube-admin-key.pem  kube-admin.pem
 
 <h5 id="29-创建kube-proxy证书配置生成kube-proxy证书和私钥">2.9 创建kube-proxy证书配置，生成kube-proxy证书和私钥</h5>
 
-<p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-proxy-csr.json</code>，内容如下</p>
+<blockquote>
+  <p>在<code class="highlighter-rouge">/opt/ssl</code> 下添加文件 <code class="highlighter-rouge">kube-proxy-csr.json</code>，内容如下</p>
+</blockquote>
 
 <p><strong>kube-proxy-csr.json</strong></p>
 
@@ -624,7 +673,9 @@ kube-admin.csr  kube-admin-csr.json  kube-admin-key.pem  kube-admin.pem
 </span></code></pre>
 </div>
 
-<p>生成kube-proxy证书和私钥</p>
+<blockquote>
+  <p>生成kube-proxy证书和私钥</p>
+</blockquote>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
 
@@ -641,11 +692,33 @@ kube-proxy.csr  kube-proxy-csr.json  kube-proxy-key.pem  kube-proxy.pem
 
 <h5 id="210-kubelet-证书和私钥">2.10 kubelet 证书和私钥</h5>
 
-<p>kubelet 其实也可以手动通过CA来进行签发，但是这只能针对少数机器，毕竟我们在进行证书签发的时候，是需要绑定对应Node的IP的，如果node太多了，加IP就会很幸苦， 所以这里我们使用TLS 认证，由apiserver自动给符合条件的node签发证书，允许节点加入集群，具体过程，在安装kubelet的时候再说。</p>
+<blockquote>
+  <p>kubelet 其实也可以手动通过CA来进行签发，但是这只能针对少数机器，毕竟我们在进行证书签发的时候，是需要绑定对应Node的IP的，如果node太多了，加IP就会很幸苦， 所以这里我们使用TLS 认证，由apiserver自动给符合条件的node签发证书，允许节点加入集群。</p>
+</blockquote>
+
+<blockquote>
+  <p>kubelet 首次启动时想kube-apiserver发送TLS Bootstrapping请求，kube-apiserver验证kubelet请求中的token是否与它配置的token一致，如果一致则自动为kubelet生成证书和密钥。具体参考<a href="https://k8smeetup.github.io/docs/admin/kubelet-tls-bootstrapping/">kubelet-tls-bootstrapping</a></p>
+</blockquote>
+
+<blockquote>
+  <p><strong>我们在k8s-console上生成token并分发到所有的master节点</strong></p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
+
+head -c 16 /dev/urandom | od -An -t x | tr -d <span class="s1">' '</span>
+04d9b6c6fd3ed8a3488b3b0913e87d64
+
+vim token.csv
+04d9b6c6fd3ed8a3488b3b0913e87d64,kubelet-bootstrap,10001,<span class="s2">"system:kubelet-bootstrap"</span>
+</code></pre>
+</div>
 
 <h5 id="211-证书分发">2.11 证书分发</h5>
 
-<p>既然证书都创建好了，那么这时候，我们就需要将对应的证书分发到对应的节点上去</p>
+<blockquote>
+  <p>既然证书都创建好了，那么这时候，我们就需要将对应的证书分发到对应的节点上去</p>
+</blockquote>
 
 <p><strong>master</strong></p>
 
@@ -680,6 +753,1648 @@ kube-proxy.csr  kube-proxy-csr.json  kube-proxy-key.pem  kube-proxy.pem
 
 cp kube-admin<span class="k">*</span>.pem /etc/kubernetes/ssl/
 chown -R kube:kube /etc/kubernetes/ssl/
+</code></pre>
+</div>
+
+<h5 id="211-token分发">2.11 token分发</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
+
+<span class="k">for </span>IP <span class="k">in</span> <span class="sb">`</span>seq 1 3<span class="sb">`</span>;<span class="k">do
+  </span>ssh root@172.29.151.<span class="nv">$IP</span> mkdir -p /etc/kubernetes/known_token
+  scp token.csv root@172.29.151.<span class="nv">$IP</span>:/etc/kubernetes/known_token/
+  ssh root@172.29.151.<span class="nv">$IP</span> chown -R kube:kube /etc/kubernetes/known_token
+<span class="k">done</span>
+</code></pre>
+</div>
+<h3 id="三分发二进制文件">三.分发二进制文件</h3>
+
+<h5 id="分发etcd">分发etcd</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>tar zxvf etcd-v3.2.7-linux-amd64.tar.gz
+<span class="nb">cd </span>etcd-v3.2.7-linux-amd64
+
+<span class="k">for </span>IP <span class="k">in</span> <span class="sb">`</span>seq 1 3<span class="sb">`</span>;<span class="k">do
+  </span>scp etcd etcdctl root@172.29.151.<span class="nv">$IP</span>:/usr/bin/
+<span class="k">done</span>
+</code></pre>
+</div>
+
+<h5 id="分发kubernetes-master">分发kubernetes master</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>tar zxvf kubernetes-server-linux-amd64.tar.gz
+<span class="nb">cd </span>kubernetes/server/bin
+
+<span class="k">for </span>IP <span class="k">in</span> <span class="sb">`</span>seq 1 3<span class="sb">`</span>;<span class="k">do
+  </span>scp kube-apiserver kube-controller-manager kube-scheduler root@172.29.151.<span class="nv">$IP</span>:/usr/local/bin/
+<span class="k">done</span>
+</code></pre>
+</div>
+
+<h5 id="分发kubernetes-node">分发kubernetes node</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>tar zxvf kubernetes-node-linux-amd64.tar.gz
+<span class="nb">cd </span>kubernetes/node/bin
+
+<span class="k">for </span>IP <span class="k">in</span> <span class="sb">`</span>seq 5 7<span class="sb">`</span>;<span class="k">do
+  </span>scp kubelet kube-proxy root@172.29.151.<span class="nv">$IP</span>:/usr/local/bin/
+<span class="k">done</span>
+</code></pre>
+</div>
+
+<h5 id="分发kubectletcdctl">分发kubectl,etcdctl</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd </span>kubernetes/node/bin
+cp kubectl /usr/local/bin/
+
+<span class="nb">cd </span>etcd-v3.2.7-linux-amd64
+cp etcdctl /usr/bin/
+</code></pre>
+</div>
+
+<h3 id="四etcd集群部署">四.etcd集群部署</h3>
+
+<h5 id="添加etcd为系统服务">添加etcd为系统服务</h5>
+
+<blockquote>
+  <p>在每个master节点上添加etcd启动文件/usr/lib/systemd/system/etcd.service</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># etcd1</span>
+
+<span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>etcd server
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">After</span><span class="o">=</span>network-online.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service]
+<span class="nv">Type</span><span class="o">=</span>notify
+<span class="nv">User</span><span class="o">=</span>etcd
+<span class="nv">WorkingDirectory</span><span class="o">=</span>/var/lib/etcd/
+<span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/etcd/etcd.conf
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/etcd <span class="se">\</span>
+  --name etcd1 <span class="se">\</span>
+  --cert-file<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --key-file<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  --peer-cert-file<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --peer-key-file<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  --trusted-ca-file<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --peer-trusted-ca-file<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --initial-advertise-peer-urls https://172.29.151.1:2380 <span class="se">\</span>
+  --listen-peer-urls https://172.29.151.1:2380 <span class="se">\</span>
+  --listen-client-urls https://172.29.151.1:2379,https://127.0.0.1:2379 <span class="se">\</span>
+  --advertise-client-urls https://172.29.151.1:2379 <span class="se">\</span>
+  --initial-cluster-token k8s_etcd <span class="se">\</span>
+  --initial-cluster <span class="nv">etcd1</span><span class="o">=</span>https://172.29.151.1:2380,etcd2<span class="o">=</span>https://172.29.151.2:2380,etcd3<span class="o">=</span>https://172.29.151.3:2380 <span class="se">\</span>
+  --initial-cluster-state new <span class="se">\</span>
+  --data-dir<span class="o">=</span>/var/lib/etcd
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span>5
+</code></pre>
+</div>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># etcd2</span>
+
+<span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>etcd server
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">After</span><span class="o">=</span>network-online.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service]
+<span class="nv">Type</span><span class="o">=</span>notify
+<span class="nv">User</span><span class="o">=</span>etcd
+<span class="nv">WorkingDirectory</span><span class="o">=</span>/var/lib/etcd/
+<span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/etcd/etcd.conf
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/etcd <span class="se">\</span>
+  --name etcd2 <span class="se">\</span>
+  --cert-file<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --key-file<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  --peer-cert-file<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --peer-key-file<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  --trusted-ca-file<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --peer-trusted-ca-file<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --initial-advertise-peer-urls https://172.29.151.2:2380 <span class="se">\</span>
+  --listen-peer-urls https://172.29.151.2:2380 <span class="se">\</span>
+  --listen-client-urls https://172.29.151.2:2379,https://127.0.0.1:2379 <span class="se">\</span>
+  --advertise-client-urls https://172.29.151.2:2379 <span class="se">\</span>
+  --initial-cluster-token k8s_etcd <span class="se">\</span>
+  --initial-cluster <span class="nv">etcd1</span><span class="o">=</span>https://172.29.151.1:2380,etcd2<span class="o">=</span>https://172.29.151.2:2380,etcd3<span class="o">=</span>https://172.29.151.3:2380 <span class="se">\</span>
+  --initial-cluster-state new <span class="se">\</span>
+  --data-dir<span class="o">=</span>/var/lib/etcd
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span>5
+</code></pre>
+</div>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># etcd3</span>
+
+<span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>etcd server
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">After</span><span class="o">=</span>network-online.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service]
+<span class="nv">Type</span><span class="o">=</span>notify
+<span class="nv">User</span><span class="o">=</span>etcd
+<span class="nv">WorkingDirectory</span><span class="o">=</span>/var/lib/etcd/
+<span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/etcd/etcd.conf
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/etcd <span class="se">\</span>
+  --name etcd3 <span class="se">\</span>
+  --cert-file<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --key-file<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  --peer-cert-file<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --peer-key-file<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  --trusted-ca-file<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --peer-trusted-ca-file<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --initial-advertise-peer-urls https://172.29.151.3:2380 <span class="se">\</span>
+  --listen-peer-urls https://172.29.151.3:2380 <span class="se">\</span>
+  --listen-client-urls https://172.29.151.3:2379,https://127.0.0.1:2379 <span class="se">\</span>
+  --advertise-client-urls https://172.29.151.3:2379 <span class="se">\</span>
+  --initial-cluster-token k8s_etcd <span class="se">\</span>
+  --initial-cluster <span class="nv">etcd1</span><span class="o">=</span>https://172.29.151.1:2380,etcd2<span class="o">=</span>https://172.29.151.2:2380,etcd3<span class="o">=</span>https://172.29.151.3:2380 <span class="se">\</span>
+  --initial-cluster-state new <span class="se">\</span>
+  --data-dir<span class="o">=</span>/var/lib/etcd
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span>5
+</code></pre>
+</div>
+
+<h5 id="验证etcd-集群状态">验证etcd 集群状态</h5>
+
+<blockquote>
+  <p>查看etcd集群状态</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>etcdctl <span class="se">\</span>
+  --endpoints<span class="o">=</span>https://172.29.151.1:2379 <span class="se">\</span>
+  --cert-file<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --ca-file<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --key-file<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  cluster-health
+
+member 31a0c451ae46a2d0 is healthy: got healthy result from https://172.29.151.1:2379
+member 72b18fe792c0a463 is healthy: got healthy result from https://172.29.151.3:2379
+member d0c073403f6edbd3 is healthy: got healthy result from https://172.29.151.2:2379
+cluster is healthy
+</code></pre>
+</div>
+
+<blockquote>
+  <p>查看etcd 集群成员</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>etcdctl <span class="se">\</span>
+  --endpoints<span class="o">=</span>https://172.29.151.1:2379 <span class="se">\</span>
+  --cert-file<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --ca-file<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --key-file<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  member list
+
+31a0c451ae46a2d0: <span class="nv">name</span><span class="o">=</span>etcd1 <span class="nv">peerURLs</span><span class="o">=</span>https://172.29.151.1:2380 <span class="nv">clientURLs</span><span class="o">=</span>https://172.29.151.1:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">true
+</span>72b18fe792c0a463: <span class="nv">name</span><span class="o">=</span>etcd3 <span class="nv">peerURLs</span><span class="o">=</span>https://172.29.151.3:2380 <span class="nv">clientURLs</span><span class="o">=</span>https://172.29.151.3:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">false
+</span>d0c073403f6edbd3: <span class="nv">name</span><span class="o">=</span>etcd2 <span class="nv">peerURLs</span><span class="o">=</span>https://172.29.151.2:2380 <span class="nv">clientURLs</span><span class="o">=</span>https://172.29.151.2:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">false</span>
+</code></pre>
+</div>
+
+<h3 id="五kube-apiserver部署">五.kube-apiserver部署</h3>
+
+<h5 id="添加kube-apiserver为系统服务">添加kube-apiserver为系统服务</h5>
+
+<blockquote>
+  <p>在每个master节点上添加/usr/lib/systemd/system/kube-apiserver.service，注意修改为各自节点的ip地址</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建日志目录文件</span>
+mkdir -p /var/log/kubernetes
+</code></pre>
+</div>
+
+<blockquote>
+  <p>kube-apiserver.service文件内容如下</p>
+</blockquote>
+
+<p><strong>注意：安全端口监听在172.29.151.1，提供给node节点访问，非安全端口监听在127.0.0.1，只提供给同一台机器上的kube-controller-manager和kube-scheduler访问，这样就保证了安全性和稳定性</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>Kubernetes API Server
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">After</span><span class="o">=</span>etcd.service
+
+<span class="o">[</span>Service]
+<span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/kubernetes/apiserver
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/kube-apiserver <span class="se">\</span>
+  --admission-control<span class="o">=</span>NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds <span class="se">\</span>
+  --advertise-address<span class="o">=</span>172.29.151.1 <span class="se">\</span>
+  --bind-address<span class="o">=</span>172.29.151.1 <span class="se">\</span>
+  --insecure-bind-address<span class="o">=</span>127.0.0.1 <span class="se">\</span>
+  --service-cluster-ip-range<span class="o">=</span>10.254.0.0/16 <span class="se">\</span>
+  --service-node-port-range<span class="o">=</span>30000-32000 <span class="se">\</span>
+  --allow-privileged<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --apiserver-count<span class="o">=</span>3 <span class="se">\</span>
+  --logtostderr<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --v<span class="o">=</span>0 <span class="se">\</span>
+  --audit-log-maxage<span class="o">=</span>30 <span class="se">\</span>
+  --audit-log-maxbackup<span class="o">=</span>3 <span class="se">\</span>
+  --audit-log-maxsize<span class="o">=</span>100 <span class="se">\</span>
+  --audit-log-path<span class="o">=</span>/var/log/kubernetes/audit.log <span class="se">\</span>
+  --authorization-mode<span class="o">=</span>RBAC <span class="se">\</span>
+  --enable-swagger-ui<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --event-ttl<span class="o">=</span>1h <span class="se">\</span>
+  --secure-port<span class="o">=</span>6443 <span class="se">\</span>
+  --insecure-port<span class="o">=</span>8080 <span class="se">\</span>
+  --etcd-servers<span class="o">=</span>https://172.29.151.1:2379,https://172.29.151.2:2379,https://172.29.151.3:2379 <span class="se">\</span>
+  --etcd-cafile<span class="o">=</span>/etc/etcd/ssl/ca.pem <span class="se">\</span>
+  --etcd-certfile<span class="o">=</span>/etc/etcd/ssl/etcd.pem <span class="se">\</span>
+  --etcd-keyfile<span class="o">=</span>/etc/etcd/ssl/etcd-key.pem <span class="se">\</span>
+  --storage-backend<span class="o">=</span>etcd3 <span class="se">\</span>
+  --tls-cert-file<span class="o">=</span>/etc/kubernetes/ssl/kube-apiserver.pem <span class="se">\</span>
+  --tls-private-key-file<span class="o">=</span>/etc/kubernetes/ssl/kube-apiserver-key.pem <span class="se">\</span>
+  --client-ca-file<span class="o">=</span>/etc/kubernetes/ssl/ca.pem <span class="se">\</span>
+  --service-account-key-file<span class="o">=</span>/etc/kubernetes/ssl/kube-apiserver-key.pem <span class="se">\</span>
+  --token-auth-file<span class="o">=</span>/etc/kubernetes/known_token/token.csv <span class="se">\</span>
+  --experimental-bootstrap-token-auth<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --kubelet-https<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --anonymous-auth<span class="o">=</span>False
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">Type</span><span class="o">=</span>notify
+<span class="nv">LimitNOFILE</span><span class="o">=</span>65536
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre>
+</div>
+
+<h5 id="启动kube-apiserver">启动kube-apiserver</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+systemctl <span class="nb">enable </span>kube-apiserver
+systemctl start kube-apiserver
+systemctl status kube-apiserver
+</code></pre>
+</div>
+
+<h3 id="六kube-controller-manager部署">六.kube-controller-manager部署</h3>
+
+<h5 id="添加kube-controller-manager为系统服务">添加kube-controller-manager为系统服务</h5>
+
+<blockquote>
+  <p>在每个master节点上添加/usr/lib/systemd/system/kube-controller-manager.service</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>Kubernetes Controller Manager
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">After</span><span class="o">=</span>kube-apiserver.service
+
+<span class="o">[</span>Service]
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/kube-controller-manager <span class="se">\</span>
+  --address<span class="o">=</span>127.0.0.1 <span class="se">\</span>
+  --master<span class="o">=</span>http://127.0.0.1:8080 <span class="se">\</span>
+  --allocate-node-cidrs<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --service-cluster-ip-range<span class="o">=</span>10.254.0.0/16 <span class="se">\</span>
+  --cluster-cidr<span class="o">=</span>10.233.0.0/16 <span class="se">\</span>
+  --cluster-name<span class="o">=</span>kubernetes <span class="se">\</span>
+  --cluster-signing-cert-file<span class="o">=</span>/etc/kubernetes/ssl/ca.pem <span class="se">\</span>
+  --cluster-signing-key-file<span class="o">=</span>/etc/kubernetes/ssl/ca-key.pem <span class="se">\</span>
+  --service-account-private-key-file<span class="o">=</span>/etc/kubernetes/ssl/kube-apiserver-key.pem <span class="se">\</span>
+  --root-ca-file<span class="o">=</span>/etc/kubernetes/ssl/ca.pem <span class="se">\</span>
+  --leader-elect<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --node-monitor-grace-period<span class="o">=</span>40s <span class="se">\</span>
+  --node-monitor-period<span class="o">=</span>5s <span class="se">\</span>
+  --pod-eviction-timeout<span class="o">=</span>5m0s <span class="se">\</span>
+  --v<span class="o">=</span>2
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span>5
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre>
+</div>
+
+<h5 id="启动kube-controller-manager">启动kube-controller-manager</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+systemctl <span class="nb">enable </span>kube-controller-manager
+systemctl start kube-controller-manager
+systemctl status kube-controller-manager
+</code></pre>
+</div>
+
+<h3 id="七kube-scheduler部署">七.kube-scheduler部署</h3>
+
+<h5 id="添加kube-scheduler为系统服务">添加kube-scheduler为系统服务</h5>
+
+<blockquote>
+  <p>在每个master节点上添加/usr/lib/systemd/system/kube-scheduler.service</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>kube-scheduler
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">After</span><span class="o">=</span>kube-apiserver.service
+
+<span class="o">[</span>Service]
+<span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/kubernetes/scheduler
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/kube-scheduler <span class="se">\</span>
+      --address<span class="o">=</span>127.0.0.1 <span class="se">\</span>
+	    --logtostderr<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+	    --v<span class="o">=</span>2 <span class="se">\</span>
+	    --master<span class="o">=</span>127.0.0.1:8080 <span class="se">\</span>
+	    --leader-elect<span class="o">=</span><span class="nb">true
+</span><span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">Type</span><span class="o">=</span>simple
+<span class="nv">LimitNOFILE</span><span class="o">=</span>65536
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre>
+</div>
+
+<h5 id="启动kube-scheduler">启动kube-scheduler</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+systemctl <span class="nb">enable </span>kube-scheduler
+systemctl start kube-scheduler
+systemctl status kube-scheduler
+</code></pre>
+</div>
+
+<h3 id="八master-ha配置">八.Master HA配置</h3>
+
+<blockquote>
+  <p>目前所谓的kubernetes HA 其实主要是API Server的HA，master上的其他组件，比如kube-controller-manager、kube-scheduler都是通过etcd做选举。而API Server一般有两种方式做HA；一种是多个API Server 做聚合为 VIP，另一种使用nginx反向代理，这里我们采用nginx的方式，如下图</p>
+</blockquote>
+
+<p><img src="/images/posts/apiserver-ha.png" alt="apiserver-ha" /></p>
+
+<p><strong>kube-controller-manager、kube-scheduler通过etcd选举，而且与master直接通过127.0.0.1:8080通信，而其他node，则需要在每个node上启动一个nginx，每个nginx反代所有apiserver，node上的kubelet、kube-proxy、kubectl连接本地nginx代理端口，当nginx发现无法连接后端时会自动踢掉出问题的apiserver，从而实现api server的HA</strong></p>
+
+<h5 id="在每个node节点和k8s-console上创建nginx代理">在每个node节点和k8s-console上创建nginx代理</h5>
+
+<blockquote>
+  <p>在每个节点上新建配置目录</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mkdir -p /etc/nginx
+</code></pre>
+</div>
+
+<blockquote>
+  <p>在配置文件/etc/nginx/nginx.conf中下写入代理配置</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>error_log stderr notice;
+
+worker_processes auto;
+events <span class="o">{</span>
+  multi_accept on;
+  use epoll;
+  worker_connections 1024;
+<span class="o">}</span>
+
+stream <span class="o">{</span>
+    upstream kube_apiserver <span class="o">{</span>
+        least_conn;
+        server 172.29.151.1:6443;
+        server 172.29.151.2:6443;
+        server 172.29.151.3:6443;
+    <span class="o">}</span>
+
+    server <span class="o">{</span>
+        listen        0.0.0.0:6443;
+        proxy_pass    kube_apiserver;
+        proxy_timeout 10m;
+        proxy_connect_timeout 1s;
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>更新权限</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>chmod +r /etc/nginx/nginx.conf
+</code></pre>
+</div>
+
+<h5 id="将nginx配置为docker启动同时用systemd来进行守护">将nginx配置为docker启动，同时用systemd来进行守护</h5>
+
+<blockquote>
+  <p>在每个node节点上添加/etc/systemd/system/nginx-proxy.service</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>kubernetes apiserver docker wrapper
+<span class="nv">Wants</span><span class="o">=</span>docker.socket
+<span class="nv">After</span><span class="o">=</span>docker.service
+
+<span class="o">[</span>Service]
+<span class="nv">User</span><span class="o">=</span>root
+<span class="nv">PermissionsStartOnly</span><span class="o">=</span><span class="nb">true
+</span><span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker run -p 127.0.0.1:6443:6443 <span class="se">\</span>
+                              -v /etc/nginx:/etc/nginx <span class="se">\</span>
+                              --name nginx-proxy <span class="se">\</span>
+                              --net<span class="o">=</span>host <span class="se">\</span>
+                              --restart<span class="o">=</span>on-failure:5 <span class="se">\</span>
+                              --memory<span class="o">=</span>512M <span class="se">\</span>
+                              nginx:1.13.3-alpine
+<span class="nv">ExecStartPre</span><span class="o">=</span>-/usr/bin/docker rm -f nginx-proxy
+<span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop nginx-proxy
+<span class="nv">Restart</span><span class="o">=</span>always
+<span class="nv">RestartSec</span><span class="o">=</span>15s
+<span class="nv">TimeoutStartSec</span><span class="o">=</span>30s
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre>
+</div>
+
+<h5 id="配置开机启动">配置开机启动</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+systemctl start nginx-proxy
+systemctl <span class="nb">enable </span>nginx-proxy
+</code></pre>
+</div>
+
+<p><strong>最后我们在k8s-console上执行kubectl试试</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl --server<span class="o">=</span>https://127.0.0.1:6443 --certificate-authority<span class="o">=</span>/etc/kubernetes/ssl/ca.pem --client-certificate<span class="o">=</span>/etc/kubernetes/ssl/kube-admin.pem --client-key<span class="o">=</span>/etc/kubernetes/ssl/kube-admin-key.pem get cs
+NAME                 STATUS    MESSAGE              ERROR
+controller-manager   Healthy   ok                   
+scheduler            Healthy   ok                   
+etcd-1               Healthy   <span class="o">{</span><span class="s2">"health"</span>: <span class="s2">"true"</span><span class="o">}</span>   
+etcd-0               Healthy   <span class="o">{</span><span class="s2">"health"</span>: <span class="s2">"true"</span><span class="o">}</span>   
+etcd-2               Healthy   <span class="o">{</span><span class="s2">"health"</span>: <span class="s2">"true"</span><span class="o">}</span>   
+</code></pre>
+</div>
+
+<h3 id="九-配置kubectl访问apiserver">九. 配置kubectl访问apiserver</h3>
+
+<blockquote>
+  <p>前面我们使用kubect打印除了kubernetes核心组件的状态，但是每次使用的时候都需要指定apiserver的地址以及证书之类的，实在是有点繁琐，接下来，我们在k8s-console上创建kubeconfig文件。</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /etc/kubernetes
+<span class="nb">export </span><span class="nv">KUBE_APISERVER</span><span class="o">=</span><span class="s2">"https://127.0.0.1:6443"</span>
+
+<span class="c"># 设置集群参数</span>
+kubectl config <span class="nb">set</span>-cluster kubernetes <span class="se">\</span>
+ --certificate-authority<span class="o">=</span>/opt/ssl/ca.pem <span class="se">\</span>
+ --embed-certs<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+ --server<span class="o">=</span><span class="k">${</span><span class="nv">KUBE_APISERVER</span><span class="k">}</span> <span class="se">\</span>
+ --kubeconfig<span class="o">=</span>admin.conf
+
+<span class="c"># 设置客户端认证参数</span>
+kubectl config <span class="nb">set</span>-credentials kubernetes-admin <span class="se">\</span>
+  --client-certificate<span class="o">=</span>/opt/ssl/kube-admin.pem <span class="se">\</span>
+  --embed-certs<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --client-key<span class="o">=</span>/opt/ssl/kube-admin-key.pem <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>admin.conf
+
+<span class="c"># 设置上下文参数</span>
+kubectl config <span class="nb">set</span>-context kubernetes-admin@kubernetes <span class="se">\</span>
+  --cluster<span class="o">=</span>kubernetes <span class="se">\</span>
+  --user<span class="o">=</span>kubernetes-admin <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>admin.conf
+
+<span class="c"># 设置默认上下文</span>
+kubectl config use-context kubernetes-admin@kubernetes --kubeconfig<span class="o">=</span>admin.conf
+
+<span class="c"># cp成~/.kube/config</span>
+cp /etc/kubernetes/ssl/admin.conf ~/.kube/config
+</code></pre>
+</div>
+
+<h5 id="试试看是否生效">试试看是否生效</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get cs
+NAME                 STATUS    MESSAGE              ERROR
+scheduler            Healthy   ok                   
+controller-manager   Healthy   ok                   
+etcd-2               Healthy   <span class="o">{</span><span class="s2">"health"</span>: <span class="s2">"true"</span><span class="o">}</span>   
+etcd-1               Healthy   <span class="o">{</span><span class="s2">"health"</span>: <span class="s2">"true"</span><span class="o">}</span>   
+etcd-0               Healthy   <span class="o">{</span><span class="s2">"health"</span>: <span class="s2">"true"</span><span class="o">}</span>   
+</code></pre>
+</div>
+
+<h3 id="十kubelet配置">十.kubelet配置</h3>
+
+<blockquote>
+  <p>kubelet启动时向kube-apiserver发送 TLS bootstrapping请求，需要先将 bootstrap token 文件中的 kubelet-bootstrap用户赋予system:node-bootstrapper角色，然后kubelet才有权限创建认证请求。</p>
+</blockquote>
+
+<h5 id="kubelet角色授权">kubelet角色授权</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 在k8s-console上执行绑定操作</span>
+kubectl create clusterrolebinding kubelet-bootstrap --clusterrole<span class="o">=</span>system:node-bootstrapper --user<span class="o">=</span>kubelet-bootstrap
+</code></pre>
+</div>
+
+<h5 id="在k8s-console上生成kubelet-kubeconfig文件">在k8s-console上生成kubelet kubeconfig文件</h5>
+
+<blockquote>
+  <p>配置集群</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl config <span class="nb">set</span>-cluster kubernetes <span class="se">\</span>
+  --certificate-authority<span class="o">=</span>/opt/ssl/ca.pem <span class="se">\</span>
+  --embed-certs<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --server<span class="o">=</span>https://127.0.0.1:6443 <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>bootstrap.kubeconfig
+</code></pre>
+</div>
+
+<blockquote>
+  <p>配置客户端认证参数</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl config <span class="nb">set</span>-credentials kubelet-bootstrap <span class="se">\</span>
+  --token<span class="o">=</span>04d9b6c6fd3ed8a3488b3b0913e87d64 <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>bootstrap.kubeconfig
+</code></pre>
+</div>
+
+<blockquote>
+  <p>配置上下文关联</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl config <span class="nb">set</span>-context default <span class="se">\</span>
+  --cluster<span class="o">=</span>kubernetes <span class="se">\</span>
+  --user<span class="o">=</span>kubelet-bootstrap <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>bootstrap.kubeconfig
+</code></pre>
+</div>
+
+<blockquote>
+  <p>配置默认上下文</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl config use-context default --kubeconfig<span class="o">=</span>bootstrap.kubeconfig
+</code></pre>
+</div>
+
+<blockquote>
+  <p>分发bootstrap.kubeconfig文件到每个node节点</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /etc/kubernetes
+<span class="k">for </span>IP <span class="k">in</span> <span class="sb">`</span>seq 5 7<span class="sb">`</span>;<span class="k">do
+  </span>scp bootstrap.kubeconfig root@172.29.151.<span class="nv">$IP</span>:/etc/kubernetes/
+<span class="k">done</span>
+</code></pre>
+</div>
+
+<h5 id="添加kubelet为系统服务">添加kubelet为系统服务</h5>
+
+<blockquote>
+  <p>创建kubelet工作目录</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mkdir /var/lib/kubelet
+</code></pre>
+</div>
+
+<blockquote>
+  <p>添加/usr/lib/systemd/system/kubelet.service,注意修改你成你自己节点的ip</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>Kubernetes Kubelet
+<span class="nv">After</span><span class="o">=</span>docker.service
+<span class="nv">Requires</span><span class="o">=</span>docker.service
+
+<span class="o">[</span>Service]
+<span class="nv">WorkingDirectory</span><span class="o">=</span>/var/lib/kubelet
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/kubelet <span class="se">\</span>
+  --cgroup-driver<span class="o">=</span>systemd <span class="se">\</span>
+  --address<span class="o">=</span>172.29.151.5 <span class="se">\</span>
+  --hostname-override<span class="o">=</span>172.29.151.5 <span class="se">\</span>
+  --pod-infra-container-image<span class="o">=</span>gcr.io/google_containers/pause-amd64:3.0 <span class="se">\</span>
+  --experimental-bootstrap-kubeconfig<span class="o">=</span>/etc/kubernetes/bootstrap.kubeconfig <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>/etc/kubernetes/kubelet.kubeconfig <span class="se">\</span>
+  --require-kubeconfig <span class="se">\</span>
+  --cert-dir<span class="o">=</span>/etc/kubernetes/ssl <span class="se">\</span>
+  --cluster_dns<span class="o">=</span>10.254.0.2 <span class="se">\</span>
+  --cluster_domain<span class="o">=</span>cluster.local. <span class="se">\</span>
+  --hairpin-mode promiscuous-bridge <span class="se">\</span>
+  --allow-privileged<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --serialize-image-pulls<span class="o">=</span><span class="nb">false</span> <span class="se">\</span>
+  --logtostderr<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --max-pods<span class="o">=</span>512 <span class="se">\</span>
+  --v<span class="o">=</span>2
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span>5
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre>
+</div>
+
+<h5 id="启动kubelet">启动kubelet</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+systemctl <span class="nb">enable </span>kubelet
+systemctl start kubelet
+systemctl status kubelet
+</code></pre>
+</div>
+
+<h5 id="签发证书验证nodes">签发证书，验证nodes</h5>
+
+<blockquote>
+  <p>查看csr，我们发现状态为Pending</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get csr
+NAME                                                   AGE       REQUESTOR           CONDITION
+node-csr-MIqovZHmrYMe1Y6AspcfU6_keLdSWfbUqg4pcK-Hb9w   2m        kubelet-bootstrap   Pending
+node-csr-el6foG3yw6_9xCu1vC_upuT-xLR9Z9ASBNj5isBFcsY   2m        kubelet-bootstrap   Pending
+node-csr-oPWmprgtrRixLZXUvEFKnHI2qZEGorzHKZ1ktLMdGS8   5m        kubelet-bootstrap   Pending
+</code></pre>
+</div>
+
+<blockquote>
+  <p>签发证书</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl certificate approve node-csr-oPWmprgtrRixLZXUvEFKnHI2qZEGorzHKZ1ktLMdGS8 node-csr-el6foG3yw6_9xCu1vC_upuT-xLR9Z9ASBNj5isBFcsY node-csr-MIqovZHmrYMe1Y6AspcfU6_keLdSWfbUqg4pcK-Hb9w
+certificatesigningrequest <span class="s2">"node-csr-oPWmprgtrRixLZXUvEFKnHI2qZEGorzHKZ1ktLMdGS8"</span> approved
+certificatesigningrequest <span class="s2">"node-csr-el6foG3yw6_9xCu1vC_upuT-xLR9Z9ASBNj5isBFcsY"</span> approved
+certificatesigningrequest <span class="s2">"node-csr-MIqovZHmrYMe1Y6AspcfU6_keLdSWfbUqg4pcK-Hb9w"</span> approved
+</code></pre>
+</div>
+
+<blockquote>
+  <p>查看node</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get nodes
+NAME           STATUS    AGE       VERSION
+172.29.151.5   Ready     3m        v1.7.6
+172.29.151.6   Ready     45s       v1.7.6
+172.29.151.7   Ready     12s       v1.7.6
+</code></pre>
+</div>
+
+<blockquote>
+  <p>成功后会自动生成配置文件和密钥</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ll /etc/kubernetes/ssl
+-rw-r--r-- 1 root root 1042 Oct  9 17:46 kubelet-client.crt
+-rw------- 1 root root  227 Oct  9 17:18 kubelet-client.key
+-rw-r--r-- 1 root root 1111 Oct  9 17:46 kubelet.crt
+-rw------- 1 root root 1675 Oct  9 17:46 kubelet.key
+
+
+<span class="gp">$ </span>ll /etc/kubernetes/kubelet.kubeconfig
+-rw------- 1 root root 2260 Oct  9 17:46 /etc/kubernetes/kubelet.kubeconfig
+</code></pre>
+</div>
+
+<h3 id="十一kube-proxy-配置">十一.kube-proxy 配置</h3>
+
+<h5 id="在k8s-console上生成kube-proxy-kubeconfig文件">在k8s-console上生成kube-proxy kubeconfig文件</h5>
+
+<blockquote>
+  <p>配置集群</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl config <span class="nb">set</span>-cluster kubernetes <span class="se">\</span>
+  --certificate-authority<span class="o">=</span>/opt/ssl/ca.pem <span class="se">\</span>
+  --embed-certs<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --server<span class="o">=</span>https://127.0.0.1:6443 <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>kube-proxy.kubeconfig
+</code></pre>
+</div>
+
+<blockquote>
+  <p>配置客户端认证</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl config <span class="nb">set</span>-credentials kube-proxy <span class="se">\</span>
+  --client-certificate<span class="o">=</span>/opt/ssl/kube-proxy.pem <span class="se">\</span>
+  --client-key<span class="o">=</span>/opt/ssl/kube-proxy-key.pem <span class="se">\</span>
+  --embed-certs<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>kube-proxy.kubeconfig
+</code></pre>
+</div>
+
+<blockquote>
+  <p>配置上下文</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl config <span class="nb">set</span>-context default <span class="se">\</span>
+  --cluster<span class="o">=</span>kubernetes <span class="se">\</span>
+  --user<span class="o">=</span>kube-proxy <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>kube-proxy.kubeconfig
+</code></pre>
+</div>
+
+<blockquote>
+  <p>配置默认上下文</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl config use-context default --kubeconfig<span class="o">=</span>kube-proxy.kubeconfig
+</code></pre>
+</div>
+
+<blockquote>
+  <p>分发到各个节点的/etc/kubernetes 目录</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="k">for </span>IP <span class="k">in</span> <span class="sb">`</span>seq 5 7<span class="sb">`</span>;<span class="k">do
+  </span>scp kube-proxy.kubeconfig root@172.29.151.<span class="nv">$IP</span>:/etc/kubernetes/
+<span class="k">done</span>
+</code></pre>
+</div>
+
+<h5 id="添加kube-proxy为系统服务">添加kube-proxy为系统服务</h5>
+
+<blockquote>
+  <p>创建 kube-proxy目录</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mkdir -p /var/lib/kube-proxy
+</code></pre>
+</div>
+
+<blockquote>
+  <p>添加/usr/lib/systemd/system/kube-proxy.service，注意修改为自己的节点ip</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>Kubernetes Kube-Proxy Server
+<span class="nv">After</span><span class="o">=</span>network.target
+
+<span class="o">[</span>Service]
+<span class="nv">WorkingDirectory</span><span class="o">=</span>/var/lib/kube-proxy
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/kube-proxy <span class="se">\</span>
+  --bind-address<span class="o">=</span>172.29.151.5 <span class="se">\</span>
+  --hostname-override<span class="o">=</span>172.29.151.5 <span class="se">\</span>
+  --cluster-cidr<span class="o">=</span>10.254.0.0/16 <span class="se">\</span>
+  --kubeconfig<span class="o">=</span>/etc/kubernetes/kube-proxy.kubeconfig <span class="se">\</span>
+  --logtostderr<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+  --v<span class="o">=</span>2
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span>5
+<span class="nv">LimitNOFILE</span><span class="o">=</span>65536
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre>
+</div>
+
+<h5 id="启动kube-proxy">启动kube-proxy</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+systemctl <span class="nb">enable </span>kube-proxy
+systemctl start kube-proxy
+systemctl status kube-proxy
+</code></pre>
+</div>
+
+<h3 id="十二calico配置">十二.calico配置</h3>
+
+<blockquote>
+  <p>网络组件采用calico，calico部署比较简单，只需要create 一下yml文件即可，具体参考<a href="https://docs.projectcalico.org/v2.6/getting-started/kubernetes/installation/">calico官方文档</a> ，在使用calico网络的时候，官方的要求如下</p>
+</blockquote>
+
+<ul>
+  <li>kubelet 必须配置使用CNI插件<code class="highlighter-rouge">--network-plugin=cni</code></li>
+  <li>kube-proxy 必须以<code class="highlighter-rouge">iptables</code>的模式启动</li>
+  <li>kube-proxy 不能使用<code class="highlighter-rouge">--masquerade-all</code>启动(会与calico policy冲突)</li>
+  <li>kubernetes networkpolicy api 至少需要kubernetes 1.3 版本以上</li>
+  <li>如果开启了RBAC，那么需要注意需要创建clusterrole和clusterrolebinding</li>
+</ul>
+
+<h5 id="在每个节点上修改kubeletservice">在每个节点上修改kubelet.service</h5>
+
+<blockquote>
+  <p>修改kubelet配置，增加<code class="highlighter-rouge">--network-plugin=cni</code></p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>vi /usr/lib/systemd/system/kubelet.service
+
+--network-plugin<span class="o">=</span>cni
+</code></pre>
+</div>
+
+<blockquote>
+  <p>重启kubelet</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+systemctl restart kubelet.service
+systemctl status kubelet.service
+</code></pre>
+</div>
+
+<h5 id="准备依赖包和文件">准备依赖包和文件</h5>
+
+<blockquote>
+  <p>下载calico.yaml 和rbac.yaml</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>wget https://docs.projectcalico.org/v2.6/getting-started/kubernetes/installation/hosted/calico.yaml
+wget https://docs.projectcalico.org/v2.6/getting-started/kubernetes/installation/rbac.yaml
+</code></pre>
+</div>
+
+<blockquote>
+  <p>下载镜像</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>quay.io/calico/node:v2.6.1
+quay.io/calico/cni:v1.11.0
+quay.io/calico/kube-controllers:v1.0.0
+</code></pre>
+</div>
+
+<h5 id="修改配置文件">修改配置文件</h5>
+
+<blockquote>
+  <p>修改etcd_endpoints</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>etcd_endpoints: <span class="s2">"https://172.29.151.1:2379,https://172.29.151.2:2379,https://172.29.151.3:2379"</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>修改calico所需的etcd密钥信息</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>etcd_ca: <span class="s2">"/calico-secrets/etcd-ca"</span>
+etcd_cert: <span class="s2">"/calico-secrets/etcd-cert"</span>
+etcd_key: <span class="s2">"/calico-secrets/etcd-key"</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>写入etcd-key、etcd-cert、etcd-ca的base64信息，将括号里面命令执行的结果填入即可</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>data:
+  etcd-key: <span class="o">(</span>cat /opt/ssl/etcd-key.pem | base64 | tr -d <span class="s1">'\n'</span><span class="o">)</span>
+  etcd-cert: <span class="o">(</span>cat /opt/ssl/etcd.pem | base64 | tr -d <span class="s1">'\n'</span><span class="o">)</span>
+  etcd-ca: <span class="o">(</span>cat /opt/ssl/ca.pem | base64 | tr -d <span class="s1">'\n'</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>修改calico的网络段</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>- name: CALICO_IPV4POOL_CIDR
+      value: <span class="s2">"10.233.0.0/16"</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>注释掉calico-node 部分，这部分用systemctl来进行管理，因为用官方文档可能会出现无法获取到IP的情况</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># Calico Version v2.6.1</span>
+<span class="c"># https://docs.projectcalico.org/v2.6/releases#v2.6.1</span>
+<span class="c"># This manifest includes the following component versions:</span>
+<span class="c">#   calico/node:v2.6.1</span>
+<span class="c">#   calico/cni:v1.11.0</span>
+<span class="c">#   calico/kube-controllers:v1.0.0</span>
+
+<span class="c"># This ConfigMap is used to configure a self-hosted Calico installation.</span>
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: calico-config
+  namespace: kube-system
+data:
+  <span class="c"># Configure this with the location of your etcd cluster.</span>
+  etcd_endpoints: <span class="s2">"https://172.29.151.1:2379,https://172.29.151.2:2379,https://172.29.151.3:2379"</span>
+
+  <span class="c"># Configure the Calico backend to use.</span>
+  calico_backend: <span class="s2">"bird"</span>
+
+  <span class="c"># The CNI network configuration to install on each node.</span>
+  cni_network_config: |-
+    <span class="o">{</span>
+        <span class="s2">"name"</span>: <span class="s2">"k8s-pod-network"</span>,
+        <span class="s2">"cniVersion"</span>: <span class="s2">"0.1.0"</span>,
+        <span class="s2">"type"</span>: <span class="s2">"calico"</span>,
+        <span class="s2">"etcd_endpoints"</span>: <span class="s2">"__ETCD_ENDPOINTS__"</span>,
+        <span class="s2">"etcd_key_file"</span>: <span class="s2">"__ETCD_KEY_FILE__"</span>,
+        <span class="s2">"etcd_cert_file"</span>: <span class="s2">"__ETCD_CERT_FILE__"</span>,
+        <span class="s2">"etcd_ca_cert_file"</span>: <span class="s2">"__ETCD_CA_CERT_FILE__"</span>,
+        <span class="s2">"log_level"</span>: <span class="s2">"info"</span>,
+        <span class="s2">"mtu"</span>: 1500,
+        <span class="s2">"ipam"</span>: <span class="o">{</span>
+            <span class="s2">"type"</span>: <span class="s2">"calico-ipam"</span>
+        <span class="o">}</span>,
+        <span class="s2">"policy"</span>: <span class="o">{</span>
+            <span class="s2">"type"</span>: <span class="s2">"k8s"</span>,
+            <span class="s2">"k8s_api_root"</span>: <span class="s2">"https://__KUBERNETES_SERVICE_HOST__:__KUBERNETES_SERVICE_PORT__"</span>,
+            <span class="s2">"k8s_auth_token"</span>: <span class="s2">"__SERVICEACCOUNT_TOKEN__"</span>
+        <span class="o">}</span>,
+        <span class="s2">"kubernetes"</span>: <span class="o">{</span>
+            <span class="s2">"kubeconfig"</span>: <span class="s2">"__KUBECONFIG_FILEPATH__"</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+  <span class="c"># If you're using TLS enabled etcd uncomment the following.</span>
+  <span class="c"># You must also populate the Secret below with these files.</span>
+  etcd_ca: <span class="s2">"/calico-secrets/etcd-ca"</span>
+  etcd_cert: <span class="s2">"/calico-secrets/etcd-cert"</span>
+  etcd_key: <span class="s2">"/calico-secrets/etcd-key"</span>
+
+---
+
+<span class="c"># The following contains k8s Secrets for use with a TLS enabled etcd cluster.</span>
+<span class="c"># For information on populating Secrets, see http://kubernetes.io/docs/user-guide/secrets/</span>
+apiVersion: v1
+kind: Secret
+<span class="nb">type</span>: Opaque
+metadata:
+  name: calico-etcd-secrets
+  namespace: kube-system
+data:
+  <span class="c"># Populate the following files with etcd TLS configuration if desired, but leave blank if</span>
+  <span class="c"># not using TLS for etcd.</span>
+  <span class="c"># This self-hosted install expects three files with the following names.  The values</span>
+  <span class="c"># should be base64 encoded strings of the entire contents of each file.</span>
+  etcd-key: 这块自己对 etcd 相关证书做 base64
+  etcd-cert: 这块自己对 etcd 相关证书做 base64
+  etcd-ca: 这块自己对 etcd 相关证书做 base64
+
+---
+
+<span class="c"># This manifest installs the calico/node container, as well</span>
+<span class="c"># as the Calico CNI plugins and network config on</span>
+<span class="c"># each master and worker node in a Kubernetes cluster.</span>
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  name: calico-node
+  namespace: kube-system
+  labels:
+    k8s-app: calico-node
+spec:
+  selector:
+    matchLabels:
+      k8s-app: calico-node
+  template:
+    metadata:
+      labels:
+        k8s-app: calico-node
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: <span class="s1">''</span>
+        scheduler.alpha.kubernetes.io/tolerations: |
+          <span class="o">[{</span><span class="s2">"key"</span>: <span class="s2">"dedicated"</span>, <span class="s2">"value"</span>: <span class="s2">"master"</span>, <span class="s2">"effect"</span>: <span class="s2">"NoSchedule"</span> <span class="o">}</span>,
+           <span class="o">{</span><span class="s2">"key"</span>:<span class="s2">"CriticalAddonsOnly"</span>, <span class="s2">"operator"</span>:<span class="s2">"Exists"</span><span class="o">}]</span>
+    spec:
+      hostNetwork: <span class="nb">true
+      </span>serviceAccountName: calico-node
+      containers:
+        <span class="c"># Runs calico/node container on each Kubernetes node.  This</span>
+        <span class="c"># container programs network policy and routes on each</span>
+        <span class="c"># host.</span>
+        <span class="c"># 从这里开始注释掉calico-node的部分</span>
+        <span class="c"># - name: calico-node</span>
+        <span class="c">#   image: quay.io/calico/node:v2.6.1</span>
+        <span class="c">#   env:</span>
+        <span class="c">#     # The location of the Calico etcd cluster.</span>
+        <span class="c">#     - name: ETCD_ENDPOINTS</span>
+        <span class="c">#       valueFrom:</span>
+        <span class="c">#         configMapKeyRef:</span>
+        <span class="c">#           name: calico-config</span>
+        <span class="c">#           key: etcd_endpoints</span>
+        <span class="c">#     # Choose the backend to use.</span>
+        <span class="c">#     - name: CALICO_NETWORKING_BACKEND</span>
+        <span class="c">#       valueFrom:</span>
+        <span class="c">#         configMapKeyRef:</span>
+        <span class="c">#           name: calico-config</span>
+        <span class="c">#           key: calico_backend</span>
+        <span class="c">#     # Cluster type to identify the deployment type</span>
+        <span class="c">#     - name: CLUSTER_TYPE</span>
+        <span class="c">#       value: "k8s,bgp"</span>
+        <span class="c">#     # Disable file logging so `kubectl logs` works.</span>
+        <span class="c">#     - name: CALICO_DISABLE_FILE_LOGGING</span>
+        <span class="c">#       value: "true"</span>
+        <span class="c">#     # Set Felix endpoint to host default action to ACCEPT.</span>
+        <span class="c">#     - name: FELIX_DEFAULTENDPOINTTOHOSTACTION</span>
+        <span class="c">#       value: "ACCEPT"</span>
+        <span class="c">#     # Configure the IP Pool from which Pod IPs will be chosen.</span>
+        <span class="c">#     - name: CALICO_IPV4POOL_CIDR</span>
+        <span class="c">#       value: "10.233.0.0/16"</span>
+        <span class="c">#     - name: CALICO_IPV4POOL_IPIP</span>
+        <span class="c">#       value: "always"</span>
+        <span class="c">#     # Disable IPv6 on Kubernetes.</span>
+        <span class="c">#     - name: FELIX_IPV6SUPPORT</span>
+        <span class="c">#       value: "false"</span>
+        <span class="c">#     # Set Felix logging to "info"</span>
+        <span class="c">#     - name: FELIX_LOGSEVERITYSCREEN</span>
+        <span class="c">#       value: "info"</span>
+        <span class="c">#     # Set MTU for tunnel device used if ipip is enabled</span>
+        <span class="c">#     - name: FELIX_IPINIPMTU</span>
+        <span class="c">#       value: "1440"</span>
+        <span class="c">#     # Location of the CA certificate for etcd.</span>
+        <span class="c">#     - name: ETCD_CA_CERT_FILE</span>
+        <span class="c">#       valueFrom:</span>
+        <span class="c">#         configMapKeyRef:</span>
+        <span class="c">#           name: calico-config</span>
+        <span class="c">#           key: etcd_ca</span>
+        <span class="c">#     # Location of the client key for etcd.</span>
+        <span class="c">#     - name: ETCD_KEY_FILE</span>
+        <span class="c">#       valueFrom:</span>
+        <span class="c">#         configMapKeyRef:</span>
+        <span class="c">#           name: calico-config</span>
+        <span class="c">#           key: etcd_key</span>
+        <span class="c">#     # Location of the client certificate for etcd.</span>
+        <span class="c">#     - name: ETCD_CERT_FILE</span>
+        <span class="c">#       valueFrom:</span>
+        <span class="c">#         configMapKeyRef:</span>
+        <span class="c">#           name: calico-config</span>
+        <span class="c">#           key: etcd_cert</span>
+        <span class="c">#     # Auto-detect the BGP IP address.</span>
+        <span class="c">#     - name: IP</span>
+        <span class="c">#       value: ""</span>
+        <span class="c">#     - name: FELIX_HEALTHENABLED</span>
+        <span class="c">#       value: "true"</span>
+        <span class="c">#   securityContext:</span>
+        <span class="c">#     privileged: true</span>
+        <span class="c">#   resources:</span>
+        <span class="c">#     requests:</span>
+        <span class="c">#       cpu: 250m</span>
+        <span class="c">#   livenessProbe:</span>
+        <span class="c">#     httpGet:</span>
+        <span class="c">#       path: /liveness</span>
+        <span class="c">#       port: 9099</span>
+        <span class="c">#     periodSeconds: 10</span>
+        <span class="c">#     initialDelaySeconds: 10</span>
+        <span class="c">#     failureThreshold: 6</span>
+        <span class="c">#   readinessProbe:</span>
+        <span class="c">#     httpGet:</span>
+        <span class="c">#       path: /readiness</span>
+        <span class="c">#       port: 9099</span>
+        <span class="c">#     periodSeconds: 10</span>
+        <span class="c">#   volumeMounts:</span>
+        <span class="c">#     - mountPath: /lib/modules</span>
+        <span class="c">#       name: lib-modules</span>
+        <span class="c">#       readOnly: true</span>
+        <span class="c">#     - mountPath: /var/run/calico</span>
+        <span class="c">#       name: var-run-calico</span>
+        <span class="c">#       readOnly: false</span>
+        <span class="c">#     - mountPath: /calico-secrets</span>
+        <span class="c">#       name: etcd-certs</span>
+        <span class="c"># This container installs the Calico CNI binaries</span>
+        <span class="c"># and CNI network config file on each node.</span>
+        - name: install-cni
+          image: quay.io/calico/cni:v1.11.0
+          <span class="nb">command</span>: <span class="o">[</span><span class="s2">"/install-cni.sh"</span><span class="o">]</span>
+          env:
+            <span class="c"># The location of the Calico etcd cluster.</span>
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            <span class="c"># The CNI network config to install on each node.</span>
+            - name: CNI_NETWORK_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: cni_network_config
+          volumeMounts:
+            - mountPath: /host/opt/cni/bin
+              name: cni-bin-dir
+            - mountPath: /host/etc/cni/net.d
+              name: cni-net-dir
+            - mountPath: /calico-secrets
+              name: etcd-certs
+      volumes:
+        <span class="c"># Used by calico/node.</span>
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
+        - name: var-run-calico
+          hostPath:
+            path: /var/run/calico
+        <span class="c"># Used to install CNI.</span>
+        - name: cni-bin-dir
+          hostPath:
+            path: /opt/cni/bin
+        - name: cni-net-dir
+          hostPath:
+            path: /etc/cni/net.d
+        <span class="c"># Mount in the etcd TLS secrets.</span>
+        - name: etcd-certs
+          secret:
+            secretName: calico-etcd-secrets
+
+---
+
+<span class="c"># This manifest deploys the Calico Kubernetes controllers.</span>
+<span class="c"># See https://github.com/projectcalico/kube-controllers</span>
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+  labels:
+    k8s-app: calico-kube-controllers
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: <span class="s1">''</span>
+    scheduler.alpha.kubernetes.io/tolerations: |
+      <span class="o">[{</span><span class="s2">"key"</span>: <span class="s2">"dedicated"</span>, <span class="s2">"value"</span>: <span class="s2">"master"</span>, <span class="s2">"effect"</span>: <span class="s2">"NoSchedule"</span> <span class="o">}</span>,
+       <span class="o">{</span><span class="s2">"key"</span>:<span class="s2">"CriticalAddonsOnly"</span>, <span class="s2">"operator"</span>:<span class="s2">"Exists"</span><span class="o">}]</span>
+spec:
+  <span class="c"># The controllers can only have a single active instance.</span>
+  replicas: 1
+  strategy:
+    <span class="nb">type</span>: Recreate
+  template:
+    metadata:
+      name: calico-kube-controllers
+      namespace: kube-system
+      labels:
+        k8s-app: calico-kube-controllers
+    spec:
+      <span class="c"># The controllers must run in the host network namespace so that</span>
+      <span class="c"># it isn't governed by policy that would prevent it from working.</span>
+      hostNetwork: <span class="nb">true
+      </span>serviceAccountName: calico-kube-controllers
+      containers:
+        - name: calico-kube-controllers
+          image: quay.io/calico/kube-controllers:v1.0.0
+          env:
+            <span class="c"># The location of the Calico etcd cluster.</span>
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            <span class="c"># Location of the CA certificate for etcd.</span>
+            - name: ETCD_CA_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_ca
+            <span class="c"># Location of the client key for etcd.</span>
+            - name: ETCD_KEY_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_key
+            <span class="c"># Location of the client certificate for etcd.</span>
+            - name: ETCD_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_cert
+          volumeMounts:
+            <span class="c"># Mount in the etcd TLS secrets.</span>
+            - mountPath: /calico-secrets
+              name: etcd-certs
+      volumes:
+        <span class="c"># Mount in the etcd TLS secrets.</span>
+        - name: etcd-certs
+          secret:
+            secretName: calico-etcd-secrets
+
+---
+
+<span class="c"># This deployment turns off the old "policy-controller". It should remain at 0 replicas, and then</span>
+<span class="c"># be removed entirely once the new kube-controllers deployment has been deployed above.</span>
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: calico-policy-controller
+  namespace: kube-system
+  labels:
+    k8s-app: calico-policy
+spec:
+  <span class="c"># Turn this deployment off in favor of the kube-controllers deployment above.</span>
+  replicas: 0
+  strategy:
+    <span class="nb">type</span>: Recreate
+  template:
+    metadata:
+      name: calico-policy-controller
+      namespace: kube-system
+      labels:
+        k8s-app: calico-policy
+    spec:
+      hostNetwork: <span class="nb">true
+      </span>serviceAccountName: calico-kube-controllers
+      containers:
+        - name: calico-policy-controller
+          image: quay.io/calico/kube-controllers:v1.0.0
+          env:
+            <span class="c"># The location of the Calico etcd cluster.</span>
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-node
+  namespace: kube-system
+</code></pre>
+</div>
+
+<h5 id="安装calico">安装calico</h5>
+
+<blockquote>
+  <p>在每个node节点上创建calico所需的目录，并分发证书</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /opt/ssl
+<span class="k">for </span>IP <span class="k">in</span> <span class="sb">`</span>seq 5 7<span class="sb">`</span>;<span class="k">do
+  </span>ssh root@172.29.151.<span class="nv">$IP</span> mkdir -p /etc/calico/certs
+  scp ca.pem etcd<span class="k">*</span>.pem root@172.29.151.<span class="nv">$IP</span>:/etc/calico/certs/
+<span class="k">done</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>在每个node节点上添加/etc/calico/calico.env文件,注意修改你自己的ip和hostname</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nv">ETCD_ENDPOINTS</span><span class="o">=</span><span class="s2">"https://172.29.151.1:2379,https://172.29.151.2:2379,https://172.29.151.3:2379"</span>
+<span class="nv">ETCD_CA_CERT_FILE</span><span class="o">=</span><span class="s2">"/etc/calico/certs/ca.pem"</span>
+<span class="nv">ETCD_CERT_FILE</span><span class="o">=</span><span class="s2">"/etc/calico/certs/etcd.pem"</span>
+<span class="nv">ETCD_KEY_FILE</span><span class="o">=</span><span class="s2">"/etc/calico/certs/etcd-key.pem"</span>
+<span class="nv">CALICO_IP</span><span class="o">=</span><span class="s2">"172.29.151.5"</span>
+<span class="nv">CALICO_IP6</span><span class="o">=</span><span class="s2">""</span>
+<span class="nv">CALICO_LIBNETWORK_ENABLED</span><span class="o">=</span><span class="s2">"true"</span>
+<span class="nv">CALICO_IPV4POOL_CIDR</span><span class="o">=</span><span class="s2">"10.233.0.0/16"</span>
+<span class="nv">CALICO_IPV4POOL_IPIP</span><span class="o">=</span><span class="s2">"always"</span>
+<span class="nv">CALICO_HOSTNAME</span><span class="o">=</span><span class="s2">"k8s-mds-node01"</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>在每个node节点上添加calico.service为系统服务</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>calico-node
+<span class="nv">After</span><span class="o">=</span>docker.service
+<span class="nv">Requires</span><span class="o">=</span>docker.service
+
+<span class="o">[</span>Service]
+<span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/calico/calico.env
+<span class="nv">ExecStartPre</span><span class="o">=</span>-/usr/bin/docker rm -f calico-node
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker run --net<span class="o">=</span>host --privileged <span class="se">\</span>
+ --name<span class="o">=</span>calico-node <span class="se">\</span>
+ -e <span class="nv">ETCD_ENDPOINTS</span><span class="o">=</span><span class="k">${</span><span class="nv">ETCD_ENDPOINTS</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">ETCD_CA_CERT_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">ETCD_CA_CERT_FILE</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">ETCD_CERT_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">ETCD_CERT_FILE</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">ETCD_KEY_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">ETCD_KEY_FILE</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">HOSTNAME</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_HOSTNAME</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">IP</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_IP</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">IP6</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_IP6</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">CALICO_NETWORKING_BACKEND</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_NETWORKING_BACKEND</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">CALICO_LIBNETWORK_ENABLED</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_LIBNETWORK_ENABLED</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">CALICO_IPV4POOL_CIDR</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_IPV4POOL_CIDR</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">CALICO_IPV4POOL_IPIP</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_IPV4POOL_IPIP</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">CALICO_DISABLE_FILE_LOGGING</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_DISABLE_FILE_LOGGING</span><span class="k">}</span> <span class="se">\</span>
+ -e <span class="nv">FELIX_DEFAULTENDPOINTTOHOSTACTION</span><span class="o">=</span>RETURN <span class="se">\</span>
+ -e <span class="nv">FELIX_IPV6SUPPORT</span><span class="o">=</span><span class="nb">false</span> <span class="se">\</span>
+ -e <span class="nv">FELIX_LOGSEVERITYSCREEN</span><span class="o">=</span>info <span class="se">\</span>
+ -e <span class="nv">AS</span><span class="o">=</span><span class="k">${</span><span class="nv">CALICO_AS</span><span class="k">}</span> <span class="se">\</span>
+ -v /var/log/calico:/var/log/calico <span class="se">\</span>
+ -v /run/docker/plugins:/run/docker/plugins <span class="se">\</span>
+ -v /lib/modules:/lib/modules <span class="se">\</span>
+ -v /var/run/calico:/var/run/calico <span class="se">\</span>
+ -v /var/run/docker.sock:/var/run/docker.sock <span class="se">\</span>
+ -v /etc/calico/certs:/etc/calico/certs:ro <span class="se">\</span>
+ --memory<span class="o">=</span>500M --cpu-shares<span class="o">=</span>300 <span class="se">\</span>
+ quay.io/calico/node:v2.6.1
+
+<span class="nv">Restart</span><span class="o">=</span>always
+<span class="nv">RestartSec</span><span class="o">=</span>10s
+
+<span class="nv">ExecStop</span><span class="o">=</span>-/usr/bin/docker stop calico-node
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre>
+</div>
+
+<blockquote>
+  <p>启动calico-node</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+systemctl <span class="nb">enable </span>calico-node
+systemctl start calico-node
+systemctl status calico-node
+</code></pre>
+</div>
+<blockquote>
+  <p>在k8s-console上执行calico安装</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl apply -f calico.yaml
+configmap <span class="s2">"calico-config"</span> created
+secret <span class="s2">"calico-etcd-secrets"</span> created
+daemonset <span class="s2">"calico-node"</span> created
+deployment <span class="s2">"calico-policy-controller"</span> created
+serviceaccount <span class="s2">"calico-policy-controller"</span> created
+serviceaccount <span class="s2">"calico-node"</span> created
+
+
+<span class="gp">$ </span>kubectl apply -f rbac.yaml
+clusterrole <span class="s2">"calico-policy-controller"</span> created
+clusterrolebinding <span class="s2">"calico-policy-controller"</span> created
+clusterrole <span class="s2">"calico-node"</span> created
+clusterrolebinding <span class="s2">"calico-node"</span> created
+</code></pre>
+</div>
+
+<h5 id="验证calico">验证calico</h5>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get pods -n kube-system
+NAME                                       READY     STATUS    RESTARTS   AGE
+calico-kube-controllers-3994748863-0dpcp   1/1       Running   0          1h
+calico-node-74d64                          1/1       Running   0          14h
+calico-node-rbrw3                          1/1       Running   0          14h
+calico-node-vtcrs                          1/1       Running   0          14h
+</code></pre>
+</div>
+
+<h5 id="安装calicoctl">安装calicoctl</h5>
+
+<blockquote>
+  <p>在k8s-console上下载calicoctl并分发到各个node节点</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>wget https://github.com/projectcalico/calicoctl/releases/download/v1.6.1/calicoctl
+chmod +x calicoctl
+
+<span class="k">for </span>IP <span class="k">in</span> <span class="sb">`</span>seq 5 7<span class="sb">`</span>;<span class="k">do
+  </span>scp calicoctl root@172.29.151.<span class="nv">$IP</span>:/usr/local/bin/
+<span class="k">done</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>在节点上看看calico的状态</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>calicoctl node status
+Calico process is running.
+
+IPv4 BGP status
++--------------+-------------------+-------+----------+-------------+
+| PEER ADDRESS |     PEER TYPE     | STATE |  SINCE   |    INFO     |
++--------------+-------------------+-------+----------+-------------+
+| 172.29.151.6 | node-to-node mesh | up    | 12:40:50 | Established |
+| 172.29.151.7 | node-to-node mesh | up    | 12:40:50 | Established |
++--------------+-------------------+-------+----------+-------------+
+
+IPv6 BGP status
+No IPv6 peers found.
+
+</code></pre>
+</div>
+
+<h5 id="测试跨主机通信">测试跨主机通信</h5>
+
+<blockquote>
+  <p>创建一个nginxdeployment</p>
+</blockquote>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">nginx-dm</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">replicas</span><span class="pi">:</span> <span class="s">2</span>
+  <span class="s">template</span><span class="pi">:</span>
+    <span class="s">metadata</span><span class="pi">:</span>
+      <span class="s">labels</span><span class="pi">:</span>
+        <span class="s">name</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">spec</span><span class="pi">:</span>
+      <span class="s">containers</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">nginx</span>
+          <span class="s">image</span><span class="pi">:</span> <span class="s">nginx:alpine</span>
+          <span class="s">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
+          <span class="s">ports</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">80</span>
+
+<span class="nn">---</span>
+
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">nginx-svc</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">port</span><span class="pi">:</span> <span class="s">80</span>
+      <span class="s">targetPort</span><span class="pi">:</span> <span class="s">80</span>
+      <span class="s">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">nginx</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p>查看创建结果</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get pods -o wide
+NAME                        READY     STATUS    RESTARTS   AGE       IP             NODE
+nginx-dm-2214564181-bplwr   1/1       Running   0          3m        10.233.136.3   172.29.151.7
+nginx-dm-2214564181-qsl5c   1/1       Running   0          3m        10.233.203.2   172.29.151.6
+
+<span class="gp">$ </span>kubectl get deployment
+NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx-dm   2         2         2            2           4m
+
+<span class="gp">$ </span>kubectl get svc
+NAME         CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>   AGE
+kubernetes   10.254.0.1       &lt;none&gt;        443/TCP   14h
+nginx-svc    10.254.149.124   &lt;none&gt;        80/TCP    4m
+</code></pre>
+</div>
+
+<blockquote>
+  <p>在pod里ping另一个pod</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl <span class="nb">exec</span> -ti nginx-dm-2214564181-bplwr /bin/sh
+/ <span class="c"># ping 10.233.203.2</span>
+PING 10.233.203.2 <span class="o">(</span>10.233.203.2<span class="o">)</span>: 56 data bytes
+64 bytes from 10.233.203.2: <span class="nv">seq</span><span class="o">=</span>0 <span class="nv">ttl</span><span class="o">=</span>62 <span class="nb">time</span><span class="o">=</span>0.592 ms
+64 bytes from 10.233.203.2: <span class="nv">seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>62 <span class="nb">time</span><span class="o">=</span>0.894 ms
+64 bytes from 10.233.203.2: <span class="nv">seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>62 <span class="nb">time</span><span class="o">=</span>0.559 ms
+</code></pre>
+</div>
+
+<blockquote>
+  <p>在node节点上curl测试一下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl 10.254.149.124
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+    body <span class="o">{</span>
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    <span class="o">}</span>
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">"http://nginx.org/"</span>&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">"http://nginx.com/"</span>&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you <span class="k">for </span>using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+<h3 id="十三部署dns">十三.部署DNS</h3>
+
+<h5 id="部署集群dns">部署集群dns</h5>
+<blockquote>
+  <p>获取对应的yaml文件</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/addons/dns/kube-dns.yaml.sed
+mv kube-dns.yaml.sed kube-dns.yaml
+</code></pre>
+</div>
+
+<blockquote>
+  <p>修改如下配置</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>sed -i <span class="s1">'s/$DNS_DOMAIN/cluster.local/gi'</span> kube-dns.yaml
+sed -i <span class="s1">'s/$DNS_SERVER_IP/10.254.0.2/gi'</span> kube-dns.yaml
+</code></pre>
+</div>
+
+<blockquote>
+  <p>创建</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create -f kube-dns.yaml
+</code></pre>
+</div>
+
+<blockquote>
+  <p>查看创建结果</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get pods -n kube-system |grep kube-dns
+kube-dns-3468831164-2kl0h                  3/3       Running   0          14m
+</code></pre>
+</div>
+
+<blockquote>
+  <p>进入刚刚创建的nginx pod中访问nginx-svc测试</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl <span class="nb">exec</span> -ti nginx-dm-2214564181-bplwr /bin/sh
+/ <span class="c"># curl nginx-svc</span>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+    body <span class="o">{</span>
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    <span class="o">}</span>
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">"http://nginx.org/"</span>&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">"http://nginx.com/"</span>&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you <span class="k">for </span>using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre>
+</div>
+
+<blockquote>
+  <p>测试外网</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl <span class="nb">exec</span> -ti nginx-dm-2214564181-bplwr /bin/sh
+/ <span class="c"># curl https://baidu.com</span>
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;302 Found&lt;/title&gt;&lt;/head&gt;
+&lt;body <span class="nv">bgcolor</span><span class="o">=</span><span class="s2">"white"</span>&gt;
+&lt;center&gt;&lt;h1&gt;302 Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;bfe/1.0.8.18&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+<h5 id="部署dns自动扩容">部署dns自动扩容</h5>
+
+<blockquote>
+  <p>下载对应的yaml文件，不需要任何修改</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/addons/dns-horizontal-autoscaler/dns-horizontal-autoscaler.yaml
+</code></pre>
+</div>
+
+<blockquote>
+  <p>创建</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create -f dns-horizontal-autoscaler.yaml
+</code></pre>
+</div>
+
+<blockquote>
+  <p>查看创建结果</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
 </code></pre>
 </div>
 
