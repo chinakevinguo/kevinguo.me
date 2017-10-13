@@ -2383,6 +2383,13 @@ Commercial support is available at
 </div>
 
 <blockquote>
+  <p>在1.7.6中rbac还是beta版本，所以，这里我们要修改文件中的authentication.k8s.io/v1 为 authentication.k8s.io/vibeta1</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>sed -i <span class="s1">'s/rbac.authorization.k8s.io\/v1/rbac.authorization.k8s.io\/v1beta1/gi'</span> dns-horizontal-autoscaler.yaml
+</code></pre>
+</div>
+<blockquote>
   <p>创建</p>
 </blockquote>
 
@@ -2394,9 +2401,254 @@ Commercial support is available at
   <p>查看创建结果</p>
 </blockquote>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get pods -n kube-system
+NAME                                       READY     STATUS    RESTARTS   AGE
+calico-kube-controllers-3994748863-0dpcp   1/1       Running   0          7h
+calico-node-74d64                          1/1       Running   0          20h
+calico-node-rbrw3                          1/1       Running   0          20h
+calico-node-vtcrs                          1/1       Running   0          20h
+kube-dns-3468831164-2kl0h                  3/3       Running   0          5h
+kube-dns-3468831164-zjgzp                  3/3       Running   0          13m
+kube-dns-autoscaler-244676396-bpfpw        1/1       Running   0          13m
 </code></pre>
 </div>
+
+<h3 id="十四kubernetes周边组件配置">十四.kubernetes周边组件配置</h3>
+
+<h5 id="kubernetes-dashboard配置">kubernetes-dashboard配置</h5>
+
+<blockquote>
+  <p>kubernetes基础环境搭建好之后，我们第一步要搭建的就是我们的kubernetes-dashboard</p>
+</blockquote>
+
+<blockquote>
+  <p>准备所需image</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1
+gcr.io/google_containers/kubernetes-dashboard-init-amd64:v1.0.0
+</code></pre>
+</div>
+
+<blockquote>
+  <p>下载所需yaml文件</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>wget https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+</code></pre>
+</div>
+
+<blockquote>
+  <p>为了方便测试，我们在最后添加NodePort，后期如果有了ingress或traffic,再将其去掉即可</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  <span class="nb">type</span>: NodePort
+  ports:
+    - port: 443
+      targetPort: 8443
+      nodePort: 30001
+  selector:
+    k8s-app: kubernetes-dashboard
+</code></pre>
+</div>
+
+<blockquote>
+  <p>创建</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl create -f kubernetes-dashboard.yaml
+
+secret <span class="s2">"kubernetes-dashboard-certs"</span> created
+serviceaccount <span class="s2">"kubernetes-dashboard"</span> created
+role <span class="s2">"kubernetes-dashboard-minimal"</span> created
+rolebinding <span class="s2">"kubernetes-dashboard-minimal"</span> created
+deployment <span class="s2">"kubernetes-dashboard"</span> created
+service <span class="s2">"kubernetes-dashboard"</span> created
+
+</code></pre>
+</div>
+
+<blockquote>
+  <p>查看创建结果</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get pods -n kube-system -o wide
+NAME                                       READY     STATUS    RESTARTS   AGE       IP              NODE
+calico-kube-controllers-3994748863-0dpcp   1/1       Running   1          1d        172.29.151.6    172.29.151.6
+calico-node-74d64                          1/1       Running   1          1d        172.29.151.6    172.29.151.6
+calico-node-rbrw3                          1/1       Running   1          1d        172.29.151.5    172.29.151.5
+calico-node-vtcrs                          1/1       Running   1          1d        172.29.151.7    172.29.151.7
+kube-dns-3468831164-2kl0h                  3/3       Running   3          23h       10.233.136.10   172.29.151.7
+kube-dns-3468831164-zjgzp                  3/3       Running   3          18h       10.233.161.7    172.29.151.5
+kube-dns-autoscaler-244676396-bpfpw        1/1       Running   1          18h       10.233.136.9    172.29.151.7
+kubernetes-dashboard-3625439193-tgtmm      1/1       Running   0          8s        10.233.136.15   172.29.151.7
+
+<span class="gp">$ </span>kubectl get svc  -n kube-system
+NAME                   CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>         AGE
+kube-dns               10.254.0.2      &lt;none&gt;        53/UDP,53/TCP   23h
+kubernetes-dashboard   10.254.116.15   &lt;nodes&gt;       443:30001/TCP   1m
+</code></pre>
+</div>
+
+<blockquote>
+  <p>最后我们来访问 https://$NODEIP:30001试试，我们发现新的kubernetes提供了认证，就算是skip进去之后，也看不到啥东西</p>
+</blockquote>
+
+<p><img src="/images/posts/kubernetes-login.png" alt="" /></p>
+
+<blockquote>
+  <p>这里我们使用token认证，那么token来自于哪呢，我们创建一个kubernetes-dashboard-rbac.yaml,内容如下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: dashboard-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: kube-system
+</code></pre>
+</div>
+
+<blockquote>
+  <p>创建之后，我们来获取它的token值</p>
+</blockquote>
+
+<p><strong>我们看到这里的serviceaccount是在kube-system的default的，所以我们直接查看kube-system中的default secret就可以了</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create -f kubernetes-dashboard-rbac.yaml
+
+<span class="gp">$ </span>kubectl describe secret default-token-d9jjg -n kube-system
+Name:		default-token-d9jjg
+Namespace:	kube-system
+Labels:		&lt;none&gt;
+Annotations:	kubernetes.io/service-account.name<span class="o">=</span>default
+		kubernetes.io/service-account.uid<span class="o">=</span>458abfc9-aef6-11e7-aa7b-00155dfa7a1a
+
+Type:	kubernetes.io/service-account-token
+
+Data
+<span class="o">====</span>
+ca.crt:		1346 bytes
+namespace:	11 bytes
+token:		eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLWQ5ampnIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI0NThhYmZjOS1hZWY2LTExZTctYWE3Yi0wMDE1NWRmYTdhMWEiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.gRfeCeQSRPOP7yZ94STPZ8GLb77Gx2wAgyVmyATbyoYR7ZMOgqIOMX0lmgZIzCkA1hFnPHcQ863Q9lW_uvkDbHYWA2B2DrRrdkBOYnq_FF2RM09qrwqspS5u3L0w1vgo7S--Rs-mG-yYnMw0EwBtl9rd6Lx7q59sDvWzU47YoQD3HyYZNuIiaIhuZiugvpkJGeKrrsHpd-wh4_rMcTp0GnUKdqSoIpeth2jvudnu34Wv_Jh5q2rhvhMSgb-qEW7JqB5wnDzXLaxkdW7i5PVDZD5RGCQGDwxqr4opfg53JrJQ9ojEjmR7Q0GfgWyKkudwlBm9nPT0VaW4LJkaM37vpQ
+</code></pre>
+</div>
+
+<blockquote>
+  <p>我们输入token登录看看，发现可以看到内容了</p>
+</blockquote>
+
+<p><img src="/images/posts/kubernetes-dashboard-login-token.png" alt="" /></p>
+
+<h5 id="heapster">heapster</h5>
+
+<blockquote>
+  <p>kubernetes-dashboard搭建好之后，我们配套的搭建下heapster</p>
+</blockquote>
+
+<blockquote>
+  <p>准备所需镜像</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>gcr.io/google_containers/heapster-grafana-amd64:v4.0.2
+gcr.io/google_containers/heapster-amd64:v1.3.0
+gcr.io/google_containers/heapster-influxdb-amd64:v1.1.1
+</code></pre>
+</div>
+
+<blockquote>
+  <p>下载所需yaml文件</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>wget https://github.com/kubernetes/heapster/archive/v1.4.3.tar.gz
+</code></pre>
+</div>
+
+<blockquote>
+  <p>进入heapster-1.4.3/deploy/kube-config/influxdb，修改一下grafana.yaml里面的镜像版本，如果你想要通过NodePort查看下grafana的数据测试一下，可以注释掉service中的 type: NodePort</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>gcr.io/google_containers/heapster-grafana-amd64:v4.2.0 -&gt; gcr.io/google_containers/heapster-grafana-amd64:v4.0.2
+<span class="nb">type</span>: NodePort
+</code></pre>
+</div>
+
+<blockquote>
+  <p>执行构建</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd </span>heapster-1.4.3/deploy/kube-config/influxdb
+kubectl create -f .
+
+<span class="nb">cd </span>heapster-1.4.3/deploy/kube-config/rbac
+kubectl create -f .
+</code></pre>
+</div>
+
+<blockquote>
+  <p>修改kubernetes-dashboard.yaml 文件，添加如下内容</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>  <span class="c"># - --apiserver-host=http://my-address:port</span>
+  - --heapster-host<span class="o">=</span>http://heapster.kube-system.svc.cluster.local
+</code></pre>
+</div>
+
+<blockquote>
+  <p>重新构建kubernetes-dashboard</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create -f kubernetes-dashboard.yaml
+</code></pre>
+</div>
+
+<blockquote>
+  <p>查看构建结果</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get pods -n kube-system
+NAME                                       READY     STATUS    RESTARTS   AGE
+calico-kube-controllers-3994748863-0dpcp   1/1       Running   1          1d
+calico-node-74d64                          1/1       Running   1          1d
+calico-node-rbrw3                          1/1       Running   2          1d
+calico-node-vtcrs                          1/1       Running   1          1d
+heapster-84017538-54dkm                    1/1       Running   0          1h
+kube-dns-3468831164-2kl0h                  3/3       Running   3          1d
+kube-dns-3468831164-9hsbm                  3/3       Running   0          3h
+kube-dns-autoscaler-244676396-bpfpw        1/1       Running   1          22h
+kubernetes-dashboard-2923351285-pzgx5      1/1       Running   0          24m
+monitoring-grafana-2115417091-lgqsc        1/1       Running   0          1h
+monitoring-influxdb-3570645011-dp51l       1/1       Running   0          1h
+</code></pre>
+</div>
+
+<blockquote>
+  <p>登录kubernetes-dashboard，查看是否有数据了</p>
+</blockquote>
+
+<p><img src="/images/posts/kubernetes-dashboard-heapster.png" alt="" /></p>
+
+<blockquote>
+  <p>登录到grafana查看数据</p>
+</blockquote>
+
+<p><img src="/images/posts/grafana.png" alt="" /></p>
+
+<h5 id="ingress-配置">ingress 配置</h5>
 
     </article>
     <div class="share">
