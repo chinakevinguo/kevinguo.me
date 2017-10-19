@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-10-13T15:51:54+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">手动搭建kubernetes HA集群</title><link href="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群" /><published>2017-09-22T00:00:00+08:00</published><updated>2017-09-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/22/manual-deploy-kubernetes</id><content type="html" xml:base="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-10-19T20:43:50+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">手动搭建kubernetes HA集群</title><link href="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群" /><published>2017-09-22T00:00:00+08:00</published><updated>2017-09-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/22/manual-deploy-kubernetes</id><content type="html" xml:base="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/">&lt;blockquote&gt;
   &lt;p&gt;原有的环境需要迁移，现在需要重新搭建一套kubernetes，而且原来一直是用kargo来搭建，所有组件都是基于docker容器的，感觉有点不稳妥，所以正好这个时候有机会，可以纯手动部署一下，所有的关键组件都以二进制形式部署，并添加为系统服务，这里记录一下。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -2786,7 +2786,7 @@ provisioner: kubernetes.io/rbd
 parameters:
   monitors: 172.30.33.90:6789,172.30.33.91:6789,172.30.33.92:6789
   adminId: admin
-  adminSecretName: cehp-storageclass-secret
+  adminSecretName: ceph-storageclass-secret
   adminSecretNamespace: kube-system
   pool: data
   userId: admin
