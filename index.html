@@ -110,6 +110,36 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="/2017/11/22/harbor-etcd-ceph/">Harbor+etcd+docker结合Ceph搭建高可用集群</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/11/22
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#harbor" title="harbor">harbor</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#etcd" title="etcd">etcd</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="/2017/09/22/manual-deploy-kubernetes/">手动搭建kubernetes HA集群</a>
                     </h3>
                     <p class="repo-list-description">
@@ -274,31 +304,6 @@
                     <p class="repo-list-meta">
                         <span class="meta-info">
                           <span class="octicon octicon-calendar"></span> 2017/08/23
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/08/22/Rancher-for-docker-hosts/">High Availability Ranchers for docker hosts</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        前言
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/08/22
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#rancher" title="rancher">rancher</a>
                         </span>
                         
                         <span class="meta-info">

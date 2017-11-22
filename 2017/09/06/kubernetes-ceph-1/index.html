@@ -244,35 +244,27 @@
 </table>
 
 <h5 id="在管理节点上操作">在管理节点上操作</h5>
+<p>1.添加ceph源</p>
 
-<p>1.执行如下命令</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>ceph-noarch]
+<span class="nv">name</span><span class="o">=</span>Ceph noarch packages
+<span class="nv">baseurl</span><span class="o">=</span>https://download.ceph.com/rpm-jewel/el7/noarch
+<span class="nv">enabled</span><span class="o">=</span>1
+<span class="nv">gpgcheck</span><span class="o">=</span>1
+<span class="nb">type</span><span class="o">=</span>rpm-md
+<span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo yum install -y yum-utils <span class="o">&amp;&amp;</span> sudo yum-config-manager --add-repo https://dl.fedoraproject.org/pub/epel/7/x86_64/ <span class="o">&amp;&amp;</span> sudo yum install --nogpgcheck -y epel-release <span class="o">&amp;&amp;</span> sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 <span class="o">&amp;&amp;</span> sudo rm /etc/yum.repos.d/dl.fedoraproject.org<span class="k">*</span>
+<span class="gp">$ </span>yum update -y <span class="o">&amp;&amp;</span> yum install ceph-deploy -y
 </code></pre>
 </div>
 
-<p>2.将软件包源加入软件仓库</p>
-
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>vim /etc/yum.repos.d/ceph.repo
-
-<span class="o">[</span>ceph]
-<span class="nv">name</span><span class="o">=</span>ceph
-<span class="nv">baseurl</span><span class="o">=</span>http://mirrors.163.com/ceph/rpm-jewel/el7/x86_64/
-<span class="nv">gpgcheck</span><span class="o">=</span>0
-<span class="o">[</span>ceph-noarch]
-<span class="nv">name</span><span class="o">=</span>cephnoarch
-<span class="nv">baseurl</span><span class="o">=</span>http://mirrors.163.com/ceph/rpm-jewel/el7/noarch/
-<span class="nv">gpgcheck</span><span class="o">=</span>0
-</code></pre>
-</div>
-
-<p>3.更新并安装<code class="highlighter-rouge">ceph-deploy</code></p>
+<p>2.更新并安装<code class="highlighter-rouge">ceph-deploy</code></p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo yum update <span class="o">&amp;&amp;</span> sudo yum install ceph-deploy
 </code></pre>
 </div>
 
-<p>4.配置从部署机器到所有其他节点的免密钥登录，具体参考<a href="https://kevinguo.me/2017/07/06/ansible-client/">这里</a></p>
+<p>2.配置从部署机器到所有其他节点的免密钥登录，具体参考<a href="https://kevinguo.me/2017/07/06/ansible-client/">这里</a></p>
 
 <h5 id="在节点上操作">在节点上操作</h5>
 
@@ -324,15 +316,34 @@ ceph-deploy new k8s-master01
 </code></pre>
 </div>
 <p><strong>注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下</strong></p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 添加ceph 163源</span>
-<span class="o">[</span>ceph]
-<span class="nv">name</span><span class="o">=</span>ceph
-<span class="nv">baseurl</span><span class="o">=</span>http://mirrors.163.com/ceph/rpm-jewel/el7/x86_64/
-<span class="nv">gpgcheck</span><span class="o">=</span>0
-<span class="o">[</span>ceph-noarch]
-<span class="nv">name</span><span class="o">=</span>cephnoarch
-<span class="nv">baseurl</span><span class="o">=</span>http://mirrors.163.com/ceph/rpm-jewel/el7/noarch/
-<span class="nv">gpgcheck</span><span class="o">=</span>0
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 添加ceph 源</span>
+<span class="o">[</span>Ceph]
+<span class="nv">name</span><span class="o">=</span>Ceph packages <span class="k">for</span> <span class="nv">$basearch</span>
+<span class="nv">baseurl</span><span class="o">=</span>http://download.ceph.com/rpm-jewel/el7/<span class="nv">$basearch</span>
+<span class="nv">enabled</span><span class="o">=</span>1
+<span class="nv">gpgcheck</span><span class="o">=</span>1
+<span class="nb">type</span><span class="o">=</span>rpm-md
+<span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
+<span class="nv">priority</span><span class="o">=</span>1
+
+<span class="o">[</span>Ceph-noarch]
+<span class="nv">name</span><span class="o">=</span>Ceph noarch packages
+<span class="nv">baseurl</span><span class="o">=</span>http://download.ceph.com/rpm-jewel/el7/noarch
+<span class="nv">enabled</span><span class="o">=</span>1
+<span class="nv">gpgcheck</span><span class="o">=</span>1
+<span class="nb">type</span><span class="o">=</span>rpm-md
+<span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
+<span class="nv">priority</span><span class="o">=</span>1
+
+<span class="o">[</span>ceph-source]
+<span class="nv">name</span><span class="o">=</span>Ceph <span class="nb">source </span>packages
+<span class="nv">baseurl</span><span class="o">=</span>http://download.ceph.com/rpm-jewel/el7/SRPMS
+<span class="nv">enabled</span><span class="o">=</span>1
+<span class="nv">gpgcheck</span><span class="o">=</span>1
+<span class="nb">type</span><span class="o">=</span>rpm-md
+<span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
+<span class="nv">priority</span><span class="o">=</span>1
+
 
 <span class="gp">$ </span>yum install ceph ceph-radosgw -y
 </code></pre>
