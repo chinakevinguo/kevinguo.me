@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>手动搭建kubernetes HA集群(二) &mdash; KevinGuo</title>
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="手动搭建kubernetes HA集群(二)">
+      
+    <meta name="keywords" content="kubernetes,docker,fabio,registrator,consul">
+    <meta name="og:keywords" content="kubernetes,docker,fabio,registrator,consul">
+      
+    <meta name="description" content="  我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露">
+    <meta name="og:description" content="  我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/">
+    <meta property="og:site_name" content="KevinGuo">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2017-11-28">
+    
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="手动搭建kubernetes ">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">手动搭建kubernetes HA集群(二)</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2017/11/28
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#kubernetes" title="kubernetes">kubernetes</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#docker" title="docker">docker</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#fabio" title="fabio">fabio</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#registrator" title="registrator">registrator</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#consul" title="consul">consul</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <blockquote>
+  <p>我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露</p>
+</blockquote>
+
+<h3 id="一kubernetes-服务暴露介绍">一、Kubernetes 服务暴露介绍</h3>
+
+<p>关于服务暴露，常见的有如下几种方式:</p>
+
+<ul>
+  <li>LoadBlancer Service</li>
+  <li>NodePort Service</li>
+  <li>Ingress</li>
+  <li>traefik</li>
+</ul>
+
+<h4 id="11loadblancer-service">1.1、LoadBlancer Service</h4>
+
+<p>LoandBlancer Service 是kubernetes深度结合云平台的一个组件；当使用LoandBlancer Service暴露服务时，实际上是通过向底层云平台申请创建一个负载均衡器来向外暴露服务；目前LoadBlancer Service支持的云平台已经相对完善，比如国外的GCE、DigitalOcean，国内的阿里云，私有云Openstack等等，由于LoadBlancer Service深度结合了云平台，所以只能在一些云平台使用。</p>
+
+<h4 id="12nodeport-service">1.2、NodePort Service</h4>
+
+<p>NodePort Service 顾名思义，实质上就是通过在集群的每个node上暴露一个端口，然后将这个端口隐射到某个具体的service来实现，虽然每个node的端口有很多(0~65535)，但由于安全性和易用性(服务多了，端口记不住，容易混乱)，实际上使用的可能并不多</p>
+
+<h4 id="13ingress">1.3、Ingress</h4>
+
+<p>ingress 这东西在1.2后才出现的，大致原理就是通过一个ingress controller来实时感知service、pod的变化，然后结合ingress生成配置，更新内部的反代，刷新配置，达到服务暴露的目的</p>
+
+<h4 id="14traefik">1.4、traefik</h4>
+
+<p>traefik 笔者并没有使用过，大致意思是抛弃了ingress controller，因为traefik本身就能和kubernetes API交互，感知后端变化，再根据ingress生成规则，暴露服务。</p>
+
+<h3 id="二fabioconsulregistrator-实现服务暴露">二、fabio+consul+registrator 实现服务暴露</h3>
+
+<blockquote>
+  <p>前面简单的介绍了几种kubernetes中的服务暴露方式，但是我这里一种都没有使用，为什么呢，<strong>因为通过service或者Nodeport来实现服务发现都是使用的iptables来进行负载的，性能上总是有些损耗的</strong>，所以这里我使用consul+registrator+fabio来实现kubernetes内部服务的暴露</p>
+</blockquote>
+
+<p>组件介绍：</p>
+
+<ul>
+  <li>fabio</li>
+  <li>registrator</li>
+  <li>consul</li>
+</ul>
+
+<h4 id="21fabio">2.1、fabio</h4>
+
+<p>fabio 是ebay团队用golang开发的一个快速、简单零配置就能够让consul部署的应用快速支持http(s)的负载均衡路由器，支持服务发现，自动生成路由
+我们只需要在consul注册服务，提供一个健康检查，fabio就会将流量路由到这些服务上</p>
+
+<h4 id="22registrator">2.2、registrator</h4>
+
+<p>registrator(注册器)，能够实时的监听docker的event，动态的注册docker 容器服务到consul、etcd或zookeeper中</p>
+
+<h4 id="23consul">2.3、consul</h4>
+
+<p>Consul 是一个支持多数据中心分布式高可用的服务发现和配置共享的服务软件,由 HashiCorp 公司用 Go 语言开发, 基于 Mozilla Public License 2.0 的协议进行开源. Consul 支持健康检查,并允许 HTTP 和 DNS 协议调用 API 存储键值对</p>
+
+<h4 id="24具体部署过程">2.4、具体部署过程</h4>
+
+<p>具体架构图如下：</p>
+
+<p><img src="/images/posts/fabio-consul-registrator.png" alt="fabio-consul-registrator" /></p>
+
+<p>首先我们需要部署一套<code class="highlighter-rouge">consul server cluster</code>，具体部署过程，这里就不再演示了，请参考<a href="https://github.com/kaizamm/consul/blob/master/consul%2Bdocker%2Bregistrator.md">Consul 集群搭建</a></p>
+
+<p>1.consul client 部署</p>
+
+<blockquote>
+  <p>我们在每个节点上跑一个consul-client，你可以以daemonset的方式部署，也可以直接以二进制的方式部署，用systemd管理起来，这里用二进制的方式</p>
+</blockquote>
+
+<p><strong>/usr/lib/systemd/system/consul.service</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>Consul service discovery agent
+<span class="nv">Requires</span><span class="o">=</span>network-online.target
+<span class="nv">After</span><span class="o">=</span>network-online.target
+<span class="o">[</span>Service]
+<span class="nv">User</span><span class="o">=</span>consul
+<span class="nv">Group</span><span class="o">=</span>consul
+<span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/default/consul
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">GOMAXPROCS</span><span class="o">=</span>2
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">ExecStartPre</span><span class="o">=[</span> -f <span class="s2">"/opt/consul/run/consul.pid"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> /usr/bin/rm -f /opt/consul/run/consul.pid
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/consul agent <span class="nv">$CONSUL_FLAGS</span>
+<span class="nv">ExecReload</span><span class="o">=</span>/bin/kill -HUP <span class="nv">$MAINPID</span>
+<span class="nv">KillSignal</span><span class="o">=</span>SIGTERM
+<span class="nv">TimeoutStopSec</span><span class="o">=</span>5
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre>
+</div>
+
+<p><strong>/etc/default/consul</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nv">CONSUL_FLAGS</span><span class="o">=</span><span class="s2">"-ui -data-dir=/opt/consul/data -config-dir=/opt/consul/conf -pid-file=/opt/consul/run/consul.pid -client=0.0.0.0 -bind=172.29.151.4 -node=consul-client04 -retry-join=172.30.33.39 -retry-join=172.30.33.40 -retry-join=172.30.33.41 -retry-interval=3s"</span>
+</code></pre>
+</div>
+
+<p>2.registrator 部署</p>
+
+<blockquote>
+  <p>我们在每个node 节点上跑一个registrator，同样可以以daemonset的方式部署，或者使用docker container的方式部署，用systemd管理，这里我们通过daemonset的方式部署</p>
+</blockquote>
+
+<p><strong>registrator.yaml</strong></p>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">DaemonSet</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">creationTimestamp</span><span class="pi">:</span> <span class="s">null</span>
+  <span class="s">labels</span><span class="pi">:</span>
+    <span class="s">run</span><span class="pi">:</span> <span class="s">registrator</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">registrator</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">matchLabels</span><span class="pi">:</span>
+      <span class="s">run</span><span class="pi">:</span> <span class="s">registrator</span>
+  <span class="s">template</span><span class="pi">:</span>
+    <span class="s">metadata</span><span class="pi">:</span>
+      <span class="s">creationTimestamp</span><span class="pi">:</span> <span class="s">null</span>
+      <span class="s">labels</span><span class="pi">:</span>
+        <span class="s">run</span><span class="pi">:</span> <span class="s">registrator</span>
+    <span class="s">spec</span><span class="pi">:</span>
+      <span class="s">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">docker-sock</span>
+        <span class="s">hostPath</span><span class="pi">:</span>
+          <span class="s">path</span><span class="pi">:</span> <span class="s">/var/run/docker.sock</span>
+      <span class="s">hostNetwork</span><span class="pi">:</span> <span class="s">true</span>
+      <span class="s">containers</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">registrator</span>
+          <span class="s">volumeMounts</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/tmp/docker.sock</span>
+            <span class="s">name</span><span class="pi">:</span> <span class="s">docker-sock</span>
+          <span class="s">image</span><span class="pi">:</span> <span class="s">ganeshkaila/registrator:v7</span>
+          <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">/bin/sh"</span><span class="pi">]</span>
+          <span class="s">args</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">-c"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">registrator</span><span class="nv"> </span><span class="s">-useIpFromEnv=POD_IP</span><span class="nv"> </span><span class="s">-internal</span><span class="nv"> </span><span class="s">consul://localhost:8500"</span><span class="pi">]</span>
+          <span class="s">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
+          <span class="s">env</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">NODE_NAME</span>
+              <span class="s">valueFrom</span><span class="pi">:</span>
+                <span class="s">fieldRef</span><span class="pi">:</span>
+                  <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">spec.nodeName</span>
+</code></pre>
+</div>
+
+<p>3.fabio 部署</p>
+
+<blockquote>
+  <p>我们在对应的节点上部署fabio，二进制文件部署，通过systemd管理</p>
+</blockquote>
+
+<p><strong>fabio.service</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>fabio
+<span class="nv">Requires</span><span class="o">=</span>network-online.target
+<span class="nv">After</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service]
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">GOMAXPROCS</span><span class="o">=</span>2
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/fabio
+<span class="nv">ExecReload</span><span class="o">=</span>/bin/kill -HUP <span class="nv">$MAINPID</span>
+<span class="nv">KillSignal</span><span class="o">=</span>SIGTERM
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+
+</code></pre>
+</div>
+
+<p>至此，我们的fabio+consul+registrator就算是部署完成了，那么我们怎么使用呢，这里，我们以<code class="highlighter-rouge">kubernetes-dashboard</code>为例</p>
+
+<p><strong>kubernetes-dashboard.yaml</strong></p>
+
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Secret</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">labels</span><span class="pi">:</span>
+    <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-certs</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="s">type</span><span class="pi">:</span> <span class="s">Opaque</span>
+
+<span class="nn">---</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">labels</span><span class="pi">:</span>
+    <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+
+<span class="nn">---</span>
+<span class="c1"># ------------------- Dashboard Role &amp; Role Binding ------------------- #</span>
+
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Role</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="s">rules</span><span class="pi">:</span>
+  <span class="c1"># Allow Dashboard to create and watch for changes of 'kubernetes-dashboard-key-holder' secret.</span>
+  <span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+    <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">secrets"</span><span class="pi">]</span>
+    <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">create"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">]</span>
+    <span class="c1"># Allow Dashboard to get, update and delete Dashboard exclusive secrets.</span>
+  <span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+    <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">secrets"</span><span class="pi">]</span>
+    <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">kubernetes-dashboard-key-holder"</span><span class="pi">]</span>
+    <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">delete"</span><span class="pi">]</span>
+    <span class="c1"># Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.</span>
+  <span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+    <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">configmaps"</span><span class="pi">]</span>
+    <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">kubernetes-dashboard-settings"</span><span class="pi">]</span>
+    <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">list"</span><span class="pi">,</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">]</span>
+    <span class="c1"># Allow Dashboard to get metrics from heapster.</span>
+  <span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+    <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">services"</span><span class="pi">]</span>
+    <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">heapster"</span><span class="pi">]</span>
+    <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">proxy"</span><span class="pi">]</span>
+
+  <span class="s">---</span>
+  <span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+  <span class="s">kind</span><span class="pi">:</span> <span class="s">RoleBinding</span>
+  <span class="s">metadata</span><span class="pi">:</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
+    <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+  <span class="s">roleRef</span><span class="pi">:</span>
+    <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+    <span class="s">kind</span><span class="pi">:</span> <span class="s">Role</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
+  <span class="s">subjects</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+    <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+
+  <span class="s">---</span>
+  <span class="c1"># ------------------- Dashboard Deployment ------------------- #</span>
+
+  <span class="s">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+  <span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+  <span class="s">metadata</span><span class="pi">:</span>
+    <span class="s">labels</span><span class="pi">:</span>
+      <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+    <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+  <span class="s">spec</span><span class="pi">:</span>
+    <span class="s">replicas</span><span class="pi">:</span> <span class="s">1</span>
+    <span class="s">revisionHistoryLimit</span><span class="pi">:</span> <span class="s">10</span>
+    <span class="s">selector</span><span class="pi">:</span>
+      <span class="s">matchLabels</span><span class="pi">:</span>
+        <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+    <span class="s">template</span><span class="pi">:</span>
+      <span class="s">metadata</span><span class="pi">:</span>
+        <span class="s">labels</span><span class="pi">:</span>
+          <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+      <span class="s">spec</span><span class="pi">:</span>
+        <span class="s">containers</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+            <span class="s">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1</span>
+            <span class="s">ports</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">9090</span>
+              <span class="s">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+            <span class="c1"># 这里个人添加一些必要的env</span>
+            <span class="s">env</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_HTTP</span>
+              <span class="s">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
+            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_INTERVAL</span>
+              <span class="s">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">15s"</span>
+            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_TIME</span>
+              <span class="s">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1s"</span>
+            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_NAME</span>
+              <span class="s">value</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_TAGS</span>
+              <span class="s">value</span><span class="pi">:</span> <span class="s">urlprefix-dashboard.quark.com/</span>
+              <span class="c1"># 指定获取pod ip</span>
+            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">POD_IP</span>
+              <span class="s">valueFrom</span><span class="pi">:</span>
+                <span class="s">fieldRef</span><span class="pi">:</span>
+                  <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">status.podIP</span>
+            <span class="s">args</span><span class="pi">:</span>
+              <span class="c1"># Uncomment the following line to manually specify Kubernetes API server Host</span>
+              <span class="c1"># If not specified, Dashboard will attempt to auto discover the API server and connect</span>
+              <span class="c1"># to it. Uncomment only if the default does not work.</span>
+              <span class="c1"># - --apiserver-host=http://my-address:port</span>
+              <span class="pi">-</span> <span class="s">--authentication-mode=basic</span>
+              <span class="c1"># 这里添加一个连接heapster</span>
+              <span class="pi">-</span> <span class="s">--heapster-host=http://heapster.kube-system.svc.cluster.local</span>
+              <span class="s">volumeMounts</span><span class="pi">:</span>
+                <span class="c1"># Create on-disk volume to store exec logs</span>
+              <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/tmp</span>
+                <span class="s">name</span><span class="pi">:</span> <span class="s">tmp-volume</span>
+              <span class="s">livenessProbe</span><span class="pi">:</span>
+                <span class="s">httpGet</span><span class="pi">:</span>
+                  <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
+                  <span class="s">port</span><span class="pi">:</span> <span class="s">9090</span>
+                <span class="s">initialDelaySeconds</span><span class="pi">:</span> <span class="s">30</span>
+                <span class="s">timeoutSeconds</span><span class="pi">:</span> <span class="s">30</span>
+            <span class="s">volumes</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">tmp-volume</span>
+              <span class="s">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
+              <span class="c1"># 这里的serviceAccountName改成default</span>
+            <span class="s">serviceAccountName</span><span class="pi">:</span> <span class="s">default</span>
+            <span class="c1"># Comment the following tolerations if Dashboard must not be deployed on master</span>
+            <span class="s">tolerations</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">key</span><span class="pi">:</span> <span class="s">node-role.kubernetes.io/master</span>
+              <span class="s">effect</span><span class="pi">:</span> <span class="s">NoSchedule</span>
+</code></pre>
+</div>
+
+<p><strong>前端LB配置</strong></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>server <span class="o">{</span>
+    listen       80;
+    server_name  dashboard.quark.com;
+    client_max_body_size 0;
+
+    location / <span class="o">{</span>
+        proxy_pass                          http://fabio-server;
+        proxy_set_header  Host              dashboard.quark.com;   <span class="c"># 这个位置一定是注册到consul里面的tags部分</span>
+        proxy_set_header  X-Real-IP         <span class="nv">$remote_addr</span>; <span class="c"># pass on real client's IP</span>
+
+
+        proxy_set_header  X-Forwarded-For   <span class="nv">$proxy_add_x_forwarded_for</span>;
+        proxy_set_header  X-Forwarded-Proto <span class="nv">$scheme</span>;
+        proxy_read_timeout                  900;
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>upstream fabio-server <span class="o">{</span>
+        server 172.29.151.4:9999;
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>最后看看结果</p>
+
+<blockquote>
+  <p>fabio</p>
+</blockquote>
+
+<p><img src="/images/posts/fabio.png" alt="" /></p>
+
+<blockquote>
+  <p>kubernetes-dashboard</p>
+</blockquote>
+
+<p><img src="/images/posts/dashboard.png" alt="" /></p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+    </div>
+    <div class="comment">
+      
+
+  
+
+  
+      
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+        
+          <div id="disqus_thread"></div>
+          <script>
+            var disqus_config = function () {
+              this.page.url = 'https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/';
+              this.page.identifier = '/2017/11/28/manual-deploy-kubernetes-2/';
+              this.page.title = '手动搭建kubernetes HA集群(二)';
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+              var d = document, s = d.createElement('script');
+
+              s.type = 'text/javascript';
+              s.async = true;
+              var shortname = 'kevinguo';
+
+              s.src = '//' + shortname + '.disqus.com/embed.js';
+
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+      
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
+
+
+    
+
+    
+<h3 class="post-directory-title mobile-hidden">Table of Contents</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2015
+                    <span title="KevinGuo">KevinGuo</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

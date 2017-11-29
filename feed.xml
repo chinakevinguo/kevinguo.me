@@ -1,4 +1,357 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-11-22T18:50:10+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">Harbor+etcd+docker结合Ceph搭建高可用集群</title><link href="https://kevinguo.me/2017/11/22/harbor-etcd-ceph/" rel="alternate" type="text/html" title="Harbor+etcd+docker结合Ceph搭建高可用集群" /><published>2017-11-22T00:00:00+08:00</published><updated>2017-11-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/11/22/harbor-etcd-ceph</id><content type="html" xml:base="https://kevinguo.me/2017/11/22/harbor-etcd-ceph/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-11-29T15:34:12+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">手动搭建kubernetes HA集群(二)</title><link href="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群(二)" /><published>2017-11-28T00:00:00+08:00</published><updated>2017-11-28T00:00:00+08:00</updated><id>https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2</id><content type="html" xml:base="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/">&lt;blockquote&gt;
+  &lt;p&gt;我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;一kubernetes-服务暴露介绍&quot;&gt;一、Kubernetes 服务暴露介绍&lt;/h3&gt;
+
+&lt;p&gt;关于服务暴露，常见的有如下几种方式:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;LoadBlancer Service&lt;/li&gt;
+  &lt;li&gt;NodePort Service&lt;/li&gt;
+  &lt;li&gt;Ingress&lt;/li&gt;
+  &lt;li&gt;traefik&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;11loadblancer-service&quot;&gt;1.1、LoadBlancer Service&lt;/h4&gt;
+
+&lt;p&gt;LoandBlancer Service 是kubernetes深度结合云平台的一个组件；当使用LoandBlancer Service暴露服务时，实际上是通过向底层云平台申请创建一个负载均衡器来向外暴露服务；目前LoadBlancer Service支持的云平台已经相对完善，比如国外的GCE、DigitalOcean，国内的阿里云，私有云Openstack等等，由于LoadBlancer Service深度结合了云平台，所以只能在一些云平台使用。&lt;/p&gt;
+
+&lt;h4 id=&quot;12nodeport-service&quot;&gt;1.2、NodePort Service&lt;/h4&gt;
+
+&lt;p&gt;NodePort Service 顾名思义，实质上就是通过在集群的每个node上暴露一个端口，然后将这个端口隐射到某个具体的service来实现，虽然每个node的端口有很多(0~65535)，但由于安全性和易用性(服务多了，端口记不住，容易混乱)，实际上使用的可能并不多&lt;/p&gt;
+
+&lt;h4 id=&quot;13ingress&quot;&gt;1.3、Ingress&lt;/h4&gt;
+
+&lt;p&gt;ingress 这东西在1.2后才出现的，大致原理就是通过一个ingress controller来实时感知service、pod的变化，然后结合ingress生成配置，更新内部的反代，刷新配置，达到服务暴露的目的&lt;/p&gt;
+
+&lt;h4 id=&quot;14traefik&quot;&gt;1.4、traefik&lt;/h4&gt;
+
+&lt;p&gt;traefik 笔者并没有使用过，大致意思是抛弃了ingress controller，因为traefik本身就能和kubernetes API交互，感知后端变化，再根据ingress生成规则，暴露服务。&lt;/p&gt;
+
+&lt;h3 id=&quot;二fabioconsulregistrator-实现服务暴露&quot;&gt;二、fabio+consul+registrator 实现服务暴露&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;前面简单的介绍了几种kubernetes中的服务暴露方式，但是我这里一种都没有使用，为什么呢，&lt;strong&gt;因为通过service或者Nodeport来实现服务发现都是使用的iptables来进行负载的，性能上总是有些损耗的&lt;/strong&gt;，所以这里我使用consul+registrator+fabio来实现kubernetes内部服务的暴露&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;组件介绍：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;fabio&lt;/li&gt;
+  &lt;li&gt;registrator&lt;/li&gt;
+  &lt;li&gt;consul&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;21fabio&quot;&gt;2.1、fabio&lt;/h4&gt;
+
+&lt;p&gt;fabio 是ebay团队用golang开发的一个快速、简单零配置就能够让consul部署的应用快速支持http(s)的负载均衡路由器，支持服务发现，自动生成路由
+我们只需要在consul注册服务，提供一个健康检查，fabio就会将流量路由到这些服务上&lt;/p&gt;
+
+&lt;h4 id=&quot;22registrator&quot;&gt;2.2、registrator&lt;/h4&gt;
+
+&lt;p&gt;registrator(注册器)，能够实时的监听docker的event，动态的注册docker 容器服务到consul、etcd或zookeeper中&lt;/p&gt;
+
+&lt;h4 id=&quot;23consul&quot;&gt;2.3、consul&lt;/h4&gt;
+
+&lt;p&gt;Consul 是一个支持多数据中心分布式高可用的服务发现和配置共享的服务软件,由 HashiCorp 公司用 Go 语言开发, 基于 Mozilla Public License 2.0 的协议进行开源. Consul 支持健康检查,并允许 HTTP 和 DNS 协议调用 API 存储键值对&lt;/p&gt;
+
+&lt;h4 id=&quot;24具体部署过程&quot;&gt;2.4、具体部署过程&lt;/h4&gt;
+
+&lt;p&gt;具体架构图如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/fabio-consul-registrator.png&quot; alt=&quot;fabio-consul-registrator&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;首先我们需要部署一套&lt;code class=&quot;highlighter-rouge&quot;&gt;consul server cluster&lt;/code&gt;，具体部署过程，这里就不再演示了，请参考&lt;a href=&quot;https://github.com/kaizamm/consul/blob/master/consul%2Bdocker%2Bregistrator.md&quot;&gt;Consul 集群搭建&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;1.consul client 部署&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;我们在每个节点上跑一个consul-client，你可以以daemonset的方式部署，也可以直接以二进制的方式部署，用systemd管理起来，这里用二进制的方式&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;/usr/lib/systemd/system/consul.service&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Unit]
+&lt;span class=&quot;nv&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;Consul service discovery agent
+&lt;span class=&quot;nv&quot;&gt;Requires&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;network-online.target
+&lt;span class=&quot;nv&quot;&gt;After&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;network-online.target
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Service]
+&lt;span class=&quot;nv&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;consul
+&lt;span class=&quot;nv&quot;&gt;Group&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;consul
+&lt;span class=&quot;nv&quot;&gt;EnvironmentFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;-/etc/default/consul
+&lt;span class=&quot;nv&quot;&gt;Environment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;GOMAXPROCS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2
+&lt;span class=&quot;nv&quot;&gt;Restart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;on-failure
+&lt;span class=&quot;nv&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=[&lt;/span&gt; -f &lt;span class=&quot;s2&quot;&gt;&quot;/opt/consul/run/consul.pid&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; /usr/bin/rm -f /opt/consul/run/consul.pid
+&lt;span class=&quot;nv&quot;&gt;ExecStart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/usr/local/bin/consul agent &lt;span class=&quot;nv&quot;&gt;$CONSUL_FLAGS&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;ExecReload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/bin/kill -HUP &lt;span class=&quot;nv&quot;&gt;$MAINPID&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;KillSignal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SIGTERM
+&lt;span class=&quot;nv&quot;&gt;TimeoutStopSec&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;5
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Install]
+&lt;span class=&quot;nv&quot;&gt;WantedBy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;multi-user.target
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;/etc/default/consul&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;CONSUL_FLAGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-ui -data-dir=/opt/consul/data -config-dir=/opt/consul/conf -pid-file=/opt/consul/run/consul.pid -client=0.0.0.0 -bind=172.29.151.4 -node=consul-client04 -retry-join=172.30.33.39 -retry-join=172.30.33.40 -retry-join=172.30.33.41 -retry-interval=3s&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.registrator 部署&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;我们在每个node 节点上跑一个registrator，同样可以以daemonset的方式部署，或者使用docker container的方式部署，用systemd管理，这里我们通过daemonset的方式部署&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;registrator.yaml&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;extensions/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;DaemonSet&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;creationTimestamp&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;null&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;registrator&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;registrator&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;selector&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;matchLabels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;registrator&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;creationTimestamp&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;null&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;registrator&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;volumes&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;docker-sock&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;hostPath&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/var/run/docker.sock&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;hostNetwork&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;true&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;containers&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;registrator&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;volumeMounts&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;mountPath&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/tmp/docker.sock&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;docker-sock&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ganeshkaila/registrator:v7&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;/bin/sh&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;-c&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;registrator&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;-useIpFromEnv=POD_IP&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;-internal&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;consul://localhost:8500&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;imagePullPolicy&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;IfNotPresent&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;NODE_NAME&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;valueFrom&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;fieldRef&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+                  &lt;span class=&quot;s&quot;&gt;fieldPath&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;spec.nodeName&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;3.fabio 部署&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;我们在对应的节点上部署fabio，二进制文件部署，通过systemd管理&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;fabio.service&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Unit]
+&lt;span class=&quot;nv&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;fabio
+&lt;span class=&quot;nv&quot;&gt;Requires&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;network-online.target
+&lt;span class=&quot;nv&quot;&gt;After&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;network-online.target
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Service]
+&lt;span class=&quot;nv&quot;&gt;Environment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;GOMAXPROCS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2
+&lt;span class=&quot;nv&quot;&gt;Restart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;on-failure
+&lt;span class=&quot;nv&quot;&gt;ExecStart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/usr/local/bin/fabio
+&lt;span class=&quot;nv&quot;&gt;ExecReload&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/bin/kill -HUP &lt;span class=&quot;nv&quot;&gt;$MAINPID&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;KillSignal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SIGTERM
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Install]
+&lt;span class=&quot;nv&quot;&gt;WantedBy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;multi-user.target
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;至此，我们的fabio+consul+registrator就算是部署完成了，那么我们怎么使用呢，这里，我们以&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes-dashboard&lt;/code&gt;为例&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;kubernetes-dashboard.yaml&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;v1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Secret&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;k8s-app&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard-certs&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Opaque&lt;/span&gt;
+
+&lt;span class=&quot;nn&quot;&gt;---&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;v1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ServiceAccount&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;k8s-app&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+
+&lt;span class=&quot;nn&quot;&gt;---&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# ------------------- Dashboard Role &amp;amp; Role Binding ------------------- #&lt;/span&gt;
+
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Role&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard-minimal&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# Allow Dashboard to create and watch for changes of 'kubernetes-dashboard-key-holder' secret.&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;secrets&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;create&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;watch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Allow Dashboard to get, update and delete Dashboard exclusive secrets.&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;secrets&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;resourceNames&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;kubernetes-dashboard-key-holder&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;update&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;delete&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;configmaps&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;resourceNames&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;kubernetes-dashboard-settings&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;list&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;update&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Allow Dashboard to get metrics from heapster.&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;services&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;resourceNames&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;heapster&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;proxy&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+
+  &lt;span class=&quot;s&quot;&gt;---&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;RoleBinding&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard-minimal&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;roleRef&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Role&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard-minimal&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ServiceAccount&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+
+  &lt;span class=&quot;s&quot;&gt;---&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# ------------------- Dashboard Deployment ------------------- #&lt;/span&gt;
+
+  &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Deployment&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;extensions/v1beta1&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;k8s-app&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;replicas&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;1&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;revisionHistoryLimit&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;10&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;selector&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;matchLabels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;k8s-app&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;labels&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;k8s-app&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+      &lt;span class=&quot;s&quot;&gt;spec&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;containers&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+          &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;ports&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;containerPort&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;9090&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;protocol&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;TCP&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;# 这里个人添加一些必要的env&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;SERVICE_9090_CHECK_HTTP&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;/&quot;&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;SERVICE_9090_CHECK_INTERVAL&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;15s&quot;&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;SERVICE_9090_CHECK_TIME&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1s&quot;&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;SERVICE_NAME&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kubernetes-dashboard&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;SERVICE_TAGS&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;urlprefix-dashboard.quark.com/&lt;/span&gt;
+              &lt;span class=&quot;c1&quot;&gt;# 指定获取pod ip&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;POD_IP&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;valueFrom&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;fieldRef&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+                  &lt;span class=&quot;s&quot;&gt;fieldPath&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;status.podIP&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+              &lt;span class=&quot;c1&quot;&gt;# Uncomment the following line to manually specify Kubernetes API server Host&lt;/span&gt;
+              &lt;span class=&quot;c1&quot;&gt;# If not specified, Dashboard will attempt to auto discover the API server and connect&lt;/span&gt;
+              &lt;span class=&quot;c1&quot;&gt;# to it. Uncomment only if the default does not work.&lt;/span&gt;
+              &lt;span class=&quot;c1&quot;&gt;# - --apiserver-host=http://my-address:port&lt;/span&gt;
+              &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;--authentication-mode=basic&lt;/span&gt;
+              &lt;span class=&quot;c1&quot;&gt;# 这里添加一个连接heapster&lt;/span&gt;
+              &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;--heapster-host=http://heapster.kube-system.svc.cluster.local&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;volumeMounts&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;c1&quot;&gt;# Create on-disk volume to store exec logs&lt;/span&gt;
+              &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;mountPath&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/tmp&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;tmp-volume&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;livenessProbe&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;httpGet&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+                  &lt;span class=&quot;s&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;/&lt;/span&gt;
+                  &lt;span class=&quot;s&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;9090&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;initialDelaySeconds&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;30&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;timeoutSeconds&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;30&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;volumes&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;tmp-volume&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;emptyDir&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;{}&lt;/span&gt;
+              &lt;span class=&quot;c1&quot;&gt;# 这里的serviceAccountName改成default&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;serviceAccountName&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;default&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;# Comment the following tolerations if Dashboard must not be deployed on master&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;tolerations&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;node-role.kubernetes.io/master&lt;/span&gt;
+              &lt;span class=&quot;s&quot;&gt;effect&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;NoSchedule&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;前端LB配置&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    listen       80;
+    server_name  dashboard.quark.com;
+    client_max_body_size 0;
+
+    location / &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        proxy_pass                          http://fabio-server;
+        proxy_set_header  Host              dashboard.quark.com;   &lt;span class=&quot;c&quot;&gt;# 这个位置一定是注册到consul里面的tags部分&lt;/span&gt;
+        proxy_set_header  X-Real-IP         &lt;span class=&quot;nv&quot;&gt;$remote_addr&lt;/span&gt;; &lt;span class=&quot;c&quot;&gt;# pass on real client's IP&lt;/span&gt;
+
+
+        proxy_set_header  X-Forwarded-For   &lt;span class=&quot;nv&quot;&gt;$proxy_add_x_forwarded_for&lt;/span&gt;;
+        proxy_set_header  X-Forwarded-Proto &lt;span class=&quot;nv&quot;&gt;$scheme&lt;/span&gt;;
+        proxy_read_timeout                  900;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;upstream fabio-server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        server 172.29.151.4:9999;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;最后看看结果&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;fabio&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/fabio.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;kubernetes-dashboard&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/dashboard.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露</summary></entry><entry><title type="html">Harbor+etcd+docker结合Ceph搭建高可用集群</title><link href="https://kevinguo.me/2017/11/22/harbor-etcd-ceph/" rel="alternate" type="text/html" title="Harbor+etcd+docker结合Ceph搭建高可用集群" /><published>2017-11-22T00:00:00+08:00</published><updated>2017-11-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/11/22/harbor-etcd-ceph</id><content type="html" xml:base="https://kevinguo.me/2017/11/22/harbor-etcd-ceph/">&lt;blockquote&gt;
   &lt;p&gt;由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -736,7 +1089,7 @@ v1.2.2: digest: sha256:80bfbc20a1ee2bc6b05dfe31f1e082c08961a0f62e94089ef952800e9
 
 &lt;p&gt;&lt;img src=&quot;/images/posts/harbor-image.png&quot; alt=&quot;harbor-image&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;有了，至此，我们的harbor就算是搭建完成，因为我们是在内网使用，所以使用自签名证书无所谓，如果要上到公网，那么就必须使用可信任的证书机构颁发的证书了&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:</summary></entry><entry><title type="html">手动搭建kubernetes HA集群</title><link href="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群" /><published>2017-09-22T00:00:00+08:00</published><updated>2017-09-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/22/manual-deploy-kubernetes</id><content type="html" xml:base="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/">&lt;blockquote&gt;
+&lt;p&gt;有了，至此，我们的harbor就算是搭建完成，因为我们是在内网使用，所以使用自签名证书无所谓，如果要上到公网，那么就必须使用可信任的证书机构颁发的证书了&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:</summary></entry><entry><title type="html">手动搭建kubernetes HA集群(一)</title><link href="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群(一)" /><published>2017-09-22T00:00:00+08:00</published><updated>2017-09-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/22/manual-deploy-kubernetes</id><content type="html" xml:base="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/">&lt;blockquote&gt;
   &lt;p&gt;原有的环境需要迁移，现在需要重新搭建一套kubernetes，而且原来一直是用kargo来搭建，所有组件都是基于docker容器的，感觉有点不稳妥，所以正好这个时候有机会，可以纯手动部署一下，所有的关键组件都以二进制形式部署，并添加为系统服务，这里记录一下。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -3265,7 +3618,9 @@ monitoring-influxdb-3570645011-dp51l       1/1       Running   0          1h
 
 &lt;p&gt;&lt;img src=&quot;/images/posts/grafana.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h5 id=&quot;ingress-配置&quot;&gt;ingress 配置&lt;/h5&gt;</content><author><name>KevinGuo</name></author><summary type="html">原有的环境需要迁移，现在需要重新搭建一套kubernetes，而且原来一直是用kargo来搭建，所有组件都是基于docker容器的，感觉有点不稳妥，所以正好这个时候有机会，可以纯手动部署一下，所有的关键组件都以二进制形式部署，并添加为系统服务，这里记录一下。</summary></entry><entry><title type="html">kubernetes ceph 笔记 3</title><link href="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 3" /><published>2017-09-20T00:00:00+08:00</published><updated>2017-09-20T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/20/kubernetes-ceph-3</id><content type="html" xml:base="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/">&lt;blockquote&gt;
+&lt;h5 id=&quot;ingress-配置&quot;&gt;ingress 配置&lt;/h5&gt;
+
+&lt;p&gt;见&lt;a href=&quot;https://kevinguo.me/&quot;&gt;第二章&lt;/a&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">原有的环境需要迁移，现在需要重新搭建一套kubernetes，而且原来一直是用kargo来搭建，所有组件都是基于docker容器的，感觉有点不稳妥，所以正好这个时候有机会，可以纯手动部署一下，所有的关键组件都以二进制形式部署，并添加为系统服务，这里记录一下。</summary></entry><entry><title type="html">kubernetes ceph 笔记 3</title><link href="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 3" /><published>2017-09-20T00:00:00+08:00</published><updated>2017-09-20T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/20/kubernetes-ceph-3</id><content type="html" xml:base="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/">&lt;blockquote&gt;
   &lt;p&gt;前面花了两章的时间介绍了ceph存储集群，简单的讲了ceph的组件、架构、寻址过程以及关于rbd,cephfs,cephGW,rados,osd,mon,mds,pool,pg,object等的操作过程，这一章主要记录下kubernetes使用ceph的相关配置过程。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -6252,184 +6607,4 @@ map &lt;span class=&quot;nv&quot;&gt;$http_upgrade&lt;/span&gt; &lt;span class=&
 
 &lt;h3 id=&quot;后记&quot;&gt;后记&lt;/h3&gt;
 
-&lt;p&gt;rancher上还有很多功能，感兴趣的同学可以去自行研究下，我这里只是一个临时的需求，所以就不做过多的实例了。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">前言</summary></entry><entry><title type="html">jekyll 搭建静态博客之https番外篇</title><link href="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/" rel="alternate" type="text/html" title="jekyll 搭建静态博客之https番外篇" /><published>2017-07-13T00:00:00+08:00</published><updated>2017-07-13T00:00:00+08:00</updated><id>https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)</id><content type="html" xml:base="https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/">&lt;blockquote&gt;
-  &lt;p&gt;上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;!--more--&gt;
-&lt;h3 id=&quot;前提&quot;&gt;前提&lt;/h3&gt;
-
-&lt;p&gt;首先记得将 cloudflare 上有关你的站点的https配置删掉，如果没有做过，则忽略，同时记得去你的 DNS 控制器上将你的域名解析改为默认&lt;/p&gt;
-
-&lt;h3 id=&quot;搭建过程&quot;&gt;搭建过程&lt;/h3&gt;
-
-&lt;p&gt;搭建过程比较简单&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;准备好你前端的 nginx 服务器&lt;/li&gt;
-  &lt;li&gt;准备好你后端的 docker 容器&lt;/li&gt;
-  &lt;li&gt;clone let’s encrypt 到服务器&lt;/li&gt;
-  &lt;li&gt;生成证书&lt;/li&gt;
-  &lt;li&gt;配置你的 nginx&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;1.准备 nginx&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;yum update
-
-yum install nginx
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;2.clone let’s encrypt 到服务器&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/certbot/certbot.git
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;3.准备 docker 容器&lt;/p&gt;
-
-&lt;p&gt;一条命令即可&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;always -p 127.0.0.1:1080:80 chinakevinguo_jekyll_kevinguo_me
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;4.生成证书&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;注意：如果你开了防火墙，记得一定要将防火墙关闭，否则生成证书的时候可能会报错&lt;/strong&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;systemctl stop firewalld
-
-&lt;span class=&quot;c&quot;&gt;# 将这里的域名，换成你自己的域名&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;certbot
-./certbot-auto certonly --nginx -d kevinguo.me -d www.kevinguo.me
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;成功后，内容如下&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;IMPORTANT NOTES:
- - Congratulations! Your certificate and chain have been saved at
-   /etc/letsencrypt/live/kevinguo.me/fullchain.pem. Your cert will
-   expire on 2017-10-11. To obtain a new or tweaked version of this
-   certificate &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;the future, simply run certbot-auto again. To
-   non-interactively renew &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;all&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; of your certificates, run
-   certbot-auto renew
- - If you like Certbot, please consider supporting our work by:
-
-   Donating to ISRG / Lets Encrypt:   https://letsencrypt.org/donate
-   Donating to EFF:                    https://eff.org/donate-le
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;然后生成&lt;code class=&quot;highlighter-rouge&quot;&gt;dhparam&lt;/code&gt;证书，可能会花费一段时间&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;openssl dhparam -out /etc/letsencrypt/live/kevinguo.me/dhparam.pem 2048
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;5.配置你的 nginx&lt;/p&gt;
-
-&lt;p&gt;nginx 的配置尽量模块化，这里通过 nginx 作为代理，访问后端的 docker 容器&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;nginx.conf&lt;/strong&gt; 内容如下&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user nginx;
-worker_processes auto;
-pid /run/nginx.pid;
-
-&lt;span class=&quot;c&quot;&gt;# Load dynamic modules. See /usr/share/nginx/README.dynamic.&lt;/span&gt;
-include /usr/share/nginx/modules/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.conf;
-
-events &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    use epoll;
-    worker_connections 1024;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-http &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    server_tokens off;
-    log_format  main  &lt;span class=&quot;s1&quot;&gt;'$remote_addr||$time_local||&quot;$request&quot;||'&lt;/span&gt;
-                      &lt;span class=&quot;s1&quot;&gt;'$status||$body_bytes_sent||&quot;$http_referer&quot;'&lt;/span&gt;
-                      &lt;span class=&quot;s1&quot;&gt;'||$http_x_forwarded_for||'&lt;/span&gt;
-                      &lt;span class=&quot;s1&quot;&gt;'||$upstream_status||$upstream_addr||$request_time||$upstream_response_time||'&lt;/span&gt; ;
-
-    sendfile            on;
-    tcp_nopush          on;
-    tcp_nodelay         on;
-    keepalive_timeout   65;
-    types_hash_max_size 2048;
-
-    include             /etc/nginx/mime.types;
-    default_type        application/octet-stream;
-
-    gzip on;
-    gzip_disable &lt;span class=&quot;s2&quot;&gt;&quot;msie6&quot;&lt;/span&gt;;
-    gzip_proxied any;
-    gzip_min_length 1000;
-    gzip_comp_level 6;
-    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
-
-    include /etc/nginx/conf.d/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.conf;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;strong&gt;对应站点.conf&lt;/strong&gt; 内容如下&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;upstream chinakevinguo_jekyll_kevinguo_me &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    server 127.0.0.1:1080;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    listen 80 default_server;
-    listen &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;::]:80 default_server;
-    server_name kevinguo.me www.kevinguo.me;
-
-    &lt;span class=&quot;c&quot;&gt;# Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return &lt;/span&gt;301 https://&lt;span class=&quot;nv&quot;&gt;$server_name$request_uri&lt;/span&gt;;
-    &lt;span class=&quot;c&quot;&gt;#return 404;&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    listen 443 ssl http2 default_server;
-    listen &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;::]:443 ssl http2 default_server;
-    server_name kevinguo.me www.kevinguo.me;
-
-    &lt;span class=&quot;c&quot;&gt;# certs sent to the client in SERVER HELLO are concatenated in ssl_certificate&lt;/span&gt;
-    ssl_certificate /etc/letsencrypt/live/kevinguo.me/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/kevinguo.me/privkey.pem;
-    ssl_dhparam /etc/letsencrypt/live/kevinguo.me/dhparam.pem;
-    ssl_session_timeout 1d;
-    ssl_session_cache shared:SSL:50m;
-    ssl_session_tickets off;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_ciphers &lt;span class=&quot;s1&quot;&gt;'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS'&lt;/span&gt;;
-    ssl_prefer_server_ciphers on;
-    ssl_stapling on;
-    ssl_stapling_verify on;
-    &lt;span class=&quot;c&quot;&gt;# HSTS (ngx_http_headers_module is required) (15768000 seconds = 6 months)&lt;/span&gt;
-    add_header Strict-Transport-Security max-age&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;15768000;
-
-
-    add_header X-Frame-Options DENY;
-    add_header  X-Content-Type-Options  nosniff;
-    add_header X-XSS-Protection &lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;;
-    access_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_access.log ;
-    error_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_error.log ;
-
-    location / &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-       root html;
-       index index.html;
-       proxy_pass         http://chinakevinguo_jekyll_kevinguo_me;
-       proxy_set_header   Host             &lt;span class=&quot;nv&quot;&gt;$host&lt;/span&gt;:443;
-       proxy_set_header   X-Real-IP        &lt;span class=&quot;nv&quot;&gt;$remote_addr&lt;/span&gt;;
-       proxy_set_header   X-Forwarded-For  &lt;span class=&quot;nv&quot;&gt;$proxy_add_x_forwarded_for&lt;/span&gt;;
-       proxy_connect_timeout   10s;
-       proxy_send_timeout      100s;
-       proxy_read_timeout      300s;
-       proxy_next_upstream error timeout http_404;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;最后，来访问试试看呢&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证</summary></entry></feed>
+&lt;p&gt;rancher上还有很多功能，感兴趣的同学可以去自行研究下，我这里只是一个临时的需求，所以就不做过多的实例了。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">前言</summary></entry></feed>

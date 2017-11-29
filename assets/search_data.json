@@ -1,5 +1,11 @@
 {
   
+  "2017-11-28-manual-deploy-kubernetes-2": {
+    "title": "手动搭建kubernetes HA集群(二)",
+    "url": " /2017/11/28/manual-deploy-kubernetes-2/",
+    "category": "kubernetes"
+  },
+  
   "2017-11-22-harbor-etcd-ceph": {
     "title": "Harbor+etcd+docker结合Ceph搭建高可用集群",
     "url": " /2017/11/22/harbor-etcd-ceph/",
@@ -7,7 +13,7 @@
   },
   
   "2017-09-22-manual-deploy-kubernetes": {
-    "title": "手动搭建kubernetes HA集群",
+    "title": "手动搭建kubernetes HA集群(一)",
     "url": " /2017/09/22/manual-deploy-kubernetes/",
     "category": "kubernetes"
   },
@@ -717,7 +723,7 @@
   },
   
   "2017-09-22-manual-deploy-kubernetes": {
-    "title": "手动搭建kubernetes HA集群",
+    "title": "手动搭建kubernetes HA集群(一)",
     "url": "/2017/09/22/manual-deploy-kubernetes/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
   },
@@ -726,6 +732,12 @@
     "title": "Harbor+etcd+docker结合Ceph搭建高可用集群",
     "url": "/2017/11/22/harbor-etcd-ceph/",
     "category": "[&quot;harbor&quot;, &quot;docker&quot;, &quot;etcd&quot;]"
+  },
+  
+  "2017-11-28-manual-deploy-kubernetes-2": {
+    "title": "手动搭建kubernetes HA集群(二)",
+    "url": "/2017/11/28/manual-deploy-kubernetes-2/",
+    "category": "[&quot;kubernetes&quot;, &quot;docker&quot;, &quot;fabio&quot;, &quot;registrator&quot;, &quot;consul&quot;]"
   }
   
 }
