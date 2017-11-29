@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-11-29T15:34:12+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">手动搭建kubernetes HA集群(二)</title><link href="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群(二)" /><published>2017-11-28T00:00:00+08:00</published><updated>2017-11-28T00:00:00+08:00</updated><id>https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2</id><content type="html" xml:base="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-11-29T15:40:01+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">手动搭建kubernetes HA集群(二)</title><link href="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群(二)" /><published>2017-11-28T00:00:00+08:00</published><updated>2017-11-28T00:00:00+08:00</updated><id>https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2</id><content type="html" xml:base="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/">&lt;blockquote&gt;
   &lt;p&gt;我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -63,6 +63,8 @@
 &lt;p&gt;&lt;img src=&quot;/images/posts/fabio-consul-registrator.png&quot; alt=&quot;fabio-consul-registrator&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;首先我们需要部署一套&lt;code class=&quot;highlighter-rouge&quot;&gt;consul server cluster&lt;/code&gt;，具体部署过程，这里就不再演示了，请参考&lt;a href=&quot;https://github.com/kaizamm/consul/blob/master/consul%2Bdocker%2Bregistrator.md&quot;&gt;Consul 集群搭建&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;然后，我们所有的节点都需要包含在&lt;code class=&quot;highlighter-rouge&quot;&gt;calico-network&lt;/code&gt;范围之内，calico网络部署请参考&lt;a href=&quot;https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/&quot;&gt;第一章&lt;/a&gt;,将所有fabio所在的节点配置为noscheduler&lt;/p&gt;
 
 &lt;p&gt;1.consul client 部署&lt;/p&gt;
 

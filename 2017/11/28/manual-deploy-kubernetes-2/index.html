@@ -200,6 +200,8 @@
 
 <p>首先我们需要部署一套<code class="highlighter-rouge">consul server cluster</code>，具体部署过程，这里就不再演示了，请参考<a href="https://github.com/kaizamm/consul/blob/master/consul%2Bdocker%2Bregistrator.md">Consul 集群搭建</a></p>
 
+<p>然后，我们所有的节点都需要包含在<code class="highlighter-rouge">calico-network</code>范围之内，calico网络部署请参考<a href="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/">第一章</a>,将所有fabio所在的节点配置为noscheduler</p>
+
 <p>1.consul client 部署</p>
 
 <blockquote>
