@@ -1,5 +1,11 @@
 {
   
+  "2017-12-01-kubernetes-rbac-concept": {
+    "title": "kubernetes RBAC 概念",
+    "url": " /2017/12/01/kubernetes-rbac-concept/",
+    "category": "kubernetes"
+  },
+  
   "2017-11-28-manual-deploy-kubernetes-2": {
     "title": "手动搭建kubernetes HA集群(二)",
     "url": " /2017/11/28/manual-deploy-kubernetes-2/",
@@ -402,6 +408,8 @@
   
   
   
+  
+  
 
   
   "2017-07-06-docker-command-usage": {
@@ -738,6 +746,12 @@
     "title": "手动搭建kubernetes HA集群(二)",
     "url": "/2017/11/28/manual-deploy-kubernetes-2/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;, &quot;fabio&quot;, &quot;registrator&quot;, &quot;consul&quot;]"
+  },
+  
+  "2017-12-01-kubernetes-rbac-concept": {
+    "title": "kubernetes RBAC 概念",
+    "url": "/2017/12/01/kubernetes-rbac-concept/",
+    "category": "[&quot;kubernetes&quot;, &quot;RBAC&quot;]"
   }
   
 }

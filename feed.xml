@@ -1,4 +1,727 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-11-29T15:40:01+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">手动搭建kubernetes HA集群(二)</title><link href="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群(二)" /><published>2017-11-28T00:00:00+08:00</published><updated>2017-11-28T00:00:00+08:00</updated><id>https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2</id><content type="html" xml:base="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-12-01T11:58:24+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes RBAC 概念</title><link href="https://kevinguo.me/2017/12/01/kubernetes-rbac-concept/" rel="alternate" type="text/html" title="kubernetes RBAC 概念" /><published>2017-12-01T00:00:00+08:00</published><updated>2017-12-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/12/01/kubernetes-rbac-concept</id><content type="html" xml:base="https://kevinguo.me/2017/12/01/kubernetes-rbac-concept/">&lt;blockquote&gt;
+  &lt;p&gt;注：全文转载于https://jimmysong.io/kubernetes-handbook/guide/rbac.html
+主要是为了避免以后想查看概念的时候找不到位置，望作者见谅
+以下所有内容是 &lt;a href=&quot;https://github.com/xingzhou&quot;&gt;xingzhou&lt;/a&gt; 对 kubernetes 官方文档的翻译，原文地址 https://k8smeetup.github.io/docs/admin/authorization/rbac/&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;rbac基于角色的访问控制&quot;&gt;RBAC——基于角色的访问控制&lt;/h1&gt;
+
+&lt;p&gt;基于角色的访问控制（Role-Based Access Control, 即”RBAC”）使用”rbac.authorization.k8s.io” API Group实现授权决策，允许管理员通过Kubernetes API动态配置策略。&lt;/p&gt;
+
+&lt;p&gt;截至Kubernetes 1.6，RBAC模式处于beta版本。&lt;/p&gt;
+
+&lt;p&gt;要启用RBAC，请使用&lt;code class=&quot;highlighter-rouge&quot;&gt;--authorization-mode=RBAC&lt;/code&gt;启动API Server。&lt;/p&gt;
+
+&lt;h2 id=&quot;api概述&quot;&gt;API概述&lt;/h2&gt;
+
+&lt;p&gt;本节将介绍RBAC API所定义的四种顶级类型。用户可以像使用其他Kubernetes API资源一样 （例如通过&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl&lt;/code&gt;、API调用等）与这些资源进行交互。例如，命令&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create -f (resource).yml&lt;/code&gt; 可以被用于以下所有的例子，当然，读者在尝试前可能需要先阅读以下相关章节的内容。&lt;/p&gt;
+
+&lt;h3 id=&quot;role与clusterrole&quot;&gt;Role与ClusterRole&lt;/h3&gt;
+
+&lt;p&gt;在RBAC API中，一个角色包含了一套表示一组权限的规则。 权限以纯粹的累加形式累积（没有”否定”的规则）。 角色可以由命名空间（namespace）内的&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;对象定义，而整个Kubernetes集群范围内有效的角色则通过&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;对象实现。&lt;/p&gt;
+
+&lt;p&gt;一个&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;对象只能用于授予对某一单一命名空间中资源的访问权限。 以下示例描述了”default”命名空间中的一个&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;对象的定义，用于授予对pod的读访问权限：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Role&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;default&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;pod-reader&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# 空字符串&quot;&quot;表明使用core API group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;pods&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;watch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;list&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;对象可以授予与&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;对象相同的权限，但由于它们属于集群范围对象， 也可以使用它们授予对以下几种资源的访问权限：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;集群范围资源（例如节点，即node）&lt;/li&gt;
+  &lt;li&gt;非资源类型endpoint（例如”/healthz”）&lt;/li&gt;
+  &lt;li&gt;跨所有命名空间的命名空间范围资源（例如pod，需要运行命令&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl get pods --all-namespaces&lt;/code&gt;来查询集群中所有的pod）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;下面示例中的&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;定义可用于授予用户对某一特定命名空间，或者所有命名空间中的secret（取决于其&lt;a href=&quot;https://k8smeetup.github.io/docs/admin/authorization/rbac/#rolebinding-and-clusterrolebinding&quot;&gt;绑定&lt;/a&gt;方式）的读访问权限：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Yaml&quot;&gt;kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  # 鉴于ClusterRole是集群范围对象，所以这里不需要定义&quot;namespace&quot;字段
+  name: secret-reader
+rules:
+- apiGroups: [&quot;&quot;]
+  resources: [&quot;secrets&quot;]
+  verbs: [&quot;get&quot;, &quot;watch&quot;, &quot;list&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;rolebinding与clusterrolebinding&quot;&gt;RoleBinding与ClusterRoleBinding&lt;/h3&gt;
+
+&lt;p&gt;角色绑定将一个角色中定义的各种权限授予一个或者一组用户。 角色绑定包含了一组相关主体（即subject, 包括用户——User、用户组——Group、或者服务账户——Service Account）以及对被授予角色的引用。 在命名空间中可以通过&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;对象授予权限，而集群范围的权限授予则通过&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRoleBinding&lt;/code&gt;对象完成。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;可以引用在同一命名空间内定义的&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;对象。 下面示例中定义的&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;对象在”default”命名空间中将”pod-reader”角色授予用户”jane”。 这一授权将允许用户”jane”从”default”命名空间中读取pod。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Yaml&quot;&gt;# 以下角色绑定定义将允许用户&quot;jane&quot;从&quot;default&quot;命名空间中读取pod。
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  name: jane
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;对象也可以引用一个&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;对象用于在&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;所在的命名空间内授予用户对所引用的&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;中 定义的命名空间资源的访问权限。这一点允许管理员在整个集群范围内首先定义一组通用的角色，然后再在不同的命名空间中复用这些角色。&lt;/p&gt;
+
+&lt;p&gt;例如，尽管下面示例中的&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;引用的是一个&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;对象，但是用户”dave”（即角色绑定主体）还是只能读取”development” 命名空间中的secret（即&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;所在的命名空间）。&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# 以下角色绑定允许用户&quot;dave&quot;读取&quot;development&quot;命名空间中的secret。&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;RoleBinding&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;read-secrets&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;development&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# 这里表明仅授权读取&quot;development&quot;命名空间中的资源。&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;User&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;dave&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;roleRef&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ClusterRole&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;secret-reader&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;最后，可以使用&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRoleBinding&lt;/code&gt;在集群级别和所有命名空间中授予权限。下面示例中所定义的&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRoleBinding&lt;/code&gt; 允许在用户组”manager”中的任何用户都可以读取集群中任何命名空间中的secret。&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# 以下`ClusterRoleBinding`对象允许在用户组&quot;manager&quot;中的任何用户都可以读取集群中任何命名空间中的secret。&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ClusterRoleBinding&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;read-secrets-global&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;manager&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;roleRef&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ClusterRole&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;secret-reader&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;对资源的引用&quot;&gt;对资源的引用&lt;/h3&gt;
+
+&lt;p&gt;大多数资源由代表其名字的字符串表示，例如”pods”，就像它们出现在相关API endpoint的URL中一样。然而，有一些Kubernetes API还 包含了”子资源”，比如pod的logs。在Kubernetes中，pod logs endpoint的URL格式为：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GET /api/v1/namespaces/{namespace}/pods/{name}/log
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;在这种情况下，”pods”是命名空间资源，而”log”是pods的子资源。为了在RBAC角色中表示出这一点，我们需要使用斜线来划分资源 与子资源。如果需要角色绑定主体读取pods以及pod log，您需要定义以下角色：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Role&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;default&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;pod-and-pod-logs-reader&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;pods&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;pods/log&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;list&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;通过&lt;code class=&quot;highlighter-rouge&quot;&gt;resourceNames&lt;/code&gt;列表，角色可以针对不同种类的请求根据资源名引用资源实例。当指定了&lt;code class=&quot;highlighter-rouge&quot;&gt;resourceNames&lt;/code&gt;列表时，不同动作 种类的请求的权限，如使用”get”、”delete”、”update”以及”patch”等动词的请求，将被限定到资源列表中所包含的资源实例上。 例如，如果需要限定一个角色绑定主体只能”get”或者”update”一个configmap时，您可以定义以下角色：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Role&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;default&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;configmap-updater&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;configmap&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resourceNames&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;my-configmap&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;update&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;值得注意的是，如果设置了&lt;code class=&quot;highlighter-rouge&quot;&gt;resourceNames&lt;/code&gt;，则请求所使用的动词不能是list、watch、create或者deletecollection。 由于资源名不会出现在create、list、watch和deletecollection等API请求的URL中，所以这些请求动词不会被设置了&lt;code class=&quot;highlighter-rouge&quot;&gt;resourceNames&lt;/code&gt; 的规则所允许，因为规则中的&lt;code class=&quot;highlighter-rouge&quot;&gt;resourceNames&lt;/code&gt;部分不会匹配这些请求。&lt;/p&gt;
+
+&lt;h4 id=&quot;一些角色定义的例子&quot;&gt;一些角色定义的例子&lt;/h4&gt;
+
+&lt;p&gt;在以下示例中，我们仅截取展示了&lt;code class=&quot;highlighter-rouge&quot;&gt;rules&lt;/code&gt;部分的定义。&lt;/p&gt;
+
+&lt;p&gt;允许读取core API Group中定义的资源”pods”：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Yaml&quot;&gt;rules:
+- apiGroups: [&quot;&quot;]
+  resources: [&quot;pods&quot;]
+  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;允许读写在”extensions”和”apps” API Group中定义的”deployments”：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;extensions&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;apps&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;deployments&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;list&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;watch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;create&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;update&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;patch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;delete&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;允许读取”pods”以及读写”jobs”：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;pods&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;list&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;watch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;batch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;extensions&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;jobs&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;list&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;watch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;create&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;update&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;patch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;delete&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;允许读取一个名为”my-config”的&lt;code class=&quot;highlighter-rouge&quot;&gt;ConfigMap&lt;/code&gt;实例（需要将其通过&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;绑定从而限制针对某一个命名空间中定义的一个&lt;code class=&quot;highlighter-rouge&quot;&gt;ConfigMap&lt;/code&gt;实例的访问）：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;configmaps&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resourceNames&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;my-config&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;允许读取core API Group中的”nodes”资源（由于&lt;code class=&quot;highlighter-rouge&quot;&gt;Node&lt;/code&gt;是集群级别资源，所以此&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;定义需要与一个&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRoleBinding&lt;/code&gt;绑定才能有效）：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;nodes&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;list&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;watch&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;允许对非资源endpoint “/healthz”及其所有子路径的”GET”和”POST”请求（此&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;定义需要与一个&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRoleBinding&lt;/code&gt;绑定才能有效）：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;nonResourceURLs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;/healthz&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;/healthz/*&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# 在非资源URL中，'*'代表后缀通配符&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;get&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;post&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;对角色绑定主体subject的引用&quot;&gt;对角色绑定主体（Subject）的引用&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;或者&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRoleBinding&lt;/code&gt;将角色绑定到&lt;em&gt;角色绑定主体&lt;/em&gt;（Subject）。 角色绑定主体可以是用户组（Group）、用户（User）或者服务账户（Service Accounts）。&lt;/p&gt;
+
+&lt;p&gt;用户由字符串表示。可以是纯粹的用户名，例如”alice”、电子邮件风格的名字，如 “bob@example.com” 或者是用字符串表示的数字id。由Kubernetes管理员配置&lt;a href=&quot;https://k8smeetup.github.io/docs/admin/authentication/&quot;&gt;认证模块&lt;/a&gt; 以产生所需格式的用户名。对于用户名，RBAC授权系统不要求任何特定的格式。然而，前缀&lt;code class=&quot;highlighter-rouge&quot;&gt;system:&lt;/code&gt;是 为Kubernetes系统使用而保留的，所以管理员应该确保用户名不会意外地包含这个前缀。&lt;/p&gt;
+
+&lt;p&gt;Kubernetes中的用户组信息由授权模块提供。用户组与用户一样由字符串表示。Kubernetes对用户组 字符串没有格式要求，但前缀&lt;code class=&quot;highlighter-rouge&quot;&gt;system:&lt;/code&gt;同样是被系统保留的。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://k8smeetup.github.io/docs/tasks/configure-pod-container/configure-service-account/&quot;&gt;服务账户&lt;/a&gt;拥有包含 &lt;code class=&quot;highlighter-rouge&quot;&gt;system:serviceaccount:&lt;/code&gt;前缀的用户名，并属于拥有&lt;code class=&quot;highlighter-rouge&quot;&gt;system:serviceaccounts:&lt;/code&gt;前缀的用户组。&lt;/p&gt;
+
+&lt;h4 id=&quot;角色绑定的一些例子&quot;&gt;角色绑定的一些例子&lt;/h4&gt;
+
+&lt;p&gt;以下示例中，仅截取展示了&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;subjects&lt;/code&gt;字段。&lt;/p&gt;
+
+&lt;p&gt;一个名为”alice@example.com”的用户：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;User&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;alice@example.com&quot;&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;一个名为”frontend-admins”的用户组：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;frontend-admins&quot;&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;kube-system命名空间中的默认服务账户：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ServiceAccount&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;default&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kube-system&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;名为”qa”命名空间中的所有服务账户：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;system:serviceaccounts:qa&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;在集群中的所有服务账户：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;system:serviceaccounts&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;所有认证过的用户（version 1.5+）：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;system:authenticated&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;所有未认证的用户（version 1.5+）：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;system:unauthenticated&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;所有用户（version 1.5+）：&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;system:authenticated&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Group&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;system:unauthenticated&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;默认角色与默认角色绑定&quot;&gt;默认角色与默认角色绑定&lt;/h2&gt;
+
+&lt;p&gt;API Server会创建一组默认的&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRoleBinding&lt;/code&gt;对象。 这些默认对象中有许多包含&lt;code class=&quot;highlighter-rouge&quot;&gt;system:&lt;/code&gt;前缀，表明这些资源由Kubernetes基础组件”拥有”。 对这些资源的修改可能导致非功能性集群（non-functional cluster）。一个例子是&lt;code class=&quot;highlighter-rouge&quot;&gt;system:node&lt;/code&gt; ClusterRole对象。 这个角色定义了kubelets的权限。如果这个角色被修改，可能会导致kubelets无法正常工作。&lt;/p&gt;
+
+&lt;p&gt;所有默认的ClusterRole和ClusterRoleBinding对象都会被标记为&lt;code class=&quot;highlighter-rouge&quot;&gt;kubernetes.io/bootstrapping=rbac-defaults&lt;/code&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;自动更新&quot;&gt;自动更新&lt;/h3&gt;
+
+&lt;p&gt;每次启动时，API Server都会更新默认ClusterRole所缺乏的各种权限，并更新默认ClusterRoleBinding所缺乏的各个角色绑定主体。 这种自动更新机制允许集群修复一些意外的修改。由于权限和角色绑定主体在新的Kubernetes释出版本中可能变化，这也能够保证角色和角色 绑定始终保持是最新的。&lt;/p&gt;
+
+&lt;p&gt;如果需要禁用自动更新，请将默认ClusterRole以及ClusterRoleBinding的&lt;code class=&quot;highlighter-rouge&quot;&gt;rbac.authorization.kubernetes.io/autoupdate&lt;/code&gt; 设置成为&lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt;。 请注意，缺乏默认权限和角色绑定主体可能会导致非功能性集群问题。&lt;/p&gt;
+
+&lt;p&gt;自Kubernetes 1.6+起，当集群RBAC授权器（RBAC Authorizer）处于开启状态时，可以启用自动更新功能.&lt;/p&gt;
+
+&lt;h3 id=&quot;发现类角色&quot;&gt;发现类角色&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;默认ClusterRole&lt;/th&gt;
+      &lt;th&gt;默认ClusterRoleBinding&lt;/th&gt;
+      &lt;th&gt;描述&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:basic-user&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;strong&gt;system:authenticated&lt;/strong&gt; and &lt;strong&gt;system:unauthenticated&lt;/strong&gt;groups&lt;/td&gt;
+      &lt;td&gt;允许用户只读访问有关自己的基本信息。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:discovery&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;strong&gt;system:authenticated&lt;/strong&gt; and &lt;strong&gt;system:unauthenticated&lt;/strong&gt;groups&lt;/td&gt;
+      &lt;td&gt;允许只读访问API discovery endpoints, 用于在API级别进行发现和协商。&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;面向用户的角色&quot;&gt;面向用户的角色&lt;/h3&gt;
+
+&lt;p&gt;一些默认角色并不包含&lt;code class=&quot;highlighter-rouge&quot;&gt;system:&lt;/code&gt;前缀，它们是面向用户的角色。 这些角色包含超级用户角色（&lt;code class=&quot;highlighter-rouge&quot;&gt;cluster-admin&lt;/code&gt;），即旨在利用ClusterRoleBinding（&lt;code class=&quot;highlighter-rouge&quot;&gt;cluster-status&lt;/code&gt;）在集群范围内授权的角色， 以及那些使用RoleBinding（&lt;code class=&quot;highlighter-rouge&quot;&gt;admin&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;edit&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;view&lt;/code&gt;）在特定命名空间中授权的角色。&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;默认ClusterRole&lt;/th&gt;
+      &lt;th&gt;默认ClusterRoleBinding&lt;/th&gt;
+      &lt;th&gt;描述&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;cluster-admin&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;strong&gt;system:masters&lt;/strong&gt; group&lt;/td&gt;
+      &lt;td&gt;超级用户权限，允许对任何资源执行任何操作。 在&lt;strong&gt;ClusterRoleBinding&lt;/strong&gt;中使用时，可以完全控制集群和所有命名空间中的所有资源。 在&lt;strong&gt;RoleBinding&lt;/strong&gt;中使用时，可以完全控制RoleBinding所在命名空间中的所有资源，包括命名空间自己。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;admin&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;管理员权限，利用&lt;strong&gt;RoleBinding&lt;/strong&gt;在某一命名空间内部授予。 在&lt;strong&gt;RoleBinding&lt;/strong&gt;中使用时，允许针对命名空间内大部分资源的读写访问， 包括在命名空间内创建角色与角色绑定的能力。 但不允许对资源配额（resource quota）或者命名空间本身的写访问。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;edit&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;允许对某一个命名空间内大部分对象的读写访问，但不允许查看或者修改角色或者角色绑定。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;view&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;允许对某一个命名空间内大部分对象的只读访问。 不允许查看角色或者角色绑定。 由于可扩散性等原因，不允许查看secret资源。&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;core-component-roles&quot;&gt;Core Component Roles&lt;/h3&gt;
+
+&lt;h3 id=&quot;核心组件角色&quot;&gt;核心组件角色&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;默认ClusterRole&lt;/th&gt;
+      &lt;th&gt;默认ClusterRoleBinding&lt;/th&gt;
+      &lt;th&gt;描述&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:kube-scheduler&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;strong&gt;system:kube-scheduler&lt;/strong&gt; user&lt;/td&gt;
+      &lt;td&gt;允许访问kube-scheduler组件所需要的资源。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:kube-controller-manager&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;strong&gt;system:kube-controller-manager&lt;/strong&gt; user&lt;/td&gt;
+      &lt;td&gt;允许访问kube-controller-manager组件所需要的资源。 单个控制循环所需要的权限请参阅&lt;a href=&quot;https://k8smeetup.github.io/docs/admin/authorization/rbac/#controller-roles&quot;&gt;控制器（controller）角色&lt;/a&gt;.&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:node&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;strong&gt;system:nodes&lt;/strong&gt; group (deprecated in 1.7)&lt;/td&gt;
+      &lt;td&gt;允许对kubelet组件所需要的资源的访问，&lt;strong&gt;包括读取所有secret和对所有pod的写访问&lt;/strong&gt;。 自Kubernetes 1.7开始, 相比较于这个角色，更推荐使用&lt;a href=&quot;https://kubernetes.io/docs/admin/authorization/node/&quot;&gt;Node authorizer&lt;/a&gt; 以及&lt;a href=&quot;https://kubernetes.io/docs/admin/admission-controllers#NodeRestriction&quot;&gt;NodeRestriction admission plugin&lt;/a&gt;， 并允许根据调度运行在节点上的pod授予kubelets API访问的权限。 自Kubernetes 1.7开始，当启用&lt;code class=&quot;highlighter-rouge&quot;&gt;Node&lt;/code&gt;授权模式时，对&lt;code class=&quot;highlighter-rouge&quot;&gt;system:nodes&lt;/code&gt;用户组的绑定将不会被自动创建。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:node-proxier&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;strong&gt;system:kube-proxy&lt;/strong&gt; user&lt;/td&gt;
+      &lt;td&gt;允许对kube-proxy组件所需要资源的访问。&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;其它组件角色&quot;&gt;其它组件角色&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;默认ClusterRole&lt;/th&gt;
+      &lt;th&gt;默认ClusterRoleBinding&lt;/th&gt;
+      &lt;th&gt;描述&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:auth-delegator&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;允许委托认证和授权检查。 通常由附加API Server用于统一认证和授权。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:heapster&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;https://github.com/kubernetes/heapster&quot;&gt;Heapster&lt;/a&gt;组件的角色。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:kube-aggregator&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;https://github.com/kubernetes/kube-aggregator&quot;&gt;kube-aggregator&lt;/a&gt;组件的角色。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:kube-dns&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;strong&gt;kube-dns&lt;/strong&gt; service account in the &lt;strong&gt;kube-system&lt;/strong&gt;namespace&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;https://k8smeetup.github.io/docs/admin/dns/&quot;&gt;kube-dns&lt;/a&gt;组件的角色。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:node-bootstrapper&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;允许对执行&lt;a href=&quot;https://k8smeetup.github.io/docs/admin/kubelet-tls-bootstrapping/&quot;&gt;Kubelet TLS引导（Kubelet TLS bootstrapping）&lt;/a&gt;所需要资源的访问.&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:node-problem-detector&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;https://github.com/kubernetes/node-problem-detector&quot;&gt;node-problem-detector&lt;/a&gt;组件的角色。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;strong&gt;system:persistent-volume-provisioner&lt;/strong&gt;&lt;/td&gt;
+      &lt;td&gt;None&lt;/td&gt;
+      &lt;td&gt;允许对大部分&lt;a href=&quot;https://k8smeetup.github.io/docs/user-guide/persistent-volumes/#provisioner&quot;&gt;动态存储卷创建组件（dynamic volume provisioner）&lt;/a&gt;所需要资源的访问。&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;控制器controller角色&quot;&gt;控制器（Controller）角色&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://k8smeetup.github.io/docs/admin/kube-controller-manager/&quot;&gt;Kubernetes controller manager&lt;/a&gt;负责运行核心控制循环。 当使用&lt;code class=&quot;highlighter-rouge&quot;&gt;--use-service-account-credentials&lt;/code&gt;选项运行controller manager时，每个控制循环都将使用单独的服务账户启动。 而每个控制循环都存在对应的角色，前缀名为&lt;code class=&quot;highlighter-rouge&quot;&gt;system:controller:&lt;/code&gt;。 如果不使用&lt;code class=&quot;highlighter-rouge&quot;&gt;--use-service-account-credentials&lt;/code&gt;选项时，controller manager将会使用自己的凭证运行所有控制循环，而这些凭证必须被授予相关的角色。 这些角色包括：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;system:controller:attachdetach-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:certificate-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:cronjob-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:daemon-set-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:deployment-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:disruption-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:endpoint-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:generic-garbage-collector&lt;/li&gt;
+  &lt;li&gt;system:controller:horizontal-pod-autoscaler&lt;/li&gt;
+  &lt;li&gt;system:controller:job-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:namespace-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:node-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:persistent-volume-binder&lt;/li&gt;
+  &lt;li&gt;system:controller:pod-garbage-collector&lt;/li&gt;
+  &lt;li&gt;system:controller:replicaset-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:replication-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:resourcequota-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:route-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:service-account-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:service-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:statefulset-controller&lt;/li&gt;
+  &lt;li&gt;system:controller:ttl-controller&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;初始化与预防权限升级&quot;&gt;初始化与预防权限升级&lt;/h2&gt;
+
+&lt;p&gt;RBAC API会阻止用户通过编辑角色或者角色绑定来升级权限。 由于这一点是在API级别实现的，所以在RBAC授权器（RBAC authorizer）未启用的状态下依然可以正常工作。&lt;/p&gt;
+
+&lt;p&gt;用户只有在拥有了角色所包含的所有权限的条件下才能创建／更新一个角色，这些操作还必须在角色所处的相同范围内进行（对于&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;来说是集群范围，对于&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;来说是在与角色相同的命名空间或者集群范围）。 例如，如果用户”user-1”没有权限读取集群范围内的secret列表，那么他也不能创建包含这种权限的&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;。为了能够让用户创建／更新角色，需要：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;授予用户一个角色以允许他们根据需要创建／更新&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;或者&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;对象。&lt;/li&gt;
+  &lt;li&gt;授予用户一个角色包含他们在&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;或者&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;中所能够设置的所有权限。如果用户尝试创建或者修改&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;或者&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;以设置那些他们未被授权的权限时，这些API请求将被禁止。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;用户只有在拥有所引用的角色中包含的所有权限时才可以创建／更新角色绑定（这些操作也必须在角色绑定所处的相同范围内进行）&lt;em&gt;或者&lt;/em&gt;用户被明确授权可以在所引用的角色上执行绑定操作。 例如，如果用户”user-1”没有权限读取集群范围内的secret列表，那么他将不能创建&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;来引用那些授予了此项权限的角色。为了能够让用户创建／更新角色绑定，需要：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;授予用户一个角色以允许他们根据需要创建／更新&lt;code class=&quot;highlighter-rouge&quot;&gt;RoleBinding&lt;/code&gt;或者&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRoleBinding&lt;/code&gt;对象。&lt;/li&gt;
+  &lt;li&gt;授予用户绑定某一特定角色所需要的权限：
+    &lt;ul&gt;
+      &lt;li&gt;隐式地，通过授予用户所有所引用的角色中所包含的权限&lt;/li&gt;
+      &lt;li&gt;显式地，通过授予用户在特定Role（或者ClusterRole）对象上执行&lt;code class=&quot;highlighter-rouge&quot;&gt;bind&lt;/code&gt;操作的权限&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;例如，下面例子中的ClusterRole和RoleBinding将允许用户”user-1”授予其它用户”user-1-namespace”命名空间内的&lt;code class=&quot;highlighter-rouge&quot;&gt;admin&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;edit&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;view&lt;/code&gt;等角色和角色绑定。&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ClusterRole&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;role-grantor&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;rules&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rolebindings&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;create&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroups&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;clusterroles&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;verbs&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;bind&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;resourceNames&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;pi&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;admin&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;edit&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;view&quot;&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;nn&quot;&gt;---&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;apiVersion&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io/v1beta1&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;RoleBinding&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;metadata&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;role-grantor-binding&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;user-1-namespace&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;roleRef&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;ClusterRole&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;role-grantor&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;subjects&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;pi&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;apiGroup&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;rbac.authorization.k8s.io&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;kind&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;User&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;user-1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;当初始化第一个角色和角色绑定时，初始用户需要能够授予他们尚未拥有的权限。 初始化初始角色和角色绑定时需要：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;使用包含&lt;code class=&quot;highlighter-rouge&quot;&gt;system：masters&lt;/code&gt;用户组的凭证，该用户组通过默认绑定绑定到&lt;code class=&quot;highlighter-rouge&quot;&gt;cluster-admin&lt;/code&gt;超级用户角色。&lt;/li&gt;
+  &lt;li&gt;如果您的API Server在运行时启用了非安全端口（&lt;code class=&quot;highlighter-rouge&quot;&gt;--insecure-port&lt;/code&gt;），您也可以通过这个没有施行认证或者授权的端口发送角色或者角色绑定请求。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;一些命令行工具&quot;&gt;一些命令行工具&lt;/h2&gt;
+
+&lt;p&gt;有两个&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl&lt;/code&gt;命令可以用于在命名空间内或者整个集群内授予角色。&lt;/p&gt;
+
+&lt;h3 id=&quot;kubectl-create-rolebinding&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create rolebinding&lt;/code&gt;&lt;/h3&gt;
+
+&lt;p&gt;在某一特定命名空间内授予&lt;code class=&quot;highlighter-rouge&quot;&gt;Role&lt;/code&gt;或者&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;。示例如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;在名为”acme”的命名空间中将&lt;code class=&quot;highlighter-rouge&quot;&gt;admin&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;授予用户”bob”：&lt;/p&gt;
+
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create rolebinding bob-admin-binding --clusterrole=admin --user=bob --namespace=acme&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;在名为”acme”的命名空间中将&lt;code class=&quot;highlighter-rouge&quot;&gt;view&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;授予服务账户”myapp”：&lt;/p&gt;
+
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create rolebinding myapp-view-binding --clusterrole=view --serviceaccount=acme:myapp --namespace=acme&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;kubectl-create-clusterrolebinding&quot;&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create clusterrolebinding&lt;/code&gt;&lt;/h3&gt;
+
+&lt;p&gt;在整个集群中授予&lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;，包括所有命名空间。示例如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;在整个集群范围内将&lt;code class=&quot;highlighter-rouge&quot;&gt;cluster-admin&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;授予用户”root”：&lt;/p&gt;
+
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create clusterrolebinding root-cluster-admin-binding --clusterrole=cluster-admin --user=root&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;在整个集群范围内将&lt;code class=&quot;highlighter-rouge&quot;&gt;system:node&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;授予用户”kubelet”：&lt;/p&gt;
+
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create clusterrolebinding kubelet-node-binding --clusterrole=system:node --user=kubelet&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;在整个集群范围内将&lt;code class=&quot;highlighter-rouge&quot;&gt;view&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;ClusterRole&lt;/code&gt;授予命名空间”acme”内的服务账户”myapp”：&lt;/p&gt;
+
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create clusterrolebinding myapp-view-binding --clusterrole=view --serviceaccount=acme:myapp&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;请参阅CLI帮助文档以获得上述命令的详细用法&lt;/p&gt;
+
+&lt;h2 id=&quot;服务账户service-account权限&quot;&gt;服务账户（Service Account）权限&lt;/h2&gt;
+
+&lt;p&gt;默认的RBAC策略将授予控制平面组件（control-plane component）、节点（node）和控制器（controller）一组范围受限的权限， 但对于”kube-system”命名空间以外的服务账户，则&lt;em&gt;不授予任何权限&lt;/em&gt;（超出授予所有认证用户的发现权限）。&lt;/p&gt;
+
+&lt;p&gt;这一点允许您根据需要向特定服务账号授予特定权限。 细粒度的角色绑定将提供更好的安全性，但需要更多精力管理。 更粗粒度的授权可能授予服务账号不需要的API访问权限（甚至导致潜在授权扩散），但更易于管理。&lt;/p&gt;
+
+&lt;p&gt;从最安全到最不安全可以排序以下方法：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;对某一特定应用程序的服务账户授予角色（最佳实践）&lt;/p&gt;
+
+    &lt;p&gt;要求应用程序在其pod规范（pod spec）中指定&lt;code class=&quot;highlighter-rouge&quot;&gt;serviceAccountName&lt;/code&gt;字段，并且要创建相应服务账户（例如通过API、应用程序清单或者命令&lt;code class=&quot;highlighter-rouge&quot;&gt;kubectl create serviceaccount&lt;/code&gt;等）。&lt;/p&gt;
+
+    &lt;p&gt;例如，在”my-namespace”命名空间中授予服务账户”my-sa”只读权限：&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create rolebinding my-sa-view &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --clusterrole&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;view &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --serviceaccount&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;my-namespace:my-sa &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --namespace&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;my-namespace
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;在某一命名空间中授予”default”服务账号一个角色&lt;/p&gt;
+
+    &lt;p&gt;如果一个应用程序没有在其pod规范中指定&lt;code class=&quot;highlighter-rouge&quot;&gt;serviceAccountName&lt;/code&gt;，它将默认使用”default”服务账号。&lt;/p&gt;
+
+    &lt;p&gt;注意：授予”default”服务账号的权限将可用于命名空间内任何没有指定&lt;code class=&quot;highlighter-rouge&quot;&gt;serviceAccountName&lt;/code&gt;的pod。&lt;/p&gt;
+
+    &lt;p&gt;下面的例子将在”my-namespace”命名空间内授予”default”服务账号只读权限：&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create rolebinding default-view &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --clusterrole&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;view &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --serviceaccount&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;my-namespace:default &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --namespace&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;my-namespace
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+
+    &lt;p&gt;目前，许多[加载项（addon）]（/ docs / concepts / cluster-administration / addons /）作为”kube-system”命名空间中的”default”服务帐户运行。 要允许这些加载项使用超级用户访问权限，请将cluster-admin权限授予”kube-system”命名空间中的”default”服务帐户。 注意：启用上述操作意味着”kube-system”命名空间将包含允许超级用户访问API的秘钥。&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create clusterrolebinding add-on-cluster-admin &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --clusterrole&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cluster-admin &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --serviceaccount&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;kube-system:default
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;为命名空间中所有的服务账号授予角色&lt;/p&gt;
+
+    &lt;p&gt;如果您希望命名空间内的所有应用程序都拥有同一个角色，无论它们使用什么服务账户，您可以为该命名空间的服务账户用户组授予角色。&lt;/p&gt;
+
+    &lt;p&gt;下面的例子将授予”my-namespace”命名空间中的所有服务账户只读权限：&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create rolebinding serviceaccounts-view &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --clusterrole&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;view &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --group&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;system:serviceaccounts:my-namespace &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --namespace&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;my-namespace
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;对集群范围内的所有服务账户授予一个受限角色（不鼓励）&lt;/p&gt;
+
+    &lt;p&gt;如果您不想管理每个命名空间的权限，则可以将集群范围角色授予所有服务帐户。&lt;/p&gt;
+
+    &lt;p&gt;下面的例子将所有命名空间中的只读权限授予集群中的所有服务账户：&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create clusterrolebinding serviceaccounts-view &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --clusterrole&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;view &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --group&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;system:serviceaccounts
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;授予超级用户访问权限给集群范围内的所有服务帐户（强烈不鼓励）&lt;/p&gt;
+
+    &lt;p&gt;如果您根本不关心权限分块，您可以对所有服务账户授予超级用户访问权限。&lt;/p&gt;
+
+    &lt;p&gt;警告：这种做法将允许任何具有读取权限的用户访问secret或者通过创建一个容器的方式来访问超级用户的凭据。&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create clusterrolebinding serviceaccounts-cluster-admin &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --clusterrole&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cluster-admin &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --group&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;system:serviceaccounts
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;从版本15升级&quot;&gt;从版本1.5升级&lt;/h2&gt;
+
+&lt;p&gt;在Kubernetes 1.6之前，许多部署使用非常宽泛的ABAC策略，包括授予对所有服务帐户的完整API访问权限。&lt;/p&gt;
+
+&lt;p&gt;默认的RBAC策略将授予控制平面组件（control-plane components）、节点（nodes）和控制器（controller）一组范围受限的权限， 但对于”kube-system”命名空间以外的服务账户，则&lt;em&gt;不授予任何权限&lt;/em&gt;（超出授予所有认证用户的发现权限）。&lt;/p&gt;
+
+&lt;p&gt;虽然安全性更高，但这可能会影响到期望自动接收API权限的现有工作负载。 以下是管理此转换的两种方法：&lt;/p&gt;
+
+&lt;h3 id=&quot;并行授权器authorizer&quot;&gt;并行授权器（authorizer）&lt;/h3&gt;
+
+&lt;p&gt;同时运行RBAC和ABAC授权器，并包括旧版ABAC策略：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;--authorization-mode=RBAC,ABAC --authorization-policy-file=mypolicy.jsonl
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;RBAC授权器将尝试首先授权请求。如果RBAC授权器拒绝API请求，则ABAC授权器将被运行。这意味着RBAC策略&lt;em&gt;或者&lt;/em&gt;ABAC策略所允许的任何请求都是可通过的。&lt;/p&gt;
+
+&lt;p&gt;当以日志级别为2或更高（&lt;code class=&quot;highlighter-rouge&quot;&gt;--v = 2&lt;/code&gt;）运行时，您可以在API Server日志中看到RBAC拒绝请求信息（以&lt;code class=&quot;highlighter-rouge&quot;&gt;RBAC DENY:&lt;/code&gt;为前缀）。 您可以使用该信息来确定哪些角色需要授予哪些用户，用户组或服务帐户。 一旦&lt;a href=&quot;https://k8smeetup.github.io/docs/admin/authorization/rbac/#service-account-permissions&quot;&gt;授予服务帐户角色&lt;/a&gt;，并且服务器日志中没有RBAC拒绝消息的工作负载正在运行，您可以删除ABAC授权器。&lt;/p&gt;
+
+&lt;h3 id=&quot;宽泛的rbac权限&quot;&gt;宽泛的RBAC权限&lt;/h3&gt;
+
+&lt;p&gt;您可以使用RBAC角色绑定来复制一个宽泛的策略。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;警告：以下政策略允许所有服务帐户作为集群管理员。 运行在容器中的任何应用程序都会自动接收服务帐户凭据，并且可以对API执行任何操作，包括查看secret和修改权限。 因此，并不推荐使用这种策略。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create clusterrolebinding permissive-binding &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --clusterrole&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cluster-admin &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --user&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;admin &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --user&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;kubelet &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+  --group&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;system:serviceaccounts
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content><author><name>KevinGuo</name></author><summary type="html">注：全文转载于https://jimmysong.io/kubernetes-handbook/guide/rbac.html 主要是为了避免以后想查看概念的时候找不到位置，望作者见谅 以下所有内容是 xingzhou 对 kubernetes 官方文档的翻译，原文地址 https://k8smeetup.github.io/docs/admin/authorization/rbac/</summary></entry><entry><title type="html">手动搭建kubernetes HA集群(二)</title><link href="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/" rel="alternate" type="text/html" title="手动搭建kubernetes HA集群(二)" /><published>2017-11-28T00:00:00+08:00</published><updated>2017-11-28T00:00:00+08:00</updated><id>https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2</id><content type="html" xml:base="https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/">&lt;blockquote&gt;
   &lt;p&gt;我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -6441,172 +7164,4 @@ PING 172.17.0.3 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;172.17.0.3&lt;span
 
 &lt;h3 id=&quot;主机之间的容器通信&quot;&gt;主机之间的容器通信&lt;/h3&gt;
 
-&lt;p&gt;官网上说的是将默认FORWARD DROP策略改为 ACCEPT，其实没那个必要，使用overlay网络就好了,比如:flannel,weave,calico等等…&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">本节主要是讲解docker容器是如何在默认的bridge网络上进行通信的。</summary></entry><entry><title type="html">High Availability Ranchers for docker hosts</title><link href="https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/" rel="alternate" type="text/html" title="High Availability Ranchers for docker hosts" /><published>2017-08-22T00:00:00+08:00</published><updated>2017-08-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts</id><content type="html" xml:base="https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/">&lt;h3 id=&quot;前言&quot;&gt;前言&lt;/h3&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;由于公司目前有部分业务跑在docker上，但又还没有上诸如:swarm,kubernetes之类的容器编排工具，但是又想要能对docker主机及容器进行一个简单可视化的管理，筛选来，筛选去，发现无论是:DockerUI、Shipyard、portainer还是Daocloud都不能符合我们的心意，最终决定使用&lt;code class=&quot;highlighter-rouge&quot;&gt;rancher&lt;/code&gt;来进行管理。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;rancher是什么&quot;&gt;Rancher是什么&lt;/h3&gt;
-
-&lt;p&gt;借用官方文档里面的话来说，Rancher是一个开源的容器管理平台。&lt;/p&gt;
-
-&lt;p&gt;实际上Rancher能够整合目前市面上大多数的容器编排工具，如：swarm、kubernetes、mesos等，而且，它本身最拥有一个最基础的编排工具cattle，本次我们使用的就是它的cattle编排器。&lt;/p&gt;
-
-&lt;h3 id=&quot;环境准备&quot;&gt;环境准备&lt;/h3&gt;
-
-&lt;p&gt;所有系统均为&lt;code class=&quot;highlighter-rouge&quot;&gt;CentOS 7.2&lt;/code&gt;&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;IP&lt;/th&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;ROLE&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.44&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;Rancher Server 01&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.45&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;Rancher Server 02&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.227&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;External MySQL Server&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;172.30.33.183&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;Nginx LB&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;所需镜像如下&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;IMAGE&lt;/th&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;VERSION&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/server&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;latest&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/agent&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v1.2.5&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/scheduler&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v0.8.2&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/healthcheck&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v0.3.1&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/dns&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v0.15.1&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/metadata&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v0.9.3&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/net&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v0.11.7&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/net&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;holder&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;rancher/network-manager&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;v0.7.7&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h3 id=&quot;rancher-server&quot;&gt;Rancher Server&lt;/h3&gt;
-
-&lt;h5 id=&quot;ecternal-mysql-server&quot;&gt;Ecternal mySQL Server&lt;/h5&gt;
-
-&lt;p&gt;使用如下命令，创建&lt;code class=&quot;highlighter-rouge&quot;&gt;cattle&lt;/code&gt;数据库和&lt;code class=&quot;highlighter-rouge&quot;&gt;cattle&lt;/code&gt;用户&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;CREATE DATABASE IF NOT EXISTS cattle COLLATE &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'utf8_general_ci'&lt;/span&gt; CHARACTER SET &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'utf8'&lt;/span&gt;;
-GRANT ALL ON cattle.&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; TO &lt;span class=&quot;s1&quot;&gt;'cattle'&lt;/span&gt;@&lt;span class=&quot;s1&quot;&gt;'%'&lt;/span&gt; IDENTIFIED BY &lt;span class=&quot;s1&quot;&gt;'cattle'&lt;/span&gt;;
-GRANT ALL ON cattle.&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; TO &lt;span class=&quot;s1&quot;&gt;'cattle'&lt;/span&gt;@&lt;span class=&quot;s1&quot;&gt;'localhost'&lt;/span&gt; IDENTIFIED BY &lt;span class=&quot;s1&quot;&gt;'cattle'&lt;/span&gt;;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h5 id=&quot;rancher-server-1&quot;&gt;Rancher Server&lt;/h5&gt;
-
-&lt;p&gt;在每台Node上执行如下命令&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -d --restart&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;unless-stopped -p 8080:8080 -p 9345:9345 rancher/server &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-     --db-host myhost.example.com --db-port 3306 --db-user username --db-pass password --db-name cattle &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
-     --advertise-address &amp;lt;IP_of_the_Node&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt; 如果你改变了&lt;code class=&quot;highlighter-rouge&quot;&gt;-p 8080:8080&lt;/code&gt;端口，则需要额外添加一个参数&lt;code class=&quot;highlighter-rouge&quot;&gt;--addvertise-http-port &amp;lt;host_port&amp;gt;&lt;/code&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h5 id=&quot;nginx-lb&quot;&gt;Nginx LB&lt;/h5&gt;
-
-&lt;p&gt;在nginx的Vhost中添加如下两个文件&lt;/p&gt;
-
-&lt;p&gt;rancher-upstream.conf&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;upstream rancher-server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        server 172.30.33.44:8080;
-        server 172.30.33.45:8080;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-map &lt;span class=&quot;nv&quot;&gt;$http_upgrade&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$connection_upgrade&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    default Upgrade;
-    &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt;      close;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;         
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;rancher.conf&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        listen 80;
-        server_name rancher.quark.com;
-
-        access_log  logs/rancher_access.log main;
-        location / &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;c&quot;&gt;#internal;&lt;/span&gt;
-        proxy_set_header Host &lt;span class=&quot;nv&quot;&gt;$host&lt;/span&gt;;
-        proxy_set_header X-Forwarded-Proto &lt;span class=&quot;nv&quot;&gt;$scheme&lt;/span&gt;;
-        proxy_set_header X-Forwarded-Port &lt;span class=&quot;nv&quot;&gt;$server_port&lt;/span&gt;;
-        proxy_set_header X-Forwarded-For &lt;span class=&quot;nv&quot;&gt;$proxy_add_x_forwarded_for&lt;/span&gt;;
-        proxy_pass http://rancher-server;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade &lt;span class=&quot;nv&quot;&gt;$http_upgrade&lt;/span&gt;;
-        proxy_set_header Connection &lt;span class=&quot;nv&quot;&gt;$connection_upgrade&lt;/span&gt;;
-        proxy_read_timeout 900s;
-        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;       
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h3 id=&quot;rancher-agent&quot;&gt;Rancher agent&lt;/h3&gt;
-
-&lt;p&gt;上面的步骤完成后，我们来访问我们的rancher ui，然后来添加host
-&lt;img src=&quot;/images/posts/rancher-add-agent.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;依次添加完你的docker host之后，如下图
-&lt;img src=&quot;/images/posts/rancher-ui.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;h3 id=&quot;后记&quot;&gt;后记&lt;/h3&gt;
-
-&lt;p&gt;rancher上还有很多功能，感兴趣的同学可以去自行研究下，我这里只是一个临时的需求，所以就不做过多的实例了。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">前言</summary></entry></feed>
+&lt;p&gt;官网上说的是将默认FORWARD DROP策略改为 ACCEPT，其实没那个必要，使用overlay网络就好了,比如:flannel,weave,calico等等…&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">本节主要是讲解docker容器是如何在默认的bridge网络上进行通信的。</summary></entry></feed>
