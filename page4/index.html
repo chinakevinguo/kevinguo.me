@@ -110,6 +110,27 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-overlay-security-model/">Docker基础-docker muti-host之overlay在docker swarm安全模式下的使用</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        Docker swarm mode overlay network security model
+overlay 网络在docker swarm下的安全模式也是开箱即用的。swarm 节点之间通过gossip协议来交换overlay 网络信息。节点使用GCM模式下的AES algorithm对通过gossip协议来交换的信息进行加密和认证.管理节点每12小时轮询加密key一次
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="/2017/07/06/Docker-network-with-Macvlan/">Docker基础-docker muti-host之macvlan</a>
                     </h3>
                     <p class="repo-list-description">
@@ -242,35 +263,6 @@
                     </h3>
                     <p class="repo-list-description">
                         这一章，我们构建一个在docker compose上运行的简单python web程序。该应用使用Flask框架并在redis中维护一个命中计数器。
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-format-command-and-log-output/">Docker基础-docker 日志输出的格式化</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        docker 使用Go template来允许用户操作某些命令和日志的输出格式。详细如下：
-
-
-  Docker Images formatting
-  Docker Inspect formatting
-  Docker Log Tag formatting
-  Docker Network Inspect formatting
-  Docker ps formatting
-  Docker Volume Inspect formatting
-  Docker Version formatting
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">

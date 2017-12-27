@@ -1,4 +1,58 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-12-26T15:10:12+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">kubernetes RBAC 概念</title><link href="https://kevinguo.me/2017/12/01/kubernetes-rbac-concept/" rel="alternate" type="text/html" title="kubernetes RBAC 概念" /><published>2017-12-01T00:00:00+08:00</published><updated>2017-12-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/12/01/kubernetes-rbac-concept</id><content type="html" xml:base="https://kevinguo.me/2017/12/01/kubernetes-rbac-concept/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-12-27T16:06:15+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jenkins with pipeline on kubernetes</title><link href="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/" rel="alternate" type="text/html" title="jenkins with pipeline on kubernetes" /><published>2017-12-27T00:00:00+08:00</published><updated>2017-12-27T00:00:00+08:00</updated><id>https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline</id><content type="html" xml:base="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/">&lt;blockquote&gt;
+  &lt;p&gt;jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;该流程包含了 &lt;code class=&quot;highlighter-rouge&quot;&gt;checkout scm&lt;/code&gt; –&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;build artifacts&lt;/code&gt; –&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;build image&lt;/code&gt; –&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;deploy to k8s&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等&lt;/p&gt;
+
+&lt;h3 id=&quot;一集群以及必要组件的搭建&quot;&gt;一、集群以及必要组件的搭建&lt;/h3&gt;
+
+&lt;p&gt;请参考&lt;a href=&quot;https://kevinguo.me/categories/#kubernetes&quot;&gt;手动搭建kubernetes HA集群&lt;/a&gt;,&lt;a href=&quot;https://kevinguo.me/categories/#ceph&quot;&gt;kubernetes ceph笔记&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;二jenkins各个yaml文件&quot;&gt;二、jenkins各个yaml文件&lt;/h3&gt;
+
+&lt;p&gt;所有文件都放在&lt;a href=&quot;https://github.com/chinakevinguo/kubernetes-jenkins.git&quot;&gt;这里&lt;/a&gt;，我们搭建的时候只需将对应的位置修改成自己的即可&lt;/p&gt;
+
+&lt;h3 id=&quot;三配置jenkins&quot;&gt;三、配置jenkins&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;jenkins 部署成功之后，我们需要安装对应的插件，配置和kubernetes的关联，这里除了必要的插件之外，我们额外需要安装一个kubernetes Plugin&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;kubernetes cloud的配置相对简单，我们只需要指定&lt;code class=&quot;highlighter-rouge&quot;&gt;Kubernetes URL&lt;/code&gt;以及&lt;code class=&quot;highlighter-rouge&quot;&gt;Jenkins URL&lt;/code&gt;即可，因为jenkins在kubernetes中，所以&lt;code class=&quot;highlighter-rouge&quot;&gt;Kubernetes URL&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;Jenkins URL&lt;/code&gt;均为内部service就行了，如下图&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/kubernetes-cloud.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;四新建pipeline-job-测试&quot;&gt;四、新建pipeline job 测试&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;jenkins kubernetes cloud配置成功之后，我们就需要来新建一个pipeline job测试一下，这里我新建了一个&lt;code class=&quot;highlighter-rouge&quot;&gt;learn-groovy&lt;/code&gt;的job&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;新建job更加的简单，只需要指定你的&lt;code class=&quot;highlighter-rouge&quot;&gt;Jenkinsfile&lt;/code&gt;的地址即可，如下图&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/jenkins-pipeline.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;所有的工作都在&lt;code class=&quot;highlighter-rouge&quot;&gt;Jenkinsfile&lt;/code&gt;中定义完成，这就是pipeline了&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;关于当前这个example项目的对应配置文件有如下几个&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;app-deploy.yaml 当前项目部署所需的yaml文件&lt;/li&gt;
+  &lt;li&gt;Jenkinsfile 当前项目部署流程所需文件&lt;/li&gt;
+  &lt;li&gt;Jenkinsfile.yaml 当前项目构建部署过程中可变参数的变量文件&lt;/li&gt;
+  &lt;li&gt;Dockerfile 构建image所需文件&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;以上所有文件在&lt;a href=&quot;https://github.com/chinakevinguo/learn-groovy.git&quot;&gt;这里&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;我们的job构建成功后，最终的结果如下&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/jenkins-kubernetes-result.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/jenkins-kubernetes-result2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。</summary></entry><entry><title type="html">kubernetes RBAC 概念</title><link href="https://kevinguo.me/2017/12/01/kubernetes-rbac-concept/" rel="alternate" type="text/html" title="kubernetes RBAC 概念" /><published>2017-12-01T00:00:00+08:00</published><updated>2017-12-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/12/01/kubernetes-rbac-concept</id><content type="html" xml:base="https://kevinguo.me/2017/12/01/kubernetes-rbac-concept/">&lt;blockquote&gt;
   &lt;p&gt;注：全文转载于https://jimmysong.io/kubernetes-handbook/guide/rbac.html
 主要是为了避免以后想查看概念的时候找不到位置，望作者见谅
 以下所有内容是 &lt;a href=&quot;https://github.com/xingzhou&quot;&gt;xingzhou&lt;/a&gt; 对 kubernetes 官方文档的翻译，原文地址 https://k8smeetup.github.io/docs/admin/authorization/rbac/&lt;/p&gt;
@@ -7104,100 +7158,4 @@ Hello World from node3----
 
 &lt;h3 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h3&gt;
 
-&lt;p&gt;文章写的比较简单，其实就是通过一个简单的实验，了解了下consul的服务注册，服务发现，以及如何使用consul-template来动态的生成对应的配置文件，而关于服务注册，我们使用的是registrator，也许你的项目需要调用consul的HTTP API来注册也说不定，具体你可以去&lt;a href=&quot;https://www.consul.io/&quot;&gt;consul官网&lt;/a&gt;了解更多。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">前言</summary></entry><entry><title type="html">Docker基础-理解容器之间的通信</title><link href="https://kevinguo.me/2017/08/23/Docker-container-communication/" rel="alternate" type="text/html" title="Docker基础-理解容器之间的通信" /><published>2017-08-23T00:00:00+08:00</published><updated>2017-08-23T00:00:00+08:00</updated><id>https://kevinguo.me/2017/08/23/Docker-container-communication</id><content type="html" xml:base="https://kevinguo.me/2017/08/23/Docker-container-communication/">&lt;p&gt;本节主要是讲解docker容器是如何在默认的&lt;code class=&quot;highlighter-rouge&quot;&gt;bridge&lt;/code&gt;网络上进行通信的。&lt;/p&gt;
-
-&lt;!--more--&gt;
-
-&lt;h3 id=&quot;和外网通信&quot;&gt;和外网通信&lt;/h3&gt;
-
-&lt;p&gt;容器能否和外网进行通信，取决两个因素。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;主机上的&lt;code class=&quot;highlighter-rouge&quot;&gt;ip_forward&lt;/code&gt;是否打开，默认为true&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;iptables&lt;/code&gt;规则是否允许被修改，默认为true&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;如果在启动 Docker 服务的时候设定 –ip-forward=true, Docker 就会自动设定系统的 ip_forward 参数为 1。如果你的系统上打开了&lt;code class=&quot;highlighter-rouge&quot;&gt;ip_froward&lt;/code&gt;，而你在docker中设定&lt;code class=&quot;highlighter-rouge&quot;&gt;--ip-forward=flase&lt;/code&gt;，这不会起作用。&lt;/p&gt;
-
-&lt;p&gt;关于&lt;code class=&quot;highlighter-rouge&quot;&gt;ip_froward&lt;/code&gt;的实验&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -d --name  db  training/postgres
-
-&lt;span class=&quot;c&quot;&gt;# 这时候首先去将ip_froward设置为false，发现无法ping通外网&lt;/span&gt;
- docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping www.baidu.com
-
-&lt;span class=&quot;c&quot;&gt;# 这时候再将ip_forward设置为true，发现可以ping通外网&lt;/span&gt;
-docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping www.baidu.com
-PING www.a.shifen.com &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;103.235.46.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
-64 bytes from 103.235.46.39: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;54 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;56.3 ms
-64 bytes from 103.235.46.39: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;54 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;56.3 ms
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;默认情况下，docker会在启动容器的时候，在iptables中添加规则，如果你设定&lt;code class=&quot;highlighter-rouge&quot;&gt;--iptables=false&lt;/code&gt;，docker将不会修改你的防火墙规则。&lt;/p&gt;
-
-&lt;p&gt;关于&lt;code class=&quot;highlighter-rouge&quot;&gt;--iptables&lt;/code&gt;的实验&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 首先，确认下有没有关于docker0的防火墙规则，有就删除掉&lt;/span&gt;
-iptables -S |grep docker0
-
-&lt;span class=&quot;c&quot;&gt;# 然后测试ping外网，发现无法ping通&lt;/span&gt;
-docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping www.baidu.com
-
-&lt;span class=&quot;c&quot;&gt;# 这时候将iptables改为true，查看防火墙规则，又添加了关于docker0的规则&lt;/span&gt;
-iptables -S |grep docker
--A FORWARD -o docker0 -j DOCKER
--A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A FORWARD -i docker0 ! -o docker0 -j ACCEPT
--A FORWARD -i docker0 -o docker0 -j ACCEPT
-
-&lt;span class=&quot;c&quot;&gt;# 测试发现能ping通外网&lt;/span&gt;
-
-docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping www.baidu.com
-PING www.a.shifen.com &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;103.235.46.39&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
-64 bytes from 103.235.46.39: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;54 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;56.3 ms
-64 bytes from 103.235.46.39: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;54 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;56.3 ms
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;默认情况下，容器可以和任何外部地址进行通信。除非你设定仅仅只有那些地址可以访问内部的容器。如下，设定只有8.8.8.8能访问内部容器&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h3 id=&quot;容器之间通信&quot;&gt;容器之间通信&lt;/h3&gt;
-
-&lt;p&gt;容器之间是否能进行通信，取决于系统层面的两个因素。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;容器网络是否连接到&lt;code class=&quot;highlighter-rouge&quot;&gt;docker0&lt;/code&gt;网络，默认是连接到docker0&lt;/li&gt;
-  &lt;li&gt;你的&lt;code class=&quot;highlighter-rouge&quot;&gt;iptables&lt;/code&gt;是否允许被修改，默认为true,你的&lt;code class=&quot;highlighter-rouge&quot;&gt;--icc&lt;/code&gt;状态，默认为true&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;注意：如果你使用默认的&lt;code class=&quot;highlighter-rouge&quot;&gt;iptables=true&lt;/code&gt;，则当&lt;code class=&quot;highlighter-rouge&quot;&gt;--icc=true&lt;/code&gt;时会添加 ACCEPT 规则，当&lt;code class=&quot;highlighter-rouge&quot;&gt;--icc=false&lt;/code&gt;时会添加 DROP 规则; 当然如果你的&lt;code class=&quot;highlighter-rouge&quot;&gt;iptables=false&lt;/code&gt;则无所谓了，反正不会修改你的防火墙规则&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;关于&lt;code class=&quot;highlighter-rouge&quot;&gt;--icc&lt;/code&gt;的实验&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 设置--icc=false发现容器之间无法ping通,如果你发现你依然能ping通，那可能是前面的防火墙配置，执行iptables -F 清空下再试&lt;/span&gt;
-docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping 172.17.0.3
-
-
-&lt;span class=&quot;c&quot;&gt;# 设置--icc=true发现容器之间可以ping通&lt;/span&gt;
-docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti db ping 172.17.0.3
-PING 172.17.0.3 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;172.17.0.3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; 56&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;84&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; bytes of data.
-64 bytes from 172.17.0.3: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.128 ms
-64 bytes from 172.17.0.3: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.110 ms
-64 bytes from 172.17.0.3: &lt;span class=&quot;nv&quot;&gt;icmp_seq&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3 &lt;span class=&quot;nv&quot;&gt;ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0.096 ms
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;strong&gt;注意：所以，我们启动docker之前，就要确定好，到底是否需要允许docker修改iptables，是否允许容器之间通信，是否允许容器访问外网等&lt;/strong&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;主机之间的容器通信&quot;&gt;主机之间的容器通信&lt;/h3&gt;
-
-&lt;p&gt;官网上说的是将默认FORWARD DROP策略改为 ACCEPT，其实没那个必要，使用overlay网络就好了,比如:flannel,weave,calico等等…&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">本节主要是讲解docker容器是如何在默认的bridge网络上进行通信的。</summary></entry></feed>
+&lt;p&gt;文章写的比较简单，其实就是通过一个简单的实验，了解了下consul的服务注册，服务发现，以及如何使用consul-template来动态的生成对应的配置文件，而关于服务注册，我们使用的是registrator，也许你的项目需要调用consul的HTTP API来注册也说不定，具体你可以去&lt;a href=&quot;https://www.consul.io/&quot;&gt;consul官网&lt;/a&gt;了解更多。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">前言</summary></entry></feed>

@@ -1,5 +1,11 @@
 {
   
+  "2017-12-27-jenkins-on-kubernetes-with-pipeline": {
+    "title": "jenkins with pipeline on kubernetes",
+    "url": " /2017/12/27/jenkins-on-kubernetes-with-pipeline/",
+    "category": "kubernetes"
+  },
+  
   "2017-12-01-kubernetes-rbac-concept": {
     "title": "kubernetes RBAC 概念",
     "url": " /2017/12/01/kubernetes-rbac-concept/",
@@ -752,6 +758,12 @@
     "title": "kubernetes RBAC 概念",
     "url": "/2017/12/01/kubernetes-rbac-concept/",
     "category": "[&quot;kubernetes&quot;, &quot;RBAC&quot;]"
+  },
+  
+  "2017-12-27-jenkins-on-kubernetes-with-pipeline": {
+    "title": "jenkins with pipeline on kubernetes",
+    "url": "/2017/12/27/jenkins-on-kubernetes-with-pipeline/",
+    "category": "[&quot;kubernetes&quot;, &quot;jenkins&quot;]"
   }
   
 }
