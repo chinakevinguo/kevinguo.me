@@ -194,7 +194,7 @@
   <li>所以最后的排序是{D,C1,C2,A,B,object}</li>
 </ul>
 
-<p>我们执行上面的代码，发现print(D.<strong>mro</strong>)的结果也正是这样，而这也就是多重继承所使用的C3算法啦</p>
+<p>我们执行上面的代码，发现<code class="highlighter-rouge">print(D.__mro__)</code>的结果也正是这样，而这也就是多重继承所使用的C3算法啦</p>
 
 <blockquote>
   <p>为了进一步熟悉这个拓扑排序的方法，我们再来一张图，试试看排序结果是怎样的，它继承的内容是否如你所想</p>
@@ -247,7 +247,7 @@
   <li>所以最后的序列为{D,C1,A,C2,B,object}</li>
 </ul>
 
-<p>最后，我们执行上面的代码，发现print(D.<strong>mro</strong>)的结果正如上面所计算的结果</p>
+<p>最后，我们执行上面的代码，发现<code class="highlighter-rouge">print(D.__mro__)</code>的结果正如上面所计算的结果</p>
 
 <p>最后的最后，python继承顺序遵循C3算法，只要在一个地方找到了所需的内容，就不再继续查找</p>
 

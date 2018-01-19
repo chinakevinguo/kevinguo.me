@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-01-19T14:50:04+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">python 多重继承之拓扑排序</title><link href="https://kevinguo.me/2018/01/19/python-topological-sorting/" rel="alternate" type="text/html" title="python 多重继承之拓扑排序" /><published>2018-01-19T00:00:00+08:00</published><updated>2018-01-19T00:00:00+08:00</updated><id>https://kevinguo.me/2018/01/19/python-topological-sorting</id><content type="html" xml:base="https://kevinguo.me/2018/01/19/python-topological-sorting/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-01-19T14:59:47+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">python 多重继承之拓扑排序</title><link href="https://kevinguo.me/2018/01/19/python-topological-sorting/" rel="alternate" type="text/html" title="python 多重继承之拓扑排序" /><published>2018-01-19T00:00:00+08:00</published><updated>2018-01-19T00:00:00+08:00</updated><id>https://kevinguo.me/2018/01/19/python-topological-sorting</id><content type="html" xml:base="https://kevinguo.me/2018/01/19/python-topological-sorting/">&lt;blockquote&gt;
   &lt;p&gt;最近在学python，学到class 多重继承，降到了c3算法，这里记录一下&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -78,7 +78,7 @@
   &lt;li&gt;所以最后的排序是{D,C1,C2,A,B,object}&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;我们执行上面的代码，发现print(D.&lt;strong&gt;mro&lt;/strong&gt;)的结果也正是这样，而这也就是多重继承所使用的C3算法啦&lt;/p&gt;
+&lt;p&gt;我们执行上面的代码，发现&lt;code class=&quot;highlighter-rouge&quot;&gt;print(D.__mro__)&lt;/code&gt;的结果也正是这样，而这也就是多重继承所使用的C3算法啦&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;为了进一步熟悉这个拓扑排序的方法，我们再来一张图，试试看排序结果是怎样的，它继承的内容是否如你所想&lt;/p&gt;
@@ -131,7 +131,7 @@
   &lt;li&gt;所以最后的序列为{D,C1,A,C2,B,object}&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;最后，我们执行上面的代码，发现print(D.&lt;strong&gt;mro&lt;/strong&gt;)的结果正如上面所计算的结果&lt;/p&gt;
+&lt;p&gt;最后，我们执行上面的代码，发现&lt;code class=&quot;highlighter-rouge&quot;&gt;print(D.__mro__)&lt;/code&gt;的结果正如上面所计算的结果&lt;/p&gt;
 
 &lt;p&gt;最后的最后，python继承顺序遵循C3算法，只要在一个地方找到了所需的内容，就不再继续查找&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">最近在学python，学到class 多重继承，降到了c3算法，这里记录一下</summary></entry><entry><title type="html">jenkins with pipeline on kubernetes</title><link href="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/" rel="alternate" type="text/html" title="jenkins with pipeline on kubernetes" /><published>2017-12-27T00:00:00+08:00</published><updated>2017-12-27T00:00:00+08:00</updated><id>https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline</id><content type="html" xml:base="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/">&lt;blockquote&gt;
   &lt;p&gt;jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。&lt;/p&gt;
