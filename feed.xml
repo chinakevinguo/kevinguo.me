@@ -1,4 +1,139 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2017-12-27T16:22:38+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">jenkins with pipeline on kubernetes</title><link href="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/" rel="alternate" type="text/html" title="jenkins with pipeline on kubernetes" /><published>2017-12-27T00:00:00+08:00</published><updated>2017-12-27T00:00:00+08:00</updated><id>https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline</id><content type="html" xml:base="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-01-19T14:50:04+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">python 多重继承之拓扑排序</title><link href="https://kevinguo.me/2018/01/19/python-topological-sorting/" rel="alternate" type="text/html" title="python 多重继承之拓扑排序" /><published>2018-01-19T00:00:00+08:00</published><updated>2018-01-19T00:00:00+08:00</updated><id>https://kevinguo.me/2018/01/19/python-topological-sorting</id><content type="html" xml:base="https://kevinguo.me/2018/01/19/python-topological-sorting/">&lt;blockquote&gt;
+  &lt;p&gt;最近在学python，学到class 多重继承，降到了c3算法，这里记录一下&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;一什么是拓扑排序&quot;&gt;一、什么是拓扑排序&lt;/h3&gt;
+
+&lt;p&gt;在图论中，&lt;strong&gt;拓扑排序(Topological Sorting)&lt;/strong&gt; 是一个 &lt;strong&gt;有向无环图(DAG,Directed Acyclic Graph)&lt;/strong&gt; 的所有顶点的线性序列。且该序列必须满足下面两个条件：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;每个顶点出现且只出现一次。&lt;/li&gt;
+  &lt;li&gt;若存在一条从顶点A到顶点B的路径，那么在序列中顶点A出现在顶点B的前面。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;例如，下面这个图：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/original.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;它是一个DAG图，那么如何写出它的拓扑顺序呢？这里说一种比较常用的方法：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;从DAG途中选择一个没有前驱(即入度为0)的顶点并输出&lt;/li&gt;
+  &lt;li&gt;从图中删除该顶点和所有以它为起点的有向边。&lt;/li&gt;
+  &lt;li&gt;重复1和2直到当前DAG图为空或当前途中不存在无前驱的顶点为止。后一种情况说明有向图中必然存在环。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/topological-sorting.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;于是，得到拓扑排序后的结果是{1,2,4,3,5}&lt;/p&gt;
+
+&lt;p&gt;下面，我们看看拓扑排序在python多重继承中的例子&lt;/p&gt;
+
+&lt;h3 id=&quot;二python-多重继承&quot;&gt;二、python 多重继承&lt;/h3&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env python3&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# -*- coding: utf-8 -*-&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'A foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'A bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'B foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'B bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;C1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;C2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'C2-bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'__main__'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__mro__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;首先，我们根据上面的继承关系构成一张图，如下&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/python-inherit.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;找到入度为0的点，只有一个D，把D拿出来，把D相关的边剪掉&lt;/li&gt;
+  &lt;li&gt;现在有两个入度为0的点(C1,C2)，取最左原则，拿C1，剪掉C1相关的边，这时候的排序是{D,C1}&lt;/li&gt;
+  &lt;li&gt;现在我们看，入度为0的点(C2),拿C2,剪掉C2相关的边，这时候排序是{D,C1,C2}&lt;/li&gt;
+  &lt;li&gt;接着看，入度为0的点(A,B),取最左原则，拿A，剪掉A相关的边，这时候的排序是{D,C1,C2,A}&lt;/li&gt;
+  &lt;li&gt;继续，入度哦为0的点只有B，拿B，剪掉B相关的边，最后只剩下object&lt;/li&gt;
+  &lt;li&gt;所以最后的排序是{D,C1,C2,A,B,object}&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;我们执行上面的代码，发现print(D.&lt;strong&gt;mro&lt;/strong&gt;)的结果也正是这样，而这也就是多重继承所使用的C3算法啦&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;为了进一步熟悉这个拓扑排序的方法，我们再来一张图，试试看排序结果是怎样的，它继承的内容是否如你所想&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env python3&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# -*- coding: utf-8 -*-&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'A foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'A bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'B foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'B bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;C1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;C2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'C2-bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'__main__'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__mro__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;还是先根据继承关系构一个继承图&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/python-inherit2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;找到入度为0的顶点，只有一个D，拿D，剪掉D相关的边&lt;/li&gt;
+  &lt;li&gt;得到两个入度为0的顶点(C1,C2),根据最左原则，拿C1，剪掉C1相关的边，这时候序列为{D,C1}&lt;/li&gt;
+  &lt;li&gt;接着看，入度为0的顶点有两个(A,C1),根据最左原则，拿A，剪掉A相关的边，这时候序列为{D,C1,A}&lt;/li&gt;
+  &lt;li&gt;接着看，入度为0的顶点为C2,拿C2，剪掉C2相关的边，这时候序列为{D,C1,A,C2}&lt;/li&gt;
+  &lt;li&gt;继续，入度为0的顶点为B，拿B，剪掉B相关的边，最后还有一个object&lt;/li&gt;
+  &lt;li&gt;所以最后的序列为{D,C1,A,C2,B,object}&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;最后，我们执行上面的代码，发现print(D.&lt;strong&gt;mro&lt;/strong&gt;)的结果正如上面所计算的结果&lt;/p&gt;
+
+&lt;p&gt;最后的最后，python继承顺序遵循C3算法，只要在一个地方找到了所需的内容，就不再继续查找&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">最近在学python，学到class 多重继承，降到了c3算法，这里记录一下</summary></entry><entry><title type="html">jenkins with pipeline on kubernetes</title><link href="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/" rel="alternate" type="text/html" title="jenkins with pipeline on kubernetes" /><published>2017-12-27T00:00:00+08:00</published><updated>2017-12-27T00:00:00+08:00</updated><id>https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline</id><content type="html" xml:base="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/">&lt;blockquote&gt;
   &lt;p&gt;jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -7030,132 +7165,4 @@ kubectl create -f nfs-nginx.yaml
 
 &lt;h3 id=&quot;annotation&quot;&gt;Annotation&lt;/h3&gt;
 
-&lt;p&gt;annotation 和label类似，也是使用 key/value的形式进行定义。不同的是label具有严格的命名规则，它定义的是kubernetes对象的元数据，并且用于label selector，而annotation测试用户任意定义的”附加”信息，以便于外部工具进行查找，很多时候，kubernetes的模块会通过annotation的方式标记资源的特殊信息。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">入门概念</summary></entry><entry><title type="html">docker+consul+consul-template+registrator+nginx 的容器服务注册发现</title><link href="https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx/" rel="alternate" type="text/html" title="docker+consul+consul-template+registrator+nginx 的容器服务注册发现" /><published>2017-09-01T00:00:00+08:00</published><updated>2017-09-01T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx</id><content type="html" xml:base="https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx/">&lt;h3 id=&quot;前言&quot;&gt;前言&lt;/h3&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;以前了解过一段时间的consul，只知道consul是一个服务发现的工具，但是具体是怎么注册的，又是怎么服务发现的，一点也不清楚，这次趁着研究kubernetes的服务发现，顺带研究了下consul，在此记录下来。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h3 id=&quot;概念&quot;&gt;概念&lt;/h3&gt;
-
-&lt;p&gt;简单来说，consul是一个提供服务注册、服务发现、键值存储、健康检查的工具，并且它支持多数据中心。&lt;/p&gt;
-
-&lt;p&gt;举个简单的例子，假若我们有一个暴露REST API的服务，为了高可用，我们决定为该服务提供3个服务实例，但是每个容器的地址和端口都是随机的，那么我们的服务之间怎么通信呢，我们又该怎么在前端LB上添加我们的后端服务呢？这时候就需要用到我们的服务发现工具consul了，其实还有很多其他的服务发现工具，比如etcd，zookeeper等等，这里我们重点说下consul。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;服务之间的通信，这个很简单，我们通过LB即可，所有的服务之间的互相访问，都通过LB即可，我们只需要确定每个服务对于的域名即可。&lt;/li&gt;
-  &lt;li&gt;在LB上动态添加后端，这个通过consul-template+consul+registrator即可,consul-template会监控consul中的对应内容，然后根据consul模板文件生成新的配置&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;该实验所需的所有配置文件内容都放在我的&lt;a href=&quot;https://github.com/chinakevinguo/docker-consul.git&quot;&gt;Github&lt;/a&gt;上:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;该项目提供了一种简单的方法，使用consul-template将consul中的值生成具体所需的配置文件，并且实时监控consul，根据模板文件生成最新的配置文件，然后运行某些指定命令。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;由于环境有限，我下面所有的实验都是在一台机器上用docker完成，你只需要修改对应的IP地址即可&lt;/p&gt;
-
-&lt;h3 id=&quot;consul&quot;&gt;Consul&lt;/h3&gt;
-
-&lt;p&gt;提供服务注册和服务发现&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 注意这里我指定了-client是为了方便我通过外网访问consul ui&lt;/span&gt;
-
-docker run -d --net&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;host --name consul -h consul -e &lt;span class=&quot;s1&quot;&gt;'CONSUL_LOCAL_CONFIG={&quot;skip_leave_on_interrupt&quot;: true}'&lt;/span&gt; consul agent -server -client &lt;span class=&quot;nv&quot;&gt;$HOST_IP&lt;/span&gt; -ui -bootstrap
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h3 id=&quot;registrator&quot;&gt;Registrator&lt;/h3&gt;
-
-&lt;p&gt;将宿主机上的容器自动注册到consul中&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
-docker run -d --net&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;host -v /var/run/docker.sock:/tmp/docker.sock --name registrator -h registrator gliderlabs/registrator:latest -internal consul://&lt;span class=&quot;nv&quot;&gt;$HOST_IP&lt;/span&gt;:8500
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h3 id=&quot;nginx-with-consul-template&quot;&gt;Nginx with consul-template&lt;/h3&gt;
-
-&lt;p&gt;利用consul-template监控consul，根据模板生成新的配置，并提供负载均衡&lt;/p&gt;
-
-&lt;p&gt;将上面地址中的内容clone到本地,build nginx-consul镜像&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/chinakevinguo/docker-consul.git
-&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;docker-consul
-chmod +x start.sh
-docker build -t docker-consul .
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;启动nginx&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -p 8080:80 -d --name nginx -e &lt;span class=&quot;nv&quot;&gt;CONSUL_URL&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$HOST_IP&lt;/span&gt;:8500 --volume ~/docker-consul/service.ctmpl:/templates/service.ctmpl  nginx-consul
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h3 id=&quot;启动一些服务实例&quot;&gt;启动一些服务实例&lt;/h3&gt;
-
-&lt;p&gt;具体提供服务的实例&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker run -d -P --name node1 -h node1 jlordiales/python-micro-service:latest
-docker run -d -P --name node2 -h node2 jlordiales/python-micro-service:latest
-docker run -d -P --name node3 -h node3 jlordiales/python-micro-service:latest
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;启动完成后，我们来看看nginx中是否已经动态添加了这些后端呢&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;docker &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; -ti nginx cat /etc/nginx/conf.d/service.conf
-upstream python-service &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-  least_conn;
-  server 172.17.0.5:5000 &lt;span class=&quot;nv&quot;&gt;max_fails&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3 &lt;span class=&quot;nv&quot;&gt;fail_timeout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;60 &lt;span class=&quot;nv&quot;&gt;weight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1;
-  server 172.17.0.6:5000 &lt;span class=&quot;nv&quot;&gt;max_fails&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3 &lt;span class=&quot;nv&quot;&gt;fail_timeout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;60 &lt;span class=&quot;nv&quot;&gt;weight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1;
-  server 172.17.0.7:5000 &lt;span class=&quot;nv&quot;&gt;max_fails&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3 &lt;span class=&quot;nv&quot;&gt;fail_timeout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;60 &lt;span class=&quot;nv&quot;&gt;weight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1;
-  server 172.17.0.8:5000 &lt;span class=&quot;nv&quot;&gt;max_fails&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3 &lt;span class=&quot;nv&quot;&gt;fail_timeout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;60 &lt;span class=&quot;nv&quot;&gt;weight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1;
-
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-server &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-  listen 80 default_server;
-
-  charset utf-8;
-
-  location /&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    proxy_pass http://python-service;
-    proxy_set_header X-Forwarded-For &lt;span class=&quot;nv&quot;&gt;$proxy_add_x_forwarded_for&lt;/span&gt;;
-    proxy_set_header Host &lt;span class=&quot;nv&quot;&gt;$host&lt;/span&gt;;
-    proxy_set_header X-Real-IP &lt;span class=&quot;nv&quot;&gt;$remote_addr&lt;/span&gt;;
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;然后我们来看看我们的consul ui中展现了那些内容呢&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/consul-ui.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;我们发现我们的python-micro-service 服务目前有4个，而且当我们通过如下命令访问的时候，也是4个轮询着被访问&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;curl &lt;span class=&quot;nv&quot;&gt;$HOST_IP&lt;/span&gt;:8080; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ----; sleep 1; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;;
-Hello World from node4----
-Hello World from node1----
-Hello World from node2----
-Hello World from node3----
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;这时候，如果我马上停掉其中一个呢,我们发现consul ui中的服务也相应的减少，而且用命令访问的时候，也已经变成了3个&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/consul-ui-service.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;curl &lt;span class=&quot;nv&quot;&gt;$HOST_IP&lt;/span&gt;:8080; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ----; sleep 1; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;;
-Hello World from node1----
-Hello World from node2----
-Hello World from node3----
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h3 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h3&gt;
-
-&lt;p&gt;文章写的比较简单，其实就是通过一个简单的实验，了解了下consul的服务注册，服务发现，以及如何使用consul-template来动态的生成对应的配置文件，而关于服务注册，我们使用的是registrator，也许你的项目需要调用consul的HTTP API来注册也说不定，具体你可以去&lt;a href=&quot;https://www.consul.io/&quot;&gt;consul官网&lt;/a&gt;了解更多。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">前言</summary></entry></feed>
+&lt;p&gt;annotation 和label类似，也是使用 key/value的形式进行定义。不同的是label具有严格的命名规则，它定义的是kubernetes对象的元数据，并且用于label selector，而annotation测试用户任意定义的”附加”信息，以便于外部工具进行查找，很多时候，kubernetes的模块会通过annotation的方式标记资源的特殊信息。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">入门概念</summary></entry></feed>
