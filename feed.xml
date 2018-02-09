@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-02-09T20:36:02+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">Linux top 详解</title><link href="https://kevinguo.me/2018/02/09/Linux-top/" rel="alternate" type="text/html" title="Linux top 详解" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>https://kevinguo.me/2018/02/09/Linux-top</id><content type="html" xml:base="https://kevinguo.me/2018/02/09/Linux-top/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.4.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-02-10T00:21:05+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">Linux top 详解</title><link href="https://kevinguo.me/2018/02/09/Linux-top/" rel="alternate" type="text/html" title="Linux top 详解" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>https://kevinguo.me/2018/02/09/Linux-top</id><content type="html" xml:base="https://kevinguo.me/2018/02/09/Linux-top/">&lt;blockquote&gt;
   &lt;p&gt;一直都对服务性能这块的东西不怎么感冒，但是，有一次面试的时候，被问到了，突然发现自己对这些基础的知识点，好匮乏，正好今天在学python的psutil模块的时候，看到了cpu_times，顺便记录下关于top这个命令的内容；top这个命令其实很多人都会用，但是用的好的人却不多，甚至有人会对监控视图中的内容含义有不少曲解。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -22,10 +22,13 @@ PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
 
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;top - 18:02:01 up  1:06,  1 user,  load average: 0.22, 0.12, 0.10&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;18:02:01 – 当前系统时间
-1:06 – 系统已经运行了多长时间
-1 user – 当前有一个用户登录系统
-load average: 0.22, 0.12, 0.10 – load average后面的三个数分别是1分钟、5分钟、15分钟的负载情况&lt;/p&gt;
+&lt;p&gt;18:02:01 – 当前系统时间&lt;/p&gt;
+
+&lt;p&gt;1:06 – 系统已经运行了多长时间&lt;/p&gt;
+
+&lt;p&gt;1 user – 当前有一个用户登录系统&lt;/p&gt;
+
+&lt;p&gt;load average: 0.22, 0.12, 0.10 – load average后面的三个数分别是1分钟、5分钟、15分钟的负载情况&lt;/p&gt;
 
 &lt;p&gt;load average数据是每隔5秒钟检查一次活跃的进程数，然后按特定算法计算出的数值。如果这个数除以逻辑CPU的数量，结果高于5就表明系统在超负荷运转了&lt;/p&gt;
 
@@ -33,59 +36,87 @@ load average: 0.22, 0.12, 0.10 – load average后面的三个数分别是1分�
 
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Tasks: 200 total,   2 running, 198 sleeping,   0 stopped,   0 zombie&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;200 total – 系统现在一共有多少个进程
-2 running – 其中处于运行中的有几个
-198 sleeping – 处于休眠状态的有多少个
-0 stopped – 处于停止状态的有多少个
-0 zombie – 僵尸进程有多少个&lt;/p&gt;
+&lt;p&gt;200 total – 系统现在一共有多少个进程&lt;/p&gt;
+
+&lt;p&gt;2 running – 其中处于运行中的有几个&lt;/p&gt;
+
+&lt;p&gt;198 sleeping – 处于休眠状态的有多少个&lt;/p&gt;
+
+&lt;p&gt;0 stopped – 处于停止状态的有多少个&lt;/p&gt;
+
+&lt;p&gt;0 zombie – 僵尸进程有多少个&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;第三行：&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;%Cpu(s):  3.0 us,  1.0 sy,  0.0 ni, 96.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;3.0 us – 用户空间占用CPU的百分比
-1.0 sy – 内核空间占用CPU的百分比
-0.0 ni – 用户进程空间内改变过优先级的进程占用CPU的百分比
-96.0 id – 空闲CPU百分比
-0.0 wa – IO等待占用CPU百分比
-0.0 hi – 硬中断(Hardware IRQ)占用CPU百分比
-0.0 si – 软中断(Software Interrupts)占用CPU百分比
-0.0 st – 虚拟机被hypervisor偷去的CPU时间&lt;/p&gt;
+&lt;p&gt;3.0 us – 用户空间占用CPU的百分比&lt;/p&gt;
+
+&lt;p&gt;1.0 sy – 内核空间占用CPU的百分比&lt;/p&gt;
+
+&lt;p&gt;0.0 ni – 用户进程空间内改变过优先级的进程占用CPU的百分比&lt;/p&gt;
+
+&lt;p&gt;96.0 id – 空闲CPU百分比&lt;/p&gt;
+
+&lt;p&gt;0.0 wa – IO等待占用CPU百分比&lt;/p&gt;
+
+&lt;p&gt;0.0 hi – 硬中断(Hardware IRQ)占用CPU百分比&lt;/p&gt;
+
+&lt;p&gt;0.0 si – 软中断(Software Interrupts)占用CPU百分比&lt;/p&gt;
+
+&lt;p&gt;0.0 st – 虚拟机被hypervisor偷去的CPU时间&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;第四行：&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;KiB Mem :  4039816 total,  1270872 free,  1432504 used,  1336440 buff/cache&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;4039816 total – 物理总内存
-1270872 free – 空闲内存总量
-1432504 used – 使用内存量
-1336440 buff/cache – 用作内核缓存的内存量&lt;/p&gt;
+&lt;p&gt;4039816 total – 物理总内存&lt;/p&gt;
+
+&lt;p&gt;1270872 free – 空闲内存总量&lt;/p&gt;
+
+&lt;p&gt;1432504 used – 使用内存量&lt;/p&gt;
+
+&lt;p&gt;1336440 buff/cache – 用作内核缓存的内存量&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;第五行：&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;KiB Swap:   385836 total,   385836 free,        0 used.  2321064 avail Mem&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;385836 total – 交换区总量
-385836 free – 空闲的交换区总量
-0 used – 使用的交换区量
-2321064 avail Mem – 可用于进程下一次分配的物理内存数量&lt;/p&gt;
+&lt;p&gt;385836 total – 交换区总量&lt;/p&gt;
+
+&lt;p&gt;385836 free – 空闲的交换区总量&lt;/p&gt;
+
+&lt;p&gt;0 used – 使用的交换区量&lt;/p&gt;
+
+&lt;p&gt;2321064 avail Mem – 可用于进程下一次分配的物理内存数量&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;第七行：&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;PID – 进程ID
-USER – 进程所有者
-PR – 进程优先级
-NI – nice值。负值表示高优先级，正值表示低优先级
-VIRT – 进程使用的虚拟内存总量 VIRT = SWAP+RES
-RES – 进程使用的，未被换出的物理内存大小
-SHR – 共享内存大小
-S – 进程状态 R=运行，S=睡眠，T=跟踪/停止，Z=僵尸经常，D=不可中断的睡眠状态
-%CPU – 上次更新到现在的CPU时间占用百分比
-%MEM – 进程使用的物理内存百分比
-TIME+ 进程使用的CPU时间总计
-COMMAND - 进程名称(命令名/命令行)&lt;/p&gt;
+&lt;p&gt;PID – 进程ID&lt;/p&gt;
+
+&lt;p&gt;USER – 进程所有者&lt;/p&gt;
+
+&lt;p&gt;PR – 进程优先级&lt;/p&gt;
+
+&lt;p&gt;NI – nice值。负值表示高优先级，正值表示低优先级&lt;/p&gt;
+
+&lt;p&gt;VIRT – 进程使用的虚拟内存总量 VIRT = SWAP+RES&lt;/p&gt;
+
+&lt;p&gt;RES – 进程使用的，未被换出的物理内存大小&lt;/p&gt;
+
+&lt;p&gt;SHR – 共享内存大小&lt;/p&gt;
+
+&lt;p&gt;S – 进程状态 R=运行，S=睡眠，T=跟踪/停止，Z=僵尸经常，D=不可中断的睡眠状态&lt;/p&gt;
+
+&lt;p&gt;%CPU – 上次更新到现在的CPU时间占用百分比&lt;/p&gt;
+
+&lt;p&gt;%MEM – 进程使用的物理内存百分比&lt;/p&gt;
+
+&lt;p&gt;TIME+ 进程使用的CPU时间总计&lt;/p&gt;
+
+&lt;p&gt;COMMAND - 进程名称(命令名/命令行)&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;交互的时候，使用P，以CPU百分比大小进行排序，使用M，以内存大小进行排序，使用T，以时间进行排序&lt;/p&gt;
@@ -95,12 +126,17 @@ COMMAND - 进程名称(命令名/命令行)&lt;/p&gt;
   &lt;p&gt;最后记录下如何用python来计算top里面的各个利用率&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;top上的cpu利用率，大致算法如下
-CPU总时间2=user2+system2+nice2+idle2+iowait2+irq2+softirq2
-CPU总时间1=user1+system1+nice1+idle1+iowait1+irq1+softirq1
-用户cpu利用率 = user_pass * 100% / (CPU总时间2 - CPU总时间1)
-内核cpu利用率 = system_pass * 100% / (CPU总时间2 - CPU总时间1)
-总的cpu利用率= 用户cpu利用率 + 内核cpu利用率&lt;/p&gt;
+&lt;p&gt;top上的cpu利用率，大致算法如下&lt;/p&gt;
+
+&lt;p&gt;CPU总时间2=user2+system2+nice2+idle2+iowait2+irq2+softirq2&lt;/p&gt;
+
+&lt;p&gt;CPU总时间1=user1+system1+nice1+idle1+iowait1+irq1+softirq1&lt;/p&gt;
+
+&lt;p&gt;用户cpu利用率 = user_pass * 100% / (CPU总时间2 - CPU总时间1)&lt;/p&gt;
+
+&lt;p&gt;内核cpu利用率 = system_pass * 100% / (CPU总时间2 - CPU总时间1)&lt;/p&gt;
+
+&lt;p&gt;总的cpu利用率= 用户cpu利用率 + 内核cpu利用率&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;cs1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;psutil&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cpu_times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
