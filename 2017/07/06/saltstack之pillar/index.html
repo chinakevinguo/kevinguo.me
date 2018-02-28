@@ -30,8 +30,8 @@
     <meta name="keywords" content="saltstack">
     <meta name="og:keywords" content="saltstack">
       
-    <meta name="description" content="Pillar主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息">
-    <meta name="og:description" content="Pillar主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息">
+    <meta name="description" content="Pillar主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息1.在master上开启pillar_rootspillar_roots:  base:    - /srv/pillar2.在master的/srv/pillar目录下新建top.sls，packages.sls，services.sls[root@saltstack-node1 pillar]# cat top.slsbase:  '*':    - packages    - services[root@saltstack-node1 pillar]# cat packages.slszabbix:  package-name: zabbix  version: 2.2.4[root@saltstack-node1 pillar]# cat services.slszabbix:  port: 10050  user: admin3.执行pillar.item zabbix查看指定的信息[root@saltstack-node1 pillar]# salt 'saltstack-node2*' pillar.item zabbixsaltstack-node2.example.com:    ----------    zabbix:        ----------        package-name:            zabbix        port:            10050        user:            admin        version:            2.2.4">
+    <meta name="og:description" content="Pillar主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息1.在master上开启pillar_rootspillar_roots:  base:    - /srv/pillar2.在master的/srv/pillar目录下新建top.sls，packages.sls，services.sls[root@saltstack-node1 pillar]# cat top.slsbase:  '*':    - packages    - services[root@saltstack-node1 pillar]# cat packages.slszabbix:  package-name: zabbix  version: 2.2.4[root@saltstack-node1 pillar]# cat services.slszabbix:  port: 10050  user: admin3.执行pillar.item zabbix查看指定的信息[root@saltstack-node1 pillar]# salt 'saltstack-node2*' pillar.item zabbixsaltstack-node2.example.com:    ----------    zabbix:        ----------        package-name:            zabbix        port:            10050        user:            admin        version:            2.2.4">
       
     
     

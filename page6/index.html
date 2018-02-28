@@ -123,6 +123,69 @@ IP包转发是由系统参数ip_forward来进行管理的。如果此参数是1�
 检查内核上的设置或手动打开：
 ```bash
 $ sysctl net.ipv4.conf.all.forwarding
+
+
+net.ipv4.conf.all.forwarding = 1
+
+首先，我们测试容器能否ping通外网
+$ docker exec -ti nostalgic_agnesi ping www.baidu.com
+PING www.baidu.com (61.135.169.125): 56 data bytes
+64 bytes from 61.135.169.125: seq=0 ttl=51 time=62.042 ms
+
+我们将ip_forward设置为0之后试试
+$  sysctl net.ipv4.conf.all.forwarding=0
+$ docker exec -ti nostalgic_agnesi ping www.baidu.com
+^C
+&gt; **Note:** 注意，上面的设置不会影响到使用host网络的容器
+
+大多数使用docker的人都希望`ip_forward`卡其，至少让容器和外网通信成为可能。但是如果你在一个多网桥中，也可能需要在容器中设置`ip_forward`哟。
+除非你设置了`--iptables=false`，否则，docker会在启动的时候修改你的iptables规则，会添加`DOCKER`规则链。
+docker是不会删除或修改任何之前的防火墙规则，这就允许了用户可以提前设定好对容器的一些访问规则。
+默认情况下，docker是允许所有的外部IP，如果只想允许一个特定的ip或网段访问容器的话，可以在`DOCKER`规则链上添加新的规则。比如，限制是有源ip 8.8.8.8可以访问容器：
+```bash
+$ iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
+
+
+
+容器间通信
+容器间是否可以通信，由系统层的两个因素来控制：
+
+  网络的拓扑接口是否已经连接到容器的网络接口。默认情况下，docker会将所有的容器连接到docker0网桥，并为两个容器见包的传输提供路径。
+  iptables是否允许特殊连接？除非你设置了--iptables=false，否则，docker会在启动的时候修改你的iptables规则，会添加DOCKER规则链。另外，如果你保留默认设置--icc=true,docker服务器或向FORWARD链添加一个带有全局ACCEPT策略的默认规则，如果不保留默认设置即--icc=false,系统会把策略设置成DROP
+
+
+至于,是保留--icc=true,还是改变设置--icc=false，这是一个战略问题。如果设置了--icc=false，可以避免被攻击的容器来访问或扫描其他的主机和容器。
+如果你选择了最安全的模式--icc=false，那么当你想让它们彼此提供服务的时候应该怎么让他们互相通信呢？
+答案就是：前面提到的--link=CONTAINER_NAME:ALIAS选项。如果docker是在--icc=false和--iptables=true下运行，当它看到docker run 调用--link选项，docker将会插入一部分iptables ACCEPT规则，使得心容器可以连接到其他容器暴露出的端口(即是Dockerfile中EXPOSE所指定的端口)
+
+
+  Note: --link选项指定的CONTAINER_NAME，要么是运行docker run的时候自动生成的，要么是你在运行docker run时候指定--name的时候指定的。绝不能是主机名，否则在--link的上下文中是无法识别的。
+
+
+我们可以在docker主机上运行iptables命令来看看，FORWARD规则链是否有默认的ACCEPT或DROP策略。
+# 当设置--icc=false时
+$ sudo iptables -L -n
+
+...
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+DOCKER     all  --  0.0.0.0/0            0.0.0.0/0
+DROP       all  --  0.0.0.0/0            0.0.0.0/0
+...
+
+# 当在--icc=false模式下，使用--link时
+$ sudo iptables -L -n
+
+...
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+DOCKER     all  --  0.0.0.0/0            0.0.0.0/0
+DROP       all  --  0.0.0.0/0            0.0.0.0/0
+
+Chain DOCKER (1 references)
+target     prot opt source               destination
+ACCEPT     tcp  --  172.17.0.2           172.17.0.3           tcp spt:80
+ACCEPT     tcp  --  172.17.0.3           172.17.0.2           tcp dpt:80
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -144,6 +207,290 @@ $ sysctl net.ipv4.conf.all.forwarding
                     <p class="repo-list-description">
                         Docker 包含多个日志记录机制，来帮助你从运行的容器或服务获取日志信息。这些机制成为日志驱动。
 每一个docker daemon都有一个默认的日志驱动，每个容器都默认都是使用这个日志驱动，除非你自定义了其他的日志驱动。
+
+
+
+为docker daemon配置 默认的日志驱动
+要将docker daemon配置为默认的日志驱动程序，请使用--log-driver=&lt;VALUE&gt;选项。如果驱动程序有可配置的选项，则可以使用一个或多个--log-opt&lt;NAME&gt;=&lt;VALUE&gt;来进行设置。
+如果你没有指定日志驱动，那么默认是json-file。因此诸如docker inspect等命令输出的内容都是json格式的。
+
+下面我们看看当前默认的日志驱动是啥
+$ docker info |grep 'Logging Driver'
+
+Logging Driver: json-file
+
+
+
+为容器配置日志驱动
+当启动容器时，我们可以为容器配置和docker daemon不一样的日志驱动。如果驱动程序有可配置的选项，则可以使用一个或多个--log-opt&lt;NAME&gt;=&lt;VALUE&gt;来进行设置。即使容器使用默认的日志驱动，也可以使用不同的配置选项。
+
+看看当前容器的日志驱动是啥
+$ docker inspect -f { { .HostConfig.LogConfig.Type } } webtest1
+json-file
+
+
+
+所支持的日志驱动如下
+
+
+  
+    
+      Driver
+      Description
+    
+  
+  
+    
+      none
+      无日志
+    
+    
+      json-file
+      将日志写入json-file，默认值
+    
+    
+      syslog
+      将日志写入syslog，syslog必须在机器上启动
+    
+    
+      journald
+      将日志写入journald,journald必须在机器上启动
+    
+    
+      gelf
+      将日志写入GELF端点，如Graylog或Logstash
+    
+    
+      fluentd
+      将日志吸入fluentd，fluentd必须在机器上启动
+    
+    
+      awslogs
+      将日志写入亚马逊Cloudwatch
+    
+    
+      splunk
+      使用HTTP事件收集器将日志写入splunk
+    
+    
+      etwlogs
+      将日志消息作为windows时间跟踪。仅在windows平台可用
+    
+    
+      gcplogs
+      将日志写入Google云平台
+    
+    
+      nats
+      将日志发布到NATS服务器
+    
+  
+
+
+日志驱动的限制
+
+
+  docker logs命令不能用于json-file和journald之外的日志驱动
+
+
+Examples
+
+使用label标签或者环境变量来配置日志驱动
+如果你的容器在Dockerfile里或者在运行时，指定了标签或者环境变量。一些日志驱动就可以使用这些标签或环境变量来控制日志行为。如果标签和环境变量冲突，环境变量优先。
+
+在启动Docker daemon时指定属性和选项。例如，手动启动daemon，指定使用json-file驱动，并且设定一个标签和两个环境变量，如下：
+$ dockerd \
+          --log-driver=json-file \
+          --log-opt labels=production_status \
+          --log-opt env=os,customer
+
+
+
+下一步，运行一个容器，并指定labels和env的值，如下：
+$ docker run -tid --label production_status=testing -e os=ubuntu alpine sh
+
+
+
+最后，我们来查看记录到本地json-file中的日志内容
+$ cat /var/lib/docker/containers/02bb794219c31704629bd0c84d39d56228b8163bc8d4925002c5164b678c521a/02bb794219c31704629bd0c84d39d56228b8163bc8d4925002c5164b678c521a-json.log
+"os":"ubuntu","production_status":"test123"
+
+
+如果日志驱动支持，则会想日志记录输出添加的附加字段，一下输出用于json文件：
+"attrs":{"production_status":"testing","os":"ubuntu"}
+
+
+
+none
+none 驱动，禁用了docker daemon的日志记录或在运行时禁用了单个容器的日志记录
+
+$ docker run -ti --log-driver none alpine sh
+
+
+
+json-file
+json-file 是默认的日志驱动，而且返回的是json格式的输出
+
+json-file日志驱动支持如下选项：
+
+
+  
+    
+      Options
+      Description
+      Example value
+    
+  
+  
+    
+      max-size
+      每个日志大小
+      –log-opt max-size=10m
+    
+    
+      max-file
+      可以存在多少个日志文件,仅在同时设置了max-size时有效
+      –log-opt max-file=3
+    
+    
+      labels
+      在启动docker daemon时使用，为日志内容添加一个有关标签的，逗号分隔的列表
+      –log-opt labels=production_status,geo
+    
+    
+      env
+      在启动docker daemon时使用，为日志提供和日志记录相关的环境变量
+      –log-opt env=os,customer
+    
+  
+
+
+$ docker run -ti --log-opt max-size=10m --log-opt max-file=3 alpine sh
+
+
+
+syslog
+
+下面是支持syslog日志驱动的选项：
+
+
+  
+    
+      Option
+      Description
+      Example value
+    
+  
+  
+    
+      syslog-address
+      外部syslog服务器地址，指定方式有[tcp/udp/tcp+tls]://host:port，unix://path 或 unixgram://path，默认的传输端口514
+      –log-opt syslog-address=tcp+tls://192.168.1.3:514,–log-opt syslog-address=///tmp/syslog.sock
+    
+    
+      syslog-facility
+      要使用的syslog设施。可以是任何有效的syslog工具的编号或名称。可参考syslog 文档
+      –log-opt syslog-facility=daemon
+    
+    
+      syslog-tls-ca-cert
+      CA签发的信任证书的绝对路径。如果地址协议不是tcp+tls，则忽略
+      –log-opt syslog-tls-ca-cert=/etc/ca-certificates/custom/ca.pem
+    
+    
+      syslog-tls-cert
+      TLS证书文件的绝对路径。如果地址协议不是tcp+tls,则忽略
+      –log-opt syslog-tls-cert=/etc/ca-certificates/custom/cert.pem
+    
+    
+      syslog-tls-key
+      TLS key文件的绝对路径。如果地址协议不是tcp+tls，则忽略
+      –log-opt syslog-tls-key=/etc/ca-certificates/custom/key.pem
+    
+    
+      syslog-tls-skip
+      如果设置为true，则在连接到syslog守护程序时，跳过TLS验证。默认为false。如果地址协议不是tcp+tls，则忽略
+      –log-opt syslog-tls-skip-verify=true
+    
+    
+      tag
+      附加到syslog日志中APP-NAME的字符串。默认情况下，docker使用容器ID的前12个字符来标记日志信息。
+      –log-opt tag=mailer
+    
+    
+      syslog-format
+      要使用的syslog消息格式。如果没指定，则使用本地UNIX syslog格式，而不是用指定的主机名。比如：为RFC-3164兼容格式指定rfc3164，为RFC-5424兼容格式指定rfc5424
+      –log-opt syslog-format=rfc5424micro
+    
+    
+      labels
+      在启动docker daemon时使用，为日志内容添加一个有关标签的，逗号分隔的列表
+      –log-opt labels=production_status,geo
+    
+    
+      env
+      在启动docker daemon时使用，为日志提供和日志记录相关的环境变量
+      –log-opt env=os,customer
+    
+  
+
+
+$ docker run \
+         --log-driver=syslog \
+         --log-opt syslog-address=tcp://192.168.0.42:123 \
+         --log-opt syslog-facility=daemon \
+         alpine ash
+
+
+
+$ docker run \
+         --log-driver=syslog \
+         --log-opt syslog-address=tcp+tls://192.168.0.42:123 \
+         --log-opt syslog-tls-ca-cert=syslog-tls-ca-cert=/etc/ca-certificates/custom/ca.pem \
+         --log-opt syslog-tls-cert=syslog-tls-ca-cert=/etc/ca-certificates/custom/cert.pem \
+         --log-opt syslog-tls-key=syslog-tls-ca-cert=/etc/ca-certificates/custom/key.pem \
+         alpine ash
+
+
+
+journald
+
+journald 日志驱动将容器ID存储在日志的CONTAINER_ID字段中。油光journald的详细信息，请参考the journald logging driver
+
+
+  
+    
+      Option
+      Description
+      Example vaule
+    
+  
+  
+    
+      tag
+      用于在journald日志中设置CONTAINER_TAG的值的模板
+      –log-opt tag=mailer
+    
+    
+      labels
+      在启动docker daemon时使用，为日志内容添加一个有关标签的，逗号分隔的列表
+      –log-opt labels=production_status,get
+    
+    
+      env
+      在启动docker daemon时使用，为日志提供和日志记录相关的环境变量
+      –log-opt env=os,customer
+    
+  
+
+
+$ docker run \
+         --log-driver=journald \
+         alpine ash
+
+
+
+这里我就列几个常用的，还有很多，可以参考docker 官网
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -167,6 +514,52 @@ $ sysctl net.ipv4.conf.all.forwarding
 这一章主要讲了在用户自定义网络中，容器内嵌dns的操作。连接到用户自定义网络的容器的DNS查询和连接到默认网桥网络的容器的查询方式不同。
 
   Note: 为了保持向后的兼容性，默认网桥中的DNS配置保留，没有进行更改。有关默认网桥中DNS配置的详细信息，可以参考DNS in default bridge network
+
+
+
+截至到Docker1.10，Docker守护进程实现了一个内嵌的DNS服务器，该服务器为那些提供了有效名称、网络别名或连接别名的容器，提供内置服务发现。Docker管理容器内的DNS配置会从一个版本变成下一个版本，所以，你不应该在容器里管理如/etc/hosts,/etc/resolv.conf之类的文件，而应该将它们单独进行管理。
+影响容器域名服务的各种选项如下：
+
+
+  
+    
+      Options
+      Description
+    
+  
+  
+    
+      –name=CONTAINER-NAME
+      使用--name配置的容器名，用于在用户自定义的网络中发现容器，内嵌的DNS服务器维护容器的名称和IP地址之间的隐射
+    
+    
+      –network-alias=ALIAS
+      除了上述的--name之外，容器在用户自定义网络中还可以定义一个或多个网络别名。内嵌的DNS服务器畏惧所有容器别名和其在特定自定义网络上的IP地址之间的隐射。一个容器可以在不同的网络上拥有不同的别名
+    
+    
+      –link=CONTAINER_NAME:ALIAS
+      在运行容器的时候使用--link为内嵌DNS提供一个ALIAS条目，该条目指向由CONTAINER_NAME标识的容器的IP地址
+    
+    
+      –dns=[IP_ADDRESS…]
+      如果内嵌DNS无法解析容器的请求，那么会通过–dns指定的IP地址进行转发DNS查询，这些–dns ip地址由内嵌DNS服务器管理，不会在容器的/etc/resolv.conf文件中更新
+    
+    
+      –dns-search=DOMAIN
+      指定dns的搜索域，当容器设置了搜索域时，DNS不仅查找主机，还查找域，当然这个设置，也不会在容器的/etc/resolv.conf文件中更新
+    
+    
+      –dns-opt=OPTION…
+      设置DNS解析器的使用选项，由内嵌的DNS服务器管理，不会在容器中更新
+    
+  
+
+
+在没有指定上面的那些选项时，docker使用宿主机的/etc/resolv.conf，在执行操作时，会将所有localhost的域名解析全部过滤掉。
+过滤掉localhost域名解析是有必要的，因为主机上的所有localhost地址都无法从容器网络访问，过滤掉后，如果容器的/etc/reslov.conf文件中没有更多nameservers，docker daemon会添加GOOGLE的dns到容器中
+
+
+  Note: 如果你非要容器能访问localhost的域名解析，那你就必须在主机上修改你的dns服务，以侦听可从容器内访问的非本地主机地址
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -187,6 +580,65 @@ $ sysctl net.ipv4.conf.all.forwarding
                     </h3>
                     <p class="repo-list-description">
                         这篇主要解释了怎么绑定你自己的bridge来替换docker默认的bridge，这个默认的bridge网络是在安装docker的时候自动安装的。
+
+
+  Note: docker允许你创建默认bridge网络之外的自定义bridge网络。
+
+
+
+
+你可以在启动docker之前设定你自己的bridge网络，并使用-b BRIDGE or --bridge=BRIDGE 来告诉docker使用它。如果已经有偶docker启动并运行，并且使用的是docker0的默认配置，你可以直接创建自定义的bridge网络，并重启docker，或者停止服务之后删除接口
+# 停止docker服务，并删除docker0接口
+$ sudo service docker stop
+$ sudo ip link set dev docker0 down
+$ sudo brctl delbr docker0
+$ sudo iptables -t nat -F POSTROUTING
+
+
+
+然后,在创建docker服务之前,创建自己的网桥,并给她任何你想要的配置.这里,我们创建了一个足够简单的bridge,我们可以使用上一节中的选项来自定义docker0,这就足够了.
+# create our own bridge
+$ brctl addbr bridge0
+$ ip addr add 192.168.5.1/24 dev bridge0
+$ ip link set dev bridge0 up
+
+# 配置bridge up并且running
+
+$ ip addr show bridge0
+
+4: bridge0: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state UP group default
+    link/ether 66:38:d0:0d:76:18 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.5.1/24 scope global bridge0
+       valid_lft forever preferred_lft forever
+
+# 配置docker启动的配置文件,修改成如下类容
+$ vi /usr/lib/systemd/system/docker.service
+ExecStart=/usr/bin/dockerd -b=bridge0
+
+# 重启docker
+systemctl start docker
+
+# 看看新的NAT是否启用
+$ iptables -t nat -L -n
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination         
+MASQUERADE  all  --  192.168.5.0/24       0.0.0.0/0  
+
+
+我们看到docker服务已经成功重启，现在可以将新的容器绑定到新的bridge，然后我们新建一个容器看看
+$ docker run -tid test
+$ docker inspect clever_spence
+...
+"Gateway": "192.168.5.1",
+"IPAddress": "192.168.5.2",
+...
+
+
+我们发现，我们刚创建的bridge已经生效。
+我们可以使用brctl来对bridge进行查看，删除，添加等操作。
+$ brctl show
+bridge name	bridge id		STP enabled	interfaces
+bridge0		8000.f600adbf94d5	no		veth79dcc4b
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -209,6 +661,52 @@ $ sysctl net.ipv4.conf.all.forwarding
                         本章节主要讲解了在Docker默认的bridge网络上绑定容器端口，这个bridge网络是在docker安装的时候，系统默认创建的。
 
   Note: docker允许创建除了默认bridge网络之外的bridge网络
+
+
+
+
+默认情况下docker容器可以连接到外网，但是外网不能连接到容器。由于docker服务器在启动的时候会创建主机上的iptables规则，所以每个容器都会有自己的nat规则
+$ iptables -t nat -L -n
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination         
+MASQUERADE  all  --  172.17.0.0/16        0.0.0.0/0           
+MASQUERADE  tcp  --  172.17.0.3           172.17.0.3           tcp dpt:5000
+MASQUERADE  tcp  --  172.17.0.4           172.17.0.4           tcp dpt:5000
+
+
+docker服务器会创建一个伪装规则，使容器连接到外部IP地址。
+
+如果希望容器能接入连接，你需要在调用docker run 的时候指定特别的选项
+一.你可以在运行docker run 的时候指定-P或--publish-all=true|false来将Dockerfile中EXPOSE暴露的端口映射到主机上的随机端口
+二.或者使用--expose &lt;port&gt;来额外指定暴露出来的端口
+三.映射还可以使用-p或--publish=来精确指定暴露容器的某个端口到宿主机上某个IP的的某个端口
+我们可以使用docker port来查看端口的信息，而这个宿主机上随机端口是配置在/proc/sys/net/ipv4/ip_local_port_range，范围大概是32768-61000.
+
+无论哪种方式，你都可以通过检查NAT表来确认
+$ iptables -t nat -L -n
+# 这是允许容器访问外网
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination         
+MASQUERADE  all  --  172.17.0.0/16        0.0.0.0/0           
+MASQUERADE  tcp  --  172.17.0.3           172.17.0.3           tcp dpt:5000
+MASQUERADE  tcp  --  172.17.0.4           172.17.0.4           tcp dpt:5000
+
+# 这是允许外部访问容器
+Chain DOCKER (2 references)
+target     prot opt source               destination         
+RETURN     all  --  0.0.0.0/0            0.0.0.0/0           
+DNAT       tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:32768 to:172.17.0.3:5000
+DNAT       tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:32769 to:172.17.0.4:5000
+DNAT       tcp  --  0.0.0.0/0            192.168.1.1          tcp dpt:9292 to:172.17.0.11:80
+
+
+
+我们可以看到docker在0.0.0.0或192.168.1.1接口上公开了指定的端口或随机端口，对应映射到容器内的端口
+
+如果你想要docker端口转发绑定到一个特定的IP地址，你可以编辑docker启动配置文件，添加--ip选项，当然也可以直接使用-p选项指定
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                      NAMES
+a894fe52388a        test                "/bin/bash"         3 seconds ago       Up 1 seconds        192.168.1.1:9298-&gt;80/tcp   romantic_shannon
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -229,6 +727,55 @@ $ sysctl net.ipv4.conf.all.forwarding
                     </h3>
                     <p class="repo-list-description">
                         自动启动容器
+
+从docker1.2开始，重启策略内置在docker中，用于在容器退出时重启容器。如果设置了重启策略，它将在docker daemon启动的时候启用，通常发生在系统启动之后。重启策略将确保链接容器按正确的顺序启动。
+
+
+
+如果重启策略不适合你的环境，你可以使用像upstart,systemd or supervisor代替
+
+使用进程管理器
+
+docker 默认不会设定任何重启策略，因为它们与大多数进程管理器冲突，所以如果你正在使用进程管理器，请不要设置新的重启策略。
+
+当你已经完成了你的镜像设定，并且已经开心的运行一个容器之后，你可以附加一个进程管理器来管理它。当你运行docker start -a,docker会自动附加到正在运行的容器，或者，如果需要启动它，并转发所有信号，一边进程管理器可以检测到容器何时停止并正确重新启动它。
+
+下面有一些用于systemd的例子：
+
+systemd
+在这个例子中，我们假设我们有一个名叫--name redis-server的redis容器。这些文件会定义一个新服务，这个服务会在docker daemon启动后启动。
+[Unit]
+Description=Redis container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a redis_server
+ExecStop=/usr/bin/docker stop -t 2 redis_server
+
+[Install]
+WantedBy=default.target
+
+
+如果你打算将其作为系统服务，可以将上诉内容放在/etc/systemd/system/docker-redis_service.service文件中
+如果你还打算为redis容器传递一些选项[如 --env]，那么你需要使用docker run,而不是docker start,这将会在每次启动服务时创建一个新的容器，而在服务停止时则会停止和删除掉容器。确保您不是使用的-d或分离模式，因为从ExecStart运行的命令需要运行在前台。
+[Service]
+...
+ExecStart=/usr/bin/docker run --env foo=bar --name redis_server redis
+ExecStop=/usr/bin/docker stop -t 2 redis_server
+ExecStopPost=/usr/bin/docker rm -f redis_server
+...
+
+
+应用该服务
+systemctl daemon-reload
+systemctl start docker-redis_server.service
+
+
+
+允许上面的服务开机启动
+systemctl enable docker-redis_server.service
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -249,6 +796,20 @@ $ sysctl net.ipv4.conf.all.forwarding
                     </h3>
                     <p class="repo-list-description">
                         docker logs显示了正在运行的容器的日志信息。默认情况下，docker logs显示命令的输出，就好象在终端中交互运行命令时一样。UNIX和Linux命令通常在运行时打开3个I/O流，成为STDIN,STDOUT和STDERR。STDIN为标准输入，其可以包括来自键盘的输入或来自另一个命令的输入。STDOUT为标准输出，STDERR为错误输出。默认情况下，docker日志显示STDOUT和STDERR。更多关于Linux上的I/O信息，可参考 Linux Documentation Project article on I/O redirection
+
+
+有时候，如果我们采取了下面的操作，那么可能在终端上使用docker logs就无法获取到日志了：
+
+  如果使用了 logging driver，将日志保存到文件，外部主机，数据库，或者其他后端日志服务器。
+  如果运行一个非交互式过程的镜像[如Web服务器或数据库]，那么该应用程序可能会将其输出到日志文件，而不会以STDOUT或STDERR的方式输出来。
+
+
+在第一种情况下，您的日志以其他方式处理，您可以选择不使用docker日志。
+在第二种情况下，nginx image显示一种方法，httpd image有另一种方法。
+
+官方nginx image创建了一个从/var/log/nginx/access.log 到 /dev/stdout的符号链接，并创建了从/var/log/nginx/error.log 到/dev/stderr的另一个连接。可参考Nginx Dockerfile
+
+官方httpd更改了httpd应用程序的配置，将其正常输出直接写入/proc/self/fd/1(这是STDOUT)，并将错误输出写入/proc/self/fd/2(这是STDERR)。可参考Apache Dockerfile
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">

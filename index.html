@@ -110,24 +110,143 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="/2018/02/09/Linux-top/">Linux top 详解</a>
+                      <a href="/2018/02/09/Linux-top/">Linux Top</a>
                     </h3>
                     <p class="repo-list-description">
-                        一直都对服务性能这块的东西不怎么感冒，但是，有一次面试的时候，被问到了，突然发现自己对这些基础的知识点，好匮乏，正好今天在学python的psutil模块的时候，看到了cpu_times，顺便记录下关于top这个命令的内容；top这个命令其实很多人都会用，但是用的好的人却不多，甚至有人会对监控视图中的内容含义有不少曲解。
+                        «««&lt; HEAD
+layout: post
+title: Linux top 详解
+categories: [linux, top]
+description: linux top 详解
+keywords: linux,top
+—
+
+
+  一直都对服务性能这块的东西不怎么感冒，但是，有一次面试的时候，被问到了，突然发现自己对这些基础的知识点，好匮乏，正好今天在学python的psutil模块的时候，看到了cpu_times，顺便记录下关于top这个命令的内容；top这个命令其实很多人都会用，但是用的好的人却不多，甚至有人会对监控视图中的内容含义有不少曲解。
+
+
+
+
+
+  先来一份top命令的结果，后面会详细解读
+
+
+top - 18:02:01 up  1:06,  1 user,  load average: 0.22, 0.12, 0.10
+Tasks: 200 total,   2 running, 198 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  3.0 us,  1.0 sy,  0.0 ni, 96.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem :  4039816 total,  1270872 free,  1432504 used,  1336440 buff/cache
+KiB Swap:   385836 total,   385836 free,        0 used.  2321064 avail Mem
+
+PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND   
+
+
+
+第一行：
+
+top - 18:02:01 up  1:06,  1 user,  load average: 0.22, 0.12, 0.10
+
+18:02:01 – 当前系统时间
+1:06 – 系统已经运行了多长时间
+1 user – 当前有一个用户登录系统
+load average: 0.22, 0.12, 0.10 – load average后面的三个数分别是1分钟、5分钟、15分钟的负载情况
+
+load average数据是每隔5秒钟检查一次活跃的进程数，然后按特定算法计算出的数值。如果这个数除以逻辑CPU的数量，结果高于5就表明系统在超负荷运转了
+
+第二行：
+
+Tasks: 200 total,   2 running, 198 sleeping,   0 stopped,   0 zombie
+
+200 total – 系统现在一共有多少个进程
+2 running – 其中处于运行中的有几个
+198 sleeping – 处于休眠状态的有多少个
+0 stopped – 处于停止状态的有多少个
+0 zombie – 僵尸进程有多少个
+
+第三行：
+
+%Cpu(s):  3.0 us,  1.0 sy,  0.0 ni, 96.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+
+3.0 us – 用户空间占用CPU的百分比
+1.0 sy – 内核空间占用CPU的百分比
+0.0 ni – 用户进程空间内改变过优先级的进程占用CPU的百分比
+96.0 id – 空闲CPU百分比
+0.0 wa – IO等待占用CPU百分比
+0.0 hi – 硬中断(Hardware IRQ)占用CPU百分比
+0.0 si – 软中断(Software Interrupts)占用CPU百分比
+0.0 st – 虚拟机被hypervisor偷去的CPU时间
+
+第四行：
+
+KiB Mem :  4039816 total,  1270872 free,  1432504 used,  1336440 buff/cache
+
+4039816 total – 物理总内存
+1270872 free – 空闲内存总量
+1432504 used – 使用内存量
+1336440 buff/cache – 用作内核缓存的内存量
+
+第五行：
+
+KiB Swap:   385836 total,   385836 free,        0 used.  2321064 avail Mem
+
+385836 total – 交换区总量
+385836 free – 空闲的交换区总量
+0 used – 使用的交换区量
+2321064 avail Mem – 可用于进程下一次分配的物理内存数量
+
+第七行：
+
+PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+
+PID – 进程ID
+USER – 进程所有者
+PR – 进程优先级
+NI – nice值。负值表示高优先级，正值表示低优先级
+VIRT – 进程使用的虚拟内存总量 VIRT = SWAP+RES
+RES – 进程使用的，未被换出的物理内存大小
+SHR – 共享内存大小
+S – 进程状态 R=运行，S=睡眠，T=跟踪/停止，Z=僵尸经常，D=不可中断的睡眠状态
+%CPU – 上次更新到现在的CPU时间占用百分比
+%MEM – 进程使用的物理内存百分比
+TIME+ 进程使用的CPU时间总计
+COMMAND - 进程名称(命令名/命令行)
+
+
+  交互的时候，使用P，以CPU百分比大小进行排序，使用M，以内存大小进行排序，使用T，以时间进行排序
+
+
+
+  最后记录下如何用python来计算top里面的各个利用率
+
+
+top上的cpu利用率，大致算法如下
+CPU总时间2=user2+system2+nice2+idle2+iowait2+irq2+softirq2
+CPU总时间1=user1+system1+nice1+idle1+iowait1+irq1+softirq1
+用户cpu利用率 = user_pass * 100% / (CPU总时间2 - CPU总时间1)
+内核cpu利用率 = system_pass * 100% / (CPU总时间2 - CPU总时间1)
+总的cpu利用率= 用户cpu利用率 + 内核cpu利用率
+
+while True:
+    cs1 = sum(psutil.cpu_times())
+    cu1 = psutil.cpu_times().user
+    time.sleep(3)
+    cs2 = sum(psutil.cpu_times())
+    cu2 = psutil.cpu_times().user
+    ss = cs2 - cs1
+    print(((cu2 - cu1) / ss) * 100)
+
+
+=======
+—
+layout: post
+title: Linux top 详解
+categories: [linux, top]
+description: linux top 详解
+keywords: linux,top
+—
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
                           <span class="octicon octicon-calendar"></span> 2018/02/09
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#linux" title="linux">linux</a>
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#top" title="top">top</a>
                         </span>
                         
                     </p>
@@ -139,6 +258,140 @@
                     </h3>
                     <p class="repo-list-description">
                         最近在学python，学到class 多重继承，降到了c3算法，这里记录一下
+
+
+一、什么是拓扑排序
+
+在图论中，拓扑排序(Topological Sorting) 是一个 有向无环图(DAG,Directed Acyclic Graph) 的所有顶点的线性序列。且该序列必须满足下面两个条件：
+
+
+  每个顶点出现且只出现一次。
+  若存在一条从顶点A到顶点B的路径，那么在序列中顶点A出现在顶点B的前面。
+
+
+例如，下面这个图：
+
+
+
+它是一个DAG图，那么如何写出它的拓扑顺序呢？这里说一种比较常用的方法：
+
+
+  从DAG途中选择一个没有前驱(即入度为0)的顶点并输出
+  从图中删除该顶点和所有以它为起点的有向边。
+  重复1和2直到当前DAG图为空或当前途中不存在无前驱的顶点为止。后一种情况说明有向图中必然存在环。
+
+
+
+
+于是，得到拓扑排序后的结果是{1,2,4,3,5}
+
+下面，我们看看拓扑排序在python多重继承中的例子
+
+二、python 多重继承
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+class A(object):
+    def foo(self):
+        print('A foo')
+    def bar(self):
+        print('A bar')
+
+class B(object):
+    def foo(self):
+        print('B foo')
+    def bar(self):
+        print('B bar')
+
+class C1(A,B):
+    pass
+
+class C2(A,B):
+    def bar(self):
+        print('C2-bar')
+
+class D(C1,C2):
+    pass
+
+if __name__ == '__main__':
+    print(D.__mro__)
+    d=D()
+    d.foo()
+    d.bar()
+
+
+
+
+  首先，我们根据上面的继承关系构成一张图，如下
+
+
+
+
+
+  找到入度为0的点，只有一个D，把D拿出来，把D相关的边剪掉
+  现在有两个入度为0的点(C1,C2)，取最左原则，拿C1，剪掉C1相关的边，这时候的排序是{D,C1}
+  现在我们看，入度为0的点(C2),拿C2,剪掉C2相关的边，这时候排序是{D,C1,C2}
+  接着看，入度为0的点(A,B),取最左原则，拿A，剪掉A相关的边，这时候的排序是{D,C1,C2,A}
+  继续，入度哦为0的点只有B，拿B，剪掉B相关的边，最后只剩下object
+  所以最后的排序是{D,C1,C2,A,B,object}
+
+
+我们执行上面的代码，发现print(D.__mro__)的结果也正是这样，而这也就是多重继承所使用的C3算法啦
+
+
+  为了进一步熟悉这个拓扑排序的方法，我们再来一张图，试试看排序结果是怎样的，它继承的内容是否如你所想
+
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+class A(object):
+    def foo(self):
+        print('A foo')
+    def bar(self):
+        print('A bar')
+
+class B(object):
+    def foo(self):
+        print('B foo')
+    def bar(self):
+        print('B bar')
+
+class C1(A):
+    pass
+
+class C2(B):
+    def bar(self):
+        print('C2-bar')
+
+class D(C1,C2):
+    pass
+
+if __name__ == '__main__':
+    print(D.__mro__)
+    d=D()
+    d.foo()
+    d.bar()
+
+
+
+
+  还是先根据继承关系构一个继承图
+
+
+
+
+
+  找到入度为0的顶点，只有一个D，拿D，剪掉D相关的边
+  得到两个入度为0的顶点(C1,C2),根据最左原则，拿C1，剪掉C1相关的边，这时候序列为{D,C1}
+  接着看，入度为0的顶点有两个(A,C1),根据最左原则，拿A，剪掉A相关的边，这时候序列为{D,C1,A}
+  接着看，入度为0的顶点为C2,拿C2，剪掉C2相关的边，这时候序列为{D,C1,A,C2}
+  继续，入度为0的顶点为B，拿B，剪掉B相关的边，最后还有一个object
+  所以最后的序列为{D,C1,A,C2,B,object}
+
+
+最后，我们执行上面的代码，发现print(D.__mro__)的结果正如上面所计算的结果
+
+最后的最后，python继承顺序遵循C3算法，只要在一个地方找到了所需的内容，就不再继续查找
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -159,6 +412,55 @@
                     </h3>
                     <p class="repo-list-description">
                         jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。
+
+
+该流程包含了 checkout scm –&gt; build artifacts –&gt; build image –&gt; deploy to k8s
+
+流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等
+
+一、集群以及必要组件的搭建
+
+请参考手动搭建kubernetes HA集群,kubernetes ceph笔记
+
+二、jenkins各个yaml文件
+
+所有文件都放在这里，我们搭建的时候只需将对应的位置修改成自己的即可
+
+三、配置jenkins
+
+
+  jenkins 部署成功之后，我们需要安装对应的插件，配置和kubernetes的关联，这里除了必要的插件之外，我们额外需要安装一个kubernetes Plugin
+
+
+kubernetes cloud的配置相对简单，我们只需要指定Kubernetes URL以及Jenkins URL即可，因为jenkins在kubernetes中，所以Kubernetes URL和Jenkins URL均为内部service就行了，如下图
+
+
+
+四、新建pipeline job 测试
+
+
+  jenkins kubernetes cloud配置成功之后，我们就需要来新建一个pipeline job测试一下，这里我新建了一个learn-groovy的job
+
+
+新建job更加的简单，只需要指定你的Jenkinsfile的地址即可，如下图
+
+
+
+
+  所有的工作都在Jenkinsfile中定义完成，这就是pipeline了
+
+
+关于当前这个example项目的对应配置文件有如下几个
+
+  app-deploy.yaml 当前项目部署所需的yaml文件
+  Jenkinsfile 当前项目部署流程所需文件
+  Jenkinsfile.yaml 当前项目构建部署过程中可变参数的变量文件
+  Dockerfile 构建image所需文件
+
+
+以上所有文件在这里
+
+我们的job构建成功后，最终的结果如下
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -186,6 +488,724 @@
                         注：全文转载于https://jimmysong.io/kubernetes-handbook/guide/rbac.html
 主要是为了避免以后想查看概念的时候找不到位置，望作者见谅
 以下所有内容是 xingzhou 对 kubernetes 官方文档的翻译，原文地址 https://k8smeetup.github.io/docs/admin/authorization/rbac/
+
+
+RBAC——基于角色的访问控制
+
+基于角色的访问控制（Role-Based Access Control, 即”RBAC”）使用”rbac.authorization.k8s.io” API Group实现授权决策，允许管理员通过Kubernetes API动态配置策略。
+
+截至Kubernetes 1.6，RBAC模式处于beta版本。
+
+要启用RBAC，请使用--authorization-mode=RBAC启动API Server。
+
+API概述
+
+本节将介绍RBAC API所定义的四种顶级类型。用户可以像使用其他Kubernetes API资源一样 （例如通过kubectl、API调用等）与这些资源进行交互。例如，命令kubectl create -f (resource).yml 可以被用于以下所有的例子，当然，读者在尝试前可能需要先阅读以下相关章节的内容。
+
+Role与ClusterRole
+
+在RBAC API中，一个角色包含了一套表示一组权限的规则。 权限以纯粹的累加形式累积（没有”否定”的规则）。 角色可以由命名空间（namespace）内的Role对象定义，而整个Kubernetes集群范围内有效的角色则通过ClusterRole对象实现。
+
+一个Role对象只能用于授予对某一单一命名空间中资源的访问权限。 以下示例描述了”default”命名空间中的一个Role对象的定义，用于授予对pod的读访问权限：
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [""] # 空字符串""表明使用core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+
+
+
+ClusterRole对象可以授予与Role对象相同的权限，但由于它们属于集群范围对象， 也可以使用它们授予对以下几种资源的访问权限：
+
+
+  集群范围资源（例如节点，即node）
+  非资源类型endpoint（例如”/healthz”）
+  跨所有命名空间的命名空间范围资源（例如pod，需要运行命令kubectl get pods --all-namespaces来查询集群中所有的pod）
+
+
+下面示例中的ClusterRole定义可用于授予用户对某一特定命名空间，或者所有命名空间中的secret（取决于其绑定方式）的读访问权限：
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  # 鉴于ClusterRole是集群范围对象，所以这里不需要定义"namespace"字段
+  name: secret-reader
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "watch", "list"]
+
+
+RoleBinding与ClusterRoleBinding
+
+角色绑定将一个角色中定义的各种权限授予一个或者一组用户。 角色绑定包含了一组相关主体（即subject, 包括用户——User、用户组——Group、或者服务账户——Service Account）以及对被授予角色的引用。 在命名空间中可以通过RoleBinding对象授予权限，而集群范围的权限授予则通过ClusterRoleBinding对象完成。
+
+RoleBinding可以引用在同一命名空间内定义的Role对象。 下面示例中定义的RoleBinding对象在”default”命名空间中将”pod-reader”角色授予用户”jane”。 这一授权将允许用户”jane”从”default”命名空间中读取pod。
+
+# 以下角色绑定定义将允许用户"jane"从"default"命名空间中读取pod。
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  name: jane
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+
+
+RoleBinding对象也可以引用一个ClusterRole对象用于在RoleBinding所在的命名空间内授予用户对所引用的ClusterRole中 定义的命名空间资源的访问权限。这一点允许管理员在整个集群范围内首先定义一组通用的角色，然后再在不同的命名空间中复用这些角色。
+
+例如，尽管下面示例中的RoleBinding引用的是一个ClusterRole对象，但是用户”dave”（即角色绑定主体）还是只能读取”development” 命名空间中的secret（即RoleBinding所在的命名空间）。
+
+# 以下角色绑定允许用户"dave"读取"development"命名空间中的secret。
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: read-secrets
+  namespace: development # 这里表明仅授权读取"development"命名空间中的资源。
+subjects:
+- kind: User
+  name: dave
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: secret-reader
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+最后，可以使用ClusterRoleBinding在集群级别和所有命名空间中授予权限。下面示例中所定义的ClusterRoleBinding 允许在用户组”manager”中的任何用户都可以读取集群中任何命名空间中的secret。
+
+# 以下`ClusterRoleBinding`对象允许在用户组"manager"中的任何用户都可以读取集群中任何命名空间中的secret。
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: read-secrets-global
+subjects:
+- kind: Group
+  name: manager
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: secret-reader
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+对资源的引用
+
+大多数资源由代表其名字的字符串表示，例如”pods”，就像它们出现在相关API endpoint的URL中一样。然而，有一些Kubernetes API还 包含了”子资源”，比如pod的logs。在Kubernetes中，pod logs endpoint的URL格式为：
+
+GET /api/v1/namespaces/{namespace}/pods/{name}/log
+
+
+
+
+在这种情况下，”pods”是命名空间资源，而”log”是pods的子资源。为了在RBAC角色中表示出这一点，我们需要使用斜线来划分资源 与子资源。如果需要角色绑定主体读取pods以及pod log，您需要定义以下角色：
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: default
+  name: pod-and-pod-logs-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list"]
+
+
+
+通过resourceNames列表，角色可以针对不同种类的请求根据资源名引用资源实例。当指定了resourceNames列表时，不同动作 种类的请求的权限，如使用”get”、”delete”、”update”以及”patch”等动词的请求，将被限定到资源列表中所包含的资源实例上。 例如，如果需要限定一个角色绑定主体只能”get”或者”update”一个configmap时，您可以定义以下角色：
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: default
+  name: configmap-updater
+rules:
+- apiGroups: [""]
+  resources: ["configmap"]
+  resourceNames: ["my-configmap"]
+  verbs: ["update", "get"]
+
+
+
+值得注意的是，如果设置了resourceNames，则请求所使用的动词不能是list、watch、create或者deletecollection。 由于资源名不会出现在create、list、watch和deletecollection等API请求的URL中，所以这些请求动词不会被设置了resourceNames 的规则所允许，因为规则中的resourceNames部分不会匹配这些请求。
+
+一些角色定义的例子
+
+在以下示例中，我们仅截取展示了rules部分的定义。
+
+允许读取core API Group中定义的资源”pods”：
+
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+
+
+允许读写在”extensions”和”apps” API Group中定义的”deployments”：
+
+rules:
+- apiGroups: ["extensions", "apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+
+
+允许读取”pods”以及读写”jobs”：
+
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch", "extensions"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+
+
+允许读取一个名为”my-config”的ConfigMap实例（需要将其通过RoleBinding绑定从而限制针对某一个命名空间中定义的一个ConfigMap实例的访问）：
+
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["my-config"]
+  verbs: ["get"]
+
+
+
+允许读取core API Group中的”nodes”资源（由于Node是集群级别资源，所以此ClusterRole定义需要与一个ClusterRoleBinding绑定才能有效）：
+
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+
+
+
+允许对非资源endpoint “/healthz”及其所有子路径的”GET”和”POST”请求（此ClusterRole定义需要与一个ClusterRoleBinding绑定才能有效）：
+
+rules:
+- nonResourceURLs: ["/healthz", "/healthz/*"] # 在非资源URL中，'*'代表后缀通配符
+  verbs: ["get", "post"]
+
+
+
+对角色绑定主体（Subject）的引用
+
+RoleBinding或者ClusterRoleBinding将角色绑定到角色绑定主体（Subject）。 角色绑定主体可以是用户组（Group）、用户（User）或者服务账户（Service Accounts）。
+
+用户由字符串表示。可以是纯粹的用户名，例如”alice”、电子邮件风格的名字，如 “bob@example.com” 或者是用字符串表示的数字id。由Kubernetes管理员配置认证模块 以产生所需格式的用户名。对于用户名，RBAC授权系统不要求任何特定的格式。然而，前缀system:是 为Kubernetes系统使用而保留的，所以管理员应该确保用户名不会意外地包含这个前缀。
+
+Kubernetes中的用户组信息由授权模块提供。用户组与用户一样由字符串表示。Kubernetes对用户组 字符串没有格式要求，但前缀system:同样是被系统保留的。
+
+服务账户拥有包含 system:serviceaccount:前缀的用户名，并属于拥有system:serviceaccounts:前缀的用户组。
+
+角色绑定的一些例子
+
+以下示例中，仅截取展示了RoleBinding的subjects字段。
+
+一个名为”alice@example.com”的用户：
+
+subjects:
+- kind: User
+  name: "alice@example.com"
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+一个名为”frontend-admins”的用户组：
+
+subjects:
+- kind: Group
+  name: "frontend-admins"
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+kube-system命名空间中的默认服务账户：
+
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: kube-system
+
+
+
+名为”qa”命名空间中的所有服务账户：
+
+subjects:
+- kind: Group
+  name: system:serviceaccounts:qa
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+在集群中的所有服务账户：
+
+subjects:
+- kind: Group
+  name: system:serviceaccounts
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+所有认证过的用户（version 1.5+）：
+
+subjects:
+- kind: Group
+  name: system:authenticated
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+所有未认证的用户（version 1.5+）：
+
+subjects:
+- kind: Group
+  name: system:unauthenticated
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+所有用户（version 1.5+）：
+
+subjects:
+- kind: Group
+  name: system:authenticated
+  apiGroup: rbac.authorization.k8s.io
+- kind: Group
+  name: system:unauthenticated
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+默认角色与默认角色绑定
+
+API Server会创建一组默认的ClusterRole和ClusterRoleBinding对象。 这些默认对象中有许多包含system:前缀，表明这些资源由Kubernetes基础组件”拥有”。 对这些资源的修改可能导致非功能性集群（non-functional cluster）。一个例子是system:node ClusterRole对象。 这个角色定义了kubelets的权限。如果这个角色被修改，可能会导致kubelets无法正常工作。
+
+所有默认的ClusterRole和ClusterRoleBinding对象都会被标记为kubernetes.io/bootstrapping=rbac-defaults。
+
+自动更新
+
+每次启动时，API Server都会更新默认ClusterRole所缺乏的各种权限，并更新默认ClusterRoleBinding所缺乏的各个角色绑定主体。 这种自动更新机制允许集群修复一些意外的修改。由于权限和角色绑定主体在新的Kubernetes释出版本中可能变化，这也能够保证角色和角色 绑定始终保持是最新的。
+
+如果需要禁用自动更新，请将默认ClusterRole以及ClusterRoleBinding的rbac.authorization.kubernetes.io/autoupdate 设置成为false。 请注意，缺乏默认权限和角色绑定主体可能会导致非功能性集群问题。
+
+自Kubernetes 1.6+起，当集群RBAC授权器（RBAC Authorizer）处于开启状态时，可以启用自动更新功能.
+
+发现类角色
+
+
+  
+    
+      默认ClusterRole
+      默认ClusterRoleBinding
+      描述
+    
+  
+  
+    
+      system:basic-user
+      system:authenticated and system:unauthenticatedgroups
+      允许用户只读访问有关自己的基本信息。
+    
+    
+      system:discovery
+      system:authenticated and system:unauthenticatedgroups
+      允许只读访问API discovery endpoints, 用于在API级别进行发现和协商。
+    
+  
+
+
+面向用户的角色
+
+一些默认角色并不包含system:前缀，它们是面向用户的角色。 这些角色包含超级用户角色（cluster-admin），即旨在利用ClusterRoleBinding（cluster-status）在集群范围内授权的角色， 以及那些使用RoleBinding（admin、edit和view）在特定命名空间中授权的角色。
+
+
+  
+    
+      默认ClusterRole
+      默认ClusterRoleBinding
+      描述
+    
+  
+  
+    
+      cluster-admin
+      system:masters group
+      超级用户权限，允许对任何资源执行任何操作。 在ClusterRoleBinding中使用时，可以完全控制集群和所有命名空间中的所有资源。 在RoleBinding中使用时，可以完全控制RoleBinding所在命名空间中的所有资源，包括命名空间自己。
+    
+    
+      admin
+      None
+      管理员权限，利用RoleBinding在某一命名空间内部授予。 在RoleBinding中使用时，允许针对命名空间内大部分资源的读写访问， 包括在命名空间内创建角色与角色绑定的能力。 但不允许对资源配额（resource quota）或者命名空间本身的写访问。
+    
+    
+      edit
+      None
+      允许对某一个命名空间内大部分对象的读写访问，但不允许查看或者修改角色或者角色绑定。
+    
+    
+      view
+      None
+      允许对某一个命名空间内大部分对象的只读访问。 不允许查看角色或者角色绑定。 由于可扩散性等原因，不允许查看secret资源。
+    
+  
+
+
+Core Component Roles
+
+核心组件角色
+
+
+  
+    
+      默认ClusterRole
+      默认ClusterRoleBinding
+      描述
+    
+  
+  
+    
+      system:kube-scheduler
+      system:kube-scheduler user
+      允许访问kube-scheduler组件所需要的资源。
+    
+    
+      system:kube-controller-manager
+      system:kube-controller-manager user
+      允许访问kube-controller-manager组件所需要的资源。 单个控制循环所需要的权限请参阅控制器（controller）角色.
+    
+    
+      system:node
+      system:nodes group (deprecated in 1.7)
+      允许对kubelet组件所需要的资源的访问，包括读取所有secret和对所有pod的写访问。 自Kubernetes 1.7开始, 相比较于这个角色，更推荐使用Node authorizer 以及NodeRestriction admission plugin， 并允许根据调度运行在节点上的pod授予kubelets API访问的权限。 自Kubernetes 1.7开始，当启用Node授权模式时，对system:nodes用户组的绑定将不会被自动创建。
+    
+    
+      system:node-proxier
+      system:kube-proxy user
+      允许对kube-proxy组件所需要资源的访问。
+    
+  
+
+
+其它组件角色
+
+
+  
+    
+      默认ClusterRole
+      默认ClusterRoleBinding
+      描述
+    
+  
+  
+    
+      system:auth-delegator
+      None
+      允许委托认证和授权检查。 通常由附加API Server用于统一认证和授权。
+    
+    
+      system:heapster
+      None
+      Heapster组件的角色。
+    
+    
+      system:kube-aggregator
+      None
+      kube-aggregator组件的角色。
+    
+    
+      system:kube-dns
+      kube-dns service account in the kube-systemnamespace
+      kube-dns组件的角色。
+    
+    
+      system:node-bootstrapper
+      None
+      允许对执行Kubelet TLS引导（Kubelet TLS bootstrapping）所需要资源的访问.
+    
+    
+      system:node-problem-detector
+      None
+      node-problem-detector组件的角色。
+    
+    
+      system:persistent-volume-provisioner
+      None
+      允许对大部分动态存储卷创建组件（dynamic volume provisioner）所需要资源的访问。
+    
+  
+
+
+控制器（Controller）角色
+
+Kubernetes controller manager负责运行核心控制循环。 当使用--use-service-account-credentials选项运行controller manager时，每个控制循环都将使用单独的服务账户启动。 而每个控制循环都存在对应的角色，前缀名为system:controller:。 如果不使用--use-service-account-credentials选项时，controller manager将会使用自己的凭证运行所有控制循环，而这些凭证必须被授予相关的角色。 这些角色包括：
+
+
+  system:controller:attachdetach-controller
+  system:controller:certificate-controller
+  system:controller:cronjob-controller
+  system:controller:daemon-set-controller
+  system:controller:deployment-controller
+  system:controller:disruption-controller
+  system:controller:endpoint-controller
+  system:controller:generic-garbage-collector
+  system:controller:horizontal-pod-autoscaler
+  system:controller:job-controller
+  system:controller:namespace-controller
+  system:controller:node-controller
+  system:controller:persistent-volume-binder
+  system:controller:pod-garbage-collector
+  system:controller:replicaset-controller
+  system:controller:replication-controller
+  system:controller:resourcequota-controller
+  system:controller:route-controller
+  system:controller:service-account-controller
+  system:controller:service-controller
+  system:controller:statefulset-controller
+  system:controller:ttl-controller
+
+
+初始化与预防权限升级
+
+RBAC API会阻止用户通过编辑角色或者角色绑定来升级权限。 由于这一点是在API级别实现的，所以在RBAC授权器（RBAC authorizer）未启用的状态下依然可以正常工作。
+
+用户只有在拥有了角色所包含的所有权限的条件下才能创建／更新一个角色，这些操作还必须在角色所处的相同范围内进行（对于ClusterRole来说是集群范围，对于Role来说是在与角色相同的命名空间或者集群范围）。 例如，如果用户”user-1”没有权限读取集群范围内的secret列表，那么他也不能创建包含这种权限的ClusterRole。为了能够让用户创建／更新角色，需要：
+
+
+  授予用户一个角色以允许他们根据需要创建／更新Role或者ClusterRole对象。
+  授予用户一个角色包含他们在Role或者ClusterRole中所能够设置的所有权限。如果用户尝试创建或者修改Role或者ClusterRole以设置那些他们未被授权的权限时，这些API请求将被禁止。
+
+
+用户只有在拥有所引用的角色中包含的所有权限时才可以创建／更新角色绑定（这些操作也必须在角色绑定所处的相同范围内进行）或者用户被明确授权可以在所引用的角色上执行绑定操作。 例如，如果用户”user-1”没有权限读取集群范围内的secret列表，那么他将不能创建ClusterRole来引用那些授予了此项权限的角色。为了能够让用户创建／更新角色绑定，需要：
+
+
+  授予用户一个角色以允许他们根据需要创建／更新RoleBinding或者ClusterRoleBinding对象。
+  授予用户绑定某一特定角色所需要的权限：
+    
+      隐式地，通过授予用户所有所引用的角色中所包含的权限
+      显式地，通过授予用户在特定Role（或者ClusterRole）对象上执行bind操作的权限
+    
+  
+
+
+例如，下面例子中的ClusterRole和RoleBinding将允许用户”user-1”授予其它用户”user-1-namespace”命名空间内的admin、edit和view等角色和角色绑定。
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: role-grantor
+rules:
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["rolebindings"]
+  verbs: ["create"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["clusterroles"]
+  verbs: ["bind"]
+  resourceNames: ["admin","edit","view"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: role-grantor-binding
+  namespace: user-1-namespace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: role-grantor
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: user-1
+
+
+
+当初始化第一个角色和角色绑定时，初始用户需要能够授予他们尚未拥有的权限。 初始化初始角色和角色绑定时需要：
+
+
+  使用包含system：masters用户组的凭证，该用户组通过默认绑定绑定到cluster-admin超级用户角色。
+  如果您的API Server在运行时启用了非安全端口（--insecure-port），您也可以通过这个没有施行认证或者授权的端口发送角色或者角色绑定请求。
+
+
+一些命令行工具
+
+有两个kubectl命令可以用于在命名空间内或者整个集群内授予角色。
+
+kubectl create rolebinding
+
+在某一特定命名空间内授予Role或者ClusterRole。示例如下：
+
+
+  
+    在名为”acme”的命名空间中将admin ClusterRole授予用户”bob”：
+
+    kubectl create rolebinding bob-admin-binding --clusterrole=admin --user=bob --namespace=acme
+  
+  
+    在名为”acme”的命名空间中将view ClusterRole授予服务账户”myapp”：
+
+    kubectl create rolebinding myapp-view-binding --clusterrole=view --serviceaccount=acme:myapp --namespace=acme
+  
+
+
+kubectl create clusterrolebinding
+
+在整个集群中授予ClusterRole，包括所有命名空间。示例如下：
+
+
+  
+    在整个集群范围内将cluster-admin ClusterRole授予用户”root”：
+
+    kubectl create clusterrolebinding root-cluster-admin-binding --clusterrole=cluster-admin --user=root
+  
+  
+    在整个集群范围内将system:node ClusterRole授予用户”kubelet”：
+
+    kubectl create clusterrolebinding kubelet-node-binding --clusterrole=system:node --user=kubelet
+  
+  
+    在整个集群范围内将view ClusterRole授予命名空间”acme”内的服务账户”myapp”：
+
+    kubectl create clusterrolebinding myapp-view-binding --clusterrole=view --serviceaccount=acme:myapp
+  
+
+
+请参阅CLI帮助文档以获得上述命令的详细用法
+
+服务账户（Service Account）权限
+
+默认的RBAC策略将授予控制平面组件（control-plane component）、节点（node）和控制器（controller）一组范围受限的权限， 但对于”kube-system”命名空间以外的服务账户，则不授予任何权限（超出授予所有认证用户的发现权限）。
+
+这一点允许您根据需要向特定服务账号授予特定权限。 细粒度的角色绑定将提供更好的安全性，但需要更多精力管理。 更粗粒度的授权可能授予服务账号不需要的API访问权限（甚至导致潜在授权扩散），但更易于管理。
+
+从最安全到最不安全可以排序以下方法：
+
+
+  
+    对某一特定应用程序的服务账户授予角色（最佳实践）
+
+    要求应用程序在其pod规范（pod spec）中指定serviceAccountName字段，并且要创建相应服务账户（例如通过API、应用程序清单或者命令kubectl create serviceaccount等）。
+
+    例如，在”my-namespace”命名空间中授予服务账户”my-sa”只读权限：
+
+    kubectl create rolebinding my-sa-view \
+  --clusterrole=view \
+  --serviceaccount=my-namespace:my-sa \
+  --namespace=my-namespace
+
+    
+  
+  
+    在某一命名空间中授予”default”服务账号一个角色
+
+    如果一个应用程序没有在其pod规范中指定serviceAccountName，它将默认使用”default”服务账号。
+
+    注意：授予”default”服务账号的权限将可用于命名空间内任何没有指定serviceAccountName的pod。
+
+    下面的例子将在”my-namespace”命名空间内授予”default”服务账号只读权限：
+
+    kubectl create rolebinding default-view \
+  --clusterrole=view \
+  --serviceaccount=my-namespace:default \
+  --namespace=my-namespace
+
+    
+
+    目前，许多[加载项（addon）]（/ docs / concepts / cluster-administration / addons /）作为”kube-system”命名空间中的”default”服务帐户运行。 要允许这些加载项使用超级用户访问权限，请将cluster-admin权限授予”kube-system”命名空间中的”default”服务帐户。 注意：启用上述操作意味着”kube-system”命名空间将包含允许超级用户访问API的秘钥。
+
+    kubectl create clusterrolebinding add-on-cluster-admin \
+  --clusterrole=cluster-admin \
+  --serviceaccount=kube-system:default
+
+    
+  
+  
+    为命名空间中所有的服务账号授予角色
+
+    如果您希望命名空间内的所有应用程序都拥有同一个角色，无论它们使用什么服务账户，您可以为该命名空间的服务账户用户组授予角色。
+
+    下面的例子将授予”my-namespace”命名空间中的所有服务账户只读权限：
+
+    kubectl create rolebinding serviceaccounts-view \
+  --clusterrole=view \
+  --group=system:serviceaccounts:my-namespace \
+  --namespace=my-namespace
+
+    
+  
+  
+    对集群范围内的所有服务账户授予一个受限角色（不鼓励）
+
+    如果您不想管理每个命名空间的权限，则可以将集群范围角色授予所有服务帐户。
+
+    下面的例子将所有命名空间中的只读权限授予集群中的所有服务账户：
+
+    kubectl create clusterrolebinding serviceaccounts-view \
+  --clusterrole=view \
+  --group=system:serviceaccounts
+
+    
+  
+  
+    授予超级用户访问权限给集群范围内的所有服务帐户（强烈不鼓励）
+
+    如果您根本不关心权限分块，您可以对所有服务账户授予超级用户访问权限。
+
+    警告：这种做法将允许任何具有读取权限的用户访问secret或者通过创建一个容器的方式来访问超级用户的凭据。
+
+    kubectl create clusterrolebinding serviceaccounts-cluster-admin \
+  --clusterrole=cluster-admin \
+  --group=system:serviceaccounts
+
+    
+  
+
+
+从版本1.5升级
+
+在Kubernetes 1.6之前，许多部署使用非常宽泛的ABAC策略，包括授予对所有服务帐户的完整API访问权限。
+
+默认的RBAC策略将授予控制平面组件（control-plane components）、节点（nodes）和控制器（controller）一组范围受限的权限， 但对于”kube-system”命名空间以外的服务账户，则不授予任何权限（超出授予所有认证用户的发现权限）。
+
+虽然安全性更高，但这可能会影响到期望自动接收API权限的现有工作负载。 以下是管理此转换的两种方法：
+
+并行授权器（authorizer）
+
+同时运行RBAC和ABAC授权器，并包括旧版ABAC策略：
+
+--authorization-mode=RBAC,ABAC --authorization-policy-file=mypolicy.jsonl
+
+
+
+
+RBAC授权器将尝试首先授权请求。如果RBAC授权器拒绝API请求，则ABAC授权器将被运行。这意味着RBAC策略或者ABAC策略所允许的任何请求都是可通过的。
+
+当以日志级别为2或更高（--v = 2）运行时，您可以在API Server日志中看到RBAC拒绝请求信息（以RBAC DENY:为前缀）。 您可以使用该信息来确定哪些角色需要授予哪些用户，用户组或服务帐户。 一旦授予服务帐户角色，并且服务器日志中没有RBAC拒绝消息的工作负载正在运行，您可以删除ABAC授权器。
+
+宽泛的RBAC权限
+
+您可以使用RBAC角色绑定来复制一个宽泛的策略。
+
+警告：以下政策略允许所有服务帐户作为集群管理员。 运行在容器中的任何应用程序都会自动接收服务帐户凭据，并且可以对API执行任何操作，包括查看secret和修改权限。 因此，并不推荐使用这种策略。
+
+kubectl create clusterrolebinding permissive-binding \
+  --clusterrole=cluster-admin \
+  --user=admin \
+  --user=kubelet \
+  --group=system:serviceaccounts
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -211,6 +1231,357 @@
                     </h3>
                     <p class="repo-list-description">
                         我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露
+
+
+一、Kubernetes 服务暴露介绍
+
+关于服务暴露，常见的有如下几种方式:
+
+
+  LoadBlancer Service
+  NodePort Service
+  Ingress
+  traefik
+
+
+1.1、LoadBlancer Service
+
+LoandBlancer Service 是kubernetes深度结合云平台的一个组件；当使用LoandBlancer Service暴露服务时，实际上是通过向底层云平台申请创建一个负载均衡器来向外暴露服务；目前LoadBlancer Service支持的云平台已经相对完善，比如国外的GCE、DigitalOcean，国内的阿里云，私有云Openstack等等，由于LoadBlancer Service深度结合了云平台，所以只能在一些云平台使用。
+
+1.2、NodePort Service
+
+NodePort Service 顾名思义，实质上就是通过在集群的每个node上暴露一个端口，然后将这个端口隐射到某个具体的service来实现，虽然每个node的端口有很多(0~65535)，但由于安全性和易用性(服务多了，端口记不住，容易混乱)，实际上使用的可能并不多
+
+1.3、Ingress
+
+ingress 这东西在1.2后才出现的，大致原理就是通过一个ingress controller来实时感知service、pod的变化，然后结合ingress生成配置，更新内部的反代，刷新配置，达到服务暴露的目的
+
+1.4、traefik
+
+traefik 笔者并没有使用过，大致意思是抛弃了ingress controller，因为traefik本身就能和kubernetes API交互，感知后端变化，再根据ingress生成规则，暴露服务。
+
+二、fabio+consul+registrator 实现服务暴露
+
+
+  前面简单的介绍了几种kubernetes中的服务暴露方式，但是我这里一种都没有使用，为什么呢，因为通过service或者Nodeport来实现服务发现都是使用的iptables来进行负载的，性能上总是有些损耗的，所以这里我使用consul+registrator+fabio来实现kubernetes内部服务的暴露
+
+
+组件介绍：
+
+
+  fabio
+  registrator
+  consul
+
+
+2.1、fabio
+
+fabio 是ebay团队用golang开发的一个快速、简单零配置就能够让consul部署的应用快速支持http(s)的负载均衡路由器，支持服务发现，自动生成路由
+我们只需要在consul注册服务，提供一个健康检查，fabio就会将流量路由到这些服务上
+
+2.2、registrator
+
+registrator(注册器)，能够实时的监听docker的event，动态的注册docker 容器服务到consul、etcd或zookeeper中
+
+2.3、consul
+
+Consul 是一个支持多数据中心分布式高可用的服务发现和配置共享的服务软件,由 HashiCorp 公司用 Go 语言开发, 基于 Mozilla Public License 2.0 的协议进行开源. Consul 支持健康检查,并允许 HTTP 和 DNS 协议调用 API 存储键值对
+
+2.4、具体部署过程
+
+具体架构图如下：
+
+
+
+首先我们需要部署一套consul server cluster，具体部署过程，这里就不再演示了，请参考Consul 集群搭建
+
+然后，我们所有的节点都需要包含在calico-network范围之内，calico网络部署请参考第一章,将所有fabio所在的节点配置为noscheduler
+
+1.consul client 部署
+
+
+  我们在每个节点上跑一个consul-client，你可以以daemonset的方式部署，也可以直接以二进制的方式部署，用systemd管理起来，这里用二进制的方式
+
+
+/usr/lib/systemd/system/consul.service
+
+[Unit]
+Description=Consul service discovery agent
+Requires=network-online.target
+After=network-online.target
+[Service]
+User=consul
+Group=consul
+EnvironmentFile=-/etc/default/consul
+Environment=GOMAXPROCS=2
+Restart=on-failure
+ExecStartPre=[ -f "/opt/consul/run/consul.pid" ] &amp;&amp; /usr/bin/rm -f /opt/consul/run/consul.pid
+ExecStart=/usr/local/bin/consul agent $CONSUL_FLAGS
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGTERM
+TimeoutStopSec=5
+[Install]
+WantedBy=multi-user.target
+
+
+
+/etc/default/consul
+
+CONSUL_FLAGS="-ui -data-dir=/opt/consul/data -config-dir=/opt/consul/conf -pid-file=/opt/consul/run/consul.pid -client=0.0.0.0 -bind=172.29.151.4 -node=consul-client04 -retry-join=172.30.33.39 -retry-join=172.30.33.40 -retry-join=172.30.33.41 -retry-interval=3s"
+
+
+
+2.registrator 部署
+
+
+  我们在每个node 节点上跑一个registrator，同样可以以daemonset的方式部署，或者使用docker container的方式部署，用systemd管理，这里我们通过daemonset的方式部署
+
+
+registrator.yaml
+
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  creationTimestamp: null
+  labels:
+    run: registrator
+  name: registrator
+spec:
+  selector:
+    matchLabels:
+      run: registrator
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: registrator
+    spec:
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+      hostNetwork: true
+      containers:
+        - name: registrator
+          volumeMounts:
+          - mountPath: /tmp/docker.sock
+            name: docker-sock
+          image: ganeshkaila/registrator:v7
+          command: ["/bin/sh"]
+          args: ["-c", "registrator -useIpFromEnv=POD_IP -internal consul://localhost:8500"]
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+
+
+3.fabio 部署
+
+
+  我们在对应的节点上部署fabio，二进制文件部署，通过systemd管理
+
+
+fabio.service
+
+[Unit]
+Description=fabio
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Environment=GOMAXPROCS=2
+Restart=on-failure
+ExecStart=/usr/local/bin/fabio
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+至此，我们的fabio+consul+registrator就算是部署完成了，那么我们怎么使用呢，这里，我们以kubernetes-dashboard为例
+
+kubernetes-dashboard.yaml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard-certs
+  namespace: kube-system
+type: Opaque
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kube-system
+
+---
+# ------------------- Dashboard Role &amp; Role Binding ------------------- #
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: kubernetes-dashboard-minimal
+  namespace: kube-system
+rules:
+  # Allow Dashboard to create and watch for changes of 'kubernetes-dashboard-key-holder' secret.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "watch"]
+    # Allow Dashboard to get, update and delete Dashboard exclusive secrets.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["kubernetes-dashboard-key-holder"]
+    verbs: ["get", "update", "delete"]
+    # Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["kubernetes-dashboard-settings"]
+    verbs: ["list","get", "update"]
+    # Allow Dashboard to get metrics from heapster.
+  - apiGroups: [""]
+    resources: ["services"]
+    resourceNames: ["heapster"]
+    verbs: ["proxy"]
+
+  ---
+  apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: RoleBinding
+  metadata:
+    name: kubernetes-dashboard-minimal
+    namespace: kube-system
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: kubernetes-dashboard-minimal
+  subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: kube-system
+
+  ---
+  # ------------------- Dashboard Deployment ------------------- #
+
+  kind: Deployment
+  apiVersion: extensions/v1beta1
+  metadata:
+    labels:
+      k8s-app: kubernetes-dashboard
+    name: kubernetes-dashboard
+    namespace: kube-system
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: kubernetes-dashboard
+    template:
+      metadata:
+        labels:
+          k8s-app: kubernetes-dashboard
+      spec:
+        containers:
+          - name: kubernetes-dashboard
+            image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1
+            ports:
+            - containerPort: 9090
+              protocol: TCP
+            # 这里个人添加一些必要的env
+            env:
+            - name: SERVICE_9090_CHECK_HTTP
+              value: "/"
+            - name: SERVICE_9090_CHECK_INTERVAL
+              value: "15s"
+            - name: SERVICE_9090_CHECK_TIME
+              value: "1s"
+            - name: SERVICE_NAME
+              value: kubernetes-dashboard
+            - name: SERVICE_TAGS
+              value: urlprefix-dashboard.quark.com/
+              # 指定获取pod ip
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            args:
+              # Uncomment the following line to manually specify Kubernetes API server Host
+              # If not specified, Dashboard will attempt to auto discover the API server and connect
+              # to it. Uncomment only if the default does not work.
+              # - --apiserver-host=http://my-address:port
+              - --authentication-mode=basic
+              # 这里添加一个连接heapster
+              - --heapster-host=http://heapster.kube-system.svc.cluster.local
+              volumeMounts:
+                # Create on-disk volume to store exec logs
+              - mountPath: /tmp
+                name: tmp-volume
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 9090
+                initialDelaySeconds: 30
+                timeoutSeconds: 30
+            volumes:
+            - name: tmp-volume
+              emptyDir: {}
+              # 这里的serviceAccountName改成default
+            serviceAccountName: default
+            # Comment the following tolerations if Dashboard must not be deployed on master
+            tolerations:
+            - key: node-role.kubernetes.io/master
+              effect: NoSchedule
+
+
+
+前端LB配置
+
+server {
+    listen       80;
+    server_name  dashboard.quark.com;
+    client_max_body_size 0;
+
+    location / {
+        proxy_pass                          http://fabio-server;
+        proxy_set_header  Host              dashboard.quark.com;   # 这个位置一定是注册到consul里面的tags部分
+        proxy_set_header  X-Real-IP         $remote_addr; # pass on real client's IP
+
+
+        proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header  X-Forwarded-Proto $scheme;
+        proxy_read_timeout                  900;
+    }
+
+}
+
+
+
+upstream fabio-server {
+        server 172.29.151.4:9999;
+}
+
+
+
+最后看看结果
+
+
+  fabio
+
+
+
+
+
+  kubernetes-dashboard
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -251,6 +1622,743 @@
                     </h3>
                     <p class="repo-list-description">
                         由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:
+
+
+
+
+docker 安装
+
+1.安装依赖包
+
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+
+
+
+2.添加docker stable 库
+
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+
+
+3.关闭edge和test库
+
+yum-config-manager --disable docker-ce-edge
+yum-config-manager --disable docker-ce-test
+
+
+
+4.安装docker-ce
+
+yum install docker-ce -y
+
+
+
+5.配置docker graph driver
+
+vim /etc/docker/daemon.json
+
+{
+  "graph": "/data_docker/docker"
+}
+
+
+
+6.配置成开机启动，这时候先别启动docker
+
+systemctl enable docker
+
+
+
+ceph 搭建
+
+在管理节点上操作
+
+1.添加ceph源
+
+[ceph-noarch]
+name=Ceph noarch packages
+baseurl=https://download.ceph.com/rpm/el7/noarch
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+
+
+
+2.更新并安装ceph-deploy
+
+$ sudo yum update &amp;&amp; sudo yum install ceph-deploy
+
+
+
+2.配置从部署机器到所有其他节点的免密钥登录，具体参考这里
+
+在节点上操作
+
+1.安装epel源
+
+$ yum install yum-plugin-priorities -y
+$ yum install epel-release -y
+
+
+
+2.校对时间，由于ceph使用Paxos算法保证数据一致性，所以安装前要先保证各个节点的时间同步
+
+$ sudo yum install ntp ntpdate ntp-doc
+
+$ ntpdate 0.cn.pool.ntp.org
+
+
+
+3.开放所需端口或关闭防火墙
+
+$ systemctl stop firewalld
+$ sudo firewall-cmd --zone=public --add-port=6789/tcp --permanent
+
+
+
+4.关闭selinux
+
+$ sudo setenforce 0
+
+
+
+创建集群
+
+1.由于ceph-deploy工具部署集群前需要创建一些集群配置信息，其保存在ceph.conf文件中，这个文件将来会被复制到每个节点的 /etc/ceph/ceph.conf
+
+# 创建集群配置目录
+mkdir ceph-cluster &amp;&amp; cd ceph-cluster
+# 创建 monitor-node
+ceph-deploy new i711-ustorage-1 i711-ustorage-2 i711-ustorage-3
+# 追加 OSD 副本数量(测试虚拟机总共有3台)
+echo "osd pool default size = 3" &gt;&gt; ceph.conf
+# 追加时间ceph允许的误差时间范围到ceph.conf
+mon_clock_drift_allowed = 5
+mon_clock_drift_warn_backoff = 30
+
+
+
+2.创建集群使用 ceph-deploy工具在部署节点上执行即可
+
+# 安装ceph
+$ ceph-deploy install i711-ustorage-1 i711-ustorage-2 i711-ustorage-3
+
+
+注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下
+# 添加ceph 源
+[Ceph]
+name=Ceph packages for $basearch
+baseurl=http://download.ceph.com/rpm-jewel/el7/$basearch
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+priority=1
+
+[Ceph-noarch]
+name=Ceph noarch packages
+baseurl=http://download.ceph.com/rpm-jewel/el7/noarch
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+priority=1
+
+[ceph-source]
+name=Ceph source packages
+baseurl=http://download.ceph.com/rpm-jewel/el7/SRPMS
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+priority=1
+
+
+# 执行安装
+$ yum install ceph ceph-radosgw -y
+
+
+
+3.初始化monitor node 和密钥文件
+
+$ ceph-deploy mon create-initial
+
+
+
+4.在管理节点上初始化osd
+
+$ ceph-deploy osd prepare i711-ustorage-1:/dev/sdb i711-ustorage-2:/dev/sdb i711-ustorage-3:/dev/sdb
+
+
+
+5.在管理节点上激活osd
+
+$ ceph-deploy osd activate i711-ustorage-1:/dev/sdb1 i711-ustorage-2:/dev/sdb1 i711-ustorage-3:/dev/sdb1
+
+
+
+6.在管理节点上部署 ceph cli 工具和密钥文件
+
+$ ceph-deploy admin i711-ustorage-1 i711-ustorage-2 i711-ustorage-3
+
+
+
+7.确保你对 ceph.client.admin.keyring有正确的操作权限，在每个节点上执行
+
+$ sudo chmod +r /etc/ceph/ceph.client.admin.keyring
+
+
+
+8.最后检查集群状态
+
+$ ceph health
+HEALTH_OK
+
+$ ceph osd tree
+ID WEIGHT  TYPE NAME               UP/DOWN REWEIGHT PRIMARY-AFFINITY
+-1 1.44955 root default                                              
+-2 0.48318     host i711-ustorage-1                                   
+ 0 0.48318         osd.0                up  1.00000          1.00000
+-3 0.48318     host i711-ustorage-2                                   
+ 1 0.48318         osd.1                up  1.00000          1.00000
+-4 0.48318     host i711-ustorage-3                                   
+ 2 0.48318         osd.2                up  1.00000          1.00000
+
+
+
+Ceph rados创建
+
+1.创建pool
+
+$ rados mkpool docker
+
+
+
+2.创建image
+
+rbd create docker1 --size 100G -p docker
+rbd create docker2 --size 100G -p docker
+rbd create docker3 --size 100G -p docker
+
+
+
+3.关闭不支持的特性
+
+rbd feature disable docker1 exclusive-lock, object-map, fast-diff, deep-flatten -p docker
+rbd feature disable docker2 exclusive-lock, object-map, fast-diff, deep-flatten -p docker
+rbd feature disable docker3 exclusive-lock, object-map, fast-diff, deep-flatten -p docker
+
+
+
+4.隐射image到块设备(依次在每个节点映射)
+
+# docker1
+rbd map docker1 --name client.admin -p docker
+# docker2
+rbd map docker2 --name client.admin -p docker
+# docker3
+rbd map docker3 --name client.admin -p docker
+
+
+
+5.格式化设备
+
+
+  这里我们为了满足docker overlay2的需求，格式化的时候需要指定-n ftype=1
+
+
+mkfs.xfs -n ftype=1 /dev/rbd0
+
+
+
+6.创建docker root 目录，进行挂载，并添加到fstab中
+
+# docker1
+$ mkdir -p /data_docker/docker1
+
+# 将下面的内容添加到/etc/fstab中
+/dev/rbd0       /data_docker/docker1    xfs     noauto  0 0
+
+# docker2
+$ mkdir -p /data_docker/docker2
+
+# 将下面的内容添加到/etc/fstab中
+/dev/rbd0       /data_docker/docker2    xfs     noauto  0 0
+
+# docker3
+$ mkdir -p /data_docker/docker3
+
+# 将下面的内容添加到/etc/fstab中
+/dev/rbd0       /data_docker/docker3    xfs     noauto  0 0
+
+
+
+
+  因为ceph在每次重启的时候都需要去重新map，所以这里，我们需要配置下rbdmap.service
+
+
+7.配置/etc/ceph/rbdmap(依次在每个节点上操作)
+
+# docker1
+# RbdDevice             Parameters
+#poolname/imagename     id=client,keyring=/etc/ceph/ceph.client.keyring
+docker/docker1           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring
+
+# docker2
+docker/docker2           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring
+
+# docker3
+docker/docker3           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring
+# 配置成开机启动
+$ systemctl enable rbdmap.service
+
+
+
+8.修改docker 的service文件，将rbdmap添加到after后面，保证rbdmap先运行挂载成功之后，再启动docker
+
+vim /usr/lib/systemd/system/docker.service
+
+After=network-online.target firewalld.service rbdmap.service
+Wants=network-online.target
+
+
+
+9.重启下机器，看看重启之后，docker是否启动成功，rbd image时候隐射成功
+
+docker info
+
+
+
+Ceph FS 创建
+
+1.创建MDS
+
+$ ceph-deploy mds create i711-ustorage-1 i711-ustorage-2 i711-ustorage-3
+
+
+
+2.创建pool和fs，创建pool需要指定PG数量
+
+ceph osd pool create data_data 32
+ceph osd pool create data_metadata 32
+ceph fs new data data_metadata data_data
+
+
+
+3.复制密钥到文件中保存，将该文件复制到每个节点上的/etc/ceph下，并保证其权限
+
+echo "AQCF8QxaBIkrCxAAt12YUP+NzLv0TB5XHeJ4xQ==" &gt; ceph-key
+
+
+
+4.将挂载添加到每个节点的fstab中
+
+172.30.33.39:6789,172.30.33.40,172.30.33.41:6789:/      /data_harbor_etcd   ceph name=admin,secretfile=/etc/ceph/ceph-key,noatime,_netdev        0 2
+
+
+
+5.重启机器后查看挂载
+
+$ df -Th
+Filesystem                                         Type      Size  Used Avail Use% Mounted on
+172.30.33.39:6789,172.30.33.40,172.30.33.41:6789:/ ceph      1.5T  436M  1.5T   1% /data_harbor_etcd
+
+
+
+至此，我们的共享存储就算是创建好了
+
+etcd 集群搭建
+
+etcd 集群的搭建很简单，我们只需要执行yum 安装即可，重点在后面的配置文件修改
+
+1.安装etcd
+
+$ yum install etcd -y
+
+# 在data目录下创建etcd目录，并修改其权限
+$ mkdir -p /data/etcd
+$ chown etcd.etcd  /data/etcd
+
+
+
+2.修改配置文件,其他几个节点同理
+
+# 本member名字
+ETCD_NAME=etcd1
+
+# 存放数据的位置
+ETCD_DATA_DIR="/data_harbor_etcd/etcd/etcd1.etcd"
+
+# 监听其他etcd实例的地址
+ETCD_LISTEN_PEER_URLS="http://172.30.33.39:2380"
+
+#监听客户端地址
+ETCD_LISTEN_CLIENT_URLS="http://127.0.0.1:2379,http://172.30.33.39:2379"
+
+# 通知其他etcd实例地址
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://172.30.33.39:2380"
+
+# 初始化集群内节点地址
+ETCD_INITIAL_CLUSTER="etcd1=http://172.30.33.39:2380,etcd2=http://172.30.33.40:2380,etcd3=http://172.30.33.41:2380"
+
+# 初始化集群状态，new 表示新建
+ETCD_INITIAL_CLUSTER_STATE="new"
+
+# 通知客户端地址
+ETCD_ADVERTISE_CLIENT_URLS="http://172.30.33.39:2379"
+
+
+
+3.启动集群，然后查看
+
+$ systemctl start etcd
+$ systemctl enable etcd
+$ etcdctl member list
+
+186fb106f678cc55: name=etcd3 peerURLs=http://172.30.33.41:2380 clientURLs=http://172.30.33.41:2379 isLeader=false
+bbe26c67e852d6f9: name=etcd1 peerURLs=http://172.30.33.39:2380 clientURLs=http://172.30.33.39:2379 isLeader=true
+d4155475d1205f97: name=etcd2 peerURLs=http://172.30.33.40:2380 clientURLs=http://172.30.33.40:2379 isLeader=false
+
+
+
+至此，etcd集群，也算是搭建完成了，这里我们没有使用域名和https，如果需要使用https的话，则需要证书制作，可参考k8s-manual
+
+harbor 集群搭建
+
+1.安装docker-compose
+
+sudo curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+
+
+
+2.配置docker网络
+
+# 安装flannel网络
+$ yum install flannel -y
+
+# 配置flannel
+FLANNEL_ETCD_ENDPOINTS="http://10.19.65.27:2379,http://10.19.65.28:2379,http://10.19.65.29:2379"
+FLANNEL_ETCD_PREFIX="/quarkfinance.com/network"
+FLANNEL_OPTIONS="--iface=eth0"
+
+# 在etcd中添加网络记录
+etcdctl set /quarkfinance.com/network/config '{ "Network": "10.1.0.0/16" }'
+
+# 在/usr/lib/systemd/system/docker.service中添加 $DOCKER_NETWORK_OPTIONS
+ExecStart=/usr/bin/dockerd $DOCKER_NETWORK_OPTIONS
+
+# 配置docker用非root用户启动
+groupadd docker
+gpasswd -a ${USER} docker
+systemctl restart docker
+
+# 启动docker，并将各服务配置成开机启动
+systemctl start docker
+systemctl enable flanneld
+systemctl enable docker
+
+
+
+3.查看docker网络是否生效
+
+3: docker0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc noqueue state DOWN
+    link/ether 02:42:90:6e:ac:b3 brd ff:ff:ff:ff:ff:ff
+    inet 10.1.82.1/24 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:90ff:fe6e:acb3/64 scope link
+       valid_lft forever preferred_lft forever
+9: flannel0: &lt;POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP&gt; mtu 1472 qdisc pfifo_fast state UNKNOWN qlen 500
+    link/none
+    inet 10.1.82.0/16 scope global flannel0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ff4f:42ff:391f:2a9d/64 scope link flags 800
+       valid_lft forever preferred_lft forever
+
+
+
+4.万事俱备，只欠harbor，下面，我们就来搭建我们的harbor
+
+
+  从git上下载最新的harbor包，git上有online和offlinle两个版，这里我选择online版，image都从外网拉取
+
+
+wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz
+
+
+
+5.修改harbor配置文件
+
+
+  1.修改挂载位置
+
+
+将`docker-compose.yml`和`harbor.cfg`文件中所有的`/data`都修改成`/data_harbor_etcd/harbor`
+
+
+
+
+  2.由于使用外部mysql，所以删除mysqlservice，并且删除掉其他service对mysql的依赖(depends_on)
+如果你的harbor中已经有数据，那么请先导出mysql的数据，然后导入到你外部的mysql中
+
+
+docker exec -ti ${containerID} /bin/bash
+mysqldump -u root -proot123 --databases registry &gt; registry.dump
+
+docker cp ${containerID}:/root/registry.dump ./
+mysql -h ${your_mysql_host} -u ${your_mysql_user} -p
+mysql&gt; source ./registry.dump
+
+
+
+
+  3.在./common/templates/adminserver/env中添加如下内容
+
+
+MYSQL_HOST=${your_mysql_host}
+MYSQL_PORT=3306
+MYSQL_USR=${your_mysql_user}
+MYSQL_PWD=${your_mysql_passwd}
+
+
+
+
+  4.修改./common/templates/adminserver/env文件
+
+
+将`RESET=false`改为`RESET=true`
+
+
+
+
+  5.由于要使用redis共享session，所以在./common/templates/ui/env中添加如下内容
+
+
+_REDIS_URL=redis_ip:6379,100,password,0
+
+
+
+
+  6.关闭其他两个节点上的crt生成功能，留一个生成一套数字证书和私钥
+
+
+custom_crt=false
+
+
+
+
+  7.修改common/templates/nginx/nginx.http.conf，找到location /, location /v2/ and location /service/这3个配置块， 将这三个配置块中的proxy_set_header X-Forwarded-Proto $scheme;配置移除
+
+
+# When setting up Harbor behind other proxy, such as an Nginx instance, remove the below line if the proxy already has similar settings.
+#proxy_set_header X-Forwarded-Proto $$scheme;
+
+
+
+
+  8.修改common/templates/registry/config.yml，修改auth.token.realm的地址
+
+
+auth:
+  token:
+    issuer: harbor-token-issuer
+    realm: https://harbor.quark.com/service/token
+    # realm: $ui_url/service/token
+    rootcertbundle: /etc/registry/root.crt
+    service: harbor-registry
+
+
+
+
+  9.在各个节点上执行prepare脚本生成harbor各容器服务器的配置，然后启动容器
+
+
+./prepare
+docker-compose up -d
+
+
+
+注意：如果你启动之后，提示你无法连接远程数据库，请重启网络和docker daemon
+
+6.前端nginx LB https配置
+
+
+  1.新建一个证书脚本gencert.sh，内容如下
+
+
+#!/bin/sh
+
+# create self-signed server certificate:
+
+read -p "Enter your domain [www.example.com]: " DOMAIN
+
+echo "Create server key..."
+
+openssl genrsa -des3 -out $DOMAIN.key 1024
+
+echo "Create server certificate signing request..."
+
+SUBJECT="/C=CN/ST=Hubei/L=Wuhan/O=quark/OU=devops/CN=$DOMAIN"
+
+openssl req -new -subj $SUBJECT -key $DOMAIN.key -out $DOMAIN.csr
+
+echo "Remove password..."
+
+mv $DOMAIN.key $DOMAIN.origin.key
+openssl rsa -in $DOMAIN.origin.key -out $DOMAIN.key
+
+echo "Sign SSL certificate..."
+
+openssl x509 -req -days 3650 -in $DOMAIN.csr -signkey $DOMAIN.key -out $DOMAIN.crt
+
+echo "TODO:"
+echo "Copy $DOMAIN.crt to /etc/nginx/ssl/$DOMAIN.crt"
+echo "Copy $DOMAIN.key to /etc/nginx/ssl/$DOMAIN.key"
+echo "Add configuration in nginx:"
+echo "server {"
+echo "    ..."
+echo "    listen 443 ssl;"
+echo "    ssl_certificate     /etc/nginx/ssl/$DOMAIN.crt;"
+echo "    ssl_certificate_key /etc/nginx/ssl/$DOMAIN.key;"
+echo "}"
+
+
+
+
+  2.生成证书，按提示输入
+
+
+./gencert.sh
+
+
+
+
+  3.生成内容如下
+
+
+[root@i612-devopsyw-1 ssl]# ll
+total 20
+-rwxr-xr-x 1 root root 949 Nov 22 16:28 gencert.sh
+-rw-r--r-- 1 root root 887 Nov 22 17:40 harbor.quark.com.crt
+-rw-r--r-- 1 root root 672 Nov 22 16:28 harbor.quark.com.csr
+-rw-r--r-- 1 root root 887 Nov 22 17:40 harbor.quark.com.key
+-rw-r--r-- 1 root root 963 Nov 22 16:28 harbor.quark.com.origin.key
+
+
+
+
+  4.将harbor.quark.com.crt 和 harbor.quark.com.key 复制到你自己的nginx的ssl目录下
+
+
+cp harbor.quark.com.* /data/bkv2.0.1/common/nginx/ssl
+
+
+
+
+  5.配置nginx的upstream 和 .conf文件
+
+
+harbor-upstream.conf
+upstream harbor-server {
+        ip_hash;
+        server 172.30.33.40:80;
+        server 172.30.33.39:80;
+        server 172.30.33.41:80;
+}
+map $http_upgrade $connection_upgrade {
+    default Upgrade;
+    ''      close;
+}
+
+
+
+harbor.conf
+server {
+    listen 80;
+    server_name harbor.quark.com;
+    # Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.
+    rewrite ^(.*)$  https://$host$1 permanent;
+}
+
+server {
+    listen 443 ssl;
+    server_name harbor.quark.com;
+    ssl_certificate /data/bkv2.0.1/common/nginx/ssl/harbor.quark.com.crt;
+    ssl_certificate_key /data/bkv2.0.1/common/nginx/ssl/harbor.quark.com.key;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    access_log logs/harbor_access.log ;
+    error_log logs/harbor_error.log ;
+    location / {
+        proxy_pass   http://harbor-server;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto https;
+        client_max_body_size 300M;
+    }
+}
+
+
+
+
+  6.重新加载nginx
+
+
+$ nginx reload
+
+
+
+
+  7.访问试试效果
+
+
+
+
+七.配置docker，让docker可以访问自签名证书的harbor
+
+
+  1.在每个docker主机上创建/etc/docker/certs.d/harbor.quark.com目录
+
+
+$ mkdir -p /etc/docker/certs.d/harbor.quark.com
+
+
+
+
+  2.将harbor.quark.com.crt 复制到每个docker主机上的 /etc/docker/certs.d/harbor.quark.com/目录下
+
+
+$ for IP in seq `39 31`;do
+  scp harbor.quark.com.crt root@172.30.33.$IP:/etc/docker/certs.d/habor.quark.com/
+done
+
+
+
+
+  3.我们login试试，然后push一个image
+
+
+$ docker login harbor.quark.com
+Username: ${your_ldap_user}
+Password:
+Login Succeeded
+
+$ docker tag vmware/harbor-adminserver:v1.2.2 harbor.quark.com/quark/harbor-adminserver:v1.2.2
+$ docker push harbor.quark.com/quark/harbor-adminserver:v1.2.2
+The push refers to a repository [harbor.quark.com/quark/harbor-adminserver]
+4fe250d3c912: Pushed
+2202528221a2: Pushed
+abf0579c40fd: Pushed
+dd60b611baaa: Pushed
+v1.2.2: digest: sha256:80bfbc20a1ee2bc6b05dfe31f1e082c08961a0f62e94089ef952800e92a1fc4c size: 1157
+
+
+
+看看harbor是否已经有了这个image呢
+
+
+
+有了，至此，我们的harbor就算是搭建完成，因为我们是在内网使用，所以使用自签名证书无所谓，如果要上到公网，那么就必须使用可信任的证书机构颁发的证书了
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -281,6 +2389,2572 @@
                     </h3>
                     <p class="repo-list-description">
                         原有的环境需要迁移，现在需要重新搭建一套kubernetes，而且原来一直是用kargo来搭建，所有组件都是基于docker容器的，感觉有点不稳妥，所以正好这个时候有机会，可以纯手动部署一下，所有的关键组件都以二进制形式部署，并添加为系统服务，这里记录一下。
+
+
+
+  该文档参考了诸多大神的文档,漠然、青蛙小白，谨请原谅
+
+
+一.环境准备
+
+1.1 系统环境
+
+
+  
+    
+      IP
+      HostName
+      节点
+      OS
+    
+  
+  
+    
+      172.29.151.1
+      k8s-mon-master01
+      master MON etcd
+      centOS7.4.1708
+    
+    
+      172.29.151.2
+      k8s-mon-master02
+      master MON etcd
+      centOS7.4.1708
+    
+    
+      172.29.151.3
+      k8s-mon-master03
+      master MON etcd
+      centOS7.4.1708
+    
+    
+      172.29.151.4
+      k8s-harbor
+      harbor
+      centOS7.4.1708
+    
+    
+      172.29.151.5
+      k8s-mds-node01
+      node MDS
+      centOS7.4.1708
+    
+    
+      172.29.151.6
+      k8s-mds-node02
+      node MDS
+      centOS7.4.1708
+    
+    
+      172.29.151.7
+      k8s-mds-node03
+      node MDS
+      centOS7.4.1708
+    
+    
+      172.29.151.8
+      k8s-console
+      console
+      centOS7.4.1708
+    
+  
+
+
+1.2 系统组件
+
+
+  在安装之前，我们要确认，我们具体需要准备哪些系统组件
+
+
+
+  docker
+  etcd-3.2.7(etcd、etcdctl)
+  kubernetes-server-1.7.6(kube-apiserver、kube-controller-manager、kube-scheduler)
+  kubernetes-node-1.7.6(kube-proxy、kubelet、kubectl)
+
+
+1.3 自签名证书
+
+
+  因为所有的组件之间都是通过证书认证的方式来进行通信的，所以我们还得确认下，我们到底需要哪些证书
+
+
+
+  CA
+  etcd
+  kube-apiserver
+  kube-controller-manager
+  kube-scheduler
+  kube-proxy
+  kubelet
+  kube-admin
+
+
+1.4 系统配置
+
+
+  关闭所有节点的selinux、iptables、firewalld
+
+
+systemctl stop iptables
+systemctl stop firewalld
+systemctl disable iptables
+systemctl disable firewalld
+
+vi /etc/selinux/config
+SELINUX=disable
+
+
+
+
+  如果你想使用flanel网络，还记得在所有节点上创建 /etc/sysctl.d/k8s.conf文件，添加如下内容，如果是calico网络，请忽略这步
+
+
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+
+# 执行命令使其生效
+sysctl -p /etc/sysctl.d/k8s.conf
+
+
+
+
+  在所有节点上编辑 /etc/hosts文件，配置host通信
+
+
+vi /etc/hosts
+
+172.29.151.1 k8s-mon-master01
+172.29.151.2 k8s-mon-master02
+172.29.151.3 k8s-mon-master03
+172.29.151.4 k8s-harbor
+172.29.151.5 k8s-mds-node01
+172.29.151.6 k8s-mds-node02
+172.29.151.7 k8s-mds-node03
+172.29.151.8 k8s-console
+
+
+
+1.5 创建基本用户
+
+# 在master节点上创建etcd用户
+useradd etcd -d /var/lib/etcd -c "Etcd user" -r -s /sbin/nologin
+
+# 在maaster节点和node节点上创建kube用户
+useradd kube  -M -c "Kubernetes user" -r -s /sbin/nologin
+
+
+
+1.6 在console上配置免密钥登录
+
+
+  所有证书分发，二进制文件分发，配置文件分发，都将在 k8s-console 上执行，所以该节点主机对集群内所有节点设置了免密钥登录
+
+
+
+  具体过程可参考免密钥登录
+
+
+二.创建验证
+
+
+  因为所有组件和apiserver进行通信，都需要使用证书来进行认证，所以这里我们使用CloudFlare的PKI工具集 cfssl 来生成CA证书和其密钥文件
+
+
+
+  如果你的kube-controller-manager、kube-scheduler同apiserver之间通信不需要进行证书认证(毕竟他们都在同一台机器上)，那么下面有关kube-controller-manager、kube-scheduler的证书步骤可以忽略；而在该实验中，我考虑到后面假若它们不在同一台机器上，所以也记录了kube-controller-manager、kube-scheduler的证书创建配置过程
+
+
+2.1 安装cfssl
+
+wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+
+wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+
+chmod +x cfssl_linux-amd64 cfssljson_linux-amd64
+
+mv cfssl_linux-amd64 /usr/local/bin/cfssl
+mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+
+
+
+2.2 创建CA证书配置，生成CA证书和私钥
+
+
+  先用 cfssl 命令生成包含默认配置的 config.json和 csr.json文件
+
+
+mkdir /opt/ssl
+cd /opt/ssl
+
+cfssl print-defaults config &gt; config.json
+cfssl print-defaults csr &gt; csr.json
+
+
+
+
+  然后分别修改这两个文件为如下内容
+
+
+config.json
+
+{
+  "signing": {
+    "default": {
+      "expiry": "87600h"
+    },
+    "profiles": {
+      "kubernetes": {
+        "usages": [
+            "signing",
+            "key encipherment",
+            "server auth",
+            "client auth"
+        ],
+        "expiry": "87600h"
+      }
+    }
+  }
+}
+
+
+
+  ca-config.json：可以定义多个 profiles，分别指定不同的过期时间、使用场景等参数；后续在签名证书时使用某个 profile；
+  signing：表示该证书可用于签名其它证书；生成的 ca.pem 证书中 CA=TRUE；
+  server auth：表示client可以用该 CA 对server提供的证书进行验证；
+  client auth：表示server可以用该CA对client提供的证书进行验证；
+
+
+csr.json
+
+{
+  "CN": "kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Wuhan",
+      "L": "Hubei",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+
+
+
+
+  CN：Common Name，kube-apiserver 从证书中提取该字段作为请求的用户名 (User Name)；浏览器使用该字段验证网站是否合法；
+  O：Organization，kube-apiserver 从证书中提取该字段作为请求用户所属的组 (Group)；
+
+
+
+  生成CA 证书和私钥
+
+
+cd /opt/ssl
+
+cfssl gencert -initca csr.json | cfssljson -bare ca
+
+# CA有关证书列表如下
+[root@k8s-console ssl]# tree
+.
+├── ca.csr
+├── ca-key.pem
+├── ca.pem
+├── config.json
+└── csr.json
+
+
+
+2.4 创建etcd证书配置，生成 etcd 证书和私钥
+
+
+  在/opt/ssl 下添加文件 etcd-csr.json，内容如下
+
+
+etcd-csr.json
+
+{
+  "CN": "etcd",
+  "hosts": [
+    "127.0.0.1",
+    "172.29.151.1",
+    "172.29.151.2",
+    "172.29.151.3"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Wuhan",
+      "L": "Hubei",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+
+
+
+
+  生成etcd证书和密钥
+
+
+cd /opt/ssl
+
+cfssl gencert -ca=/opt/ssl/ca.pem \
+-ca-key=/opt/ssl/ca-key.pem \
+-config=/opt/ssl/config.json \
+-profile=kubernetes etcd-csr.json | cfssljson -bare etcd
+
+# etcd 有关证书证书列表如下
+ls etcd*
+etcd.csr  etcd-csr.json  etcd-key.pem  etcd.pem
+
+
+
+2.5 创建kube-apiserver证书配置，生成kube-apiserver证书和私钥
+
+
+  在/opt/ssl 下添加文件 kube-apiserver-csr.json，内容如下
+
+
+kube-apiserver-csr.json
+
+{
+  "CN": "kubernetes",
+  "hosts": [
+    "127.0.0.1",
+    "172.29.151.1",
+    "172.29.151.2",
+    "172.29.151.3",
+    "10.254.0.1",
+    "localhost",
+    "kubernetes",
+    "kubernetes.default",
+    "kubernetes.default.svc",
+    "kubernetes.default.svc.cluster",
+    "kubernetes.default.svc.cluster.local"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Wuhan",
+      "L": "Hubei",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+
+
+
+
+  如果 hosts 字段不为空则需要指定授权使用该证书的 IP 或域名列表，由于该证书被 etcd 集群和 kubernetes master 集群使用，所以上面分别指定了 etcd 集群、kubernetes master 集群的主机 IP 和 kubernetes 服务的服务 IP（一般是 kue-apiserver 指定的 service-cluster-ip-range 网段的第一个IP，如 10.254.0.1。
+
+
+
+  生成kube-apiserver证书和私钥
+
+
+cd /opt/ssl
+
+cfssl gencert -ca=/opt/ssl/ca.pem \
+-ca-key=/opt/ssl/ca-key.pem \
+-config=/opt/ssl/config.json \
+-profile=kubernetes kube-apiserver-csr.json | cfssljson -bare kube-apiserver
+
+# 列出kube-apiserver有关证书
+ls kube-apiserver*
+kube-apiserver.csr  kube-apiserver-csr.json  kube-apiserver-key.pem  kube-apiserver.pem
+
+
+
+2.6 创建kube-controller-manager证书配置，生成kube-controller-manager证书和私钥
+
+
+  在/opt/ssl 下添加文件 kube-controller-manager-csr.json，内容如下
+
+
+kube-controller-manager-csr.json
+
+{
+  "CN": "system:kube-controller-manager",
+  "hosts": [
+    "172.29.151.1",
+    "172.29.151.2",
+    "172.29.151.3"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Wuhan",
+      "L": "Hubei",
+      "O": "system:kube-controller-manager",
+      "OU": "System"
+    }
+  ]
+}
+
+
+
+
+  CN 指定该证书的 User 为 system:kube-controller-manager
+  kube-apiserver 预定义的 RoleBinding cluster-admin 将User system:kube-controller-manager 与 ClusterRole system:kube-controller-manager 绑定，该 ClusterRole 授予了调用 kube-apiserver kube-controller-manager 相关 API 的权限
+
+
+
+  生成kube-controller-manager证书和私钥
+
+
+cd /opt/ssl
+
+cfssl gencert -ca=/opt/ssl/ca.pem \
+-ca-key=/opt/ssl/ca-key.pem \
+-config=/opt/ssl/config.json \
+-profile=kubernetes kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
+
+# 列出kube-controller-manager有关证书
+ls kube-controller-manager*
+kube-controller-manager.csr  kube-controller-manager-csr.json  kube-controller-manager-key.pem  kube-controller-manager.pem
+
+
+
+
+2.7 创建kube-scheduler证书配置，生成kube-scheduler证书和私钥
+
+
+  在/opt/ssl 下添加文件 kube-scheduler-csr.json，内容如下
+
+
+kube-scheduler-csr.json
+
+{
+  "CN": "system:kube-scheduler",
+  "hosts": [
+    "172.29.151.1",
+    "172.29.151.2",
+    "172.29.151.3"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Wuhan",
+      "L": "Hubei",
+      "O": "system:kube-scheduler",
+      "OU": "System"
+    }
+  ]
+}
+
+
+
+
+  CN 指定该证书的 User 为 system:kube-scheduler
+  kube-apiserver 预定义的 RoleBinding cluster-admin 将User system:kube-scheduler 与 ClusterRole system:kube-scheduler 绑定，该 ClusterRole 授予了调用 kube-apiserver kube-scheduler 相关 API 的权限
+
+
+
+  生成kube-scheduler证书和私钥
+
+
+cd /opt/ssl
+
+cfssl gencert -ca=/opt/ssl/ca.pem \
+-ca-key=/opt/ssl/ca-key.pem \
+-config=/opt/ssl/config.json \
+-profile=kubernetes kube-scheduler-csr.json | cfssljson -bare kube-scheduler
+
+# 列出kube-scheduler有关证书
+ls kube-scheduler*
+kube-scheduler.csr  kube-scheduler-csr.json  kube-scheduler-key.pem  kube-scheduler.pem
+
+
+
+2.8 创建kube-admin证书配置，生成kube-admin证书和私钥
+
+
+  在/opt/ssl 下添加文件 kube-admin-csr.json，内容如下
+
+
+kube-admin-csr.json
+
+{
+  "CN": "kube-admin",
+  "hosts": [
+    "172.29.151.8"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Wuhan",
+      "L": "Hubei",
+      "O": "system:masters",
+      "OU": "System"
+    }
+  ]
+}
+
+
+
+
+  后续 kube-apiserver 使用 RBAC 对客户端(如 kubelet、kube-proxy、Pod)请求进行授权
+  kube-apiserver 预定义了一些 RBAC 使用的 RoleBindings，如 cluster-admin 将 Group system:masters 与 Role cluster-admin 绑定，该 Role 授予了调用kube-apiserver 的所有 API的权限
+  OU 指定该证书的 Group 为 system:masters，kubelet 使用该证书访问 kube-apiserver 时 ，由于证书被 CA 签名，所以认证通过，同时由于证书用户组为经过预授权的 system:masters，所以被授予访问所有 API 的权限
+
+
+
+  生成kube-admin证书和私钥
+
+
+cd /opt/ssl
+
+cfssl gencert -ca=/opt/ssl/ca.pem \
+-ca-key=/opt/ssl/ca-key.pem \
+-config=/opt/ssl/config.json \
+-profile=kubernetes kube-admin-csr.json | cfssljson -bare kube-admin
+
+# 列出kube-admin有关证书
+ls kube-admin*
+kube-admin.csr  kube-admin-csr.json  kube-admin-key.pem  kube-admin.pem
+
+
+
+2.9 创建kube-proxy证书配置，生成kube-proxy证书和私钥
+
+
+  在/opt/ssl 下添加文件 kube-proxy-csr.json，内容如下
+
+
+kube-proxy-csr.json
+
+{
+  "CN": "system:kube-proxy",
+  "hosts": [
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "Wuhan",
+      "L": "Hubei",
+      "O": "system:kube-proxy",
+      "OU": "System"
+    }
+  ]
+}
+
+
+
+
+  CN 指定该证书的 User 为 system:kube-proxy
+  kube-apiserver 预定义的 RoleBinding cluster-admin 将User system:kube-proxy 与 ClusterRole system:node-proxier 绑定，该 ClusterRole 授予了调用 kube-apiserver Proxy 相关 API 的权限
+
+
+
+  生成kube-proxy证书和私钥
+
+
+cd /opt/ssl
+
+cfssl gencert -ca=/opt/ssl/ca.pem \
+-ca-key=/opt/ssl/ca-key.pem \
+-config=/opt/ssl/config.json \
+-profile=kubernetes kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+# 列出kube-proxy有关证书
+ls kube-proxy*
+kube-proxy.csr  kube-proxy-csr.json  kube-proxy-key.pem  kube-proxy.pem
+
+
+
+2.10 kubelet 证书和私钥
+
+
+  kubelet 其实也可以手动通过CA来进行签发，但是这只能针对少数机器，毕竟我们在进行证书签发的时候，是需要绑定对应Node的IP的，如果node太多了，加IP就会很幸苦， 所以这里我们使用TLS 认证，由apiserver自动给符合条件的node签发证书，允许节点加入集群。
+
+
+
+  kubelet 首次启动时想kube-apiserver发送TLS Bootstrapping请求，kube-apiserver验证kubelet请求中的token是否与它配置的token一致，如果一致则自动为kubelet生成证书和密钥。具体参考kubelet-tls-bootstrapping
+
+
+
+  我们在k8s-console上生成token并分发到所有的master节点
+
+
+cd /opt/ssl
+
+head -c 16 /dev/urandom | od -An -t x | tr -d ' '
+04d9b6c6fd3ed8a3488b3b0913e87d64
+
+vim token.csv
+04d9b6c6fd3ed8a3488b3b0913e87d64,kubelet-bootstrap,10001,"system:kubelet-bootstrap"
+
+
+
+2.11 证书分发
+
+
+  既然证书都创建好了，那么这时候，我们就需要将对应的证书分发到对应的节点上去
+
+
+master
+
+cd /opt/ssl
+
+for IP in `seq 1 3`;do
+  ssh root@172.29.151.$IP mkdir -p /etc/kubernetes/ssl
+  ssh root@172.29.151.$IP mkdir -p /etc/etcd/ssl
+  scp ca*.pem kube-apiserver*.pem kube-controller-manager*.pem kube-scheduler*.pem root@172.29.151.$IP:/etc/kubernetes/ssl/
+  ssh root@172.29.151.$IP chown -R kube:kube /etc/kubernetes/ssl
+  scp ca*.pem etcd*.pem root@172.29.151.$IP:/etc/etcd/ssl
+  ssh root@172.29.151.$IP chown -R etcd:etcd /etc/etcd/ssl
+done
+
+
+
+node
+
+cd /opt/ssl
+
+for IP in `seq 5 7`;do
+  ssh root@172.29.151.$IP mkdir -p /etc/kubernetes/ssl
+  scp ca*.pem kube-proxy*.pem root@172.29.151.$IP:/etc/kubernetes/ssl/
+  ssh root@172.29.151.$IP chown -R kube:kube /etc/kubernetes/ssl
+done
+
+
+
+console
+
+cd /opt/ssl
+
+cp kube-admin*.pem /etc/kubernetes/ssl/
+chown -R kube:kube /etc/kubernetes/ssl/
+
+
+
+2.11 token分发
+
+cd /opt/ssl
+
+for IP in `seq 1 3`;do
+  ssh root@172.29.151.$IP mkdir -p /etc/kubernetes/known_token
+  scp token.csv root@172.29.151.$IP:/etc/kubernetes/known_token/
+  ssh root@172.29.151.$IP chown -R kube:kube /etc/kubernetes/known_token
+done
+
+
+三.分发二进制文件
+
+分发etcd
+
+tar zxvf etcd-v3.2.7-linux-amd64.tar.gz
+cd etcd-v3.2.7-linux-amd64
+
+for IP in `seq 1 3`;do
+  scp etcd etcdctl root@172.29.151.$IP:/usr/bin/
+done
+
+
+
+分发kubernetes master
+
+tar zxvf kubernetes-server-linux-amd64.tar.gz
+cd kubernetes/server/bin
+
+for IP in `seq 1 3`;do
+  scp kube-apiserver kube-controller-manager kube-scheduler root@172.29.151.$IP:/usr/local/bin/
+done
+
+
+
+分发kubernetes node
+
+tar zxvf kubernetes-node-linux-amd64.tar.gz
+cd kubernetes/node/bin
+
+for IP in `seq 5 7`;do
+  scp kubelet kube-proxy root@172.29.151.$IP:/usr/local/bin/
+done
+
+
+
+分发kubectl,etcdctl
+
+cd kubernetes/node/bin
+cp kubectl /usr/local/bin/
+
+cd etcd-v3.2.7-linux-amd64
+cp etcdctl /usr/bin/
+
+
+
+四.etcd集群部署
+
+添加etcd为系统服务
+
+
+  在每个master节点上添加etcd启动文件/usr/lib/systemd/system/etcd.service
+
+
+# etcd1
+
+[Unit]
+Description=etcd server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=etcd
+WorkingDirectory=/var/lib/etcd/
+EnvironmentFile=-/etc/etcd/etcd.conf
+ExecStart=/usr/bin/etcd \
+  --name etcd1 \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/etcd/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/etcd/ssl/ca.pem \
+  --initial-advertise-peer-urls https://172.29.151.1:2380 \
+  --listen-peer-urls https://172.29.151.1:2380 \
+  --listen-client-urls https://172.29.151.1:2379,https://127.0.0.1:2379 \
+  --advertise-client-urls https://172.29.151.1:2379 \
+  --initial-cluster-token k8s_etcd \
+  --initial-cluster etcd1=https://172.29.151.1:2380,etcd2=https://172.29.151.2:2380,etcd3=https://172.29.151.3:2380 \
+  --initial-cluster-state new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+
+
+
+# etcd2
+
+[Unit]
+Description=etcd server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=etcd
+WorkingDirectory=/var/lib/etcd/
+EnvironmentFile=-/etc/etcd/etcd.conf
+ExecStart=/usr/bin/etcd \
+  --name etcd2 \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/etcd/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/etcd/ssl/ca.pem \
+  --initial-advertise-peer-urls https://172.29.151.2:2380 \
+  --listen-peer-urls https://172.29.151.2:2380 \
+  --listen-client-urls https://172.29.151.2:2379,https://127.0.0.1:2379 \
+  --advertise-client-urls https://172.29.151.2:2379 \
+  --initial-cluster-token k8s_etcd \
+  --initial-cluster etcd1=https://172.29.151.1:2380,etcd2=https://172.29.151.2:2380,etcd3=https://172.29.151.3:2380 \
+  --initial-cluster-state new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+
+
+
+# etcd3
+
+[Unit]
+Description=etcd server
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=etcd
+WorkingDirectory=/var/lib/etcd/
+EnvironmentFile=-/etc/etcd/etcd.conf
+ExecStart=/usr/bin/etcd \
+  --name etcd3 \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  --peer-cert-file=/etc/etcd/ssl/etcd.pem \
+  --peer-key-file=/etc/etcd/ssl/etcd-key.pem \
+  --trusted-ca-file=/etc/etcd/ssl/ca.pem \
+  --peer-trusted-ca-file=/etc/etcd/ssl/ca.pem \
+  --initial-advertise-peer-urls https://172.29.151.3:2380 \
+  --listen-peer-urls https://172.29.151.3:2380 \
+  --listen-client-urls https://172.29.151.3:2379,https://127.0.0.1:2379 \
+  --advertise-client-urls https://172.29.151.3:2379 \
+  --initial-cluster-token k8s_etcd \
+  --initial-cluster etcd1=https://172.29.151.1:2380,etcd2=https://172.29.151.2:2380,etcd3=https://172.29.151.3:2380 \
+  --initial-cluster-state new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+
+
+
+验证etcd 集群状态
+
+
+  查看etcd集群状态
+
+
+etcdctl \
+  --endpoints=https://172.29.151.1:2379 \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --ca-file=/etc/etcd/ssl/ca.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  cluster-health
+
+member 31a0c451ae46a2d0 is healthy: got healthy result from https://172.29.151.1:2379
+member 72b18fe792c0a463 is healthy: got healthy result from https://172.29.151.3:2379
+member d0c073403f6edbd3 is healthy: got healthy result from https://172.29.151.2:2379
+cluster is healthy
+
+
+
+
+  查看etcd 集群成员
+
+
+etcdctl \
+  --endpoints=https://172.29.151.1:2379 \
+  --cert-file=/etc/etcd/ssl/etcd.pem \
+  --ca-file=/etc/etcd/ssl/ca.pem \
+  --key-file=/etc/etcd/ssl/etcd-key.pem \
+  member list
+
+31a0c451ae46a2d0: name=etcd1 peerURLs=https://172.29.151.1:2380 clientURLs=https://172.29.151.1:2379 isLeader=true
+72b18fe792c0a463: name=etcd3 peerURLs=https://172.29.151.3:2380 clientURLs=https://172.29.151.3:2379 isLeader=false
+d0c073403f6edbd3: name=etcd2 peerURLs=https://172.29.151.2:2380 clientURLs=https://172.29.151.2:2379 isLeader=false
+
+
+
+五.kube-apiserver部署
+
+添加kube-apiserver为系统服务
+
+
+  在每个master节点上添加/usr/lib/systemd/system/kube-apiserver.service，注意修改为各自节点的ip地址
+
+
+# 创建日志目录文件
+mkdir -p /var/log/kubernetes
+
+
+
+
+  kube-apiserver.service文件内容如下
+
+
+注意：安全端口监听在172.29.151.1，提供给node节点访问，非安全端口监听在127.0.0.1，只提供给同一台机器上的kube-controller-manager和kube-scheduler访问，这样就保证了安全性和稳定性
+
+[Unit]
+Description=Kubernetes API Server
+After=network.target
+After=etcd.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/apiserver
+ExecStart=/usr/local/bin/kube-apiserver \
+  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota,DefaultTolerationSeconds \
+  --advertise-address=172.29.151.1 \
+  --bind-address=172.29.151.1 \
+  --insecure-bind-address=127.0.0.1 \
+  --service-cluster-ip-range=10.254.0.0/16 \
+  --service-node-port-range=30000-32000 \
+  --allow-privileged=true \
+  --apiserver-count=3 \
+  --logtostderr=true \
+  --v=0 \
+  --audit-log-maxage=30 \
+  --audit-log-maxbackup=3 \
+  --audit-log-maxsize=100 \
+  --audit-log-path=/var/log/kubernetes/audit.log \
+  --authorization-mode=RBAC \
+  --enable-swagger-ui=true \
+  --event-ttl=1h \
+  --secure-port=6443 \
+  --insecure-port=8080 \
+  --etcd-servers=https://172.29.151.1:2379,https://172.29.151.2:2379,https://172.29.151.3:2379 \
+  --etcd-cafile=/etc/etcd/ssl/ca.pem \
+  --etcd-certfile=/etc/etcd/ssl/etcd.pem \
+  --etcd-keyfile=/etc/etcd/ssl/etcd-key.pem \
+  --storage-backend=etcd3 \
+  --tls-cert-file=/etc/kubernetes/ssl/kube-apiserver.pem \
+  --tls-private-key-file=/etc/kubernetes/ssl/kube-apiserver-key.pem \
+  --client-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --service-account-key-file=/etc/kubernetes/ssl/kube-apiserver-key.pem \
+  --token-auth-file=/etc/kubernetes/known_token/token.csv \
+  --experimental-bootstrap-token-auth=true \
+  --kubelet-https=true \
+  --anonymous-auth=False
+Restart=on-failure
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+启动kube-apiserver
+
+systemctl daemon-reload
+systemctl enable kube-apiserver
+systemctl start kube-apiserver
+systemctl status kube-apiserver
+
+
+
+六.kube-controller-manager部署
+
+添加kube-controller-manager为系统服务
+
+
+  在每个master节点上添加/usr/lib/systemd/system/kube-controller-manager.service
+
+
+[Unit]
+Description=Kubernetes Controller Manager
+After=network.target
+After=kube-apiserver.service
+
+[Service]
+ExecStart=/usr/local/bin/kube-controller-manager \
+  --address=127.0.0.1 \
+  --master=http://127.0.0.1:8080 \
+  --allocate-node-cidrs=true \
+  --service-cluster-ip-range=10.254.0.0/16 \
+  --cluster-cidr=10.233.0.0/16 \
+  --cluster-name=kubernetes \
+  --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem \
+  --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem \
+  --service-account-private-key-file=/etc/kubernetes/ssl/kube-apiserver-key.pem \
+  --root-ca-file=/etc/kubernetes/ssl/ca.pem \
+  --leader-elect=true \
+  --node-monitor-grace-period=40s \
+  --node-monitor-period=5s \
+  --pod-eviction-timeout=5m0s \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+启动kube-controller-manager
+
+systemctl daemon-reload
+systemctl enable kube-controller-manager
+systemctl start kube-controller-manager
+systemctl status kube-controller-manager
+
+
+
+七.kube-scheduler部署
+
+添加kube-scheduler为系统服务
+
+
+  在每个master节点上添加/usr/lib/systemd/system/kube-scheduler.service
+
+
+[Unit]
+Description=kube-scheduler
+After=network.target
+After=kube-apiserver.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/scheduler
+ExecStart=/usr/local/bin/kube-scheduler \
+      --address=127.0.0.1 \
+	    --logtostderr=true \
+	    --v=2 \
+	    --master=127.0.0.1:8080 \
+	    --leader-elect=true
+Restart=on-failure
+Type=simple
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+启动kube-scheduler
+
+systemctl daemon-reload
+systemctl enable kube-scheduler
+systemctl start kube-scheduler
+systemctl status kube-scheduler
+
+
+
+八.Master HA配置
+
+
+  目前所谓的kubernetes HA 其实主要是API Server的HA，master上的其他组件，比如kube-controller-manager、kube-scheduler都是通过etcd做选举。而API Server一般有两种方式做HA；一种是多个API Server 做聚合为 VIP，另一种使用nginx反向代理，这里我们采用nginx的方式，如下图
+
+
+
+
+kube-controller-manager、kube-scheduler通过etcd选举，而且与master直接通过127.0.0.1:8080通信，而其他node，则需要在每个node上启动一个nginx，每个nginx反代所有apiserver，node上的kubelet、kube-proxy、kubectl连接本地nginx代理端口，当nginx发现无法连接后端时会自动踢掉出问题的apiserver，从而实现api server的HA
+
+在每个node节点和k8s-console上创建nginx代理
+
+
+  在每个节点上新建配置目录
+
+
+mkdir -p /etc/nginx
+
+
+
+
+  在配置文件/etc/nginx/nginx.conf中下写入代理配置
+
+
+error_log stderr notice;
+
+worker_processes auto;
+events {
+  multi_accept on;
+  use epoll;
+  worker_connections 1024;
+}
+
+stream {
+    upstream kube_apiserver {
+        least_conn;
+        server 172.29.151.1:6443;
+        server 172.29.151.2:6443;
+        server 172.29.151.3:6443;
+    }
+
+    server {
+        listen        0.0.0.0:6443;
+        proxy_pass    kube_apiserver;
+        proxy_timeout 10m;
+        proxy_connect_timeout 1s;
+    }
+}
+
+
+
+
+  更新权限
+
+
+chmod +r /etc/nginx/nginx.conf
+
+
+
+将nginx配置为docker启动，同时用systemd来进行守护
+
+
+  在每个node节点上添加/etc/systemd/system/nginx-proxy.service
+
+
+[Unit]
+Description=kubernetes apiserver docker wrapper
+Wants=docker.socket
+After=docker.service
+
+[Service]
+User=root
+PermissionsStartOnly=true
+ExecStart=/usr/bin/docker run -p 127.0.0.1:6443:6443 \
+                              -v /etc/nginx:/etc/nginx \
+                              --name nginx-proxy \
+                              --net=host \
+                              --restart=on-failure:5 \
+                              --memory=512M \
+                              nginx:1.13.3-alpine
+ExecStartPre=-/usr/bin/docker rm -f nginx-proxy
+ExecStop=/usr/bin/docker stop nginx-proxy
+Restart=always
+RestartSec=15s
+TimeoutStartSec=30s
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+配置开机启动
+
+systemctl daemon-reload
+systemctl start nginx-proxy
+systemctl enable nginx-proxy
+
+
+
+最后我们在k8s-console上执行kubectl试试
+
+$ kubectl --server=https://127.0.0.1:6443 --certificate-authority=/etc/kubernetes/ssl/ca.pem --client-certificate=/etc/kubernetes/ssl/kube-admin.pem --client-key=/etc/kubernetes/ssl/kube-admin-key.pem get cs
+NAME                 STATUS    MESSAGE              ERROR
+controller-manager   Healthy   ok                   
+scheduler            Healthy   ok                   
+etcd-1               Healthy   {"health": "true"}   
+etcd-0               Healthy   {"health": "true"}   
+etcd-2               Healthy   {"health": "true"}   
+
+
+
+九. 配置kubectl访问apiserver
+
+
+  前面我们使用kubect打印除了kubernetes核心组件的状态，但是每次使用的时候都需要指定apiserver的地址以及证书之类的，实在是有点繁琐，接下来，我们在k8s-console上创建kubeconfig文件。
+
+
+cd /etc/kubernetes
+export KUBE_APISERVER="https://127.0.0.1:6443"
+
+# 设置集群参数
+kubectl config set-cluster kubernetes \
+ --certificate-authority=/opt/ssl/ca.pem \
+ --embed-certs=true \
+ --server=${KUBE_APISERVER} \
+ --kubeconfig=admin.conf
+
+# 设置客户端认证参数
+kubectl config set-credentials kubernetes-admin \
+  --client-certificate=/opt/ssl/kube-admin.pem \
+  --embed-certs=true \
+  --client-key=/opt/ssl/kube-admin-key.pem \
+  --kubeconfig=admin.conf
+
+# 设置上下文参数
+kubectl config set-context kubernetes-admin@kubernetes \
+  --cluster=kubernetes \
+  --user=kubernetes-admin \
+  --kubeconfig=admin.conf
+
+# 设置默认上下文
+kubectl config use-context kubernetes-admin@kubernetes --kubeconfig=admin.conf
+
+# cp成~/.kube/config
+cp /etc/kubernetes/ssl/admin.conf ~/.kube/config
+
+
+
+试试看是否生效
+
+$ kubectl get cs
+NAME                 STATUS    MESSAGE              ERROR
+scheduler            Healthy   ok                   
+controller-manager   Healthy   ok                   
+etcd-2               Healthy   {"health": "true"}   
+etcd-1               Healthy   {"health": "true"}   
+etcd-0               Healthy   {"health": "true"}   
+
+
+
+十.kubelet配置
+
+
+  kubelet启动时向kube-apiserver发送 TLS bootstrapping请求，需要先将 bootstrap token 文件中的 kubelet-bootstrap用户赋予system:node-bootstrapper角色，然后kubelet才有权限创建认证请求。
+
+
+kubelet角色授权
+
+# 在k8s-console上执行绑定操作
+kubectl create clusterrolebinding kubelet-bootstrap --clusterrole=system:node-bootstrapper --user=kubelet-bootstrap
+
+
+
+在k8s-console上生成kubelet kubeconfig文件
+
+
+  配置集群
+
+
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/opt/ssl/ca.pem \
+  --embed-certs=true \
+  --server=https://127.0.0.1:6443 \
+  --kubeconfig=bootstrap.kubeconfig
+
+
+
+
+  配置客户端认证参数
+
+
+kubectl config set-credentials kubelet-bootstrap \
+  --token=04d9b6c6fd3ed8a3488b3b0913e87d64 \
+  --kubeconfig=bootstrap.kubeconfig
+
+
+
+
+  配置上下文关联
+
+
+kubectl config set-context default \
+  --cluster=kubernetes \
+  --user=kubelet-bootstrap \
+  --kubeconfig=bootstrap.kubeconfig
+
+
+
+
+  配置默认上下文
+
+
+kubectl config use-context default --kubeconfig=bootstrap.kubeconfig
+
+
+
+
+  分发bootstrap.kubeconfig文件到每个node节点
+
+
+cd /etc/kubernetes
+for IP in `seq 5 7`;do
+  scp bootstrap.kubeconfig root@172.29.151.$IP:/etc/kubernetes/
+done
+
+
+
+添加kubelet为系统服务
+
+
+  创建kubelet工作目录
+
+
+mkdir /var/lib/kubelet
+
+
+
+
+  添加/usr/lib/systemd/system/kubelet.service,注意修改你成你自己节点的ip
+
+
+[Unit]
+Description=Kubernetes Kubelet
+After=docker.service
+Requires=docker.service
+
+[Service]
+WorkingDirectory=/var/lib/kubelet
+ExecStart=/usr/local/bin/kubelet \
+  --cgroup-driver=systemd \
+  --address=172.29.151.5 \
+  --hostname-override=172.29.151.5 \
+  --pod-infra-container-image=gcr.io/google_containers/pause-amd64:3.0 \
+  --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig \
+  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
+  --require-kubeconfig \
+  --cert-dir=/etc/kubernetes/ssl \
+  --cluster_dns=10.254.0.2 \
+  --cluster_domain=cluster.local. \
+  --hairpin-mode promiscuous-bridge \
+  --allow-privileged=true \
+  --serialize-image-pulls=false \
+  --logtostderr=true \
+  --max-pods=512 \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+启动kubelet
+
+systemctl daemon-reload
+systemctl enable kubelet
+systemctl start kubelet
+systemctl status kubelet
+
+
+
+签发证书，验证nodes
+
+
+  查看csr，我们发现状态为Pending
+
+
+$ kubectl get csr
+NAME                                                   AGE       REQUESTOR           CONDITION
+node-csr-MIqovZHmrYMe1Y6AspcfU6_keLdSWfbUqg4pcK-Hb9w   2m        kubelet-bootstrap   Pending
+node-csr-el6foG3yw6_9xCu1vC_upuT-xLR9Z9ASBNj5isBFcsY   2m        kubelet-bootstrap   Pending
+node-csr-oPWmprgtrRixLZXUvEFKnHI2qZEGorzHKZ1ktLMdGS8   5m        kubelet-bootstrap   Pending
+
+
+
+
+  签发证书
+
+
+$ kubectl certificate approve node-csr-oPWmprgtrRixLZXUvEFKnHI2qZEGorzHKZ1ktLMdGS8 node-csr-el6foG3yw6_9xCu1vC_upuT-xLR9Z9ASBNj5isBFcsY node-csr-MIqovZHmrYMe1Y6AspcfU6_keLdSWfbUqg4pcK-Hb9w
+certificatesigningrequest "node-csr-oPWmprgtrRixLZXUvEFKnHI2qZEGorzHKZ1ktLMdGS8" approved
+certificatesigningrequest "node-csr-el6foG3yw6_9xCu1vC_upuT-xLR9Z9ASBNj5isBFcsY" approved
+certificatesigningrequest "node-csr-MIqovZHmrYMe1Y6AspcfU6_keLdSWfbUqg4pcK-Hb9w" approved
+
+
+
+
+  查看node
+
+
+$ kubectl get nodes
+NAME           STATUS    AGE       VERSION
+172.29.151.5   Ready     3m        v1.7.6
+172.29.151.6   Ready     45s       v1.7.6
+172.29.151.7   Ready     12s       v1.7.6
+
+
+
+
+  成功后会自动生成配置文件和密钥
+
+
+$ ll /etc/kubernetes/ssl
+-rw-r--r-- 1 root root 1042 Oct  9 17:46 kubelet-client.crt
+-rw------- 1 root root  227 Oct  9 17:18 kubelet-client.key
+-rw-r--r-- 1 root root 1111 Oct  9 17:46 kubelet.crt
+-rw------- 1 root root 1675 Oct  9 17:46 kubelet.key
+
+
+$ ll /etc/kubernetes/kubelet.kubeconfig
+-rw------- 1 root root 2260 Oct  9 17:46 /etc/kubernetes/kubelet.kubeconfig
+
+
+
+十一.kube-proxy 配置
+
+在k8s-console上生成kube-proxy kubeconfig文件
+
+
+  配置集群
+
+
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/opt/ssl/ca.pem \
+  --embed-certs=true \
+  --server=https://127.0.0.1:6443 \
+  --kubeconfig=kube-proxy.kubeconfig
+
+
+
+
+  配置客户端认证
+
+
+kubectl config set-credentials kube-proxy \
+  --client-certificate=/opt/ssl/kube-proxy.pem \
+  --client-key=/opt/ssl/kube-proxy-key.pem \
+  --embed-certs=true \
+  --kubeconfig=kube-proxy.kubeconfig
+
+
+
+
+  配置上下文
+
+
+kubectl config set-context default \
+  --cluster=kubernetes \
+  --user=kube-proxy \
+  --kubeconfig=kube-proxy.kubeconfig
+
+
+
+
+  配置默认上下文
+
+
+kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
+
+
+
+
+  分发到各个节点的/etc/kubernetes 目录
+
+
+for IP in `seq 5 7`;do
+  scp kube-proxy.kubeconfig root@172.29.151.$IP:/etc/kubernetes/
+done
+
+
+
+添加kube-proxy为系统服务
+
+
+  创建 kube-proxy目录
+
+
+mkdir -p /var/lib/kube-proxy
+
+
+
+
+  添加/usr/lib/systemd/system/kube-proxy.service，注意修改为自己的节点ip
+
+
+[Unit]
+Description=Kubernetes Kube-Proxy Server
+After=network.target
+
+[Service]
+WorkingDirectory=/var/lib/kube-proxy
+ExecStart=/usr/local/bin/kube-proxy \
+  --bind-address=172.29.151.5 \
+  --hostname-override=172.29.151.5 \
+  --cluster-cidr=10.254.0.0/16 \
+  --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
+  --logtostderr=true \
+  --v=2
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+启动kube-proxy
+
+systemctl daemon-reload
+systemctl enable kube-proxy
+systemctl start kube-proxy
+systemctl status kube-proxy
+
+
+
+十二.calico配置
+
+
+  网络组件采用calico，calico部署比较简单，只需要create 一下yml文件即可，具体参考calico官方文档 ，在使用calico网络的时候，官方的要求如下
+
+
+
+  kubelet 必须配置使用CNI插件--network-plugin=cni
+  kube-proxy 必须以iptables的模式启动
+  kube-proxy 不能使用--masquerade-all启动(会与calico policy冲突)
+  kubernetes networkpolicy api 至少需要kubernetes 1.3 版本以上
+  如果开启了RBAC，那么需要注意需要创建clusterrole和clusterrolebinding
+
+
+在每个节点上修改kubelet.service
+
+
+  修改kubelet配置，增加--network-plugin=cni
+
+
+vi /usr/lib/systemd/system/kubelet.service
+
+--network-plugin=cni
+
+
+
+
+  重启kubelet
+
+
+systemctl daemon-reload
+systemctl restart kubelet.service
+systemctl status kubelet.service
+
+
+
+准备依赖包和文件
+
+
+  下载calico.yaml 和rbac.yaml
+
+
+wget https://docs.projectcalico.org/v2.6/getting-started/kubernetes/installation/hosted/calico.yaml
+wget https://docs.projectcalico.org/v2.6/getting-started/kubernetes/installation/rbac.yaml
+
+
+
+
+  下载镜像
+
+
+quay.io/calico/node:v2.6.1
+quay.io/calico/cni:v1.11.0
+quay.io/calico/kube-controllers:v1.0.0
+
+
+
+修改配置文件
+
+
+  修改etcd_endpoints
+
+
+etcd_endpoints: "https://172.29.151.1:2379,https://172.29.151.2:2379,https://172.29.151.3:2379"
+
+
+
+
+  修改calico所需的etcd密钥信息
+
+
+etcd_ca: "/calico-secrets/etcd-ca"
+etcd_cert: "/calico-secrets/etcd-cert"
+etcd_key: "/calico-secrets/etcd-key"
+
+
+
+
+  写入etcd-key、etcd-cert、etcd-ca的base64信息，将括号里面命令执行的结果填入即可
+
+
+data:
+  etcd-key: (cat /opt/ssl/etcd-key.pem | base64 | tr -d '\n')
+  etcd-cert: (cat /opt/ssl/etcd.pem | base64 | tr -d '\n')
+  etcd-ca: (cat /opt/ssl/ca.pem | base64 | tr -d '\n')
+
+
+
+
+  修改calico的网络段
+
+
+- name: CALICO_IPV4POOL_CIDR
+      value: "10.233.0.0/16"
+
+
+
+
+  注释掉calico-node 部分，这部分用systemctl来进行管理，因为用官方文档可能会出现无法获取到IP的情况
+
+
+# Calico Version v2.6.1
+# https://docs.projectcalico.org/v2.6/releases#v2.6.1
+# This manifest includes the following component versions:
+#   calico/node:v2.6.1
+#   calico/cni:v1.11.0
+#   calico/kube-controllers:v1.0.0
+
+# This ConfigMap is used to configure a self-hosted Calico installation.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: calico-config
+  namespace: kube-system
+data:
+  # Configure this with the location of your etcd cluster.
+  etcd_endpoints: "https://172.29.151.1:2379,https://172.29.151.2:2379,https://172.29.151.3:2379"
+
+  # Configure the Calico backend to use.
+  calico_backend: "bird"
+
+  # The CNI network configuration to install on each node.
+  cni_network_config: |-
+    {
+        "name": "k8s-pod-network",
+        "cniVersion": "0.1.0",
+        "type": "calico",
+        "etcd_endpoints": "__ETCD_ENDPOINTS__",
+        "etcd_key_file": "__ETCD_KEY_FILE__",
+        "etcd_cert_file": "__ETCD_CERT_FILE__",
+        "etcd_ca_cert_file": "__ETCD_CA_CERT_FILE__",
+        "log_level": "info",
+        "mtu": 1500,
+        "ipam": {
+            "type": "calico-ipam"
+        },
+        "policy": {
+            "type": "k8s",
+            "k8s_api_root": "https://__KUBERNETES_SERVICE_HOST__:__KUBERNETES_SERVICE_PORT__",
+            "k8s_auth_token": "__SERVICEACCOUNT_TOKEN__"
+        },
+        "kubernetes": {
+            "kubeconfig": "__KUBECONFIG_FILEPATH__"
+        }
+    }
+
+  # If you're using TLS enabled etcd uncomment the following.
+  # You must also populate the Secret below with these files.
+  etcd_ca: "/calico-secrets/etcd-ca"
+  etcd_cert: "/calico-secrets/etcd-cert"
+  etcd_key: "/calico-secrets/etcd-key"
+
+---
+
+# The following contains k8s Secrets for use with a TLS enabled etcd cluster.
+# For information on populating Secrets, see http://kubernetes.io/docs/user-guide/secrets/
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: calico-etcd-secrets
+  namespace: kube-system
+data:
+  # Populate the following files with etcd TLS configuration if desired, but leave blank if
+  # not using TLS for etcd.
+  # This self-hosted install expects three files with the following names.  The values
+  # should be base64 encoded strings of the entire contents of each file.
+  etcd-key: 这块自己对 etcd 相关证书做 base64
+  etcd-cert: 这块自己对 etcd 相关证书做 base64
+  etcd-ca: 这块自己对 etcd 相关证书做 base64
+
+---
+
+# This manifest installs the calico/node container, as well
+# as the Calico CNI plugins and network config on
+# each master and worker node in a Kubernetes cluster.
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  name: calico-node
+  namespace: kube-system
+  labels:
+    k8s-app: calico-node
+spec:
+  selector:
+    matchLabels:
+      k8s-app: calico-node
+  template:
+    metadata:
+      labels:
+        k8s-app: calico-node
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+        scheduler.alpha.kubernetes.io/tolerations: |
+          [{"key": "dedicated", "value": "master", "effect": "NoSchedule" },
+           {"key":"CriticalAddonsOnly", "operator":"Exists"}]
+    spec:
+      hostNetwork: true
+      serviceAccountName: calico-node
+      containers:
+        # Runs calico/node container on each Kubernetes node.  This
+        # container programs network policy and routes on each
+        # host.
+        # 从这里开始注释掉calico-node的部分
+        # - name: calico-node
+        #   image: quay.io/calico/node:v2.6.1
+        #   env:
+        #     # The location of the Calico etcd cluster.
+        #     - name: ETCD_ENDPOINTS
+        #       valueFrom:
+        #         configMapKeyRef:
+        #           name: calico-config
+        #           key: etcd_endpoints
+        #     # Choose the backend to use.
+        #     - name: CALICO_NETWORKING_BACKEND
+        #       valueFrom:
+        #         configMapKeyRef:
+        #           name: calico-config
+        #           key: calico_backend
+        #     # Cluster type to identify the deployment type
+        #     - name: CLUSTER_TYPE
+        #       value: "k8s,bgp"
+        #     # Disable file logging so `kubectl logs` works.
+        #     - name: CALICO_DISABLE_FILE_LOGGING
+        #       value: "true"
+        #     # Set Felix endpoint to host default action to ACCEPT.
+        #     - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
+        #       value: "ACCEPT"
+        #     # Configure the IP Pool from which Pod IPs will be chosen.
+        #     - name: CALICO_IPV4POOL_CIDR
+        #       value: "10.233.0.0/16"
+        #     - name: CALICO_IPV4POOL_IPIP
+        #       value: "always"
+        #     # Disable IPv6 on Kubernetes.
+        #     - name: FELIX_IPV6SUPPORT
+        #       value: "false"
+        #     # Set Felix logging to "info"
+        #     - name: FELIX_LOGSEVERITYSCREEN
+        #       value: "info"
+        #     # Set MTU for tunnel device used if ipip is enabled
+        #     - name: FELIX_IPINIPMTU
+        #       value: "1440"
+        #     # Location of the CA certificate for etcd.
+        #     - name: ETCD_CA_CERT_FILE
+        #       valueFrom:
+        #         configMapKeyRef:
+        #           name: calico-config
+        #           key: etcd_ca
+        #     # Location of the client key for etcd.
+        #     - name: ETCD_KEY_FILE
+        #       valueFrom:
+        #         configMapKeyRef:
+        #           name: calico-config
+        #           key: etcd_key
+        #     # Location of the client certificate for etcd.
+        #     - name: ETCD_CERT_FILE
+        #       valueFrom:
+        #         configMapKeyRef:
+        #           name: calico-config
+        #           key: etcd_cert
+        #     # Auto-detect the BGP IP address.
+        #     - name: IP
+        #       value: ""
+        #     - name: FELIX_HEALTHENABLED
+        #       value: "true"
+        #   securityContext:
+        #     privileged: true
+        #   resources:
+        #     requests:
+        #       cpu: 250m
+        #   livenessProbe:
+        #     httpGet:
+        #       path: /liveness
+        #       port: 9099
+        #     periodSeconds: 10
+        #     initialDelaySeconds: 10
+        #     failureThreshold: 6
+        #   readinessProbe:
+        #     httpGet:
+        #       path: /readiness
+        #       port: 9099
+        #     periodSeconds: 10
+        #   volumeMounts:
+        #     - mountPath: /lib/modules
+        #       name: lib-modules
+        #       readOnly: true
+        #     - mountPath: /var/run/calico
+        #       name: var-run-calico
+        #       readOnly: false
+        #     - mountPath: /calico-secrets
+        #       name: etcd-certs
+        # This container installs the Calico CNI binaries
+        # and CNI network config file on each node.
+        - name: install-cni
+          image: quay.io/calico/cni:v1.11.0
+          command: ["/install-cni.sh"]
+          env:
+            # The location of the Calico etcd cluster.
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            # The CNI network config to install on each node.
+            - name: CNI_NETWORK_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: cni_network_config
+          volumeMounts:
+            - mountPath: /host/opt/cni/bin
+              name: cni-bin-dir
+            - mountPath: /host/etc/cni/net.d
+              name: cni-net-dir
+            - mountPath: /calico-secrets
+              name: etcd-certs
+      volumes:
+        # Used by calico/node.
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
+        - name: var-run-calico
+          hostPath:
+            path: /var/run/calico
+        # Used to install CNI.
+        - name: cni-bin-dir
+          hostPath:
+            path: /opt/cni/bin
+        - name: cni-net-dir
+          hostPath:
+            path: /etc/cni/net.d
+        # Mount in the etcd TLS secrets.
+        - name: etcd-certs
+          secret:
+            secretName: calico-etcd-secrets
+
+---
+
+# This manifest deploys the Calico Kubernetes controllers.
+# See https://github.com/projectcalico/kube-controllers
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+  labels:
+    k8s-app: calico-kube-controllers
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ''
+    scheduler.alpha.kubernetes.io/tolerations: |
+      [{"key": "dedicated", "value": "master", "effect": "NoSchedule" },
+       {"key":"CriticalAddonsOnly", "operator":"Exists"}]
+spec:
+  # The controllers can only have a single active instance.
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: calico-kube-controllers
+      namespace: kube-system
+      labels:
+        k8s-app: calico-kube-controllers
+    spec:
+      # The controllers must run in the host network namespace so that
+      # it isn't governed by policy that would prevent it from working.
+      hostNetwork: true
+      serviceAccountName: calico-kube-controllers
+      containers:
+        - name: calico-kube-controllers
+          image: quay.io/calico/kube-controllers:v1.0.0
+          env:
+            # The location of the Calico etcd cluster.
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            # Location of the CA certificate for etcd.
+            - name: ETCD_CA_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_ca
+            # Location of the client key for etcd.
+            - name: ETCD_KEY_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_key
+            # Location of the client certificate for etcd.
+            - name: ETCD_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_cert
+          volumeMounts:
+            # Mount in the etcd TLS secrets.
+            - mountPath: /calico-secrets
+              name: etcd-certs
+      volumes:
+        # Mount in the etcd TLS secrets.
+        - name: etcd-certs
+          secret:
+            secretName: calico-etcd-secrets
+
+---
+
+# This deployment turns off the old "policy-controller". It should remain at 0 replicas, and then
+# be removed entirely once the new kube-controllers deployment has been deployed above.
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: calico-policy-controller
+  namespace: kube-system
+  labels:
+    k8s-app: calico-policy
+spec:
+  # Turn this deployment off in favor of the kube-controllers deployment above.
+  replicas: 0
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: calico-policy-controller
+      namespace: kube-system
+      labels:
+        k8s-app: calico-policy
+    spec:
+      hostNetwork: true
+      serviceAccountName: calico-kube-controllers
+      containers:
+        - name: calico-policy-controller
+          image: quay.io/calico/kube-controllers:v1.0.0
+          env:
+            # The location of the Calico etcd cluster.
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-node
+  namespace: kube-system
+
+
+
+安装calico
+
+
+  在每个node节点上创建calico所需的目录，并分发证书
+
+
+cd /opt/ssl
+for IP in `seq 5 7`;do
+  ssh root@172.29.151.$IP mkdir -p /etc/calico/certs
+  scp ca.pem etcd*.pem root@172.29.151.$IP:/etc/calico/certs/
+done
+
+
+
+
+  在每个node节点上添加/etc/calico/calico.env文件,注意修改你自己的ip和hostname
+
+
+ETCD_ENDPOINTS="https://172.29.151.1:2379,https://172.29.151.2:2379,https://172.29.151.3:2379"
+ETCD_CA_CERT_FILE="/etc/calico/certs/ca.pem"
+ETCD_CERT_FILE="/etc/calico/certs/etcd.pem"
+ETCD_KEY_FILE="/etc/calico/certs/etcd-key.pem"
+CALICO_IP="172.29.151.5"
+CALICO_IP6=""
+CALICO_LIBNETWORK_ENABLED="true"
+CALICO_IPV4POOL_CIDR="10.233.0.0/16"
+CALICO_IPV4POOL_IPIP="always"
+CALICO_HOSTNAME="k8s-mds-node01"
+
+
+
+
+  在每个node节点上添加calico.service为系统服务
+
+
+[Unit]
+Description=calico-node
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/calico/calico.env
+ExecStartPre=-/usr/bin/docker rm -f calico-node
+ExecStart=/usr/bin/docker run --net=host --privileged \
+ --name=calico-node \
+ -e ETCD_ENDPOINTS=${ETCD_ENDPOINTS} \
+ -e ETCD_CA_CERT_FILE=${ETCD_CA_CERT_FILE} \
+ -e ETCD_CERT_FILE=${ETCD_CERT_FILE} \
+ -e ETCD_KEY_FILE=${ETCD_KEY_FILE} \
+ -e HOSTNAME=${CALICO_HOSTNAME} \
+ -e IP=${CALICO_IP} \
+ -e IP6=${CALICO_IP6} \
+ -e CALICO_NETWORKING_BACKEND=${CALICO_NETWORKING_BACKEND} \
+ -e CALICO_LIBNETWORK_ENABLED=${CALICO_LIBNETWORK_ENABLED} \
+ -e CALICO_IPV4POOL_CIDR=${CALICO_IPV4POOL_CIDR} \
+ -e CALICO_IPV4POOL_IPIP=${CALICO_IPV4POOL_IPIP} \
+ -e CALICO_DISABLE_FILE_LOGGING=${CALICO_DISABLE_FILE_LOGGING} \
+ -e FELIX_DEFAULTENDPOINTTOHOSTACTION=RETURN \
+ -e FELIX_IPV6SUPPORT=false \
+ -e FELIX_LOGSEVERITYSCREEN=info \
+ -e AS=${CALICO_AS} \
+ -v /var/log/calico:/var/log/calico \
+ -v /run/docker/plugins:/run/docker/plugins \
+ -v /lib/modules:/lib/modules \
+ -v /var/run/calico:/var/run/calico \
+ -v /var/run/docker.sock:/var/run/docker.sock \
+ -v /etc/calico/certs:/etc/calico/certs:ro \
+ --memory=500M --cpu-shares=300 \
+ quay.io/calico/node:v2.6.1
+
+Restart=always
+RestartSec=10s
+
+ExecStop=-/usr/bin/docker stop calico-node
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+  启动calico-node
+
+
+systemctl daemon-reload
+systemctl enable calico-node
+systemctl start calico-node
+systemctl status calico-node
+
+
+
+  在k8s-console上执行calico安装
+
+
+$ kubectl apply -f calico.yaml
+configmap "calico-config" created
+secret "calico-etcd-secrets" created
+daemonset "calico-node" created
+deployment "calico-policy-controller" created
+serviceaccount "calico-policy-controller" created
+serviceaccount "calico-node" created
+
+
+$ kubectl apply -f rbac.yaml
+clusterrole "calico-policy-controller" created
+clusterrolebinding "calico-policy-controller" created
+clusterrole "calico-node" created
+clusterrolebinding "calico-node" created
+
+
+
+验证calico
+
+$ kubectl get pods -n kube-system
+NAME                                       READY     STATUS    RESTARTS   AGE
+calico-kube-controllers-3994748863-0dpcp   1/1       Running   0          1h
+calico-node-74d64                          1/1       Running   0          14h
+calico-node-rbrw3                          1/1       Running   0          14h
+calico-node-vtcrs                          1/1       Running   0          14h
+
+
+
+安装calicoctl
+
+
+  在k8s-console上下载calicoctl并分发到各个node节点
+
+
+wget https://github.com/projectcalico/calicoctl/releases/download/v1.6.1/calicoctl
+chmod +x calicoctl
+
+for IP in `seq 5 7`;do
+  scp calicoctl root@172.29.151.$IP:/usr/local/bin/
+done
+
+
+
+
+  在节点上看看calico的状态
+
+
+$ calicoctl node status
+Calico process is running.
+
+IPv4 BGP status
++--------------+-------------------+-------+----------+-------------+
+| PEER ADDRESS |     PEER TYPE     | STATE |  SINCE   |    INFO     |
++--------------+-------------------+-------+----------+-------------+
+| 172.29.151.6 | node-to-node mesh | up    | 12:40:50 | Established |
+| 172.29.151.7 | node-to-node mesh | up    | 12:40:50 | Established |
++--------------+-------------------+-------+----------+-------------+
+
+IPv6 BGP status
+No IPv6 peers found.
+
+
+
+
+测试跨主机通信
+
+
+  创建一个nginxdeployment
+
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-dm
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        name: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    name: nginx
+
+
+
+
+  查看创建结果
+
+
+$ kubectl get pods -o wide
+NAME                        READY     STATUS    RESTARTS   AGE       IP             NODE
+nginx-dm-2214564181-bplwr   1/1       Running   0          3m        10.233.136.3   172.29.151.7
+nginx-dm-2214564181-qsl5c   1/1       Running   0          3m        10.233.203.2   172.29.151.6
+
+$ kubectl get deployment
+NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx-dm   2         2         2            2           4m
+
+$ kubectl get svc
+NAME         CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+kubernetes   10.254.0.1       &lt;none&gt;        443/TCP   14h
+nginx-svc    10.254.149.124   &lt;none&gt;        80/TCP    4m
+
+
+
+
+  在pod里ping另一个pod
+
+
+$ kubectl exec -ti nginx-dm-2214564181-bplwr /bin/sh
+/ # ping 10.233.203.2
+PING 10.233.203.2 (10.233.203.2): 56 data bytes
+64 bytes from 10.233.203.2: seq=0 ttl=62 time=0.592 ms
+64 bytes from 10.233.203.2: seq=1 ttl=62 time=0.894 ms
+64 bytes from 10.233.203.2: seq=2 ttl=62 time=0.559 ms
+
+
+
+
+  在node节点上curl测试一下
+
+
+$ curl 10.254.149.124
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a href="http://nginx.org/"&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a href="http://nginx.com/"&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you for using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+
+
+十三.部署DNS
+
+部署集群dns
+
+  获取对应的yaml文件
+
+
+wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/addons/dns/kube-dns.yaml.sed
+mv kube-dns.yaml.sed kube-dns.yaml
+
+
+
+
+  修改如下配置
+
+
+sed -i 's/$DNS_DOMAIN/cluster.local/gi' kube-dns.yaml
+sed -i 's/$DNS_SERVER_IP/10.254.0.2/gi' kube-dns.yaml
+
+
+
+
+  创建
+
+
+kubectl create -f kube-dns.yaml
+
+
+
+
+  查看创建结果
+
+
+$ kubectl get pods -n kube-system |grep kube-dns
+kube-dns-3468831164-2kl0h                  3/3       Running   0          14m
+
+
+
+
+  进入刚刚创建的nginx pod中访问nginx-svc测试
+
+
+$ kubectl exec -ti nginx-dm-2214564181-bplwr /bin/sh
+/ # curl nginx-svc
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a href="http://nginx.org/"&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a href="http://nginx.com/"&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you for using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+
+
+
+
+  测试外网
+
+
+$ kubectl exec -ti nginx-dm-2214564181-bplwr /bin/sh
+/ # curl https://baidu.com
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;302 Found&lt;/title&gt;&lt;/head&gt;
+&lt;body bgcolor="white"&gt;
+&lt;center&gt;&lt;h1&gt;302 Found&lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;bfe/1.0.8.18&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+
+
+部署dns自动扩容
+
+
+  下载对应的yaml文件，不需要任何修改
+
+
+wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/addons/dns-horizontal-autoscaler/dns-horizontal-autoscaler.yaml
+
+
+
+
+  在1.7.6中rbac还是beta版本，所以，这里我们要修改文件中的authentication.k8s.io/v1 为 authentication.k8s.io/vibeta1
+
+
+sed -i 's/rbac.authorization.k8s.io\/v1/rbac.authorization.k8s.io\/v1beta1/gi' dns-horizontal-autoscaler.yaml
+
+
+
+  创建
+
+
+kubectl create -f dns-horizontal-autoscaler.yaml
+
+
+
+
+  查看创建结果
+
+
+$ kubectl get pods -n kube-system
+NAME                                       READY     STATUS    RESTARTS   AGE
+calico-kube-controllers-3994748863-0dpcp   1/1       Running   0          7h
+calico-node-74d64                          1/1       Running   0          20h
+calico-node-rbrw3                          1/1       Running   0          20h
+calico-node-vtcrs                          1/1       Running   0          20h
+kube-dns-3468831164-2kl0h                  3/3       Running   0          5h
+kube-dns-3468831164-zjgzp                  3/3       Running   0          13m
+kube-dns-autoscaler-244676396-bpfpw        1/1       Running   0          13m
+
+
+
+十四.kubernetes周边组件配置
+
+kubernetes-dashboard配置
+
+
+  kubernetes基础环境搭建好之后，我们第一步要搭建的就是我们的kubernetes-dashboard
+
+
+
+  准备所需image
+
+
+gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1
+gcr.io/google_containers/kubernetes-dashboard-init-amd64:v1.0.0
+
+
+
+
+  下载所需yaml文件
+
+
+wget https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+
+
+
+
+  为了方便测试，我们在最后添加NodePort，后期如果有了ingress或traffic,再将其去掉即可
+
+
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  type: NodePort
+  ports:
+    - port: 443
+      targetPort: 8443
+      nodePort: 30001
+  selector:
+    k8s-app: kubernetes-dashboard
+
+
+
+
+  创建
+
+
+$ kubectl create -f kubernetes-dashboard.yaml
+
+secret "kubernetes-dashboard-certs" created
+serviceaccount "kubernetes-dashboard" created
+role "kubernetes-dashboard-minimal" created
+rolebinding "kubernetes-dashboard-minimal" created
+deployment "kubernetes-dashboard" created
+service "kubernetes-dashboard" created
+
+
+
+
+
+  查看创建结果
+
+
+$ kubectl get pods -n kube-system -o wide
+NAME                                       READY     STATUS    RESTARTS   AGE       IP              NODE
+calico-kube-controllers-3994748863-0dpcp   1/1       Running   1          1d        172.29.151.6    172.29.151.6
+calico-node-74d64                          1/1       Running   1          1d        172.29.151.6    172.29.151.6
+calico-node-rbrw3                          1/1       Running   1          1d        172.29.151.5    172.29.151.5
+calico-node-vtcrs                          1/1       Running   1          1d        172.29.151.7    172.29.151.7
+kube-dns-3468831164-2kl0h                  3/3       Running   3          23h       10.233.136.10   172.29.151.7
+kube-dns-3468831164-zjgzp                  3/3       Running   3          18h       10.233.161.7    172.29.151.5
+kube-dns-autoscaler-244676396-bpfpw        1/1       Running   1          18h       10.233.136.9    172.29.151.7
+kubernetes-dashboard-3625439193-tgtmm      1/1       Running   0          8s        10.233.136.15   172.29.151.7
+
+$ kubectl get svc  -n kube-system
+NAME                   CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE
+kube-dns               10.254.0.2      &lt;none&gt;        53/UDP,53/TCP   23h
+kubernetes-dashboard   10.254.116.15   &lt;nodes&gt;       443:30001/TCP   1m
+
+
+
+
+  最后我们来访问 https://$NODEIP:30001试试，我们发现新的kubernetes提供了认证，就算是skip进去之后，也看不到啥东西
+
+
+
+
+
+  这里我们使用token认证，那么token来自于哪呢，我们创建一个kubernetes-dashboard-rbac.yaml,内容如下
+
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: dashboard-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: kube-system
+
+
+
+
+  创建之后，我们来获取它的token值
+
+
+我们看到这里的serviceaccount是在kube-system的default的，所以我们直接查看kube-system中的default secret就可以了
+
+kubectl create -f kubernetes-dashboard-rbac.yaml
+
+$ kubectl describe secret default-token-d9jjg -n kube-system
+Name:		default-token-d9jjg
+Namespace:	kube-system
+Labels:		&lt;none&gt;
+Annotations:	kubernetes.io/service-account.name=default
+		kubernetes.io/service-account.uid=458abfc9-aef6-11e7-aa7b-00155dfa7a1a
+
+Type:	kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:		1346 bytes
+namespace:	11 bytes
+token:		eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLWQ5ampnIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI0NThhYmZjOS1hZWY2LTExZTctYWE3Yi0wMDE1NWRmYTdhMWEiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.gRfeCeQSRPOP7yZ94STPZ8GLb77Gx2wAgyVmyATbyoYR7ZMOgqIOMX0lmgZIzCkA1hFnPHcQ863Q9lW_uvkDbHYWA2B2DrRrdkBOYnq_FF2RM09qrwqspS5u3L0w1vgo7S--Rs-mG-yYnMw0EwBtl9rd6Lx7q59sDvWzU47YoQD3HyYZNuIiaIhuZiugvpkJGeKrrsHpd-wh4_rMcTp0GnUKdqSoIpeth2jvudnu34Wv_Jh5q2rhvhMSgb-qEW7JqB5wnDzXLaxkdW7i5PVDZD5RGCQGDwxqr4opfg53JrJQ9ojEjmR7Q0GfgWyKkudwlBm9nPT0VaW4LJkaM37vpQ
+
+
+
+
+  我们输入token登录看看，发现可以看到内容了
+
+
+
+
+heapster
+
+
+  kubernetes-dashboard搭建好之后，我们配套的搭建下heapster
+
+
+
+  准备所需镜像
+
+
+gcr.io/google_containers/heapster-grafana-amd64:v4.0.2
+gcr.io/google_containers/heapster-amd64:v1.3.0
+gcr.io/google_containers/heapster-influxdb-amd64:v1.1.1
+
+
+
+
+  下载所需yaml文件
+
+
+wget https://github.com/kubernetes/heapster/archive/v1.4.3.tar.gz
+
+
+
+
+  进入heapster-1.4.3/deploy/kube-config/influxdb，修改一下grafana.yaml里面的镜像版本，如果你想要通过NodePort查看下grafana的数据测试一下，可以注释掉service中的 type: NodePort
+
+
+gcr.io/google_containers/heapster-grafana-amd64:v4.2.0 -&gt; gcr.io/google_containers/heapster-grafana-amd64:v4.0.2
+type: NodePort
+
+
+
+
+  执行构建
+
+
+cd heapster-1.4.3/deploy/kube-config/influxdb
+kubectl create -f .
+
+cd heapster-1.4.3/deploy/kube-config/rbac
+kubectl create -f .
+
+
+
+
+  修改kubernetes-dashboard.yaml 文件，添加如下内容
+
+
+  # - --apiserver-host=http://my-address:port
+  - --heapster-host=http://heapster.kube-system.svc.cluster.local
+
+
+
+
+  重新构建kubernetes-dashboard
+
+
+kubectl create -f kubernetes-dashboard.yaml
+
+
+
+
+  查看构建结果
+
+
+$ kubectl get pods -n kube-system
+NAME                                       READY     STATUS    RESTARTS   AGE
+calico-kube-controllers-3994748863-0dpcp   1/1       Running   1          1d
+calico-node-74d64                          1/1       Running   1          1d
+calico-node-rbrw3                          1/1       Running   2          1d
+calico-node-vtcrs                          1/1       Running   1          1d
+heapster-84017538-54dkm                    1/1       Running   0          1h
+kube-dns-3468831164-2kl0h                  3/3       Running   3          1d
+kube-dns-3468831164-9hsbm                  3/3       Running   0          3h
+kube-dns-autoscaler-244676396-bpfpw        1/1       Running   1          22h
+kubernetes-dashboard-2923351285-pzgx5      1/1       Running   0          24m
+monitoring-grafana-2115417091-lgqsc        1/1       Running   0          1h
+monitoring-influxdb-3570645011-dp51l       1/1       Running   0          1h
+
+
+
+
+  登录kubernetes-dashboard，查看是否有数据了
+
+
+
+
+
+  登录到grafana查看数据
+
+
+
+
+ingress 配置
+
+见第二章
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -306,6 +4980,444 @@
                     </h3>
                     <p class="repo-list-description">
                         前面花了两章的时间介绍了ceph存储集群，简单的讲了ceph的组件、架构、寻址过程以及关于rbd,cephfs,cephGW,rados,osd,mon,mds,pool,pg,object等的操作过程，这一章主要记录下kubernetes使用ceph的相关配置过程。
+
+
+通过官网，我们发现在kubernetes中使用的是ceph的RBD
+
+部署集群
+
+具体的集群部署这里就不在赘述，请参考kubernetes ceph 笔记 1、kubernetes ceph 笔记 2，这里我们只是额外添加一组实验所需的osd，命令如下
+
+添加osd
+
+为每台机器添加一个sdc的硬盘，我这里用目录代替硬盘
+
+# 在每台osd节点上执行
+sudo mkdir -p /data/sdc
+chown ceph.ceph /data/sdc
+
+#在管理节点上执行`ceph-deploy`来准备OSD
+ceph-deploy osd prepare k8s-master01:/data/sdc k8s-master02:/data/sdc k8s-master03:/data/sdc k8s-node01:/data/sdc k8s-node02:/data/sdc k8s-registry:/data/sdc
+
+# 激活OSD
+ceph-deploy osd activate k8s-master01:/data/sdc k8s-master02:/data/sdc k8s-master03:/data/sdc k8s-node01:/data/sdc k8s-node02:/data/sdc k8s-registry:/data/sdc
+
+# 检测集群状态
+ceph halth
+
+
+
+创建RBD
+
+# 创建存储池
+rados mkpool data
+
+# 创建image
+rbd create data --size 10G -p data
+
+# 关闭不支持特性
+rbd feature disable data exclusive-lock, object-map, fast-diff, deep-flatten -p data
+
+# 映射image到块设备(每个节点都需要隐射)
+rbd map data --name client.admin -p data
+
+# 格式化块设备
+mkfs.xfs /dev/rbd0
+
+
+
+Kubernetes 使用Ceph
+
+PV &amp; PVC方式
+
+传统使用分布式存储的方式一般为 PV &amp; PVC 的方式，也就是说管理员必须预先创建好PV 和 PVC ，然后对应的deployment或者replication挂载PVC来使用
+
+创建secret
+
+# 获取管理 key 并进行 base64 编码
+ceph auth get-key client.admin | base64
+
+# 创建一个secret 配置(key 为上一条命令生成)
+vim ceph-secret.yml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-secret
+data:
+  key: QVFCZmVyWlpFS1hGTHhBQWhsekVscG0yTWhoYkJHQjRUbk5Wa0E9PQ==
+
+# 创建secret
+kubectl create -f ceph-secret.yml
+
+
+
+创建PV
+
+#创建ceph-pv文件
+vim ceph-pv.yml
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ceph-pv
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  rbd:
+    monitors:
+      - 172.30.33.90:6789
+      - 172.30.33.91:6789
+      - 172.30.33.92:6789
+    pool: data
+    image: data
+    user: admin
+    secretRef:
+      name: ceph-secret
+    fsType: xfs
+    readOnly: false
+  persistentVolumeReclaimPolicy: Recycle
+
+# 创建PV
+kubectl create -f ceph-pv.yml
+
+
+
+创建PVC
+
+# 新建ceph-pvc.yml文件
+vim ceph-pvc.yml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ceph-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+
+# 创建PVC
+kubectl create -f ceph-pvc.yml
+
+
+
+创建一个测试的deployment来挂载
+
+# 新建nginx.yml
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ceph-nginx
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ceph-nginx
+    spec:
+      containers:
+      - name: ceph-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: "/data"
+            name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ceph-pvc
+
+# 创建nginx deployment
+kubectl create -f ceph-nginx.yml
+
+
+
+配置k8s node
+
+我们创建好PV 和 PVC之后，进行查看时可能会出现with: rbd: failed to modprobe rbd error:exit status 1的报错，所以这时候我们需要对所有k8s-node进行如下配置
+
+# 在所有k8s node上安装ceph-common
+yum install -y ceph-common
+
+# 拷贝ceph.conf和ceph.client.admin.keyring到/etc/ceph/目录下
+
+# 配置kubelet有关ceph的参数，增加如下内容
+vim /usr/local/bin/kubelet
+
+-v /sbin/modprobe:/sbin/modprobe:ro \
+-v /lib/modules:/lib/modules:ro \
+-v /etc/ceph:/etc/ceph:ro \
+
+# 重启kubelet
+systemctl restart kubelet
+
+# 查看pod是否启动成功
+kubectl get pods
+NAME                          READY     STATUS    RESTARTS   AGE
+ceph-nginx-2497831062-569lw   1/1       Running   0          15m
+ceph-nginx-2497831062-589j9   1/1       Running   0          59m
+ceph-nginx-2497831062-5t01s   1/1       Running   0          12m
+
+# 然后进入其中一个pod，写入一个1G的文件
+kubectl exec -ti ceph-nginx-2497831062-569lw  /bin/bash
+
+dd if=/dev/zero of=test-file bs=1G count=1
+
+# 然后查看是否已经占用了rbd中的空间呢
+ceph df
+GLOBAL:
+    SIZE     AVAIL     RAW USED     %RAW USED
+    575G      344G         230G         40.09
+POOLS:
+    NAME                      ID     USED      %USED     MAX AVAIL     OBJECTS
+    data                      14     1038M      1.50        68277M         280
+
+# 然后我们删除这个pod
+kubectl delete pods ceph-nginx-2497831062-569lw
+
+# 查看新的pod,发现文件依旧在
+kubectl exec -ti ceph-nginx-2497831062-rgkcl ls /data
+test-file
+
+
+
+StorageClass方式之StatefulSet
+
+重头戏来了，洋洋洒洒写了近3篇文章，最终就是要使用这个StorageClass这个东西；这个东西在前面的kubernetes入门有简单的提到过，就是说动态创建PV，不用再事先固定PV的大小，直接创建PVC即可分配使用。
+
+创建secret
+
+# 获取管理 key 并进行 base64 编码
+ceph auth get-key client.admin | base64
+
+# 创建一个secret 配置(key 为上一条命令生成)
+vim ceph-storageclass-secret.yml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-storageclass-secret
+data:
+  key: QVFCZmVyWlpFS1hGTHhBQWhsekVscG0yTWhoYkJHQjRUbk5Wa0E9PQ==
+type: kubernetes.io/rbd
+
+# 创建一个namespace的secret
+vim ceph-storageclass-secret-system.yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-storageclass-secret
+  namespace: kube-system
+data:
+  key: QVFCZmVyWlpFS1hGTHhBQWhsekVscG0yTWhoYkJHQjRUbk5Wa0E9PQ==
+type: kubernetes.io/rbd
+
+# 创建secret
+kubectl create -f ceph-storageclass-secret.yml
+kubectl create -f ceph-storageclass-secret-system.yml
+
+
+
+创建一个storageclass
+
+# 新建ceph-storageclass.yml文件
+vim ceph-storageclass.yml
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ceph-storageclass
+provisioner: kubernetes.io/rbd
+parameters:
+  monitors: 172.30.33.90:6789,172.30.33.91:6789,172.30.33.92:6789
+  adminId: admin
+  adminSecretName: ceph-storageclass-secret
+  adminSecretNamespace: kube-system
+  pool: data
+  userId: admin
+  userSecretName: ceph-storageclass-secret
+
+# 新建storageclass
+kubectl create -f ceph-storageclass.yml
+
+
+
+创建statefulset
+
+我们在使用StorageClass的时候，可以自己手动创建PVC，然后所有pods共享一个pvc；也可以定义volumeClaimTemplates来为自动为每个pod创建一个单独的pvc，如下所示
+
+# 新建ceph-storageclass-nginx.yml
+vim ceph-storageclass-nginx.yml
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: ceph-storageclass-nginx
+spec:
+  serviceName: "ceph-storageclass-nginx-service"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ceph-storageclass-nginx
+    spec:
+      containers:
+      - name: ceph-storageclass-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: "/data"
+            name: data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      annotations:
+        volume.beta.kubernetes.io/storage-class: ceph-storageclass-pvc
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi
+
+# 新建ceph-storageclass-nginx-service.yml
+vim ce ph-storageclass-nginx-service.yml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ceph-storageclass-nginx-service
+  labels:
+    app: ceph-storageclass-nginx-service
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: ceph-storageclass-nginx
+
+# 创建statefulSet
+kubectl create -f ceph-storageclass-nginx.yml
+kubectl create -f ceph-storageclass-nginx-service.yml
+
+# 查看pods
+kubectl get pods
+NAME                          READY     STATUS    RESTARTS   AGE
+ceph-storageclass-nginx-0     1/1       Running   0          11m
+ceph-storageclass-nginx-1     1/1       Running   0          11m
+ceph-storageclass-nginx-2     1/1       Running   0          11m
+
+# 查看自动创建的pv和pvc
+kubectl get pv
+NAME                                       CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS    CLAIM                                    STORAGECLASS        REASON    AGE
+pvc-1af65cba-9dca-11e7-84a9-00155d201312   5Gi        RWO           Delete          Bound     default/data-ceph-storageclass-nginx-0   ceph-storageclass             15m
+pvc-934ed5ad-9dca-11e7-84a9-00155d201312   5Gi        RWO           Delete          Bound     default/data-ceph-storageclass-nginx-1   ceph-storageclass             12m
+pvc-9ff7359d-9dca-11e7-84a9-00155d201312   5Gi        RWO           Delete          Bound     default/data-ceph-storageclass-nginx-2   ceph-storageclass             11m
+
+
+kubectl get pvc
+NAME                             STATUS    VOLUME                                     CAPACITY   ACCESSMODES   STORAGECLASS        AGE
+data-ceph-storageclass-nginx-0   Bound     pvc-1af65cba-9dca-11e7-84a9-00155d201312   5Gi        RWO           ceph-storageclass   15m
+data-ceph-storageclass-nginx-1   Bound     pvc-934ed5ad-9dca-11e7-84a9-00155d201312   5Gi        RWO           ceph-storageclass   12m
+data-ceph-storageclass-nginx-2   Bound     pvc-9ff7359d-9dca-11e7-84a9-00155d201312   5Gi        RWO           ceph-storageclass   11m
+
+# 进入pod查看使用情况，发现/data使用大小5G
+[root@k8s-master01 k8s-quark]# kubectl exec -ti ceph-storageclass-nginx-1 -- df -Th
+Filesystem                                                                                      Type   Size  Used Avail Use% Mounted on
+/dev/rbd1                                                                                       ext4   4.8G   10M  4.6G   1% /data
+
+
+
+StorageClass方式之Deployment
+
+我们接着使用上面创建的StorageClass，只不过这个时候我们需要手动来创建一个PVC
+
+创建PVC
+
+# 新建ceph-storageclass-pvc.yml
+vim ceph-storageclass-pvc.yml
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-pvc
+  annotations:
+    volume.beta.kubernetes.io/storage-class: ceph-storageclass
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+
+# 创建PVC
+kubectl create -f ceph-storageclass-pvc.yml
+
+
+
+创建deployment
+
+# 新建ceph-storageclass-nginx-deployment.yml
+vim ceph-storageclass-nginx-deployment.yml
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ceph-nginx
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ceph-nginx
+    spec:
+      containers:
+      - name: ceph-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: "/data"
+            name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: test-pvc
+
+# 创建deployment
+kubectl create -f ceph-storageclass-nginx-deployment.yml
+
+# 查看pods
+kubectl get pods
+NAME                          READY     STATUS    RESTARTS   AGE
+ceph-nginx-3206996150-29q7j   1/1       Running   0          7m
+ceph-nginx-3206996150-94tzk   1/1       Running   0          7m
+ceph-nginx-3206996150-xvkzh   1/1       Running   0          7m
+
+# 查看PV和PVC
+kubectl get pvc
+NAME                             STATUS    VOLUME                                     CAPACITY   ACCESSMODES   STORAGECLASS        AGE
+test-pvc                         Bound     pvc-76a48238-9dcf-11e7-84a9-00155d201312   50Gi       RWX           ceph-storageclass   9m
+
+kubectl get pv
+NAME                                       CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS    CLAIM                                    STORAGECLASS        REASON    AGE
+pvc-76a48238-9dcf-11e7-84a9-00155d201312   50Gi       RWX           Delete          Bound     default/test-pvc                         ceph-storageclass             10m
+
+# 进入pod 查看使用情况，看到/data总共50G
+kubectl exec -ti ceph-nginx-3206996150-29q7j -- df -Th
+Filesystem                                                                                      Type   Size  Used Avail Use% Mounted on
+/dev/rbd0                                                                                       ext4    50G   52M   47G   1% /data
+
+
+
+至此kubernetes结合ceph RBD的实验基本上已经完成，我们发现，storageclass确实是个好东西，省去了创建PV的步骤，并且，可以根据PVC中定义的class来选择创建不同的PVC
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
