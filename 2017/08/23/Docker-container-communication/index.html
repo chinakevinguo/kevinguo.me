@@ -131,51 +131,48 @@
 
 <p>关于<code class="highlighter-rouge">ip_froward</code>的实验</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker run -d --name  db  training/postgres
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-d</span> <span class="nt">--name</span>  db  training/postgres
 
 <span class="c"># 这时候首先去将ip_froward设置为false，发现无法ping通外网</span>
- docker <span class="nb">exec</span> -ti db ping www.baidu.com
+ docker <span class="nb">exec</span> <span class="nt">-ti</span> db ping www.baidu.com
 
 <span class="c"># 这时候再将ip_forward设置为true，发现可以ping通外网</span>
-docker <span class="nb">exec</span> -ti db ping www.baidu.com
+docker <span class="nb">exec</span> <span class="nt">-ti</span> db ping www.baidu.com
 PING www.a.shifen.com <span class="o">(</span>103.235.46.39<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
 64 bytes from 103.235.46.39: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>54 <span class="nb">time</span><span class="o">=</span>56.3 ms
 64 bytes from 103.235.46.39: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>54 <span class="nb">time</span><span class="o">=</span>56.3 ms
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>默认情况下，docker会在启动容器的时候，在iptables中添加规则，如果你设定<code class="highlighter-rouge">--iptables=false</code>，docker将不会修改你的防火墙规则。</p>
 
 <p>关于<code class="highlighter-rouge">--iptables</code>的实验</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 首先，确认下有没有关于docker0的防火墙规则，有就删除掉</span>
-iptables -S |grep docker0
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 首先，确认下有没有关于docker0的防火墙规则，有就删除掉</span>
+iptables <span class="nt">-S</span> |grep docker0
 
 <span class="c"># 然后测试ping外网，发现无法ping通</span>
-docker <span class="nb">exec</span> -ti db ping www.baidu.com
+docker <span class="nb">exec</span> <span class="nt">-ti</span> db ping www.baidu.com
 
 <span class="c"># 这时候将iptables改为true，查看防火墙规则，又添加了关于docker0的规则</span>
-iptables -S |grep docker
--A FORWARD -o docker0 -j DOCKER
--A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
--A FORWARD -i docker0 ! -o docker0 -j ACCEPT
--A FORWARD -i docker0 -o docker0 -j ACCEPT
+iptables <span class="nt">-S</span> |grep docker
+<span class="nt">-A</span> FORWARD <span class="nt">-o</span> docker0 <span class="nt">-j</span> DOCKER
+<span class="nt">-A</span> FORWARD <span class="nt">-o</span> docker0 <span class="nt">-m</span> conntrack <span class="nt">--ctstate</span> RELATED,ESTABLISHED <span class="nt">-j</span> ACCEPT
+<span class="nt">-A</span> FORWARD <span class="nt">-i</span> docker0 <span class="o">!</span> <span class="nt">-o</span> docker0 <span class="nt">-j</span> ACCEPT
+<span class="nt">-A</span> FORWARD <span class="nt">-i</span> docker0 <span class="nt">-o</span> docker0 <span class="nt">-j</span> ACCEPT
 
 <span class="c"># 测试发现能ping通外网</span>
 
-docker <span class="nb">exec</span> -ti db ping www.baidu.com
+docker <span class="nb">exec</span> <span class="nt">-ti</span> db ping www.baidu.com
 PING www.a.shifen.com <span class="o">(</span>103.235.46.39<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
 64 bytes from 103.235.46.39: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>54 <span class="nb">time</span><span class="o">=</span>56.3 ms
 64 bytes from 103.235.46.39: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>54 <span class="nb">time</span><span class="o">=</span>56.3 ms
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>默认情况下，容器可以和任何外部地址进行通信。除非你设定仅仅只有那些地址可以访问内部的容器。如下，设定只有8.8.8.8能访问内部容器</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iptables <span class="nt">-I</span> DOCKER <span class="nt">-i</span> ext_if <span class="o">!</span> <span class="nt">-s</span> 8.8.8.8 <span class="nt">-j</span> DROP
+</code></pre></div></div>
 
 <h3 id="容器之间通信">容器之间通信</h3>
 
@@ -190,19 +187,18 @@ PING www.a.shifen.com <span class="o">(</span>103.235.46.39<span class="o">)</sp
 
 <p>关于<code class="highlighter-rouge">--icc</code>的实验</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 设置--icc=false发现容器之间无法ping通,如果你发现你依然能ping通，那可能是前面的防火墙配置，执行iptables -F 清空下再试</span>
-docker <span class="nb">exec</span> -ti db ping 172.17.0.3
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 设置--icc=false发现容器之间无法ping通,如果你发现你依然能ping通，那可能是前面的防火墙配置，执行iptables -F 清空下再试</span>
+docker <span class="nb">exec</span> <span class="nt">-ti</span> db ping 172.17.0.3
 
 
 <span class="c"># 设置--icc=true发现容器之间可以ping通</span>
-docker <span class="nb">exec</span> -ti db ping 172.17.0.3
+docker <span class="nb">exec</span> <span class="nt">-ti</span> db ping 172.17.0.3
 PING 172.17.0.3 <span class="o">(</span>172.17.0.3<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
 64 bytes from 172.17.0.3: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.128 ms
 64 bytes from 172.17.0.3: <span class="nv">icmp_seq</span><span class="o">=</span>2 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.110 ms
 64 bytes from 172.17.0.3: <span class="nv">icmp_seq</span><span class="o">=</span>3 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.096 ms
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <blockquote>
   <p><strong>注意：所以，我们启动docker之前，就要确定好，到底是否需要允许docker修改iptables，是否允许容器之间通信，是否允许容器访问外网等</strong></p>

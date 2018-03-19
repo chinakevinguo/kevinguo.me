@@ -125,23 +125,22 @@ compose 非常适用于开发，测试和临时环境以及CI工作流。我们�
 3.运行<code class="highlighter-rouge">docker-compose up</code>命令，compose将会启动和运行你定义的应用服务</p>
 
 <p><code class="highlighter-rouge">docker-compose.yml</code>文件内容如下：</p>
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2'</span>
-<span class="s">services</span><span class="pi">:</span>
-  <span class="s">web</span><span class="pi">:</span>
-    <span class="s">build</span><span class="pi">:</span> <span class="s">.</span>
-    <span class="s">ports</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">2'</span>
+<span class="na">services</span><span class="pi">:</span>
+  <span class="na">web</span><span class="pi">:</span>
+    <span class="na">build</span><span class="pi">:</span> <span class="s">.</span>
+    <span class="na">ports</span><span class="pi">:</span>
     <span class="pi">-</span> <span class="s2">"</span><span class="s">5000:5000"</span>
-    <span class="s">volumes</span><span class="pi">:</span>
+    <span class="na">volumes</span><span class="pi">:</span>
     <span class="pi">-</span> <span class="s">.:/code</span>
     <span class="pi">-</span> <span class="s">logvolume01:/var/log</span>
-    <span class="s">links</span><span class="pi">:</span>
+    <span class="na">links</span><span class="pi">:</span>
     <span class="pi">-</span> <span class="s">redis</span>
-  <span class="s">redis</span><span class="pi">:</span>
-    <span class="s">image</span><span class="pi">:</span> <span class="s">redis</span>
-<span class="s">volumes</span><span class="pi">:</span>
-  <span class="s">logvolume01</span><span class="pi">:</span> <span class="pi">{}</span>
-</code></pre>
-</div>
+  <span class="na">redis</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">redis</span>
+<span class="na">volumes</span><span class="pi">:</span>
+  <span class="na">logvolume01</span><span class="pi">:</span> <span class="pi">{}</span>
+</code></pre></div></div>
 
 <p>更多关于compose文件的信息，可参考<a href="https://docs.docker.com/compose/compose-file/">Compose file reference</a></p>
 
@@ -211,11 +210,10 @@ compose 文件提供了一种记录和配置所有应用服务之间依赖(数�
 <h2 id="自动测试环境">自动测试环境</h2>
 
 <p>持续开发或持续集成中一个重要的部分是自动化测试套件。自动化端到端测试需要一个运行测试的环境。compose提供了一种方便的方法来创建和销毁隔离测试环境的测试套件。通过在compose文件中定义完整的环境，你只需要几个命令就可以创建和销毁这些环境：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker-compose up -d
-<span class="gp">$ </span>./run_tests
-<span class="gp">$ </span>docker-compose down
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker-compose up <span class="nt">-d</span>
+<span class="nv">$ </span>./run_tests
+<span class="nv">$ </span>docker-compose down
+</code></pre></div></div>
 
 <h2 id="单台主机的部署">单台主机的部署</h2>
 

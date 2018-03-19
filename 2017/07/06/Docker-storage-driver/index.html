@@ -183,7 +183,7 @@
 </table>
 
 <p>查看当前Docker使用的存储驱动命令</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker info
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker info
 Containers: 10
  Running: 1
  Paused: 0
@@ -192,12 +192,10 @@ Images: 5
 Server Version: 1.12.3
 Storage Driver: devicemapper
 Backing Filesystem: xfs
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>在启动时Docker时指定存储驱动</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>dockerd --storage-driver<span class="o">=</span>overlay
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>dockerd <span class="nt">--storage-driver</span><span class="o">=</span>overlay
+</code></pre></div></div>
 
 <h1 id="共享存储系统和存储驱动">共享存储系统和存储驱动</h1>
 <p>许多企业使用共享存储（如SAN和NAS等），而Docker存储驱动程序是可以在这些共享存储上操作的，这是Docker在存储上有了更高的性能和可用性，但是目前，Docker还没有与这些共享存储进行集成，虽然没有和共享存储集成，但是，Docker的存储驱动程序是基于Linux文件系统和卷管理器的，所以Docker也能很好的在共享存储上进行使用。</p>

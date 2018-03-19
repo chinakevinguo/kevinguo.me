@@ -120,54 +120,49 @@
 <!--more-->
 <h6 id="1在master上开启pillar_roots">1.在master上开启pillar_roots</h6>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">pillar_roots</span><span class="pi">:</span>
-  <span class="s">base</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">pillar_roots</span><span class="pi">:</span>
+  <span class="na">base</span><span class="pi">:</span>
     <span class="pi">-</span> <span class="s">/srv/pillar</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 <!--more-->
 <h6 id="2在master的srvpillar目录下新建topslspackagesslsservicessls">2.在master的/srv/pillar目录下新建<em>top.sls</em>，<em>packages.sls</em>，<em>services.sls</em></h6>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="pi">[</span><span class="nv">root@saltstack-node1 pillar</span><span class="pi">]</span><span class="c1"># cat top.sls</span>
-<span class="s">base</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="pi">[</span><span class="nv">root@saltstack-node1 pillar</span><span class="pi">]</span><span class="c1"># cat top.sls</span>
+<span class="na">base</span><span class="pi">:</span>
   <span class="s1">'</span><span class="s">*'</span><span class="pi">:</span>
     <span class="pi">-</span> <span class="s">packages</span>
     <span class="pi">-</span> <span class="s">services</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="pi">[</span><span class="nv">root@saltstack-node1 pillar</span><span class="pi">]</span><span class="c1"># cat packages.sls</span>
-<span class="s">zabbix</span><span class="pi">:</span>
-  <span class="s">package-name</span><span class="pi">:</span> <span class="s">zabbix</span>
-  <span class="s">version</span><span class="pi">:</span> <span class="s">2.2.4</span>
-</code></pre>
-</div>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="pi">[</span><span class="nv">root@saltstack-node1 pillar</span><span class="pi">]</span><span class="c1"># cat packages.sls</span>
+<span class="na">zabbix</span><span class="pi">:</span>
+  <span class="na">package-name</span><span class="pi">:</span> <span class="s">zabbix</span>
+  <span class="na">version</span><span class="pi">:</span> <span class="s">2.2.4</span>
+</code></pre></div></div>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="pi">[</span><span class="nv">root@saltstack-node1 pillar</span><span class="pi">]</span><span class="c1"># cat services.sls</span>
-<span class="s">zabbix</span><span class="pi">:</span>
-  <span class="s">port</span><span class="pi">:</span> <span class="s">10050</span>
-  <span class="s">user</span><span class="pi">:</span> <span class="s">admin</span>
-</code></pre>
-</div>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="pi">[</span><span class="nv">root@saltstack-node1 pillar</span><span class="pi">]</span><span class="c1"># cat services.sls</span>
+<span class="na">zabbix</span><span class="pi">:</span>
+  <span class="na">port</span><span class="pi">:</span> <span class="s">10050</span>
+  <span class="na">user</span><span class="pi">:</span> <span class="s">admin</span>
+</code></pre></div></div>
 
 <h6 id="3执行pillaritem-zabbix查看指定的信息">3.执行pillar.item zabbix查看指定的信息</h6>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="pi">[</span><span class="nv">root@saltstack-node1 pillar</span><span class="pi">]</span><span class="c1"># salt 'saltstack-node2*' pillar.item zabbix</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="pi">[</span><span class="nv">root@saltstack-node1 pillar</span><span class="pi">]</span><span class="c1"># salt 'saltstack-node2*' pillar.item zabbix</span>
 <span class="s">saltstack-node2.example.com</span><span class="pi">:</span>
     <span class="s">----------</span>
     <span class="s">zabbix</span><span class="pi">:</span>
         <span class="s">----------</span>
         <span class="s">package-name</span><span class="pi">:</span>
             <span class="s">zabbix</span>
-        <span class="s">port</span><span class="pi">:</span>
+        <span class="na">port</span><span class="pi">:</span>
             <span class="s">10050</span>
-        <span class="s">user</span><span class="pi">:</span>
+        <span class="na">user</span><span class="pi">:</span>
             <span class="s">admin</span>
-        <span class="s">version</span><span class="pi">:</span>
+        <span class="na">version</span><span class="pi">:</span>
             <span class="s">2.2.4</span>
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
     </article>
     <div class="share">

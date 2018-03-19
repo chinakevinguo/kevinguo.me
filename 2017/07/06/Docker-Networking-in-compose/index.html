@@ -126,17 +126,16 @@
 
 <!--more-->
 <p>例如，假设app在一个名为myapp的目录，<code class="highlighter-rouge">docker-compose.yml</code>内容如下：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>version: <span class="s1">'2'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: <span class="s1">'2'</span>
 
 services:
   web:
-    build: .
+    build: <span class="nb">.</span>
     ports:
       - <span class="s2">"8000:8000"</span>
   db:
     image: postgres
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>当执行<code class="highlighter-rouge">docker-compose up</code>时，网络部分设置如下：
 1.创建了称之为myapp_default的网络
 2.使用web的配置创建容器，然后这个容器加入到myapp_default网络
@@ -155,16 +154,15 @@ services:
 
 <p>links可以为一个容器定义一个额外的别名。即使服务没有启动，它们也能进行通信。默认任何服务都可以通过该服务的名称访问其他的服务。例如：在web容器中可以通过db和database访问db容器</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>version: <span class="s1">'2'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: <span class="s1">'2'</span>
 services:
   web:
-    build: .
+    build: <span class="nb">.</span>
     links:
       - <span class="s2">"db:database"</span>
   db:
     image: postgres
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="多主机网络">多主机网络</h1>
 
@@ -179,7 +177,7 @@ services:
 <p>每个服务都能指定由networks关键字配置的网络，可以配置service级别和top级的网络。</p>
 
 <p>下面的示例compose文件定义了两个自定义网络。proxy服务与db服务隔离，因为它们没有指定相同的网络。</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>version: <span class="s1">'2'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: <span class="s1">'2'</span>
 
 services:
   proxy:
@@ -206,17 +204,16 @@ networks:
     driver_opts:
       foo: <span class="s2">"1"</span>
       bar: <span class="s2">"2"</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="配置默认网络">配置默认网络</h1>
 
 <p>除了指定你自己的网络之外，还可以通过在名为default的网络下定义一个条目来更改应用范围内的默认网络设置：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>version: <span class="s1">'2'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>version: <span class="s1">'2'</span>
 
 services:
   web:
-    build: .
+    build: <span class="nb">.</span>
     ports:
       - <span class="s2">"8000:8000"</span>
   db:
@@ -226,18 +223,16 @@ networks:
   default:
     <span class="c"># Use a custom driver</span>
     driver: custom-driver-1
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="使用预先存在的网络">使用预先存在的网络</h1>
 
 <p>如果你希望你的容器加入一个预先存在的网络，使用external选项：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>networks:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>networks:
   default:
     external:
       name: my-pre-existing-network
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>compose检测到有external选项后，不会创建名为[PROJECTNAME]_default的网络，而是会查找一个名为my-pre-existing-network的网络，并将应用程序连接到它。</p>
 
     </article>

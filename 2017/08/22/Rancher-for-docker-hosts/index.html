@@ -217,21 +217,19 @@
 
 <p>使用如下命令，创建<code class="highlighter-rouge">cattle</code>数据库和<code class="highlighter-rouge">cattle</code>用户</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>CREATE DATABASE IF NOT EXISTS cattle COLLATE <span class="o">=</span> <span class="s1">'utf8_general_ci'</span> CHARACTER SET <span class="o">=</span> <span class="s1">'utf8'</span>;
-GRANT ALL ON cattle.<span class="k">*</span> TO <span class="s1">'cattle'</span>@<span class="s1">'%'</span> IDENTIFIED BY <span class="s1">'cattle'</span>;
-GRANT ALL ON cattle.<span class="k">*</span> TO <span class="s1">'cattle'</span>@<span class="s1">'localhost'</span> IDENTIFIED BY <span class="s1">'cattle'</span>;
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CREATE DATABASE IF NOT EXISTS cattle COLLATE <span class="o">=</span> <span class="s1">'utf8_general_ci'</span> CHARACTER SET <span class="o">=</span> <span class="s1">'utf8'</span><span class="p">;</span>
+GRANT ALL ON cattle.<span class="k">*</span> TO <span class="s1">'cattle'</span>@<span class="s1">'%'</span> IDENTIFIED BY <span class="s1">'cattle'</span><span class="p">;</span>
+GRANT ALL ON cattle.<span class="k">*</span> TO <span class="s1">'cattle'</span>@<span class="s1">'localhost'</span> IDENTIFIED BY <span class="s1">'cattle'</span><span class="p">;</span>
+</code></pre></div></div>
 
 <h5 id="rancher-server-1">Rancher Server</h5>
 
 <p>在每台Node上执行如下命令</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker run -d --restart<span class="o">=</span>unless-stopped -p 8080:8080 -p 9345:9345 rancher/server <span class="se">\</span>
-     --db-host myhost.example.com --db-port 3306 --db-user username --db-pass password --db-name cattle <span class="se">\</span>
-     --advertise-address &lt;IP_of_the_Node&gt;
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-d</span> <span class="nt">--restart</span><span class="o">=</span>unless-stopped <span class="nt">-p</span> 8080:8080 <span class="nt">-p</span> 9345:9345 rancher/server <span class="se">\</span>
+     <span class="nt">--db-host</span> myhost.example.com <span class="nt">--db-port</span> 3306 <span class="nt">--db-user</span> username <span class="nt">--db-pass</span> password <span class="nt">--db-name</span> cattle <span class="se">\</span>
+     <span class="nt">--advertise-address</span> &lt;IP_of_the_Node&gt;
+</code></pre></div></div>
 
 <blockquote>
   <p><strong>注意：</strong> 如果你改变了<code class="highlighter-rouge">-p 8080:8080</code>端口，则需要额外添加一个参数<code class="highlighter-rouge">--addvertise-http-port &lt;host_port&gt;</code></p>
@@ -243,39 +241,37 @@ GRANT ALL ON cattle.<span class="k">*</span> TO <span class="s1">'cattle'</span>
 
 <p>rancher-upstream.conf</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>upstream rancher-server <span class="o">{</span>
-        server 172.30.33.44:8080;
-        server 172.30.33.45:8080;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upstream rancher-server <span class="o">{</span>
+        server 172.30.33.44:8080<span class="p">;</span>
+        server 172.30.33.45:8080<span class="p">;</span>
 <span class="o">}</span>
 map <span class="nv">$http_upgrade</span> <span class="nv">$connection_upgrade</span> <span class="o">{</span>
-    default Upgrade;
-    <span class="s1">''</span>      close;
+    default Upgrade<span class="p">;</span>
+    <span class="s1">''</span>      close<span class="p">;</span>
 <span class="o">}</span>         
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>rancher.conf</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>server <span class="o">{</span>
-        listen 80;
-        server_name rancher.quark.com;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>server <span class="o">{</span>
+        listen 80<span class="p">;</span>
+        server_name rancher.quark.com<span class="p">;</span>
 
-        access_log  logs/rancher_access.log main;
+        access_log  logs/rancher_access.log main<span class="p">;</span>
         location / <span class="o">{</span>
             <span class="c">#internal;</span>
-        proxy_set_header Host <span class="nv">$host</span>;
-        proxy_set_header X-Forwarded-Proto <span class="nv">$scheme</span>;
-        proxy_set_header X-Forwarded-Port <span class="nv">$server_port</span>;
-        proxy_set_header X-Forwarded-For <span class="nv">$proxy_add_x_forwarded_for</span>;
-        proxy_pass http://rancher-server;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade <span class="nv">$http_upgrade</span>;
-        proxy_set_header Connection <span class="nv">$connection_upgrade</span>;
-        proxy_read_timeout 900s;
+        proxy_set_header Host <span class="nv">$host</span><span class="p">;</span>
+        proxy_set_header X-Forwarded-Proto <span class="nv">$scheme</span><span class="p">;</span>
+        proxy_set_header X-Forwarded-Port <span class="nv">$server_port</span><span class="p">;</span>
+        proxy_set_header X-Forwarded-For <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+        proxy_pass http://rancher-server<span class="p">;</span>
+        proxy_http_version 1.1<span class="p">;</span>
+        proxy_set_header Upgrade <span class="nv">$http_upgrade</span><span class="p">;</span>
+        proxy_set_header Connection <span class="nv">$connection_upgrade</span><span class="p">;</span>
+        proxy_read_timeout 900s<span class="p">;</span>
         <span class="o">}</span>
     <span class="o">}</span>       
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="rancher-agent">Rancher agent</h3>
 

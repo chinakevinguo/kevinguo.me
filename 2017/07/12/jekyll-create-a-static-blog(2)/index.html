@@ -143,11 +143,10 @@
 
 <p><strong>重要： 这里的<code class="highlighter-rouge">username</code>，实际上是 disqus 中的shortname</strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>comments_provider: disqus
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>comments_provider: disqus
 disqus:
     username: kevinguo
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>5.修改完成后，push 到镜像站点，触发 Travis CI 重新发布博客，最终成功加载 disqus</p>
 

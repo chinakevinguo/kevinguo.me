@@ -122,15 +122,14 @@
 
 <p>我们可以直接用<code class="highlighter-rouge">dockerd</code>命令来直接运行docker daemon.默认是监听在<code class="highlighter-rouge">unix socket</code>
 <code class="highlighter-rouge">unix:///var/run/docker.sock</code></p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>dockerd
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>dockerd
 
 INFO[0000] +job init_networkdriver<span class="o">()</span>
 INFO[0000] +job serveapi<span class="o">(</span>unix:///var/run/docker.sock<span class="o">)</span>
 INFO[0000] Listening <span class="k">for </span>HTTP on unix <span class="o">(</span>/var/run/docker.sock<span class="o">)</span>
 ...
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="直接配置docker-daemon">直接配置docker daemon</h1>
 
@@ -143,13 +142,12 @@ INFO[0000] Listening <span class="k">for </span>HTTP on unix <span class="o">(</
 | -H,–host=[] | Daemon socket[s] 连接到哪 |
 | –tls=false | 开启或关闭TLS，默认是关闭的 |
 这里有一个使用配置选项运行docker daemon的例子：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>dockerd -D <span class="se">\</span>
---tls<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
---tlscert<span class="o">=</span>/var/docker/server.pem <span class="se">\</span>
---tlskey<span class="o">=</span>/var/docker/serverkey.pem <span class="se">\</span>
--H tcp://192.168.59.3:2376
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>dockerd <span class="nt">-D</span> <span class="se">\</span>
+<span class="nt">--tls</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+<span class="nt">--tlscert</span><span class="o">=</span>/var/docker/server.pem <span class="se">\</span>
+<span class="nt">--tlskey</span><span class="o">=</span>/var/docker/serverkey.pem <span class="se">\</span>
+<span class="nt">-H</span> tcp://192.168.59.3:2376
+</code></pre></div></div>
 <p>这些选项是：</p>
 <ul>
   <li>开启debug模式 <code class="highlighter-rouge">-D</code></li>
@@ -175,41 +173,34 @@ INFO[0000] Listening <span class="k">for </span>HTTP on unix <span class="o">(</
 
 <p>1.登录到你的系统，使用root账户，或者使用sudo
 2.创建<code class="highlighter-rouge">/etc/systemd/system/docker.service.d</code>目录</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo mkdir /etc/systemd/system/docker.service.d
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>mkdir /etc/systemd/system/docker.service.d
+</code></pre></div></div>
 <p>3.创建<code class="highlighter-rouge">/etc/systemd/system/docker.service.d/docker.conf</code>文件</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo mkdir /etc/systemd/system/docker.service.d/docker.conf
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>mkdir /etc/systemd/system/docker.service.d/docker.conf
+</code></pre></div></div>
 <p>4.打开这个docker.conf文件</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo vi /etc/systemd/system/docker.service.d/docker.conf
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>vi /etc/systemd/system/docker.service.d/docker.conf
+</code></pre></div></div>
 <p>5.覆盖从<code class="highlighter-rouge">docker.service</code>文件复制过来的<code class="highlighter-rouge">ExecStart</code>，用以自定义<code class="highlighter-rouge">docker daemon</code>。要修改<code class="highlighter-rouge">ExecStart</code>配置，必须先指定一个空配置，然后再知道你该一个新配置，如下所示：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Service]
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Service]
 <span class="nv">ExecStart</span><span class="o">=</span>
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd -H fd:// -D --tls<span class="o">=</span><span class="nb">true</span> --tlscert<span class="o">=</span>/var/docker/server.pem --tlskey<span class="o">=</span>/var/docker/serverkey.pem -H tcp://192.168.59.3:2376
-</code></pre>
-</div>
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nt">-H</span> fd:// <span class="nt">-D</span> <span class="nt">--tls</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tlscert</span><span class="o">=</span>/var/docker/server.pem <span class="nt">--tlskey</span><span class="o">=</span>/var/docker/serverkey.pem <span class="nt">-H</span> tcp://192.168.59.3:2376
+</code></pre></div></div>
 <p>6.保存关闭文件
 7.重新载入改变</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo systemctl daemon-reload
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>systemctl daemon-reload
+</code></pre></div></div>
 <p>8.重启docker daemon</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo systemctl restart docker
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>systemctl restart docker
+</code></pre></div></div>
 <p>9.检查docker daemon是否运行</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ps aux | grep docker | grep -v grep
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ps aux | <span class="nb">grep </span>docker | <span class="nb">grep</span> <span class="nt">-v</span> <span class="nb">grep</span>
+</code></pre></div></div>
 
 <h1 id="logs">logs</h1>
 <p>docker 在centos7.x上是将日志保存在<code class="highlighter-rouge">/var/log/messages</code> 中的，我们也可以使用<code class="highlighter-rouge">journalctl -u docker</code>来查看docker的日志</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>root@node01 log]# journalctl -u docker
--- Logs begin at Tue 2017-01-17 01:11:58 UTC, end at Tue 2017-01-17 02:52:15 UTC. --
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@node01 log]# journalctl <span class="nt">-u</span> docker
+<span class="nt">--</span> Logs begin at Tue 2017-01-17 01:11:58 UTC, end at Tue 2017-01-17 02:52:15 UTC. <span class="nt">--</span>
 Jan 17 01:22:56 node01 systemd[1]: Starting Docker Application Container Engine...
 Jan 17 01:22:57 node01 dockerd[2141]: <span class="nb">time</span><span class="o">=</span><span class="s2">"2017-01-17T01:22:57.477500482Z"</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">"libcontainerd: new containerd process, pid: 2145"</span>
 Jan 17 01:22:59 node01 dockerd[2141]: <span class="nb">time</span><span class="o">=</span><span class="s2">"2017-01-17T01:22:59.035780325Z"</span> <span class="nv">level</span><span class="o">=</span>warning <span class="nv">msg</span><span class="o">=</span><span class="s2">"devmapper: Usage of loopback devices is strongly
@@ -219,8 +210,7 @@ Jan 17 01:22:59 node01 dockerd[2141]: time="</span>2017-01-17T01:22:59.442654952
 Jan 17 01:22:59 node01 dockerd[2141]: <span class="nb">time</span><span class="o">=</span><span class="s2">"2017-01-17T01:22:59.443436730Z"</span> <span class="nv">level</span><span class="o">=</span>warning <span class="nv">msg</span><span class="o">=</span><span class="s2">"mountpoint for pids not found"</span>
 Jan 17 01:22:59 node01 dockerd[2141]: <span class="nb">time</span><span class="o">=</span><span class="s2">"2017-01-17T01:22:59.443929680Z"</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">"Loading containers: start."</span>
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
     </article>
     <div class="share">

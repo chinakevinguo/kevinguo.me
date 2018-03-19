@@ -128,13 +128,11 @@
     {
 "live-restore": true
 }
-
     
     你必须传递一个SIGHUP信号给daemon进程来重载配置。更多有关使用config.json来配置docker daemon的信息，可以参考daemon configuration file
   
   在使用dockerd启动时指定--live-restore选项
     $ sudo dockerd --live-restore
-
     
     升级docker daemon 时的Live restore
     live restore支持当升级docker daemon后，还原容器到docker
@@ -180,7 +178,6 @@ web:
   image: "webapp:${TAG}"
 
 
-
 在容器中设置环境变量
 
 可以在compose文件中的environment关键字下设置容器的环境变量，就像使用docker run -e VARIABLE=VALUE一样
@@ -188,7 +185,6 @@ web:
 web:
   environment:
     - DEBUG=1
-
 
 
 将环境变量传递到容器
@@ -200,7 +196,6 @@ web:
     - DEBUG
 
 
-
 env_file配置选项
 
 可以使用compose文件中的env_file选项从一个外部文件传递多个环境变量到容器中，就像docker run --env-file=FILE
@@ -210,17 +205,14 @@ web:
     - web-variables.env
 
 
-
 使用docker-compose run设置环境变量
 
 就像docker run -e,可以使用docker-compose run -e为一次性容器设置环境变量
 
 docker-compose run -e DEBUG=1 web python console.py
 
-
 也可以不赋值，直接从shell变量中取值
 docker-compose run -e DEBUG web python console.py
-
 
 DEBUG的值是从执行compose文件所在的shell的同一个环境变量取得。
 
@@ -237,14 +229,12 @@ services:
     image: "webapp:${TAG}"
 
 
-
 当执行docker-compose up命令时，上面定义的web服务将使用webapp:v1.5镜像，可以使用config命令来打印出来：
 $ docker-compose config
 version: '2.0'
 services:
   web:
     image: 'webapp:v1.5'
-
 
 
 在shell中的环境变量将比定义在.env文件中的环境变量优先。如果在shell中设置一个不同的TAG，镜像将优先使用shell中的定义，而不是.evn文件中的：
@@ -254,7 +244,6 @@ version: '2.0'
 services:
   web:
     image: 'webapp:v2.0'
-
 
 
 使用环境变量来配置compose
@@ -296,7 +285,6 @@ INFO[0000] Listening for HTTP on unix (/var/run/docker.sock)
 ...
 
 
-
 直接配置docker daemon
 
 如果你是直接运行dockerd命令，而非使用进程管理器(systemctl start docker)，你可以直接将配置选项附加到docker run命令。其他配置选项可传递给docker daemon来配置
@@ -313,7 +301,6 @@ $ dockerd -D \
 --tlscert=/var/docker/server.pem \
 --tlskey=/var/docker/serverkey.pem \
 -H tcp://192.168.59.3:2376
-
 
 这些选项是：
 
@@ -342,33 +329,26 @@ Daemon debugging
 2.创建/etc/systemd/system/docker.service.d目录
 $ sudo mkdir /etc/systemd/system/docker.service.d
 
-
 3.创建/etc/systemd/system/docker.service.d/docker.conf文件
 $ sudo mkdir /etc/systemd/system/docker.service.d/docker.conf
 
-
 4.打开这个docker.conf文件
 $ sudo vi /etc/systemd/system/docker.service.d/docker.conf
-
 
 5.覆盖从docker.service文件复制过来的ExecStart，用以自定义docker daemon。要修改ExecStart配置，必须先指定一个空配置，然后再知道你该一个新配置，如下所示：
 [Service]
 ExecStart=
 ExecStart=/usr/bin/dockerd -H fd:// -D --tls=true --tlscert=/var/docker/server.pem --tlskey=/var/docker/serverkey.pem -H tcp://192.168.59.3:2376
 
-
 6.保存关闭文件
 7.重新载入改变
 $ sudo systemctl daemon-reload
 
-
 8.重启docker daemon
 $ sudo systemctl restart docker
 
-
 9.检查docker daemon是否运行
 $ ps aux | grep docker | grep -v grep
-
 
 
 logs
@@ -467,6 +447,35 @@ Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.443929680Z" leve
     </div>
 </a>
 
+<a href="https://github.com/chinakevinguo/learn-python" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="learn-python">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    learn-python
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="1 stars">
+                    <span class="octicon octicon-star"></span> 1
+                </span>
+                <span class="meta-info" title="1 forks">
+                    <span class="octicon octicon-git-branch"></span> 1
+                </span>
+                <span class="meta-info" title="Last updated：2018-03-02 03:11:20 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-03-02 03:11:20 UTC">2018-03-02</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
 <a href="https://github.com/chinakevinguo/learn-groovy" target="_blank" class="card text-center">
     <div class="thumbnail">
         <div class="card-image geopattern" data-pattern-id="learn-groovy">
@@ -519,35 +528,6 @@ Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.443929680Z" leve
                 <span class="meta-info" title="Last updated：2017-12-07 03:41:29 UTC">
                     <span class="octicon octicon-clock"></span>
                     <time datetime="2017-12-07 03:41:29 UTC">2017-12-07</time>
-                </span>
-            </div>
-        </div>
-    </div>
-</a>
-
-<a href="https://github.com/chinakevinguo/learn-python" target="_blank" class="card text-center">
-    <div class="thumbnail">
-        <div class="card-image geopattern" data-pattern-id="learn-python">
-            <div class="card-image-cell">
-                <h3 class="card-title">
-                    learn-python
-                </h3>
-            </div>
-        </div>
-        <div class="caption">
-            <div class="card-description">
-                <p class="card-text"></p>
-            </div>
-            <div class="card-text">
-                <span class="meta-info" title="0 stars">
-                    <span class="octicon octicon-star"></span> 0
-                </span>
-                <span class="meta-info" title="0 forks">
-                    <span class="octicon octicon-git-branch"></span> 0
-                </span>
-                <span class="meta-info" title="Last updated：2018-02-08 13:08:04 UTC">
-                    <span class="octicon octicon-clock"></span>
-                    <time datetime="2018-02-08 13:08:04 UTC">2018-02-08</time>
                 </span>
             </div>
         </div>

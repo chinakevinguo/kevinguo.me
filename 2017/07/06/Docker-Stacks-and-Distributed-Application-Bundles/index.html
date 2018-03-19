@@ -141,7 +141,7 @@ Docker Compose –&gt; 分布式应用程序包 –&gt; Docker Stack</p>
 <p>生成捆绑包最简单的方法就是使用docker-compose从docker-compose.yml中生成。当然，这仅仅是一种可能的方式，用同样的方式， docker build不是唯一能生成docker image的方式。</p>
 
 <p>1.新建docker-compose.yml文件</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat docker-compose.yml
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat </span>docker-compose.yml
 version: <span class="s2">"2"</span>
 services:
  db:
@@ -160,22 +160,19 @@ services:
      - <span class="nv">COUCHBASE_URI</span><span class="o">=</span>db
    ports:
      - 8080:8080
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>2.拉取服务镜像</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker-compose pull db
-<span class="gp">$ </span>docker-compose pull web
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker-compose pull db
+<span class="nv">$ </span>docker-compose pull web
+</code></pre></div></div>
 
 <p>3.生成捆绑包</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker-compose bundle
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker-compose bundle
 WARNING: Unsupported key <span class="s1">'depends_on'</span> <span class="k">in </span>services.web - ignoring
 WARNING: Unsupported key <span class="s1">'container_name'</span> <span class="k">in </span>services.db - ignoring
 Wrote bundle to composetest.dab
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="从bundle创建一个stack">从bundle创建一个stack</h1>
 
@@ -184,72 +181,67 @@ Wrote bundle to composetest.dab
 </blockquote>
 
 <p>在这之前，我们先开启这些实验版的特性</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>vi /lib/systemd/system/docker.service
-  <span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd --experimental
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>vi /lib/systemd/system/docker.service
+  <span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nt">--experimental</span>
 
 <span class="c"># 重启服务</span>
-<span class="gp">$ </span>systemctl daemon-reload
-<span class="gp">$ </span>systemctl restart docker
+<span class="nv">$ </span>systemctl daemon-reload
+<span class="nv">$ </span>systemctl restart docker
 
 <span class="c"># 确认是否开启成功</span>
-<span class="gp">$ </span>docker version -f <span class="s1">'{ { .Server.Experimental } }'</span>
+<span class="nv">$ </span>docker version <span class="nt">-f</span> <span class="s1">'{ { .Server.Experimental } }'</span>
 <span class="nb">true</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>使用<code class="highlighter-rouge">docker deploy</code>命令来创建stack</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker deploy --help
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker deploy <span class="nt">--help</span>
 
 Usage:	docker deploy <span class="o">[</span>OPTIONS] STACK
 
 Deploy a new stack or update an existing stack
 
 Options:
-      --bundle-file string    Path to a Distributed Application Bundle file
-  -c, --compose-file string   Path to a Compose file
-      --help                  Print usage
-      --with-registry-auth    Send registry authentication details to Swarm agents
-</code></pre>
-</div>
+      <span class="nt">--bundle-file</span> string    Path to a Distributed Application Bundle file
+  <span class="nt">-c</span>, <span class="nt">--compose-file</span> string   Path to a Compose file
+      <span class="nt">--help</span>                  Print usage
+      <span class="nt">--with-registry-auth</span>    Send registry authentication details to Swarm agents
+</code></pre></div></div>
 
 <p>依据前面生成的捆绑包来部署stack</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker deploy --bundle-file composetest.dab composetest
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker deploy <span class="nt">--bundle-file</span> composetest.dab composetest
 Loading bundle from composetest.dab
 Creating network composetest_default
 Creating service composetest_db
 Creating service composetest_web
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>检查我们刚部署的服务</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker service ls
-ID            NAME             MODE        REPLICAS  IMAGE
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker service <span class="nb">ls
+</span>ID            NAME             MODE        REPLICAS  IMAGE
 1658d7kh5gs9  composetest_web  replicated  1/1       arungupta/oreilly-wildfly@sha256:d567ade7bb82ba8f15a85df0c6d692d85c15ec5a78d8826dfba92756babcb914
 pr6ympnpgv9g  composetest_db   replicated  1/1       arungupta/oreilly-couchbase@sha256:f150fcb9fca5392075c96f1baffc7f893858ba763f3c05cf0908ef2613cbf34c
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="管理stacks">管理stacks</h1>
 <p>使用<code class="highlighter-rouge">docker stack</code>命令来进行管理</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker stack --help
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker stack <span class="nt">--help</span>
 
 Usage:	docker stack COMMAND
 
 Manage Docker stacks
 
 Options:
-      --help   Print usage
+      <span class="nt">--help</span>   Print usage
 
 Commands:
   deploy      Deploy a new stack or update an existing stack
-  ls          List stacks
+  <span class="nb">ls          </span>List stacks
   ps          List the tasks <span class="k">in </span>the stack
   rm          Remove the stack
   services    List the services <span class="k">in </span>the stack
 
 Run <span class="s1">'docker stack COMMAND --help'</span> <span class="k">for </span>more information on a command.
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="bundle-文件格式">Bundle 文件格式</h1>
 <p>分布式应用程序包用<code class="highlighter-rouge">JSON</code>格式来描述。当bundles以文件方式保存时，文件的后缀是<code class="highlighter-rouge">.dab</code>。

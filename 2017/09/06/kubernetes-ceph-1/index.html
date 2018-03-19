@@ -246,7 +246,7 @@
 <h5 id="在管理节点上操作">在管理节点上操作</h5>
 <p>1.添加ceph源</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>ceph-noarch]
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>ceph-noarch]
 <span class="nv">name</span><span class="o">=</span>Ceph noarch packages
 <span class="nv">baseurl</span><span class="o">=</span>https://download.ceph.com/rpm-jewel/el7/noarch
 <span class="nv">enabled</span><span class="o">=</span>1
@@ -254,15 +254,13 @@
 <span class="nb">type</span><span class="o">=</span>rpm-md
 <span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
 
-<span class="gp">$ </span>yum update -y <span class="o">&amp;&amp;</span> yum install ceph-deploy -y
-</code></pre>
-</div>
+<span class="nv">$ </span>yum update <span class="nt">-y</span> <span class="o">&amp;&amp;</span> yum install ceph-deploy <span class="nt">-y</span>
+</code></pre></div></div>
 
 <p>2.更新并安装<code class="highlighter-rouge">ceph-deploy</code></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo yum update <span class="o">&amp;&amp;</span> sudo yum install ceph-deploy
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>yum update <span class="o">&amp;&amp;</span> <span class="nb">sudo </span>yum install ceph-deploy
+</code></pre></div></div>
 
 <p>2.配置从部署机器到所有其他节点的免密钥登录，具体参考<a href="https://kevinguo.me/2017/07/06/ansible-client/">这里</a></p>
 
@@ -270,53 +268,47 @@
 
 <p>1.安装epel源</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>yum install yum-plugin-priorities
-<span class="gp">$ </span>yum install epel-release -y
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>yum install yum-plugin-priorities
+<span class="nv">$ </span>yum install epel-release <span class="nt">-y</span>
+</code></pre></div></div>
 
 <p>2.校对时间，由于ceph使用Paxos算法保证数据一致性，所以安装前要先保证各个节点的时间同步</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo yum install ntp ntpdate ntp-doc
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>yum install ntp ntpdate ntp-doc
 
-<span class="gp">$ </span>ntpdate 0.cn.pool.ntp.org
-</code></pre>
-</div>
+<span class="nv">$ </span>ntpdate 0.cn.pool.ntp.org
+</code></pre></div></div>
 
 <p>3.开放所需端口或关闭防火墙</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>system stop firewalld
-<span class="gp">$ </span>sudo firewall-cmd --zone<span class="o">=</span>public --add-port<span class="o">=</span>6789/tcp --permanent
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>system stop firewalld
+<span class="nv">$ </span><span class="nb">sudo </span>firewall-cmd <span class="nt">--zone</span><span class="o">=</span>public <span class="nt">--add-port</span><span class="o">=</span>6789/tcp <span class="nt">--permanent</span>
+</code></pre></div></div>
 
 <p>4.关闭selinux</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo setenforce 0
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>setenforce 0
+</code></pre></div></div>
 
 <h4 id="12-创建集群">1.2 创建集群</h4>
 
 <p>1.由于ceph-deploy工具部署集群前需要创建一些集群配置信息，其保存在<code class="highlighter-rouge">ceph.conf</code>文件中，这个文件将来会被复制到每个节点的 <code class="highlighter-rouge">/etc/ceph/ceph.conf</code></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建集群配置目录</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建集群配置目录</span>
 mkdir ceph-cluster <span class="o">&amp;&amp;</span> <span class="nb">cd </span>ceph-cluster
 <span class="c"># 创建 monitor-node</span>
 ceph-deploy new k8s-master01
 <span class="c"># 追加 OSD 副本数量(测试虚拟机总共有3台)</span>
-<span class="nb">echo</span> <span class="s2">"osd pool default size = 3"</span> &gt;&gt; ceph.conf
-</code></pre>
-</div>
+<span class="nb">echo</span> <span class="s2">"osd pool default size = 3"</span> <span class="o">&gt;&gt;</span> ceph.conf
+</code></pre></div></div>
 
 <p>2.创建集群使用 <code class="highlighter-rouge">ceph-deploy</code>工具在部署节点上执行即可</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 安装ceph</span>
-<span class="gp">$ </span>ceph-deploy install k8s-master01 k8s-master02 k8s-master03
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 安装ceph</span>
+<span class="nv">$ </span>ceph-deploy install k8s-master01 k8s-master02 k8s-master03
+</code></pre></div></div>
 <p><strong>注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下</strong></p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 添加ceph 源</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 添加ceph 源</span>
 <span class="o">[</span>Ceph]
 <span class="nv">name</span><span class="o">=</span>Ceph packages <span class="k">for</span> <span class="nv">$basearch</span>
 <span class="nv">baseurl</span><span class="o">=</span>http://download.ceph.com/rpm-jewel/el7/<span class="nv">$basearch</span>
@@ -345,137 +337,125 @@ ceph-deploy new k8s-master01
 <span class="nv">priority</span><span class="o">=</span>1
 
 
-<span class="gp">$ </span>yum install ceph ceph-radosgw -y
-</code></pre>
-</div>
+<span class="nv">$ </span>yum install ceph ceph-radosgw <span class="nt">-y</span>
+</code></pre></div></div>
 
 <p>3.初始化monitor node 和密钥文件</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph-deploy mon create-initial
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy mon create-initial
+</code></pre></div></div>
 
 <p>4.在osd节点上创建一个目录作为 osd 存储，并修改其权限,千万别创建在<code class="highlighter-rouge">/usr/local</code>目录下，否则，你的osd可能会无法挂载</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ssh k8s-master01
-<span class="gp">$ </span>sudo mkdir /data/osd1
-<span class="gp">$ </span>chown -R ceph:ceph osd1
-<span class="gp">$ </span><span class="nb">exit</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh k8s-master01
+<span class="nv">$ </span><span class="nb">sudo </span>mkdir /data/osd1
+<span class="nv">$ </span>chown <span class="nt">-R</span> ceph:ceph osd1
+<span class="nv">$ </span><span class="nb">exit</span>
 
-<span class="gp">$ </span>ssh k8s-master2
-<span class="gp">$ </span>sudo mkdir /data/osd2
-<span class="gp">$ </span>chown -R ceph:ceph osd2
-<span class="gp">$ </span><span class="nb">exit</span>
+<span class="nv">$ </span>ssh k8s-master2
+<span class="nv">$ </span><span class="nb">sudo </span>mkdir /data/osd2
+<span class="nv">$ </span>chown <span class="nt">-R</span> ceph:ceph osd2
+<span class="nv">$ </span><span class="nb">exit</span>
 
-<span class="gp">$ </span>ssh k8s-master3
-<span class="gp">$ </span>sudo mkdir /data/osd3
-<span class="gp">$ </span>chown -R ceph:ceph osd3
-<span class="gp">$ </span><span class="nb">exit</span>
-</code></pre>
-</div>
+<span class="nv">$ </span>ssh k8s-master3
+<span class="nv">$ </span><span class="nb">sudo </span>mkdir /data/osd3
+<span class="nv">$ </span>chown <span class="nt">-R</span> ceph:ceph osd3
+<span class="nv">$ </span><span class="nb">exit</span>
+</code></pre></div></div>
 
 <p>5.然后，在管理节点上初始化 osd</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph-deploy osd prepare k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy osd prepare k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
+</code></pre></div></div>
 
 <p>6.最后，在管理节点上激活 osd</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph-deploy osd activate k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy osd activate k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
+</code></pre></div></div>
 
 <p>7.在管理节点上部署 ceph cli 工具和密钥文件</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph-deploy admin k8s-master01 k8s-master02 k8s-master03
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy admin k8s-master01 k8s-master02 k8s-master03
+</code></pre></div></div>
 
 <p>8.确保你对 <code class="highlighter-rouge">ceph.client.admin.keyring</code>有正确的操作权限，在每个节点上执行</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo chmod +r /etc/ceph/ceph.client.admin.keyring
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>chmod +r /etc/ceph/ceph.client.admin.keyring
+</code></pre></div></div>
 
 <p>9.最后，检查集群的健康状态</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph health
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph health
 HEALTH_OK
 
-<span class="gp">$ </span>ceph osd tree
+<span class="nv">$ </span>ceph osd tree
 ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
--1 0.14067 root default                                            
--2 0.04689     host k8s-master01                                   
+<span class="nt">-1</span> 0.14067 root default                                            
+<span class="nt">-2</span> 0.04689     host k8s-master01                                   
  0 0.04689         osd.0              up  1.00000          1.00000
--3 0.04689     host k8s-master02                                   
+<span class="nt">-3</span> 0.04689     host k8s-master02                                   
  1 0.04689         osd.1              up  1.00000          1.00000
--4 0.04689     host k8s-master03                                   
+<span class="nt">-4</span> 0.04689     host k8s-master03                                   
  2 0.04689         osd.2              up  1.00000          1.00000
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>我们看到状态是OK的，而且每个节点上的osd的状态都是up的</p>
 
 <p>如果在某些地方碰到麻烦，想从头再来，可以用下列命令来清楚配置：</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph-deploy purgedata <span class="o">{</span>ceph-node<span class="o">}</span> <span class="o">[{</span>ceph-node<span class="o">}]</span>
-<span class="gp">$ </span>ceph-deploy forgetkeys
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy purgedata <span class="o">{</span>ceph-node<span class="o">}</span> <span class="o">[{</span>ceph-node<span class="o">}]</span>
+<span class="nv">$ </span>ceph-deploy forgetkeys
+</code></pre></div></div>
 
 <p>用下列命令可以连Ceph安装包一起清除：</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph-deploy purge <span class="o">{</span>ceph-node<span class="o">}</span> <span class="o">[{</span>ceph-node<span class="o">}]</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy purge <span class="o">{</span>ceph-node<span class="o">}</span> <span class="o">[{</span>ceph-node<span class="o">}]</span>
+</code></pre></div></div>
 
 <h3 id="二操作集群">二.操作集群</h3>
 
 <h4 id="21-基础操作">2.1 基础操作</h4>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建MDS</span>
-<span class="gp">$ </span>ceph-deploy mds create <span class="o">{</span>ceph-node<span class="o">}</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建MDS</span>
+<span class="nv">$ </span>ceph-deploy mds create <span class="o">{</span>ceph-node<span class="o">}</span>
 
 <span class="c"># 创建RGW</span>
-<span class="gp">$ </span>ceph-deploy rgw create <span class="o">{</span>ceph-node<span class="o">}</span>
+<span class="nv">$ </span>ceph-deploy rgw create <span class="o">{</span>ceph-node<span class="o">}</span>
 
 <span class="c"># 添加mon</span>
-<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"public network = 172.30.33.0/24"</span> &gt;&gt; ceph.conf
-<span class="gp">$ </span>ceph-deploy mon add <span class="o">{</span>ceph-node<span class="o">}</span>
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"public network = 172.30.33.0/24"</span> <span class="o">&gt;&gt;</span> ceph.conf
+<span class="nv">$ </span>ceph-deploy mon add <span class="o">{</span>ceph-node<span class="o">}</span>
 
 <span class="c"># 查看仲裁</span>
-<span class="gp">$ </span>ceph quorum_status --format json-pretty
-</code></pre>
-</div>
+<span class="nv">$ </span>ceph quorum_status <span class="nt">--format</span> json-pretty
+</code></pre></div></div>
 
 <h4 id="22-对象存储测试">2.2 对象存储测试</h4>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建pool</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建pool</span>
 <span class="c"># rados mkpool {pool-name}</span>
-<span class="gp">$ </span>rados mkpool <span class="nb">test</span>-pool
+<span class="nv">$ </span>rados mkpool test-pool
 
 <span class="c"># 创建测试文件</span>
-<span class="gp">$ </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>testfile <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
+<span class="nv">$ </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>testfile <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
 
 <span class="c"># 创建一个对象(这时候也将对象放入了pool中)</span>
 <span class="c"># rados put {object-name} {file-path} --pool={pool-name}</span>
-<span class="gp">$ </span>rados put <span class="nb">test</span>-object testfile --pool<span class="o">=</span><span class="nb">test</span>-pool
+<span class="nv">$ </span>rados put test-object testfile <span class="nt">--pool</span><span class="o">=</span>test-pool
 
 <span class="c"># 检查存储池，确认ceph存储了此对象</span>
-<span class="gp">$ </span>rados -p <span class="nb">test</span>-pool ls
+<span class="nv">$ </span>rados <span class="nt">-p</span> test-pool <span class="nb">ls</span>
 
 <span class="c"># 定位对象，会输出对象位置</span>
-<span class="gp">$ </span>ceph osd map <span class="nb">test</span>-pool <span class="nb">test</span>-object
+<span class="nv">$ </span>ceph osd map test-pool test-object
 osdmap e42 pool <span class="s1">'test-pool'</span> <span class="o">(</span>3<span class="o">)</span> object <span class="s1">'test-file'</span> -&gt; pg 3.b79653d4 <span class="o">(</span>3.4<span class="o">)</span> -&gt; up <span class="o">([</span>1,5,2,3,4], p1<span class="o">)</span> acting <span class="o">([</span>1,5,2,3,4], p1<span class="o">)</span>
 
 <span class="c"># 删除对象</span>
-<span class="gp">$ </span>rados -p data rm <span class="nb">test</span>-object
+<span class="nv">$ </span>rados <span class="nt">-p</span> data rm test-object
 
 <span class="c"># 删除存储池</span>
-<span class="gp">$ </span>rados rmpool <span class="nb">test</span>-pool <span class="nb">test</span>-pool --yes-i-really-really-mean-it
-</code></pre>
-</div>
+<span class="nv">$ </span>rados rmpool test-pool test-pool <span class="nt">--yes-i-really-really-mean-it</span>
+</code></pre></div></div>
 <p>随着集群的运行，对象的位置可能会动态改变。Ceph有动态均衡机制，无需手动干预即可完成。</p>
 
 <h4 id="23-块存储测试">2.3 块存储测试</h4>
@@ -484,50 +464,44 @@ osdmap e42 pool <span class="s1">'test-pool'</span> <span class="o">(</span>3<sp
 
 <p>1.确认你使用了合适的内核版本，详情<a href="http://docs.ceph.com/docs/master/start/os-recommendations/">参见</a></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>lab_release -a
-uname -a
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lab_release <span class="nt">-a</span>
+uname <span class="nt">-a</span>
+</code></pre></div></div>
 
 <p>2.在管理节点上用 <code class="highlighter-rouge">ceph-deploy</code>安装ceph</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ceph-deploy install <span class="o">{</span>rbd-client<span class="o">}</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ceph-deploy install <span class="o">{</span>rbd-client<span class="o">}</span>
+</code></pre></div></div>
 
 <p>3.在管理节点上部署ceph cli工具和密钥</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ceph-deploy admin <span class="o">{</span>rbd-client<span class="o">}</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ceph-deploy admin <span class="o">{</span>rbd-client<span class="o">}</span>
+</code></pre></div></div>
 
 <p>4.在rbd节点上创建块设备image</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rbd create <span class="nb">test</span>-block --size 4096
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rbd create test-block <span class="nt">--size</span> 4096
+</code></pre></div></div>
 
 <p>5.映射image到块设备</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rbd map <span class="nb">test</span>-block --name client.admin
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rbd map test-block <span class="nt">--name</span> client.admin
+</code></pre></div></div>
 
 <p><strong>在上面的map映射操作时，会出现如下报错</strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>rbd map <span class="nb">test</span>-block --name client.admin
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>rbd map test-block <span class="nt">--name</span> client.admin
 rbd: sysfs write failed
-RBD image feature <span class="nb">set </span>mismatch. You can disable features unsupported by the kernel with <span class="s2">"rbd feature disable"</span>.
+RBD image feature <span class="nb">set </span>mismatch. You can disable features unsupported by the kernel with <span class="s2">"rbd feature disable"</span><span class="nb">.</span>
 In some cases useful info is found <span class="k">in </span>syslog - try <span class="s2">"dmesg | tail"</span> or so.
 rbd: map failed: <span class="o">(</span>6<span class="o">)</span> No such device or address
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><strong>大致意思是说features不匹配，可以通过disable features关掉一些特性来让内核支持。这是因为在Ceph高本本进行 map image时，默认ceph在创建image(上文test-block)时，会增加很多features，这些features需要内核支持，centos7上的支持有限，所以，我们需要关掉一些</strong></p>
 
 <p>我们可以用 <code class="highlighter-rouge">rbd info data</code> 看看创建的image目前有哪些features</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>rbd info <span class="nb">test</span>-block
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>rbd info test-block
 rbd image <span class="s1">'test-block'</span>:
 	size 4096 MB <span class="k">in </span>1024 objects
 	order 22 <span class="o">(</span>4096 kB objects<span class="o">)</span>
@@ -535,8 +509,7 @@ rbd image <span class="s1">'test-block'</span>:
 	format: 2
 	features: layering, exclusive-lock, object-map, fast-diff, deep-flatten
 	flags:
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>在features中，我们可以看到默认开启了很多：</p>
 
@@ -552,19 +525,18 @@ rbd image <span class="s1">'test-block'</span>:
 
 <p>6.关闭不支持的特性之后重新map</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 关闭不支持的features</span>
-<span class="gp">$ </span>rbd feature disable <span class="nb">test</span>-block exclusive-lock, object-map, fast-diff, deep-flatten
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 关闭不支持的features</span>
+<span class="nv">$ </span>rbd feature disable test-block exclusive-lock, object-map, fast-diff, deep-flatten
 
 <span class="c"># 重新map</span>
-<span class="gp">$ </span>rbd map <span class="nb">test</span>-block --name client.admin
+<span class="nv">$ </span>rbd map test-block <span class="nt">--name</span> client.admin
 /dev/rbd0
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>7.格式化之后挂载到系统目录</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 格式化</span>
-<span class="gp">$ </span>mkfs.xfs /dev/rbd0
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 格式化</span>
+<span class="nv">$ </span>mkfs.xfs /dev/rbd0
 meta-data<span class="o">=</span>/dev/rbd0              <span class="nv">isize</span><span class="o">=</span>512    <span class="nv">agcount</span><span class="o">=</span>9, <span class="nv">agsize</span><span class="o">=</span>130048 blks
          <span class="o">=</span>                       <span class="nv">sectsz</span><span class="o">=</span>512   <span class="nv">attr</span><span class="o">=</span>2, <span class="nv">projid32bit</span><span class="o">=</span>1
          <span class="o">=</span>                       <span class="nv">crc</span><span class="o">=</span>1        <span class="nv">finobt</span><span class="o">=</span>0, <span class="nv">sparse</span><span class="o">=</span>0
@@ -576,35 +548,32 @@ log      <span class="o">=</span>internal log           <span class="nv">bsize</
 realtime <span class="o">=</span>none                   <span class="nv">extsz</span><span class="o">=</span>4096   <span class="nv">blocks</span><span class="o">=</span>0, <span class="nv">rtextents</span><span class="o">=</span>0
 
 <span class="c"># 挂载</span>
-<span class="gp">$ </span>mkdir <span class="nb">test</span>-block
-<span class="gp">$ </span>mount /dev/rbd0 <span class="nb">test</span>-block
+<span class="nv">$ </span>mkdir test-block
+<span class="nv">$ </span>mount /dev/rbd0 test-block
 
 <span class="c"># 写入测试</span>
-<span class="gp">$ </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span><span class="nb">test</span>-block/test-file <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
+<span class="nv">$ </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>test-block/test-file <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
 1+0 records <span class="k">in
 </span>1+0 records out
 1073741824 bytes <span class="o">(</span>1.1 GB<span class="o">)</span> copied, 2.96071 s, 363 MB/s
 
-<span class="gp">$ </span>ls <span class="nb">test</span>-block/
-<span class="nb">test</span>-file
-</code></pre>
-</div>
+<span class="nv">$ </span><span class="nb">ls </span>test-block/
+test-file
+</code></pre></div></div>
 
 <h4 id="24-cephfs-测试">2.4 CephFS 测试</h4>
 
 <p>1.创建MDS</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph-deploy mds create k8s-node01 k8s-node02 k8s-registry
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy mds create k8s-node01 k8s-node02 k8s-registry
+</code></pre></div></div>
 
 <p>2.创建pool和fs，创建pool需要指定PG数量</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ceph osd pool create cephfs_data 32
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ceph osd pool create cephfs_data 32
 ceph osd pool create cephfs_metadata 32
-ceph fs new <span class="nb">test</span>-fs cephfs_metadata cephfs_data
-</code></pre>
-</div>
+ceph fs new test-fs cephfs_metadata cephfs_data
+</code></pre></div></div>
 
 <p><strong>PG 概念：</strong></p>
 
@@ -624,35 +593,32 @@ ceph fs new <span class="nb">test</span>-fs cephfs_metadata cephfs_data
 
 <p>在密钥文件中找到与某用户对于的密钥</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat /etc/ceph/ceph.client.admin.keyring
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat</span> /etc/ceph/ceph.client.admin.keyring
 <span class="o">[</span>client.admin]
 	key <span class="o">=</span> <span class="nv">AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA</span><span class="o">==</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>复制密钥到文件中保存，并确保其权限</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA=="</span> &gt; ceph-key
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA=="</span> <span class="o">&gt;</span> ceph-key
+</code></pre></div></div>
 
 <p>创建目录挂载</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mkdir <span class="nb">test</span>-fs
-mount -t ceph 172.30.33.90:6789:/ /root/test-fs -o <span class="nv">name</span><span class="o">=</span>admin,secretfile<span class="o">=</span>ceph-key
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir test-fs
+mount <span class="nt">-t</span> ceph 172.30.33.90:6789:/ /root/test-fs <span class="nt">-o</span> <span class="nv">name</span><span class="o">=</span>admin,secretfile<span class="o">=</span>ceph-key
 
 <span class="c">#写入数据测试</span>
-<span class="gp">$ </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span><span class="nb">test</span>-fs/test-fs <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
+<span class="nv">$ </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>test-fs/test-fs <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
 1+0 records <span class="k">in
 </span>1+0 records out
 1073741824 bytes <span class="o">(</span>1.1 GB<span class="o">)</span> copied, 2.77355 s, 387 MB/s
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><code class="highlighter-rouge">ceph-fuse</code>用户空间挂载的方式也比较简单，需要先安装ceph-fuse，同时也需要key</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 按照前面的步骤添加ceph源</span>
-<span class="gp">$ </span>vi /etc/yum.repos.d/ceph.repo
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 按照前面的步骤添加ceph源</span>
+<span class="nv">$ </span>vi /etc/yum.repos.d/ceph.repo
 <span class="o">[</span>ceph]
 <span class="nv">name</span><span class="o">=</span>ceph
 <span class="nv">baseurl</span><span class="o">=</span>http://mirrors.163.com/ceph/rpm-jewel/el7/x86_64/
@@ -663,54 +629,51 @@ mount -t ceph 172.30.33.90:6789:/ /root/test-fs -o <span class="nv">name</span><
 <span class="nv">gpgcheck</span><span class="o">=</span>0
 
 <span class="c"># 安装ceph-fuse</span>
-yum install ceph-fuse -y
+yum install ceph-fuse <span class="nt">-y</span>
 
 <span class="c"># 复制配置和ceph key到client端</span>
-sudo mkdir -p /etc/ceph
-sudo scp root@172.30.33.91:/etc/ceph/ceph.conf /etc/ceph/ceph.conf
-sudo scp root@172.30.33.91:/etc/ceph/ceph.client.admin.keyring /etc/ceph/ceph.client.admin.keyring
+<span class="nb">sudo </span>mkdir <span class="nt">-p</span> /etc/ceph
+<span class="nb">sudo </span>scp root@172.30.33.91:/etc/ceph/ceph.conf /etc/ceph/ceph.conf
+<span class="nb">sudo </span>scp root@172.30.33.91:/etc/ceph/ceph.client.admin.keyring /etc/ceph/ceph.client.admin.keyring
 
 <span class="c"># 创建目录挂载</span>
-mkdir <span class="nb">test</span>-fs-fuse
-<span class="gp">$ </span>sudo ceph-fuse -m 172.30.33.91:6789 <span class="nb">test</span>-fs-fuse
+mkdir test-fs-fuse
+<span class="nv">$ </span><span class="nb">sudo </span>ceph-fuse <span class="nt">-m</span> 172.30.33.91:6789 test-fs-fuse
 ceph-fuse[60551]: starting ceph client
-2017-09-12 14:47:24.137929 7f63d9719ec0 -1 init, newargv <span class="o">=</span> 0x7f63e51d4840 <span class="nv">newargc</span><span class="o">=</span>11
+2017-09-12 14:47:24.137929 7f63d9719ec0 <span class="nt">-1</span> init, newargv <span class="o">=</span> 0x7f63e51d4840 <span class="nv">newargc</span><span class="o">=</span>11
 ceph-fuse[60551]: starting fuse
 
 <span class="c"># 写入数据测试</span>
-<span class="gp">$ </span>sudo dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span><span class="nb">test</span>-fs-fuse/test-fs-fuse <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
+<span class="nv">$ </span><span class="nb">sudo </span>dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>test-fs-fuse/test-fs-fuse <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
 1+0 records <span class="k">in
 </span>1+0 records out
 1073741824 bytes <span class="o">(</span>1.1 GB<span class="o">)</span> copied, 10.5426 s, 102 MB/s
 
 <span class="c"># 查看确认，发现我们上面通过内核挂载的文件也还在</span>
-<span class="gp">$ </span>ls -lh
+<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-lh</span>
 total 2.0G
--rw-r--r-- 1 root root 1.0G Sep 12 13:59 <span class="nb">test</span>-fs
--rw-r--r-- 1 root root 1.0G Sep 12 14:49 <span class="nb">test</span>-fs-fuse
-</code></pre>
-</div>
+<span class="nt">-rw-r--r--</span> 1 root root 1.0G Sep 12 13:59 test-fs
+<span class="nt">-rw-r--r--</span> 1 root root 1.0G Sep 12 14:49 test-fs-fuse
+</code></pre></div></div>
 
 <h4 id="25-ceph对象网关">2.5 Ceph对象网关</h4>
 
 <p>1.对象网关创建</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建RGW</span>
-<span class="gp">$ </span>ceph-deploy rgw create k8s-node02
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建RGW</span>
+<span class="nv">$ </span>ceph-deploy rgw create k8s-node02
+</code></pre></div></div>
 
 <p>2.直接访问<code class="highlighter-rouge">http://ceph-node-ip:7480</code>返回结果如下</p>
 
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;ListAllMyBucketsResult</span> <span class="na">xmlns=</span><span class="s">"http://s3.amazonaws.com/doc/2006-03-01/"</span><span class="nt">&gt;</span>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;ListAllMyBucketsResult</span> <span class="na">xmlns=</span><span class="s">"http://s3.amazonaws.com/doc/2006-03-01/"</span><span class="nt">&gt;</span>
 <span class="nt">&lt;Owner&gt;</span>
 <span class="nt">&lt;ID&gt;</span>anonymous<span class="nt">&lt;/ID&gt;</span>
 <span class="nt">&lt;DisplayName/&gt;</span>
 <span class="nt">&lt;/Owner&gt;</span>
 <span class="nt">&lt;Buckets/&gt;</span>
 <span class="nt">&lt;/ListAllMyBucketsResult&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>这就说明网关OK了，但是因为没有读写环境，所以暂时测不了。</p>
 

@@ -132,40 +132,36 @@
 
 <h1 id="systemd">systemd</h1>
 <p>在这个例子中，我们假设我们有一个名叫<code class="highlighter-rouge">--name redis-server</code>的redis容器。这些文件会定义一个新服务，这个服务会在docker daemon启动后启动。</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Unit]
 <span class="nv">Description</span><span class="o">=</span>Redis container
 <span class="nv">Requires</span><span class="o">=</span>docker.service
 <span class="nv">After</span><span class="o">=</span>docker.service
 
 <span class="o">[</span>Service]
 <span class="nv">Restart</span><span class="o">=</span>always
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker start -a redis_server
-<span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop -t 2 redis_server
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker start <span class="nt">-a</span> redis_server
+<span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop <span class="nt">-t</span> 2 redis_server
 
 <span class="o">[</span>Install]
 <span class="nv">WantedBy</span><span class="o">=</span>default.target
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>如果你打算将其作为系统服务，可以将上诉内容放在<code class="highlighter-rouge">/etc/systemd/system/docker-redis_service.service</code>文件中
 如果你还打算为redis容器传递一些选项[如 <code class="highlighter-rouge">--env</code>]，那么你需要使用<code class="highlighter-rouge">docker run</code>,而不是<code class="highlighter-rouge">docker start</code>,这将会在每次启动服务时创建一个新的容器，而在服务停止时则会停止和删除掉容器。确保您不是使用的<code class="highlighter-rouge">-d</code>或<code class="highlighter-rouge">分离模式</code>，因为从<code class="highlighter-rouge">ExecStart</code>运行的命令需要运行在前台。</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Service]
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Service]
 ...
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker run --env <span class="nv">foo</span><span class="o">=</span>bar --name redis_server redis
-<span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop -t 2 redis_server
-<span class="nv">ExecStopPost</span><span class="o">=</span>/usr/bin/docker rm -f redis_server
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker run <span class="nt">--env</span> <span class="nv">foo</span><span class="o">=</span>bar <span class="nt">--name</span> redis_server redis
+<span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop <span class="nt">-t</span> 2 redis_server
+<span class="nv">ExecStopPost</span><span class="o">=</span>/usr/bin/docker rm <span class="nt">-f</span> redis_server
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>应用该服务</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl daemon-reload
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl daemon-reload
 systemctl start docker-redis_server.service
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>允许上面的服务开机启动</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl <span class="nb">enable </span>docker-redis_server.service
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl <span class="nb">enable </span>docker-redis_server.service
+</code></pre></div></div>
 
     </article>
     <div class="share">

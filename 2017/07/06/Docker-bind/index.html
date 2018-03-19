@@ -122,14 +122,13 @@
 <!--more-->
 
 <p>默认情况下docker容器可以连接到外网，但是外网不能连接到容器。由于docker服务器在启动的时候会创建主机上的iptables规则，所以每个容器都会有自己的nat规则</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>iptables -t nat -L -n
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>iptables <span class="nt">-t</span> nat <span class="nt">-L</span> <span class="nt">-n</span>
 Chain POSTROUTING <span class="o">(</span>policy ACCEPT<span class="o">)</span>
 target     prot opt <span class="nb">source               </span>destination         
-MASQUERADE  all  --  172.17.0.0/16        0.0.0.0/0           
-MASQUERADE  tcp  --  172.17.0.3           172.17.0.3           tcp dpt:5000
-MASQUERADE  tcp  --  172.17.0.4           172.17.0.4           tcp dpt:5000
-</code></pre>
-</div>
+MASQUERADE  all  <span class="nt">--</span>  172.17.0.0/16        0.0.0.0/0           
+MASQUERADE  tcp  <span class="nt">--</span>  172.17.0.3           172.17.0.3           tcp dpt:5000
+MASQUERADE  tcp  <span class="nt">--</span>  172.17.0.4           172.17.0.4           tcp dpt:5000
+</code></pre></div></div>
 <p>docker服务器会创建一个伪装规则，使容器连接到外部IP地址。</p>
 
 <p>如果希望容器能接入连接，你需要在调用<code class="highlighter-rouge">docker run </code>的时候指定特别的选项
@@ -139,32 +138,30 @@ MASQUERADE  tcp  --  172.17.0.4           172.17.0.4           tcp dpt:5000
 我们可以使用<code class="highlighter-rouge">docker port</code>来查看端口的信息，而这个宿主机上随机端口是配置在<code class="highlighter-rouge">/proc/sys/net/ipv4/ip_local_port_range</code>，范围大概是32768-61000.</p>
 
 <p>无论哪种方式，你都可以通过检查<code class="highlighter-rouge">NAT</code>表来确认</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>iptables -t nat -L -n
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>iptables <span class="nt">-t</span> nat <span class="nt">-L</span> <span class="nt">-n</span>
 <span class="c"># 这是允许容器访问外网</span>
 Chain POSTROUTING <span class="o">(</span>policy ACCEPT<span class="o">)</span>
 target     prot opt <span class="nb">source               </span>destination         
-MASQUERADE  all  --  172.17.0.0/16        0.0.0.0/0           
-MASQUERADE  tcp  --  172.17.0.3           172.17.0.3           tcp dpt:5000
-MASQUERADE  tcp  --  172.17.0.4           172.17.0.4           tcp dpt:5000
+MASQUERADE  all  <span class="nt">--</span>  172.17.0.0/16        0.0.0.0/0           
+MASQUERADE  tcp  <span class="nt">--</span>  172.17.0.3           172.17.0.3           tcp dpt:5000
+MASQUERADE  tcp  <span class="nt">--</span>  172.17.0.4           172.17.0.4           tcp dpt:5000
 
 <span class="c"># 这是允许外部访问容器</span>
 Chain DOCKER <span class="o">(</span>2 references<span class="o">)</span>
 target     prot opt <span class="nb">source               </span>destination         
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0           
-DNAT       tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:32768 to:172.17.0.3:5000
-DNAT       tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:32769 to:172.17.0.4:5000
-DNAT       tcp  --  0.0.0.0/0            192.168.1.1          tcp dpt:9292 to:172.17.0.11:80
-</code></pre>
-</div>
+RETURN     all  <span class="nt">--</span>  0.0.0.0/0            0.0.0.0/0           
+DNAT       tcp  <span class="nt">--</span>  0.0.0.0/0            0.0.0.0/0            tcp dpt:32768 to:172.17.0.3:5000
+DNAT       tcp  <span class="nt">--</span>  0.0.0.0/0            0.0.0.0/0            tcp dpt:32769 to:172.17.0.4:5000
+DNAT       tcp  <span class="nt">--</span>  0.0.0.0/0            192.168.1.1          tcp dpt:9292 to:172.17.0.11:80
+</code></pre></div></div>
 
 <p>我们可以看到docker在<code class="highlighter-rouge">0.0.0.0</code>或<code class="highlighter-rouge">192.168.1.1</code>接口上公开了指定的端口或随机端口，对应映射到容器内的端口</p>
 
 <p>如果你想要docker端口转发绑定到一个特定的IP地址，你可以编辑docker启动配置文件，添加<code class="highlighter-rouge">--ip</code>选项，当然也可以直接使用<code class="highlighter-rouge">-p</code>选项指定</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker ps
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                      NAMES
 a894fe52388a        <span class="nb">test</span>                <span class="s2">"/bin/bash"</span>         3 seconds ago       Up 1 seconds        192.168.1.1:9298-&gt;80/tcp   romantic_shannon
-</code></pre>
-</div>
+</code></pre></div></div>
 
     </article>
     <div class="share">

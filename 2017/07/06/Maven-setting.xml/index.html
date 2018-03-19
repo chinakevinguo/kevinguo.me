@@ -134,10 +134,10 @@
 settings.xml对于maven来说，相当于全局性的配置，用于所有的项目。在Maven2中存在两个settings.xml，一个位于maven2的安装目录conf下面，作为全局性配置。对于团队设置，保持一致的定义是关键，所以conf下的settings.xml就作为团队共同的配置文件。而对于每个单独的成员，如果有特殊的需要自定义的设置，如用户信息之类，就可以在~/.m2/settings.xml中进行设定</p>
 
 <h3 id="settingsxml的基本结构如下">settings.xml的基本结构如下</h3>
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;settings</span> <span class="na">xmlns=</span><span class="s">"http://maven.apache.org/POM/4.0.0"</span>  
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;settings</span> <span class="na">xmlns=</span><span class="s">"http://maven.apache.org/POM/4.0.0"</span>  
           <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>  
-          <span class="na">xsi:schemaLocation=</span><span class="s">"http://maven.apache.org/POM/4.0.0</span>  
-                               <span class="err">http://maven.apache.org/xsd/settings-1.0.0.xsd"</span><span class="nt">&gt;</span>  
+          <span class="na">xsi:schemaLocation=</span><span class="s">"http://maven.apache.org/POM/4.0.0  
+                               http://maven.apache.org/xsd/settings-1.0.0.xsd"</span><span class="nt">&gt;</span>  
   <span class="nt">&lt;localRepository/&gt;</span>  
   <span class="nt">&lt;interactiveMode/&gt;</span>  
   <span class="nt">&lt;usePluginRegistry/&gt;</span>  
@@ -149,25 +149,21 @@ settings.xml对于maven来说，相当于全局性的配置，用于所有的项
   <span class="nt">&lt;profiles/&gt;</span>  
   <span class="nt">&lt;activeProfiles/&gt;</span>  
 <span class="nt">&lt;/settings&gt;</span>
-</code></pre>
-</div>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#表示本地仓库的位置，默认在~/.m2/repository</span>
+</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#表示本地仓库的位置，默认在~/.m2/repository</span>
 &lt;localRepository&gt;/path/to/local/repo&lt;localRepository/&gt;
-</code></pre>
-</div>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#如果不想每次编译都去查找中心库，就设置为true，前提是你必须已经下载好了必须的依赖包，默认是false</span>
+</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#如果不想每次编译都去查找中心库，就设置为true，前提是你必须已经下载好了必须的依赖包，默认是false</span>
 &lt;offline&gt;false&lt;offline/&gt;
-</code></pre>
-</div>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#在POM文件中定义了distributionManagement元素，然而特定的username和password不能用于pom.xml，所以通过此配置来保存server信息，这里的id必须和后面repository中定义的id一致，主要是用来部署到nexus私服</span>
+</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#在POM文件中定义了distributionManagement元素，然而特定的username和password不能用于pom.xml，所以通过此配置来保存server信息，这里的id必须和后面repository中定义的id一致，主要是用来部署到nexus私服</span>
 &lt;server&gt;
   &lt;id&gt;release&lt;/id&gt;
   &lt;username&gt;admin&lt;/username&gt;
   &lt;password&gt;admin123&lt;/password&gt;
 &lt;/server&gt;
-</code></pre>
-</div>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#表示镜像仓库，指定库的镜像，这里的mirrorOf表示此镜像是那个库的镜像，*表示所有库</span>
+</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#表示镜像仓库，指定库的镜像，这里的mirrorOf表示此镜像是那个库的镜像，*表示所有库</span>
 &lt;mirrors&gt;
 &lt;mirror&gt;
   &lt;id&gt;nexus&lt;/id&gt;
@@ -176,10 +172,9 @@ settings.xml对于maven来说，相当于全局性的配置，用于所有的项
   &lt;url&gt;http://192.168.56.22:8081/nexus/content/groups/public/&lt;/url&gt;
 &lt;/mirror&gt;
 &lt;mirrors/&gt;
-</code></pre>
-</div>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#代理服务器设置，主要用于无法直接访问中心的库用户设置</span>
-<span class="gp">&lt;proxies&gt;  </span>
+</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#代理服务器设置，主要用于无法直接访问中心的库用户设置</span>
+&lt;proxies&gt;  
    &lt;proxy&gt;  
      &lt;id&gt;myproxy&lt;/id&gt;  
      &lt;active&gt;true&lt;/active&gt;  
@@ -191,9 +186,8 @@ settings.xml对于maven来说，相当于全局性的配置，用于所有的项
      &lt;nonProxyHosts&gt;<span class="k">*</span>.google.com|ibiblio.org&lt;/nonProxyHosts&gt;  
    &lt;/proxy&gt;  
  &lt;/proxies&gt;
-</code></pre>
-</div>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#自定义配置，可以指定repositories，properties，pluginRepositories，activation等元素</span>
+</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#自定义配置，可以指定repositories，properties，pluginRepositories，activation等元素</span>
 <span class="c">#这里的repositories表示，开发团队自己的开发库，定义这个库，一般是为了方便distributionManagement发布</span>
 &lt;profiles&gt;
 &lt;profile&gt;
@@ -209,22 +203,19 @@ settings.xml对于maven来说，相当于全局性的配置，用于所有的项
       &lt;/repositories&gt;
 &lt;/profile&gt;
 &lt;/profiles&gt;
-</code></pre>
-</div>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#properties作为maven的占位符之，包括5中类型值：</span>
+</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#properties作为maven的占位符之，包括5中类型值：</span>
 env.x：返回当前的环境变量
 project.x：返回pom文件中定义的project元素值
 settings.x：返回settings.xml中定义的元素
 java系统属性：返回经过java.lang.System.getProperties<span class="o">()</span>返回的值
 x：用户自定义的值
-</code></pre>
-</div>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#激活指定的profile，通过profile id 来指定</span>
-<span class="gp">&lt;activeProfiles&gt;  </span>
+</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#激活指定的profile，通过profile id 来指定</span>
+&lt;activeProfiles&gt;  
     &lt;activeProfile&gt;env-test&lt;/activeProfile&gt;
 &lt;/activeProfiles&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
     </article>
     <div class="share">

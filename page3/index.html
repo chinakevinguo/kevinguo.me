@@ -166,7 +166,6 @@ WORKDIR /usr/share/nginx/html
 CMD ["/entrypoint.sh"]
 
 
-
 容器每次重启的时候都会去主站点Github上拉取最新的静态文件，并且启动 nginx，entrypoint.sh内容如下
 
 #!/bin/bash
@@ -175,17 +174,14 @@ git pull
 nginx -g "daemon off;"
 
 
-
 最后执行docker build，生成我们所需的镜像
 
 docker build -t chinakevinguo_jekyll_kevinguo_me .
 
 
-
 博客所需镜像制作完成后，启动容器
 
 docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart=always -p 80:80 -p 443:443 chinakevinguo_jekyll_kevinguo_me
-
 
 下一步就是 静态文件 了
 
@@ -239,7 +235,6 @@ travis encrypt-file ~/.ssh/id_rsa --add
 ssh-copy-id root@kevinguo.me
 
 
-
 执行完成后会发现travis网站项目里的环境变量多了两个参数
 
 
@@ -248,7 +243,6 @@ ssh-copy-id root@kevinguo.me
 
 - openssl aes-256-cbc -K $encrypted_3870315c7a22_key -iv $encrypted_3870315c7a22_iv
   -in id_rsa.enc -out ~\/.ssh/id_rsa -d
-
 
 
 默认生成的命令会在/前面带转义符\，我们不需要，手动删除即可
@@ -285,7 +279,6 @@ env:
   - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 addons:
   ssh_known_hosts: host.kevinguo.me
-
 
 
 7.修改镜像站点下的其他内容，比如_config.yml，将一些内容替换成你自己的,下一篇，我将会介绍 disqus 和 cloudflare
@@ -330,7 +323,6 @@ addons:
       &lt;source id="ogv" src="http://media.w3.org/2010/05/sintel/trailer.ogv" type="video/ogg"&gt;
     &lt;/video&gt;
 
-
 效果如下
                     </p>
                     <p class="repo-list-meta">
@@ -362,7 +354,6 @@ pillar_roots:
     - /srv/pillar
 
 
-
 2.在master的/srv/pillar目录下新建top.sls，packages.sls，services.sls
 
 [root@saltstack-node1 pillar]# cat top.sls
@@ -372,19 +363,16 @@ base:
     - services
 
 
-
 [root@saltstack-node1 pillar]# cat packages.sls
 zabbix:
   package-name: zabbix
   version: 2.2.4
 
 
-
 [root@saltstack-node1 pillar]# cat services.sls
 zabbix:
   port: 10050
   user: admin
-
 
 
 3.执行pillar.item zabbix查看指定的信息
@@ -444,12 +432,10 @@ kubernetes-dashboard
 git clone https://github.com/kubernetes/kubernetes.git
 
 
-
 2.进入dashboard所在的目录，执行yml文件
 
 cd $(pwd)/kubernetes/cluster/addons/dashboard
 kubectl create -f .
-
 
 
 3.确认dashboard是否成功创建
@@ -470,7 +456,6 @@ kubectl get pods -n kube-system |grep dashboard
 kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system
 
 
-
 初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看
 
 EFK
@@ -480,13 +465,11 @@ EFK
 git clone https://github.com/kubernetes/kubernetes.git
 
 
-
 2.为你要运行fluentd的节点添加label，因为fluentd-es-ds.yml文件中有beta.kubernetes.io/fluentd-ds-ready: "true"标签
 
 kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready=true
 kubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready=true
 kubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready=true
-
 
 
 3.确认标签添加是否成功
@@ -498,12 +481,10 @@ k8s-node02     Ready     19h       v1.6.7+coreos.0
 k8s-registry   Ready     19h       v1.6.7+coreos.0
 
 
-
 4.进入fluentd-elasticsearch所在的目录，执行yml文件
 
 cd $(pwd)/kubernetes/cluster/addons/fluentd-elasticsearch
 kubectl create -f .
-
 
 
 5.确认EFK是否创建成功
@@ -530,7 +511,6 @@ kubectl logs fluentd-es-v2.0.1-kn2h2 -n kube-system
 kubectl logs kibana-logging-3636197754-tnwjh -n kube-system
 
 
-
 初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看
 
 heapster
@@ -542,12 +522,10 @@ heapster比较简单
 git clone https://github.com/kubernetes/heapster.git
 
 
-
 2.进入heapster的deploy目录，执行kube.sh
 
 cd $(pwd)/heapster/deploy
 sh kube.sh start
-
 
 
 3.确认heapster是否创建成功
@@ -576,7 +554,6 @@ kubectl logs monitoring-grafana-2527507788-jsw1n -n kube-system
 kubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system
 
 
-
 初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看
 
 ingress
@@ -601,12 +578,10 @@ Ingress Controller 实质上可以理解为一个监视器，Ingress Controller 
 git clone https://github.com/kubernetes/ingress.git
 
 
-
 2.为你要运行 Ingress 的节点添加label标签：role=frontal
 
 kubectl label node k8s-node01 role=frontal
 kubectl label node k8s-node02 role=frontal
-
 
 
 3.进入ingress的examples/daemonset/nginx目录，修改yml文件
@@ -624,7 +599,6 @@ cd $(pwd)/ingress/examples/daemonset/nginx
 kubectl create -f nginx-ingress-daemonset.yaml
 
 
-
 4.确认 Ingress controller 是否创建成功
 
 # 确认 ingress 是否创建成功
@@ -633,7 +607,6 @@ kubectl get pods -n kube-system |grep ingress
 
 # 查看日志是否有报错
 kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
-
 
 
 初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看
@@ -658,7 +631,6 @@ spec:
         path: /
 
 
-
 kibana-ingress.yml
 
 apiVersion: extensions/v1beta1
@@ -674,7 +646,6 @@ spec:
       - backend:
           serviceName: kibana-logging
           servicePort: 5601
-
 
 
 elasticsearch-ingress.yml
@@ -695,13 +666,11 @@ spec:
         path: /
 
 
-
 执行创建
 
 kubectl create -f elasticsearch-ingress.yml
 kubectl create -f dashboard-ingress.yml
 kubectl create -f kibana-ingress.yml
-
 
 
 创建完成后，我们来看看据诶过如何呢
@@ -756,7 +725,6 @@ kargo中也将etcd以容器的方式运行，不过不是放在manifest中，而
 /usr/local/bin/etcd-scripts/ # 生成etcd证书的脚本文件
 
 
-
 etcd shell脚本
 
 $ vim /usr/local/etcd
@@ -773,7 +741,6 @@ $ vim /usr/local/etcd
   quay.io/coreos/etcd:v3.1.5 \
     /usr/local/bin/etcd \
     "$@"
-
 
 
 etcd.service
@@ -797,7 +764,6 @@ TimeoutStartSec=30s
 
 [Install]
 WantedBy=multi-user.target
-
 
 
 etcd.env
@@ -825,7 +791,6 @@ ETCD_PEER_CERT_FILE=/etc/ssl/etcd/ssl/member-node1.pem
 ETCD_PEER_KEY_FILE=/etc/ssl/etcd
 
 
-
 安装步骤
 安装步骤很简单
 
@@ -845,7 +810,6 @@ calico service
 /opt/cni/bin/ #(将hyperkube和calico/cni镜像中/opt/cni/bin/目录下的所有插件复制到宿主机的/opt/cni/bin/目录下，可通过-v挂载的方式)
 
 
-
 calicoctl shell脚本
 运行这个脚本其实就是运行一个容器来进行查询
 #!/bin/bash
@@ -862,7 +826,6 @@ calicoctl shell脚本
 --memory=170M --cpu-shares=100 \
 calico/ctl:v1.1.0 \
 "$@"
-
 
 
 calico-node.service
@@ -906,7 +869,6 @@ ExecStop=-/usr/bin/docker stop calico-node
 WantedBy=multi-user.target
 
 
-
 calico.env 文件
 系统服务所需的环境变量信息
 ETCD_ENDPOINTS="https://172.30.33.90:2379,https://172.30.33.91:2379,https://172.30.33.92:2379"
@@ -918,7 +880,6 @@ CALICO_IP6=""
 CALICO_NO_DEFAULT_POOLS="true"
 CALICO_LIBNETWORK_ENABLED="true"
 CALICO_HOSTNAME="k8s-master01"
-
 
 
 10-calico.conf
@@ -939,7 +900,6 @@ Calico CNI插件需要有一个标准的CNI配置文件
     "kubeconfig": "/etc/kubernetes/node-kubeconfig.yaml"
   }
 }
-
 
 
 安装步骤
@@ -963,7 +923,6 @@ kubelet service
 /etc/kubernetes/openssl.conf # 生成kubernetes证书所依赖的openssl文件
 /usr/local/bin/kubernetes-scripts/ # 生成证书文件的shell脚本
 /etc/kubernetes/node-kubeconfig.yaml #
-
 
 
 kubelet shell 脚本
@@ -995,7 +954,6 @@ $ vim /usr/local/bin/kubelet
   quay.io/coreos/hyperkube:v1.6.1_coreos.0 \
   ./hyperkube kubelet \
   "$@"
-
 
 
 kubelet.service 文件
@@ -1030,7 +988,6 @@ RestartSec=10s
 WantedBy=multi-user.target
 
 
-
 kubelet.env
 
 $ vim /etc/kubernetes/kubelet.env
@@ -1056,7 +1013,6 @@ KUBE_ALLOW_PRIV="--allow-privileged=true"
 KUBELET_CLOUDPROVIDER=""
 
 
-
 node-kubeconfig.yaml
 
 apiVersion: v1
@@ -1079,7 +1035,6 @@ contexts:
 current-context: kubelet-cluster.local
 
 
-
 kubernetes manifest文件
 
 /etc/kubernetes/manifests
@@ -1088,7 +1043,6 @@ $ ls -l
 -rw-r--r--. 1 root root 1331 Apr 12 15:26 kube-controller-manager.manifest
 -rw-r--r--. 1 root root 1319 Apr 12 15:23 kube-proxy.manifest
 -rw-r--r--. 1 root root  708 Apr 12 15:26 kube-scheduler.manifest
-
 
 
 我们知道在kubernetes中，/etc/kubernetes/manifests 目录下的文件，会由kubelet来在文件所在的节点生成static pod，下面看看每个文件的详细信息。
@@ -1175,7 +1129,6 @@ spec:
     name: etcd-certs
 
 
-
 kube-controller-manager.manifest
 apiVersion: v1
 kind: Pod
@@ -1237,7 +1190,6 @@ spec:
     name: ssl-certs-host
 
 
-
 kube-scheduler.manifest
 apiVersion: v1
 kind: Pod
@@ -1273,7 +1225,6 @@ spec:
         port: 10251
       initialDelaySeconds: 30
       timeoutSeconds: 10
-
 
 
 kube-proxy.manifest
@@ -1336,7 +1287,6 @@ spec:
       path: "/var/run/dbus"
 
 
-
 生成证书
 
   上面的文件都配置好后，我们就需要生正认证所需的证书了，以前看过漠神的一篇kubernetes双向TSL认证，有兴趣的可以去看下，说实话证书这块，我也不是很懂。
@@ -1355,13 +1305,11 @@ for host in ${MASTERS[*]}
 # 修改Node keys的for循环语句，修改成下面这样
 for host in ${HOSTS[*]}
 
-
 生成证书
 $ cd /usr/local/bin/etcd-scripts/
 $ ./make-ssl-etcd.sh -f /etc/ssl/etcd/openssl.conf -d ~/certs/etcd/
 $ chown kube.root ~/certs/etcd/*
 $ chmod 700 ~/certs/etcd/*
-
 
 
 生成kubernetes证书
@@ -1378,13 +1326,11 @@ for host in ${MASTERS[*]}
 for host in ${HOSTS[*]}
 
 
-
 生成证书
 $ cd /usr/local/bin/kubernetes-scripts/
 $ ./make-ssl.sh -f /etc/kubernetes/openssl.conf -d ~/certs/kubernetes/
 $ chown kube.kube-cert ~/certs/kubernetes/*
 $ chmod 600 ~/certs/kubernetes/*
-
 
 
 node节点上的主要文件
@@ -1412,14 +1358,12 @@ clusters:
     ...
 
 
-
 kube-proxy.manifest
 apiVersion: v1
 ...
   # - --master=https://172.30.33.90:6443 默认生成
     - --master=https://127.0.0.1:6443
     - --kubeconfig=/etc/kubernetes/node-kubeconfig.yaml
-
 
 
 至此， 基本上可以搭建一个基础的HA kubernetes 集群了，下一章将主要讲解如何配置一些常用插件
@@ -1622,12 +1566,10 @@ $ for i in ${IP[*]}; do scp -r kubespray_images_v1.6.7 $i:~/; done
 $ IMAGES=$(ls -l ~/kubespray_images_v1.6.7|awk -F' ' '{ print $9 }')
 $ for x in ${images[*]}; do docker load -i kubespray_images_v1.6.7/$x; done
 
-
 二、搭建集群
 
 1.获取kubespray源码
 $ git clone https://github.com/kubernetes-incubator/kubespray.git
-
 
 
 2.编辑配置文件
@@ -1773,7 +1715,6 @@ efk_enabled: true
 helm_enabled: false
 
 
-
 3.生成集群配置
 配置完基本集群参数后，还需要生成一个集群配置文件，用于指定需要在哪几台服务器安装，和指定 master、node 节点分布，以及 etcd 集群等安装在那几台机器上。
 
@@ -1781,7 +1722,6 @@ helm_enabled: false
 $ IP=(172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94)
 # 利用kubespray自带的python脚本生成配置
 $ CONFIG_FILE=~/kubespray/inventory/inventory.cfg python3 ~/kubespray/contrib/inventory_builder/inventory.py ${ IP[*] }
-
 
 
 
@@ -1814,7 +1754,6 @@ kube-node
 kube-master
 
 [calico-rr]
-
 
 
 5.docker,efk,etcd配置修改
@@ -1870,13 +1809,11 @@ vim ~/kubespray/roles/docker/tasks/main.yml
 #  include: systemd.yml
 
 
-
 修改efk配置，注释掉KIBANA_BASE_URL这段，否则后面你搭建efk之后，无法访问kibana
 vim ~/kubespray/roles/kubernetes-apps/efk/kibana/templates/kibana-deployment.yml.j2
 
 #          - name: "KIBANA_BASE_URL"
 #            value: "{ { kibana_base_url } }"
-
 
 
 
@@ -1891,7 +1828,6 @@ kubedns_version: 1.14.4
 calico_policy_version: "v0.7.0"
 
 
-
 注意: 如果你修改了kubedns_version版本，那么也需要修改/root/kubespray/roles/kubernetes-apps/ansible/defaults/main.yml文件中的kubedns_version版本
 
 (可选)6.修改docker.service
@@ -1900,11 +1836,9 @@ calico_policy_version: "v0.7.0"
 # 注释掉/usr/lib/systemd/system/docker.service 中的MountFlags=slave
 
 
-
 7.在ansible-client上一键部署
 
 $ ansible-playbook -i ~/kubespray/inventory/inventory.cfg cluster.yml -b -v --private-key=~/.ssh/id_rsa
-
 
 
 部署成功后如下
@@ -1943,12 +1877,10 @@ $ ansible-playbook -i ~/kubespray/inventory/inventory.cfg cluster.yml -b -v --pr
 1.ansible-client 免密钥登录所有要部署的节点
 $ ssh-keygen -t rsa -P ''
 
-
 2.将ansible-client上的id_rsa.pub复制到其他所有节点
 $ IP=(172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94)
 
 $ for x in ${IP[*]}; do ssh-copy-id -i ~/.ssh/id_rsa.pub $x; done
-
 
 
 2.ansible-client 上安装pip,python,setuptools,最好能先yum update一下
@@ -1960,7 +1892,6 @@ $ python get-pip.py
 $ wget https://pypi.python.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz#md5=35f01da33009719497f01a4ba69d63c9
 $ tar zxvf pip-9.0.1.tar.gz
 $ python setup.py install
-
 
 
 3.ansible安装
@@ -2026,14 +1957,11 @@ settings.xml的基本结构如下
   &lt;activeProfiles/&gt;  
 &lt;/settings&gt;
 
-
 #表示本地仓库的位置，默认在~/.m2/repository
 &lt;localRepository&gt;/path/to/local/repo&lt;localRepository/&gt;
 
-
 #如果不想每次编译都去查找中心库，就设置为true，前提是你必须已经下载好了必须的依赖包，默认是false
 &lt;offline&gt;false&lt;offline/&gt;
-
 
 #在POM文件中定义了distributionManagement元素，然而特定的username和password不能用于pom.xml，所以通过此配置来保存server信息，这里的id必须和后面repository中定义的id一致，主要是用来部署到nexus私服
 &lt;server&gt;
@@ -2041,7 +1969,6 @@ settings.xml的基本结构如下
   &lt;username&gt;admin&lt;/username&gt;
   &lt;password&gt;admin123&lt;/password&gt;
 &lt;/server&gt;
-
 
 #表示镜像仓库，指定库的镜像，这里的mirrorOf表示此镜像是那个库的镜像，*表示所有库
 &lt;mirrors&gt;
@@ -2052,7 +1979,6 @@ settings.xml的基本结构如下
   &lt;url&gt;http://192.168.56.22:8081/nexus/content/groups/public/&lt;/url&gt;
 &lt;/mirror&gt;
 &lt;mirrors/&gt;
-
 
 #代理服务器设置，主要用于无法直接访问中心的库用户设置
 &lt;proxies&gt;  
@@ -2067,7 +1993,6 @@ settings.xml的基本结构如下
      &lt;nonProxyHosts&gt;*.google.com|ibiblio.org&lt;/nonProxyHosts&gt;  
    &lt;/proxy&gt;  
  &lt;/proxies&gt;
-
 
 #自定义配置，可以指定repositories，properties，pluginRepositories，activation等元素
 #这里的repositories表示，开发团队自己的开发库，定义这个库，一般是为了方便distributionManagement发布
@@ -2086,14 +2011,12 @@ settings.xml的基本结构如下
 &lt;/profile&gt;
 &lt;/profiles&gt;
 
-
 #properties作为maven的占位符之，包括5中类型值：
 env.x：返回当前的环境变量
 project.x：返回pom文件中定义的project元素值
 settings.x：返回settings.xml中定义的元素
 java系统属性：返回经过java.lang.System.getProperties()返回的值
 x：用户自定义的值
-
 
 #激活指定的profile，通过profile id 来指定
 &lt;activeProfiles&gt;  
@@ -2163,6 +2086,35 @@ x：用户自定义的值
     </div>
 </a>
 
+<a href="https://github.com/chinakevinguo/learn-python" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="learn-python">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    learn-python
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="1 stars">
+                    <span class="octicon octicon-star"></span> 1
+                </span>
+                <span class="meta-info" title="1 forks">
+                    <span class="octicon octicon-git-branch"></span> 1
+                </span>
+                <span class="meta-info" title="Last updated：2018-03-02 03:11:20 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-03-02 03:11:20 UTC">2018-03-02</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
 <a href="https://github.com/chinakevinguo/learn-groovy" target="_blank" class="card text-center">
     <div class="thumbnail">
         <div class="card-image geopattern" data-pattern-id="learn-groovy">
@@ -2215,35 +2167,6 @@ x：用户自定义的值
                 <span class="meta-info" title="Last updated：2017-12-07 03:41:29 UTC">
                     <span class="octicon octicon-clock"></span>
                     <time datetime="2017-12-07 03:41:29 UTC">2017-12-07</time>
-                </span>
-            </div>
-        </div>
-    </div>
-</a>
-
-<a href="https://github.com/chinakevinguo/learn-python" target="_blank" class="card text-center">
-    <div class="thumbnail">
-        <div class="card-image geopattern" data-pattern-id="learn-python">
-            <div class="card-image-cell">
-                <h3 class="card-title">
-                    learn-python
-                </h3>
-            </div>
-        </div>
-        <div class="caption">
-            <div class="card-description">
-                <p class="card-text"></p>
-            </div>
-            <div class="card-text">
-                <span class="meta-info" title="0 stars">
-                    <span class="octicon octicon-star"></span> 0
-                </span>
-                <span class="meta-info" title="0 forks">
-                    <span class="octicon octicon-git-branch"></span> 0
-                </span>
-                <span class="meta-info" title="Last updated：2018-02-08 13:08:04 UTC">
-                    <span class="octicon octicon-clock"></span>
-                    <time datetime="2018-02-08 13:08:04 UTC">2018-02-08</time>
                 </span>
             </div>
         </div>

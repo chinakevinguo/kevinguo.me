@@ -146,7 +146,6 @@ docker是不会删除或修改任何之前的防火墙规则，这就允许了�
 $ iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
 
 
-
 容器间通信
 容器间是否可以通信，由系统层的两个因素来控制：
 
@@ -220,14 +219,12 @@ $ docker info |grep 'Logging Driver'
 Logging Driver: json-file
 
 
-
 为容器配置日志驱动
 当启动容器时，我们可以为容器配置和docker daemon不一样的日志驱动。如果驱动程序有可配置的选项，则可以使用一个或多个--log-opt&lt;NAME&gt;=&lt;VALUE&gt;来进行设置。即使容器使用默认的日志驱动，也可以使用不同的配置选项。
 
 看看当前容器的日志驱动是啥
 $ docker inspect -f { { .HostConfig.LogConfig.Type } } webtest1
 json-file
-
 
 
 所支持的日志驱动如下
@@ -305,27 +302,22 @@ $ dockerd \
           --log-opt env=os,customer
 
 
-
 下一步，运行一个容器，并指定labels和env的值，如下：
 $ docker run -tid --label production_status=testing -e os=ubuntu alpine sh
-
 
 
 最后，我们来查看记录到本地json-file中的日志内容
 $ cat /var/lib/docker/containers/02bb794219c31704629bd0c84d39d56228b8163bc8d4925002c5164b678c521a/02bb794219c31704629bd0c84d39d56228b8163bc8d4925002c5164b678c521a-json.log
 "os":"ubuntu","production_status":"test123"
 
-
 如果日志驱动支持，则会想日志记录输出添加的附加字段，一下输出用于json文件：
 "attrs":{"production_status":"testing","os":"ubuntu"}
-
 
 
 none
 none 驱动，禁用了docker daemon的日志记录或在运行时禁用了单个容器的日志记录
 
 $ docker run -ti --log-driver none alpine sh
-
 
 
 json-file
@@ -366,7 +358,6 @@ json-file日志驱动支持如下选项：
 
 
 $ docker run -ti --log-opt max-size=10m --log-opt max-file=3 alpine sh
-
 
 
 syslog
@@ -442,7 +433,6 @@ $ docker run \
          alpine ash
 
 
-
 $ docker run \
          --log-driver=syslog \
          --log-opt syslog-address=tcp+tls://192.168.0.42:123 \
@@ -450,7 +440,6 @@ $ docker run \
          --log-opt syslog-tls-cert=syslog-tls-ca-cert=/etc/ca-certificates/custom/cert.pem \
          --log-opt syslog-tls-key=syslog-tls-ca-cert=/etc/ca-certificates/custom/key.pem \
          alpine ash
-
 
 
 journald
@@ -487,7 +476,6 @@ journald 日志驱动将容器ID存储在日志的CONTAINER_ID字段中。油光
 $ docker run \
          --log-driver=journald \
          alpine ash
-
 
 
 这里我就列几个常用的，还有很多，可以参考docker 官网
@@ -595,7 +583,6 @@ $ sudo brctl delbr docker0
 $ sudo iptables -t nat -F POSTROUTING
 
 
-
 然后,在创建docker服务之前,创建自己的网桥,并给她任何你想要的配置.这里,我们创建了一个足够简单的bridge,我们可以使用上一节中的选项来自定义docker0,这就足够了.
 # create our own bridge
 $ brctl addbr bridge0
@@ -624,7 +611,6 @@ Chain POSTROUTING (policy ACCEPT)
 target     prot opt source               destination         
 MASQUERADE  all  --  192.168.5.0/24       0.0.0.0/0  
 
-
 我们看到docker服务已经成功重启，现在可以将新的容器绑定到新的bridge，然后我们新建一个容器看看
 $ docker run -tid test
 $ docker inspect clever_spence
@@ -632,7 +618,6 @@ $ docker inspect clever_spence
 "Gateway": "192.168.5.1",
 "IPAddress": "192.168.5.2",
 ...
-
 
 我们发现，我们刚创建的bridge已经生效。
 我们可以使用brctl来对bridge进行查看，删除，添加等操作。
@@ -673,7 +658,6 @@ MASQUERADE  all  --  172.17.0.0/16        0.0.0.0/0
 MASQUERADE  tcp  --  172.17.0.3           172.17.0.3           tcp dpt:5000
 MASQUERADE  tcp  --  172.17.0.4           172.17.0.4           tcp dpt:5000
 
-
 docker服务器会创建一个伪装规则，使容器连接到外部IP地址。
 
 如果希望容器能接入连接，你需要在调用docker run 的时候指定特别的选项
@@ -698,7 +682,6 @@ RETURN     all  --  0.0.0.0/0            0.0.0.0/0
 DNAT       tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:32768 to:172.17.0.3:5000
 DNAT       tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:32769 to:172.17.0.4:5000
 DNAT       tcp  --  0.0.0.0/0            192.168.1.1          tcp dpt:9292 to:172.17.0.11:80
-
 
 
 我们可以看到docker在0.0.0.0或192.168.1.1接口上公开了指定的端口或随机端口，对应映射到容器内的端口
@@ -757,7 +740,6 @@ ExecStop=/usr/bin/docker stop -t 2 redis_server
 [Install]
 WantedBy=default.target
 
-
 如果你打算将其作为系统服务，可以将上诉内容放在/etc/systemd/system/docker-redis_service.service文件中
 如果你还打算为redis容器传递一些选项[如 --env]，那么你需要使用docker run,而不是docker start,这将会在每次启动服务时创建一个新的容器，而在服务停止时则会停止和删除掉容器。确保您不是使用的-d或分离模式，因为从ExecStart运行的命令需要运行在前台。
 [Service]
@@ -767,11 +749,9 @@ ExecStop=/usr/bin/docker stop -t 2 redis_server
 ExecStopPost=/usr/bin/docker rm -f redis_server
 ...
 
-
 应用该服务
 systemctl daemon-reload
 systemctl start docker-redis_server.service
-
 
 
 允许上面的服务开机启动
@@ -894,6 +874,35 @@ systemctl enable docker-redis_server.service
     </div>
 </a>
 
+<a href="https://github.com/chinakevinguo/learn-python" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="learn-python">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    learn-python
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="1 stars">
+                    <span class="octicon octicon-star"></span> 1
+                </span>
+                <span class="meta-info" title="1 forks">
+                    <span class="octicon octicon-git-branch"></span> 1
+                </span>
+                <span class="meta-info" title="Last updated：2018-03-02 03:11:20 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-03-02 03:11:20 UTC">2018-03-02</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
 <a href="https://github.com/chinakevinguo/learn-groovy" target="_blank" class="card text-center">
     <div class="thumbnail">
         <div class="card-image geopattern" data-pattern-id="learn-groovy">
@@ -946,35 +955,6 @@ systemctl enable docker-redis_server.service
                 <span class="meta-info" title="Last updated：2017-12-07 03:41:29 UTC">
                     <span class="octicon octicon-clock"></span>
                     <time datetime="2017-12-07 03:41:29 UTC">2017-12-07</time>
-                </span>
-            </div>
-        </div>
-    </div>
-</a>
-
-<a href="https://github.com/chinakevinguo/learn-python" target="_blank" class="card text-center">
-    <div class="thumbnail">
-        <div class="card-image geopattern" data-pattern-id="learn-python">
-            <div class="card-image-cell">
-                <h3 class="card-title">
-                    learn-python
-                </h3>
-            </div>
-        </div>
-        <div class="caption">
-            <div class="card-description">
-                <p class="card-text"></p>
-            </div>
-            <div class="card-text">
-                <span class="meta-info" title="0 stars">
-                    <span class="octicon octicon-star"></span> 0
-                </span>
-                <span class="meta-info" title="0 forks">
-                    <span class="octicon octicon-git-branch"></span> 0
-                </span>
-                <span class="meta-info" title="Last updated：2018-02-08 13:08:04 UTC">
-                    <span class="octicon octicon-clock"></span>
-                    <time datetime="2018-02-08 13:08:04 UTC">2018-02-08</time>
                 </span>
             </div>
         </div>

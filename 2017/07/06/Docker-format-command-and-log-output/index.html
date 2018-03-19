@@ -130,39 +130,33 @@
 <p>Docker提供了一组基本函数来操作模板元素，下面简单举例几个可用函数的完整列表和示例：</p>
 <h2 id="json">Json</h2>
 <p>将结果格式化为json格式</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker inspect --format <span class="s1">'{ { json .NetworkSettings.IPAddress } }'</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker inspect <span class="nt">--format</span> <span class="s1">'{ { json .NetworkSettings.IPAddress } }'</span>
+</code></pre></div></div>
 
 <h2 id="upper">upper</h2>
 <p>将字符串转换成大写</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker inspect --format <span class="s1">'{ { upper .NetworkSettings.MacAddress } }'</span> webtest1
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker inspect <span class="nt">--format</span> <span class="s1">'{ { upper .NetworkSettings.MacAddress } }'</span> webtest1
+</code></pre></div></div>
 
 <h1 id="lower">lower</h1>
 <p>将字符转换成小写</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker inspect --format <span class="s2">"{ { lower .Name } }"</span> container
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker inspect <span class="nt">--format</span> <span class="s2">"{ { lower .Name } }"</span> container
+</code></pre></div></div>
 
 <p>#Title
 第一个字母大写</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker inspect --format <span class="s2">"{ { title .Name } }"</span> container
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker inspect <span class="nt">--format</span> <span class="s2">"{ { title .Name } }"</span> container
+</code></pre></div></div>
 
 <h1 id="split">split</h1>
 <p>通过指定分隔符，将一个字符串拆分为多个字符串</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker inspect --format <span class="s1">'{ { split (join .Names "/") "/" } }'</span> container
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker inspect <span class="nt">--format</span> <span class="s1">'{ { split (join .Names "/") "/" } }'</span> container
+</code></pre></div></div>
 
 <h1 id="join">Join</h1>
 <p>join 将所有字符串组成一个新的字符串。原始字符串之间使用知道你该的分隔符进行分割。分隔符可以是多个字符组成的字符串</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker ps --format <span class="s1">'{ { join .Names " or " } }'</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker ps <span class="nt">--format</span> <span class="s1">'{ { join .Names " or " } }'</span>
+</code></pre></div></div>
 
     </article>
     <div class="share">

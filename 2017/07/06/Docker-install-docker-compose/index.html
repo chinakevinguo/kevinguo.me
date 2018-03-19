@@ -128,38 +128,33 @@
 </blockquote>
 
 <p>下面这个例子：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code> <span class="nv">$ </span>curl -L <span class="s2">"https://github.com/docker/compose/releases/download/1.9.0/docker-compose-</span><span class="k">$(</span>uname -s<span class="k">)</span><span class="s2">-</span><span class="k">$(</span>uname -m<span class="k">)</span><span class="s2">"</span> -o /usr/local/bin/docker-compose
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nv">$ </span>curl <span class="nt">-L</span> <span class="s2">"https://github.com/docker/compose/releases/download/1.9.0/docker-compose-</span><span class="k">$(</span>uname <span class="nt">-s</span><span class="k">)</span><span class="s2">-</span><span class="k">$(</span>uname <span class="nt">-m</span><span class="k">)</span><span class="s2">"</span> <span class="nt">-o</span> /usr/local/bin/docker-compose
+</code></pre></div></div>
 <p>如果你对使用<code class="highlighter-rouge">curl</code>安装有疑问，你可以看看<a href="https://docs.docker.com/compose/install/#alternative-install-options">备用的安装选项</a>
 5.赋权</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>chmod +x /usr/local/bin/docker-compose
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod +x /usr/local/bin/docker-compose
+</code></pre></div></div>
 <p>6.(可选)，为<code class="highlighter-rouge">bash</code>和<code class="highlighter-rouge">zsh</code>安装<a href="https://docs.docker.com/compose/completion/">命令补全</a>
 7.测试</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker-compose --version
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker-compose <span class="nt">--version</span>
  docker-compose version: 1.9.0
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="备用安装选项">备用安装选项</h1>
 
 <h2 id="pip安装">pip安装</h2>
 
 <p>这种方式是将compose当作一个python应用来从pip源中安装,建议使用<a href="https://virtualenv.pypa.io/en/latest/">virtualenv</a>避免python冲突</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>pip install docker-compose
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>pip install docker-compose
+</code></pre></div></div>
 
 <h2 id="直接作为容器运行">直接作为容器运行</h2>
 
 <p>既然docker-compose是一个python应用，那么当然可以作为一个容器来执行它</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl -L https://github.com/docker/compose/releases/download/1.9.0/run.sh &gt; /usr/local/bin/docker-compose
-<span class="gp">$ </span>chmod +x /usr/local/bin/docker-compose
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl <span class="nt">-L</span> https://github.com/docker/compose/releases/download/1.9.0/run.sh <span class="o">&gt;</span> /usr/local/bin/docker-compose
+<span class="nv">$ </span>chmod +x /usr/local/bin/docker-compose
+</code></pre></div></div>
 
 <h1 id="主构建">主构建</h1>
 
@@ -170,26 +165,22 @@
 <p>如果要把compose从1.2或更早的版本升级，你需要在升级compose后删除或迁移现有的容器，因为从1.3开始，compose使用docker labels来跟踪容器，因此需要使用添加的标签来重新创建它们。</p>
 
 <p>如果compose检测到没有label的容器，那么它将拒绝运行，因此最终你不会有两套的容器。如果你要继续使用现有的容器(例如，因为他们有要保留的数据volume)，可以使用compose 1.5.x来迁移它们：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker-compose migrate-to-labels
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-compose migrate-to-labels
+</code></pre></div></div>
 
 <p>或者，如果你不想保留它们，你可以删除，compose只会创建新的</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker rm -f -v myapp_web_1 myapp_db_1 ..
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker rm <span class="nt">-f</span> <span class="nt">-v</span> myapp_web_1 myapp_db_1 ..
+</code></pre></div></div>
 
 <h1 id="卸载">卸载</h1>
 
 <p>卸载使用<code class="highlighter-rouge">curl</code>安装的compose</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rm /usr/local/bin/docker-compose
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rm /usr/local/bin/docker-compose
+</code></pre></div></div>
 
 <p>卸载使用<code class="highlighter-rouge">pip</code>安装的compose</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>pip uninstall docker-compose
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip uninstall docker-compose
+</code></pre></div></div>
 <blockquote>
   <p>如果你收到”Permission denied”的报错，说明你没有权限删除<code class="highlighter-rouge">docker-compose</code>，你可以使用sudo来强制删除，或者使用超级管理员用户来删除。</p>
 </blockquote>

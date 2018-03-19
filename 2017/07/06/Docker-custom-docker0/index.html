@@ -130,20 +130,19 @@ docker为 <code class="highlighter-rouge">docker0</code>配置IP地址，子网�
 </ul>
 
 <p>一旦你运行了一个或多个容器后，你可以使用<code class="highlighter-rouge">brctl</code>命令发现这些容器的接口都连接到了docker0网桥</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>brctl show
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>brctl show
 bridge name	bridge id		STP enabled	interfaces
 bridge0		8000.86de2e92d296	no		veth79dcc4b
 							vethc054462
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>如果你的机器上没有brctl这个命令， 你可以使用<code class="highlighter-rouge">yum install bridge-utils -y</code>(on centos)来进行安装。</p>
 
 <p>最后，当你每次创建新容器的时候，都会使用<code class="highlighter-rouge">docker0</code>进行设置。docker会从docker0网桥的ip范围内，选择一个空闲的ip，分配给新容器，并且，会将docker0网络的IP地址，作为容器的网关：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># The network, as seen from a container</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># The network, as seen from a container</span>
 
-<span class="gp">$ </span>docker run -i -t --rm base /bin/bash
+<span class="nv">$ </span>docker run <span class="nt">-i</span> <span class="nt">-t</span> <span class="nt">--rm</span> base /bin/bash
 
-<span class="gp">root@f38c87f2a42d:/# </span>ip addr show eth0
+root@f38c87f2a42d:/# ip addr show eth0
 
 24: eth0: &lt;BROADCAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
     link/ether 32:6f:e0:35:57:91 brd ff:ff:ff:ff:ff:ff
@@ -152,14 +151,13 @@ bridge0		8000.86de2e92d296	no		veth79dcc4b
     inet6 fe80::306f:e0ff:fe35:5791/64 scope link
        valid_lft forever preferred_lft forever
 
-<span class="gp">root@f38c87f2a42d:/# </span>ip route
+root@f38c87f2a42d:/# ip route
 
 default via 172.17.42.1 dev eth0
 172.17.0.0/16 dev eth0  proto kernel  scope link  src 172.17.0.3
 
-<span class="gp">root@f38c87f2a42d:/# </span><span class="nb">exit</span>
-</code></pre>
-</div>
+root@f38c87f2a42d:/# <span class="nb">exit</span>
+</code></pre></div></div>
 
 <blockquote>
   <p><strong>Note:</strong> 记住，默认情况下，docker主机不会将容器包转发到外网，除非你设置<code class="highlighter-rouge">ip_forward</code>，具体可参考<a href="https://docs.docker.com/engine/userguide/networking/default_network/container-communication/#communicating-to-the-outside-world">communication to the outside world</a></p>

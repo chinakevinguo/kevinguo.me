@@ -140,35 +140,32 @@
 
 <p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/kubernetes.git">最新源码</a></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
+</code></pre></div></div>
 
 <p>2.进入dashboard所在的目录，执行yml文件</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/dashboard
-kubectl create -f .
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/dashboard
+kubectl create <span class="nt">-f</span> <span class="nb">.</span>
+</code></pre></div></div>
 
 <p>3.确认dashboard是否成功创建</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 确认deployment</span>
-kubectl get deployment -n kube-system |grep dashboard
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认deployment</span>
+kubectl get deployment <span class="nt">-n</span> kube-system |grep dashboard
 
 <span class="c"># 确认svc</span>
-kubectl get svc -n kube-system |grep dashboard
+kubectl get svc <span class="nt">-n</span> kube-system |grep dashboard
 
 <span class="c"># 确认ep</span>
-kubectl get ep -n kube-system |grep dashboard
+kubectl get ep <span class="nt">-n</span> kube-system |grep dashboard
 
 <span class="c"># 确认pods</span>
-kubectl get pods -n kube-system |grep dashboard
+kubectl get pods <span class="nt">-n</span> kube-system |grep dashboard
 
 <span class="c"># 查看日志是否有报错</span>
-kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system
-</code></pre>
-</div>
+kubectl logs kubernetes-dashboard-1041558748-sppxt <span class="nt">-n</span> kube-system
+</code></pre></div></div>
 
 <p>初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看</p>
 
@@ -176,59 +173,54 @@ kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system
 
 <p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/kubernetes.git">最新源码</a></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
+</code></pre></div></div>
 
 <p>2.为你要运行fluentd的节点添加label，因为<code class="highlighter-rouge">fluentd-es-ds.yml</code>文件中有<code class="highlighter-rouge">beta.kubernetes.io/fluentd-ds-ready: "true"</code>标签</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true
 </span>kubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true
 </span>kubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>3.确认标签添加是否成功</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>root@k8s-master01 ~]# kubectl get nodes -l beta.kubernetes.io/fluentd-ds-ready
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@k8s-master01 ~]# kubectl get nodes <span class="nt">-l</span> beta.kubernetes.io/fluentd-ds-ready
 NAME           STATUS    AGE       VERSION
 k8s-node01     Ready     19h       v1.6.7+coreos.0
 k8s-node02     Ready     19h       v1.6.7+coreos.0
 k8s-registry   Ready     19h       v1.6.7+coreos.0
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>4.进入fluentd-elasticsearch所在的目录，执行yml文件</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/fluentd-elasticsearch
-kubectl create -f .
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/fluentd-elasticsearch
+kubectl create <span class="nt">-f</span> <span class="nb">.</span>
+</code></pre></div></div>
 
 <p>5.确认EFK是否创建成功</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 确认elasticsearch是否创建成功</span>
-kubectl get statefulset -n kube-system |grep elasticsearch
-kubectl get svc -n kube-system|grep elasticsearch
-kubectl get ep -n kube-system |grep elasticsearch
-kubectl get pods -n kube-system |grep elasticsearch
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认elasticsearch是否创建成功</span>
+kubectl get statefulset <span class="nt">-n</span> kube-system |grep elasticsearch
+kubectl get svc <span class="nt">-n</span> kube-system|grep elasticsearch
+kubectl get ep <span class="nt">-n</span> kube-system |grep elasticsearch
+kubectl get pods <span class="nt">-n</span> kube-system |grep elasticsearch
 
 <span class="c"># 确认fluentd是否创建成功</span>
-kubectl get ds -n kube-system |grep fluentd
-kubectl get pods -n kube-system -o wide |grep fluentd
+kubectl get ds <span class="nt">-n</span> kube-system |grep fluentd
+kubectl get pods <span class="nt">-n</span> kube-system <span class="nt">-o</span> wide |grep fluentd
 
 <span class="c"># 确认kibana是否创建成功</span>
-kubectl get deployment -n kube-system |grep kibana
-kubectl get svc -n kube-system|grep kibana
-kubectl get ep -n kube-system |grep kibana
-kubectl get pods -n kube-system |grep kibana
+kubectl get deployment <span class="nt">-n</span> kube-system |grep kibana
+kubectl get svc <span class="nt">-n</span> kube-system|grep kibana
+kubectl get ep <span class="nt">-n</span> kube-system |grep kibana
+kubectl get pods <span class="nt">-n</span> kube-system |grep kibana
 
 <span class="c"># 查看日志是否有报错</span>
 kubectl logs elasticsearch-logging-0
-kubectl logs fluentd-es-v2.0.1-kn2h2 -n kube-system
-kubectl logs kibana-logging-3636197754-tnwjh -n kube-system
-</code></pre>
-</div>
+kubectl logs fluentd-es-v2.0.1-kn2h2 <span class="nt">-n</span> kube-system
+kubectl logs kibana-logging-3636197754-tnwjh <span class="nt">-n</span> kube-system
+</code></pre></div></div>
 
 <p>初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看</p>
 
@@ -238,43 +230,40 @@ kubectl logs kibana-logging-3636197754-tnwjh -n kube-system
 
 <p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/heapster.git">最新源码</a></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/kubernetes/heapster.git
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/heapster.git
+</code></pre></div></div>
 
 <p>2.进入heapster的deploy目录，执行kube.sh</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/heapster/deploy
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/heapster/deploy
 sh kube.sh start
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>3.确认heapster是否创建成功</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 确认heapster是否创建成功</span>
-kubectl get deployment -n kube-system |grep heapster
-kubectl get svc -n kube-system |grep heapster
-kubectl get ep -n kube-system |grep heapster
-kubectl get pods -n kube-system |grep heapster
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认heapster是否创建成功</span>
+kubectl get deployment <span class="nt">-n</span> kube-system |grep heapster
+kubectl get svc <span class="nt">-n</span> kube-system |grep heapster
+kubectl get ep <span class="nt">-n</span> kube-system |grep heapster
+kubectl get pods <span class="nt">-n</span> kube-system |grep heapster
 
 <span class="c"># 确认influxdb是否创建成功</span>
-kubectl get deployment -n kube-system |grep influxdb
-kubectl get svc -n kube-system |grep influxdb
-kubectl get ep -n kube-system |grep influxdb
-kubectl get pods -n kube-system |grep influxdb
+kubectl get deployment <span class="nt">-n</span> kube-system |grep influxdb
+kubectl get svc <span class="nt">-n</span> kube-system |grep influxdb
+kubectl get ep <span class="nt">-n</span> kube-system |grep influxdb
+kubectl get pods <span class="nt">-n</span> kube-system |grep influxdb
 
 <span class="c"># 确认grafana是否创建成功</span>
-kubectl get deployment -n kube-system |grep grafana
-kubectl get svc -n kube-system |grep grafana
-kubectl get ep -n kube-system |grep grafana
-kubectl get pods -n kube-system |grep grafana
+kubectl get deployment <span class="nt">-n</span> kube-system |grep grafana
+kubectl get svc <span class="nt">-n</span> kube-system |grep grafana
+kubectl get ep <span class="nt">-n</span> kube-system |grep grafana
+kubectl get pods <span class="nt">-n</span> kube-system |grep grafana
 
 <span class="c"># 查看日志是否有报错</span>
-kubectl logs heapster-1528902802-wcf24 -n kube-system
-kubectl logs monitoring-grafana-2527507788-jsw1n -n kube-system
-kubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system
-</code></pre>
-</div>
+kubectl logs heapster-1528902802-wcf24 <span class="nt">-n</span> kube-system
+kubectl logs monitoring-grafana-2527507788-jsw1n <span class="nt">-n</span> kube-system
+kubectl logs monitoring-influxdb-3480804314-31h4w <span class="nt">-n</span> kube-system
+</code></pre></div></div>
 
 <p>初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看</p>
 
@@ -297,16 +286,14 @@ kubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system
 
 <p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/ingress.git">最新源码</a></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/kubernetes/ingress.git
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/ingress.git
+</code></pre></div></div>
 
 <p>2.为你要运行 Ingress 的节点添加label标签：role=frontal</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl label node k8s-node01 <span class="nv">role</span><span class="o">=</span>frontal
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl label node k8s-node01 <span class="nv">role</span><span class="o">=</span>frontal
 kubectl label node k8s-node02 <span class="nv">role</span><span class="o">=</span>frontal
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>3.进入ingress的<code class="highlighter-rouge">examples/daemonset/nginx</code>目录，修改yml文件</p>
 
@@ -318,22 +305,20 @@ kubectl label node k8s-node02 <span class="nv">role</span><span class="o">=</spa
 
 <p>执行创建</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/ingress/examples/daemonset/nginx
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/ingress/examples/daemonset/nginx
 
-kubectl create -f nginx-ingress-daemonset.yaml
-</code></pre>
-</div>
+kubectl create <span class="nt">-f</span> nginx-ingress-daemonset.yaml
+</code></pre></div></div>
 
 <p>4.确认 Ingress controller 是否创建成功</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 确认 ingress 是否创建成功</span>
-kubectl get ds -n kube-system |grep ing
-kubectl get pods -n kube-system |grep ingress
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认 ingress 是否创建成功</span>
+kubectl get ds <span class="nt">-n</span> kube-system |grep ing
+kubectl get pods <span class="nt">-n</span> kube-system |grep ingress
 
 <span class="c"># 查看日志是否有报错</span>
-kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
-</code></pre>
-</div>
+kubectl logs nginx-ingress-lb-mfdh5 <span class="nt">-n</span> kube-system
+</code></pre></div></div>
 
 <p>初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看</p>
 
@@ -341,67 +326,63 @@ kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
 
 <p>dashboard-ingress.yml</p>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-<span class="s">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
-<span class="s">metadata</span><span class="pi">:</span>
-  <span class="s">name</span><span class="pi">:</span> <span class="s">dashboard-ingress</span>
-  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-<span class="s">spec</span><span class="pi">:</span>
-  <span class="s">rules</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="s">host</span><span class="pi">:</span> <span class="s">dashboard.kevinguo.me</span>
-    <span class="s">http</span><span class="pi">:</span>
-      <span class="s">paths</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="s">backend</span><span class="pi">:</span>
-          <span class="s">serviceName</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-          <span class="s">servicePort</span><span class="pi">:</span> <span class="s">80</span>
-        <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
-</code></pre>
-</div>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">dashboard-ingress</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">dashboard.kevinguo.me</span>
+    <span class="na">http</span><span class="pi">:</span>
+      <span class="na">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
+          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">80</span>
+        <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
+</code></pre></div></div>
 
 <p>kibana-ingress.yml</p>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-<span class="s">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
-<span class="s">metadata</span><span class="pi">:</span>
-  <span class="s">name</span><span class="pi">:</span> <span class="s">kibana-ingress</span>
-  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-<span class="s">spec</span><span class="pi">:</span>
-  <span class="s">rules</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="s">host</span><span class="pi">:</span> <span class="s">kibana.kevinguo.me</span>
-    <span class="s">http</span><span class="pi">:</span>
-      <span class="s">paths</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="s">backend</span><span class="pi">:</span>
-          <span class="s">serviceName</span><span class="pi">:</span> <span class="s">kibana-logging</span>
-          <span class="s">servicePort</span><span class="pi">:</span> <span class="s">5601</span>
-</code></pre>
-</div>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">kibana-ingress</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">kibana.kevinguo.me</span>
+    <span class="na">http</span><span class="pi">:</span>
+      <span class="na">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
+          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">kibana-logging</span>
+          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">5601</span>
+</code></pre></div></div>
 
 <p>elasticsearch-ingress.yml</p>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-<span class="s">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
-<span class="s">metadata</span><span class="pi">:</span>
-  <span class="s">name</span><span class="pi">:</span> <span class="s">elasticsearch-ingress</span>
-  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-<span class="s">spec</span><span class="pi">:</span>
-  <span class="s">rules</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="s">host</span><span class="pi">:</span> <span class="s">elasticsearch.kevinguo.me</span>
-    <span class="s">http</span><span class="pi">:</span>
-      <span class="s">paths</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="s">backend</span><span class="pi">:</span>
-          <span class="s">serviceName</span><span class="pi">:</span> <span class="s">elasticsearch-logging</span>
-          <span class="s">servicePort</span><span class="pi">:</span> <span class="s">9200</span>
-        <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
-</code></pre>
-</div>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">elasticsearch-ingress</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">elasticsearch.kevinguo.me</span>
+    <span class="na">http</span><span class="pi">:</span>
+      <span class="na">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
+          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">elasticsearch-logging</span>
+          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">9200</span>
+        <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
+</code></pre></div></div>
 
 <p>执行创建</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create -f elasticsearch-ingress.yml
-kubectl create -f dashboard-ingress.yml
-kubectl create -f kibana-ingress.yml
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create <span class="nt">-f</span> elasticsearch-ingress.yml
+kubectl create <span class="nt">-f</span> dashboard-ingress.yml
+kubectl create <span class="nt">-f</span> kibana-ingress.yml
+</code></pre></div></div>
 
 <p>创建完成后，我们来看看据诶过如何呢</p>
 

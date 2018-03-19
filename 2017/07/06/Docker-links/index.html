@@ -126,46 +126,38 @@
 
 <h3 id="使用端口映射连接">使用端口映射连接</h3>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -P training/webapp python app.py
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">-P</span> training/webapp python app.py
+</code></pre></div></div>
 <p>当容器运行的时候，使用<code class="highlighter-rouge">-P</code>选项，会将容器内部发布的端口，随机映射到书主机上的任意端口，这里可以看到，容器的5000端口，已经绑定到了宿主机上的32768端口上</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker ps -l
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker ps <span class="nt">-l</span>
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                     NAMES
 0de1cf226109        training/webapp     <span class="s2">"python app.py"</span>     2 minutes ago       Up 2 minutes        0.0.0.0:32768-&gt;5000/tcp   stoic_lamport
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>你也可以使用<code class="highlighter-rouge">-p</code>选项，来指定绑定到宿主机的端口</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -p 6666:5000 training/webapp python app.py
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">-p</span> 6666:5000 training/webapp python app.py
+</code></pre></div></div>
 
 <p>你甚至可以指定绑定到宿主机的端口范围</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -p 8000-9000:5000 training/webapp python app.py
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">-p</span> 8000-9000:5000 training/webapp python app.py
+</code></pre></div></div>
 
 <p>默认情况下，<code class="highlighter-rouge">-p</code>标志是绑定到所有的接口。你可以绑定到指定的接口的指定端口，如localhost</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -p 127.0.0.1:8000-9000:5000 training/webapp python app.py
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">-p</span> 127.0.0.1:8000-9000:5000 training/webapp python app.py
+</code></pre></div></div>
 
 <p>当然，你也可以绑定到指定接口的随机端口上</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -p 127.0.0.1::5000 training/webapp python app.py
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">-p</span> 127.0.0.1::5000 training/webapp python app.py
+</code></pre></div></div>
 
 <p>你还可以绑定UDP端口</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -p 127.0.0.1:80:5000/udp training/webapp python app.py
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">-p</span> 127.0.0.1:80:5000/udp training/webapp python app.py
+</code></pre></div></div>
 
 <p>我们可以使用<code class="highlighter-rouge">docker port</code>来查看绑定的信息</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker port nostalgic_morse 5000
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker port nostalgic_morse 5000
 
 127.0.0.1:49155
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="使用link连接">使用link连接</h3>
 
@@ -179,23 +171,20 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 2.方便连接</p>
 
 <p>我们可以使用<code class="highlighter-rouge">--name</code>来进行容器命名</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -P --name web training/webapp python app.py
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">-P</span> <span class="nt">--name</span> web training/webapp python app.py
+</code></pre></div></div>
 
 <h3 id="连接之间的通信">连接之间的通信</h3>
 
 <p>link 允许容器之间互相发现 ，并将一个容器的信息安全的传送到另外一个容器。在设置link时，会在两个容器间创建一个父子关系，其中父容器可以访问子容器内部的某些信息。</p>
 
 <p>首先，我们来创建一个数据库的容器</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d --name db training/postgres
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">--name</span> db training/postgres
+</code></pre></div></div>
 
 <p>然后，创建一个web容器，并且将它连接到db容器</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -d -P --name web --link db:db training/webapp python app.py
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-d</span> <span class="nt">-P</span> <span class="nt">--name</span> web <span class="nt">--link</span> db:db training/webapp python app.py
+</code></pre></div></div>
 <p>这将会把新的web容器和之前的db容器连接起来，web容器可以访问db容器的信息</p>
 
 <p>我们知道link允许子容器向父容器提供自身的信息。在我们上面的例子中，父容器web可以访问子容器db提供的数据库信息，为此，我们在创建子容器的时候，不需要在容器外部暴露任何端口，你会发现，上面在创建db容器的时候没有指定<code class="highlighter-rouge">-p</code>或<code class="highlighter-rouge">-P</code>,这样做的好处就是避免了暴露子容器（数据库）端口的风险。</p>

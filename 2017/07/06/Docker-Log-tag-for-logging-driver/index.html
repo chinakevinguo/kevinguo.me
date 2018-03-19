@@ -116,9 +116,8 @@
     <article class="article-content markdown-body">
     <p>tag 选项指定你该为容器的日志如何命名。默认是容器ID的前12个字符。要覆盖默认值，可指定一个tag选项:
 <!--more--></p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run --log-driver<span class="o">=</span>fluentd --log-opt fluentd-address<span class="o">=</span>myhost.local:24224 --log-opt <span class="nv">tag</span><span class="o">=</span><span class="s2">"mailer"</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">--log-driver</span><span class="o">=</span>fluentd <span class="nt">--log-opt</span> fluentd-address<span class="o">=</span>myhost.local:24224 <span class="nt">--log-opt</span> <span class="nv">tag</span><span class="o">=</span><span class="s2">"mailer"</span>
+</code></pre></div></div>
 
 <p>docker支持一些特殊的标记模板，你可以在指定的时候使用</p>
 
@@ -163,29 +162,26 @@
 
 <p>例如：指定一个 <code class="highlighter-rouge">--log-opt tag="{ { .ImageName } }/{ { .Name } }/{ { .ID } }"</code>,让其输出到syslog，那么最终他输出的内容如下</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Aug  7 18:33:19 HOSTNAME docker/hello-world/foobar/5790672ab6a0[9103]: Hello from Docker
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Aug  7 18:33:19 HOSTNAME docker/hello-world/foobar/5790672ab6a0[9103]: Hello from Docker
+</code></pre></div></div>
 
-<p>在启动时，系统会在<code class="highlighter-rouge">tag</code>中设置<code class="highlighter-rouge">container_name</code> 字段和<code class="highlighter-rouge"><span class="p">{</span><span class="w"> </span><span class="err">{</span><span class="w"> </span><span class="err">.name</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="err">}</span></code>字段，如果你使用<code class="highlighter-rouge">docker rename</code>重命名容器，新名称不会反映在日志消息中，这些消息会继续使用原来的容器名。</p>
+<p>在启动时，系统会在<code class="highlighter-rouge">tag</code>中设置<code class="highlighter-rouge">container_name</code> 字段和<code class="highlighter-rouge">{ { .name } }</code>字段，如果你使用<code class="highlighter-rouge">docker rename</code>重命名容器，新名称不会反映在日志消息中，这些消息会继续使用原来的容器名。</p>
 
 <p>更高级的用法，可以去参考<a href="https://golang.org/pkg/text/template/">go templates</a>和<a href="https://github.com/docker/docker/blob/master/daemon/logger/context.go">container’s logging context</a></p>
 
 <p>下面是一个syslog的例子，如果我们使用下面的内容,就会得到如下的日志内容</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -it --rm <span class="se">\</span>
-    --log-driver syslog <span class="se">\</span>
-    --log-opt <span class="nv">tag</span><span class="o">=</span><span class="s2">"{ {  (.ExtraAttributes nil).SOME_ENV_VAR  } }"</span> <span class="se">\</span>
-    --log-opt <span class="nv">env</span><span class="o">=</span>SOME_ENV_VAR <span class="se">\</span>
-    -e <span class="nv">SOME_ENV_VAR</span><span class="o">=</span>logtester.1234 <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="se">\</span>
+    <span class="nt">--log-driver</span> syslog <span class="se">\</span>
+    <span class="nt">--log-opt</span> <span class="nv">tag</span><span class="o">=</span><span class="s2">"{ {  (.ExtraAttributes nil).SOME_ENV_VAR  } }"</span> <span class="se">\</span>
+    <span class="nt">--log-opt</span> <span class="nv">env</span><span class="o">=</span>SOME_ENV_VAR <span class="se">\</span>
+    <span class="nt">-e</span> <span class="nv">SOME_ENV_VAR</span><span class="o">=</span>logtester.1234 <span class="se">\</span>
     flyinprogrammer/logtester
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Apr  1 15:22:17 ip-10-27-39-73 docker/logtester.1234[45499]: + <span class="nb">exec </span>app
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Apr  1 15:22:17 ip-10-27-39-73 docker/logtester.1234[45499]: + <span class="nb">exec </span>app
 Apr  1 15:22:17 ip-10-27-39-73 docker/logtester.1234[45499]: 2016-04-01 15:22:17.075416751 +0000 UTC stderr msg: 1
-</code></pre>
-</div>
+</code></pre></div></div>
 
     </article>
     <div class="share">

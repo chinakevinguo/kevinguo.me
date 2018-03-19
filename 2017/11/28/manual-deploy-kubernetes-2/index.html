@@ -210,7 +210,7 @@
 
 <p><strong>/usr/lib/systemd/system/consul.service</strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Unit]
 <span class="nv">Description</span><span class="o">=</span>Consul service discovery agent
 <span class="nv">Requires</span><span class="o">=</span>network-online.target
 <span class="nv">After</span><span class="o">=</span>network-online.target
@@ -220,21 +220,19 @@
 <span class="nv">EnvironmentFile</span><span class="o">=</span>-/etc/default/consul
 <span class="nv">Environment</span><span class="o">=</span><span class="nv">GOMAXPROCS</span><span class="o">=</span>2
 <span class="nv">Restart</span><span class="o">=</span>on-failure
-<span class="nv">ExecStartPre</span><span class="o">=[</span> -f <span class="s2">"/opt/consul/run/consul.pid"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> /usr/bin/rm -f /opt/consul/run/consul.pid
+<span class="nv">ExecStartPre</span><span class="o">=[</span> <span class="nt">-f</span> <span class="s2">"/opt/consul/run/consul.pid"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> /usr/bin/rm <span class="nt">-f</span> /opt/consul/run/consul.pid
 <span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/consul agent <span class="nv">$CONSUL_FLAGS</span>
-<span class="nv">ExecReload</span><span class="o">=</span>/bin/kill -HUP <span class="nv">$MAINPID</span>
+<span class="nv">ExecReload</span><span class="o">=</span>/bin/kill <span class="nt">-HUP</span> <span class="nv">$MAINPID</span>
 <span class="nv">KillSignal</span><span class="o">=</span>SIGTERM
 <span class="nv">TimeoutStopSec</span><span class="o">=</span>5
 <span class="o">[</span>Install]
 <span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><strong>/etc/default/consul</strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nv">CONSUL_FLAGS</span><span class="o">=</span><span class="s2">"-ui -data-dir=/opt/consul/data -config-dir=/opt/consul/conf -pid-file=/opt/consul/run/consul.pid -client=0.0.0.0 -bind=172.29.151.4 -node=consul-client04 -retry-join=172.30.33.39 -retry-join=172.30.33.40 -retry-join=172.30.33.41 -retry-interval=3s"</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">CONSUL_FLAGS</span><span class="o">=</span><span class="s2">"-ui -data-dir=/opt/consul/data -config-dir=/opt/consul/conf -pid-file=/opt/consul/run/consul.pid -client=0.0.0.0 -bind=172.29.151.4 -node=consul-client04 -retry-join=172.30.33.39 -retry-join=172.30.33.40 -retry-join=172.30.33.41 -retry-interval=3s"</span>
+</code></pre></div></div>
 
 <p>2.registrator 部署</p>
 
@@ -244,44 +242,43 @@
 
 <p><strong>registrator.yaml</strong></p>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-<span class="s">kind</span><span class="pi">:</span> <span class="s">DaemonSet</span>
-<span class="s">metadata</span><span class="pi">:</span>
-  <span class="s">creationTimestamp</span><span class="pi">:</span> <span class="s">null</span>
-  <span class="s">labels</span><span class="pi">:</span>
-    <span class="s">run</span><span class="pi">:</span> <span class="s">registrator</span>
-  <span class="s">name</span><span class="pi">:</span> <span class="s">registrator</span>
-<span class="s">spec</span><span class="pi">:</span>
-  <span class="s">selector</span><span class="pi">:</span>
-    <span class="s">matchLabels</span><span class="pi">:</span>
-      <span class="s">run</span><span class="pi">:</span> <span class="s">registrator</span>
-  <span class="s">template</span><span class="pi">:</span>
-    <span class="s">metadata</span><span class="pi">:</span>
-      <span class="s">creationTimestamp</span><span class="pi">:</span> <span class="s">null</span>
-      <span class="s">labels</span><span class="pi">:</span>
-        <span class="s">run</span><span class="pi">:</span> <span class="s">registrator</span>
-    <span class="s">spec</span><span class="pi">:</span>
-      <span class="s">volumes</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">docker-sock</span>
-        <span class="s">hostPath</span><span class="pi">:</span>
-          <span class="s">path</span><span class="pi">:</span> <span class="s">/var/run/docker.sock</span>
-      <span class="s">hostNetwork</span><span class="pi">:</span> <span class="s">true</span>
-      <span class="s">containers</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">registrator</span>
-          <span class="s">volumeMounts</span><span class="pi">:</span>
-          <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/tmp/docker.sock</span>
-            <span class="s">name</span><span class="pi">:</span> <span class="s">docker-sock</span>
-          <span class="s">image</span><span class="pi">:</span> <span class="s">ganeshkaila/registrator:v7</span>
-          <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">/bin/sh"</span><span class="pi">]</span>
-          <span class="s">args</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">-c"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">registrator</span><span class="nv"> </span><span class="s">-useIpFromEnv=POD_IP</span><span class="nv"> </span><span class="s">-internal</span><span class="nv"> </span><span class="s">consul://localhost:8500"</span><span class="pi">]</span>
-          <span class="s">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
-          <span class="s">env</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">NODE_NAME</span>
-              <span class="s">valueFrom</span><span class="pi">:</span>
-                <span class="s">fieldRef</span><span class="pi">:</span>
-                  <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">spec.nodeName</span>
-</code></pre>
-</div>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">DaemonSet</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">creationTimestamp</span><span class="pi">:</span> <span class="no">null</span>
+  <span class="na">labels</span><span class="pi">:</span>
+    <span class="na">run</span><span class="pi">:</span> <span class="s">registrator</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">registrator</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">matchLabels</span><span class="pi">:</span>
+      <span class="na">run</span><span class="pi">:</span> <span class="s">registrator</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">creationTimestamp</span><span class="pi">:</span> <span class="no">null</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">run</span><span class="pi">:</span> <span class="s">registrator</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">docker-sock</span>
+        <span class="na">hostPath</span><span class="pi">:</span>
+          <span class="na">path</span><span class="pi">:</span> <span class="s">/var/run/docker.sock</span>
+      <span class="na">hostNetwork</span><span class="pi">:</span> <span class="no">true</span>
+      <span class="na">containers</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">registrator</span>
+          <span class="na">volumeMounts</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/tmp/docker.sock</span>
+            <span class="na">name</span><span class="pi">:</span> <span class="s">docker-sock</span>
+          <span class="na">image</span><span class="pi">:</span> <span class="s">ganeshkaila/registrator:v7</span>
+          <span class="na">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">/bin/sh"</span><span class="pi">]</span>
+          <span class="na">args</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">-c"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">registrator</span><span class="nv"> </span><span class="s">-useIpFromEnv=POD_IP</span><span class="nv"> </span><span class="s">-internal</span><span class="nv"> </span><span class="s">consul://localhost:8500"</span><span class="pi">]</span>
+          <span class="na">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
+          <span class="na">env</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">NODE_NAME</span>
+              <span class="na">valueFrom</span><span class="pi">:</span>
+                <span class="na">fieldRef</span><span class="pi">:</span>
+                  <span class="na">fieldPath</span><span class="pi">:</span> <span class="s">spec.nodeName</span>
+</code></pre></div></div>
 
 <p>3.fabio 部署</p>
 
@@ -291,7 +288,7 @@
 
 <p><strong>fabio.service</strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Unit]
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Unit]
 <span class="nv">Description</span><span class="o">=</span>fabio
 <span class="nv">Requires</span><span class="o">=</span>network-online.target
 <span class="nv">After</span><span class="o">=</span>network-online.target
@@ -300,126 +297,125 @@
 <span class="nv">Environment</span><span class="o">=</span><span class="nv">GOMAXPROCS</span><span class="o">=</span>2
 <span class="nv">Restart</span><span class="o">=</span>on-failure
 <span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/fabio
-<span class="nv">ExecReload</span><span class="o">=</span>/bin/kill -HUP <span class="nv">$MAINPID</span>
+<span class="nv">ExecReload</span><span class="o">=</span>/bin/kill <span class="nt">-HUP</span> <span class="nv">$MAINPID</span>
 <span class="nv">KillSignal</span><span class="o">=</span>SIGTERM
 
 <span class="o">[</span>Install]
 <span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>至此，我们的fabio+consul+registrator就算是部署完成了，那么我们怎么使用呢，这里，我们以<code class="highlighter-rouge">kubernetes-dashboard</code>为例</p>
 
 <p><strong>kubernetes-dashboard.yaml</strong></p>
 
-<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="s">kind</span><span class="pi">:</span> <span class="s">Secret</span>
-<span class="s">metadata</span><span class="pi">:</span>
-  <span class="s">labels</span><span class="pi">:</span>
-    <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-  <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-certs</span>
-  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-<span class="s">type</span><span class="pi">:</span> <span class="s">Opaque</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Secret</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">labels</span><span class="pi">:</span>
+    <span class="na">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-certs</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">type</span><span class="pi">:</span> <span class="s">Opaque</span>
 
 <span class="nn">---</span>
-<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="s">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
-<span class="s">metadata</span><span class="pi">:</span>
-  <span class="s">labels</span><span class="pi">:</span>
-    <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-  <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">labels</span><span class="pi">:</span>
+    <span class="na">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
 
 <span class="nn">---</span>
 <span class="c1"># ------------------- Dashboard Role &amp; Role Binding ------------------- #</span>
 
-<span class="s">kind</span><span class="pi">:</span> <span class="s">Role</span>
-<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-<span class="s">metadata</span><span class="pi">:</span>
-  <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
-  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-<span class="s">rules</span><span class="pi">:</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Role</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">rules</span><span class="pi">:</span>
   <span class="c1"># Allow Dashboard to create and watch for changes of 'kubernetes-dashboard-key-holder' secret.</span>
-  <span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-    <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">secrets"</span><span class="pi">]</span>
-    <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">create"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">]</span>
+  <span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+    <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">secrets"</span><span class="pi">]</span>
+    <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">create"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">]</span>
     <span class="c1"># Allow Dashboard to get, update and delete Dashboard exclusive secrets.</span>
-  <span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-    <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">secrets"</span><span class="pi">]</span>
-    <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">kubernetes-dashboard-key-holder"</span><span class="pi">]</span>
-    <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">delete"</span><span class="pi">]</span>
+  <span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+    <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">secrets"</span><span class="pi">]</span>
+    <span class="na">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">kubernetes-dashboard-key-holder"</span><span class="pi">]</span>
+    <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">delete"</span><span class="pi">]</span>
     <span class="c1"># Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.</span>
-  <span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-    <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">configmaps"</span><span class="pi">]</span>
-    <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">kubernetes-dashboard-settings"</span><span class="pi">]</span>
-    <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">list"</span><span class="pi">,</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">]</span>
+  <span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+    <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">configmaps"</span><span class="pi">]</span>
+    <span class="na">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">kubernetes-dashboard-settings"</span><span class="pi">]</span>
+    <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">list"</span><span class="pi">,</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">]</span>
     <span class="c1"># Allow Dashboard to get metrics from heapster.</span>
-  <span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-    <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">services"</span><span class="pi">]</span>
-    <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">heapster"</span><span class="pi">]</span>
-    <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">proxy"</span><span class="pi">]</span>
+  <span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+    <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">services"</span><span class="pi">]</span>
+    <span class="na">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">heapster"</span><span class="pi">]</span>
+    <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">proxy"</span><span class="pi">]</span>
 
   <span class="s">---</span>
-  <span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-  <span class="s">kind</span><span class="pi">:</span> <span class="s">RoleBinding</span>
-  <span class="s">metadata</span><span class="pi">:</span>
-    <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
-    <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-  <span class="s">roleRef</span><span class="pi">:</span>
-    <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-    <span class="s">kind</span><span class="pi">:</span> <span class="s">Role</span>
-    <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
-  <span class="s">subjects</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
-    <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-    <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+  <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+  <span class="na">kind</span><span class="pi">:</span> <span class="s">RoleBinding</span>
+  <span class="na">metadata</span><span class="pi">:</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
+    <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+  <span class="na">roleRef</span><span class="pi">:</span>
+    <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+    <span class="na">kind</span><span class="pi">:</span> <span class="s">Role</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard-minimal</span>
+  <span class="na">subjects</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+    <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
 
   <span class="s">---</span>
   <span class="c1"># ------------------- Dashboard Deployment ------------------- #</span>
 
-  <span class="s">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
-  <span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-  <span class="s">metadata</span><span class="pi">:</span>
-    <span class="s">labels</span><span class="pi">:</span>
-      <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-    <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-    <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-  <span class="s">spec</span><span class="pi">:</span>
-    <span class="s">replicas</span><span class="pi">:</span> <span class="s">1</span>
-    <span class="s">revisionHistoryLimit</span><span class="pi">:</span> <span class="s">10</span>
-    <span class="s">selector</span><span class="pi">:</span>
-      <span class="s">matchLabels</span><span class="pi">:</span>
-        <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-    <span class="s">template</span><span class="pi">:</span>
-      <span class="s">metadata</span><span class="pi">:</span>
-        <span class="s">labels</span><span class="pi">:</span>
-          <span class="s">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-      <span class="s">spec</span><span class="pi">:</span>
-        <span class="s">containers</span><span class="pi">:</span>
-          <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-            <span class="s">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1</span>
-            <span class="s">ports</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">9090</span>
-              <span class="s">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+  <span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+  <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+  <span class="na">metadata</span><span class="pi">:</span>
+    <span class="na">labels</span><span class="pi">:</span>
+      <span class="na">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+    <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+  <span class="na">spec</span><span class="pi">:</span>
+    <span class="na">replicas</span><span class="pi">:</span> <span class="s">1</span>
+    <span class="na">revisionHistoryLimit</span><span class="pi">:</span> <span class="s">10</span>
+    <span class="na">selector</span><span class="pi">:</span>
+      <span class="na">matchLabels</span><span class="pi">:</span>
+        <span class="na">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+    <span class="na">template</span><span class="pi">:</span>
+      <span class="na">metadata</span><span class="pi">:</span>
+        <span class="na">labels</span><span class="pi">:</span>
+          <span class="na">k8s-app</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+      <span class="na">spec</span><span class="pi">:</span>
+        <span class="na">containers</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+            <span class="na">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1</span>
+            <span class="na">ports</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="s">9090</span>
+              <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
             <span class="c1"># 这里个人添加一些必要的env</span>
-            <span class="s">env</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_HTTP</span>
-              <span class="s">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
-            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_INTERVAL</span>
-              <span class="s">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">15s"</span>
-            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_TIME</span>
-              <span class="s">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1s"</span>
-            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_NAME</span>
-              <span class="s">value</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">SERVICE_TAGS</span>
-              <span class="s">value</span><span class="pi">:</span> <span class="s">urlprefix-dashboard.quark.com/</span>
+            <span class="na">env</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_HTTP</span>
+              <span class="na">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_INTERVAL</span>
+              <span class="na">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">15s"</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">SERVICE_9090_CHECK_TIME</span>
+              <span class="na">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1s"</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">SERVICE_NAME</span>
+              <span class="na">value</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">SERVICE_TAGS</span>
+              <span class="na">value</span><span class="pi">:</span> <span class="s">urlprefix-dashboard.quark.com/</span>
               <span class="c1"># 指定获取pod ip</span>
-            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">POD_IP</span>
-              <span class="s">valueFrom</span><span class="pi">:</span>
-                <span class="s">fieldRef</span><span class="pi">:</span>
-                  <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">status.podIP</span>
-            <span class="s">args</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">POD_IP</span>
+              <span class="na">valueFrom</span><span class="pi">:</span>
+                <span class="na">fieldRef</span><span class="pi">:</span>
+                  <span class="na">fieldPath</span><span class="pi">:</span> <span class="s">status.podIP</span>
+            <span class="na">args</span><span class="pi">:</span>
               <span class="c1"># Uncomment the following line to manually specify Kubernetes API server Host</span>
               <span class="c1"># If not specified, Dashboard will attempt to auto discover the API server and connect</span>
               <span class="c1"># to it. Uncomment only if the default does not work.</span>
@@ -427,55 +423,52 @@
               <span class="pi">-</span> <span class="s">--authentication-mode=basic</span>
               <span class="c1"># 这里添加一个连接heapster</span>
               <span class="pi">-</span> <span class="s">--heapster-host=http://heapster.kube-system.svc.cluster.local</span>
-              <span class="s">volumeMounts</span><span class="pi">:</span>
+              <span class="na">volumeMounts</span><span class="pi">:</span>
                 <span class="c1"># Create on-disk volume to store exec logs</span>
-              <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/tmp</span>
-                <span class="s">name</span><span class="pi">:</span> <span class="s">tmp-volume</span>
-              <span class="s">livenessProbe</span><span class="pi">:</span>
-                <span class="s">httpGet</span><span class="pi">:</span>
-                  <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
-                  <span class="s">port</span><span class="pi">:</span> <span class="s">9090</span>
-                <span class="s">initialDelaySeconds</span><span class="pi">:</span> <span class="s">30</span>
-                <span class="s">timeoutSeconds</span><span class="pi">:</span> <span class="s">30</span>
-            <span class="s">volumes</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">tmp-volume</span>
-              <span class="s">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
+              <span class="pi">-</span> <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/tmp</span>
+                <span class="na">name</span><span class="pi">:</span> <span class="s">tmp-volume</span>
+              <span class="na">livenessProbe</span><span class="pi">:</span>
+                <span class="na">httpGet</span><span class="pi">:</span>
+                  <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
+                  <span class="na">port</span><span class="pi">:</span> <span class="s">9090</span>
+                <span class="na">initialDelaySeconds</span><span class="pi">:</span> <span class="s">30</span>
+                <span class="na">timeoutSeconds</span><span class="pi">:</span> <span class="s">30</span>
+            <span class="na">volumes</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">tmp-volume</span>
+              <span class="na">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
               <span class="c1"># 这里的serviceAccountName改成default</span>
-            <span class="s">serviceAccountName</span><span class="pi">:</span> <span class="s">default</span>
+            <span class="na">serviceAccountName</span><span class="pi">:</span> <span class="s">default</span>
             <span class="c1"># Comment the following tolerations if Dashboard must not be deployed on master</span>
-            <span class="s">tolerations</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="s">key</span><span class="pi">:</span> <span class="s">node-role.kubernetes.io/master</span>
-              <span class="s">effect</span><span class="pi">:</span> <span class="s">NoSchedule</span>
-</code></pre>
-</div>
+            <span class="na">tolerations</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">node-role.kubernetes.io/master</span>
+              <span class="na">effect</span><span class="pi">:</span> <span class="s">NoSchedule</span>
+</code></pre></div></div>
 
 <p><strong>前端LB配置</strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>server <span class="o">{</span>
-    listen       80;
-    server_name  dashboard.quark.com;
-    client_max_body_size 0;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>server <span class="o">{</span>
+    listen       80<span class="p">;</span>
+    server_name  dashboard.quark.com<span class="p">;</span>
+    client_max_body_size 0<span class="p">;</span>
 
     location / <span class="o">{</span>
-        proxy_pass                          http://fabio-server;
-        proxy_set_header  Host              dashboard.quark.com;   <span class="c"># 这个位置一定是注册到consul里面的tags部分</span>
-        proxy_set_header  X-Real-IP         <span class="nv">$remote_addr</span>; <span class="c"># pass on real client's IP</span>
+        proxy_pass                          http://fabio-server<span class="p">;</span>
+        proxy_set_header  Host              dashboard.quark.com<span class="p">;</span>   <span class="c"># 这个位置一定是注册到consul里面的tags部分</span>
+        proxy_set_header  X-Real-IP         <span class="nv">$remote_addr</span><span class="p">;</span> <span class="c"># pass on real client's IP</span>
 
 
-        proxy_set_header  X-Forwarded-For   <span class="nv">$proxy_add_x_forwarded_for</span>;
-        proxy_set_header  X-Forwarded-Proto <span class="nv">$scheme</span>;
-        proxy_read_timeout                  900;
+        proxy_set_header  X-Forwarded-For   <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+        proxy_set_header  X-Forwarded-Proto <span class="nv">$scheme</span><span class="p">;</span>
+        proxy_read_timeout                  900<span class="p">;</span>
     <span class="o">}</span>
 
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>upstream fabio-server <span class="o">{</span>
-        server 172.29.151.4:9999;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upstream fabio-server <span class="o">{</span>
+        server 172.29.151.4:9999<span class="p">;</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>最后看看结果</p>
 
