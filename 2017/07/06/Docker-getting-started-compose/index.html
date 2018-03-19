@@ -30,8 +30,8 @@
     <meta name="keywords" content="docker">
     <meta name="og:keywords" content="docker">
       
-    <meta name="description" content="这一章，我们构建一个在docker compose上运行的简单python web程序。该应用使用Flask框架并在redis中维护一个命中计数器。前提准备确保你安装了docker engine和docker compose。不需要安装python或redis，这些都由docker image来提供。步骤1：建立1.建立项目目录$ mkdir composetest$ cd composetest2.建一个app.py文件在你的项目目录下，并copy下面的内容from flask import Flaskfrom redis import Redisapp = Flask(__name__)redis = Redis(host='redis', port=6379)@app.route('/')def hello():    count = redis.incr('hits')    return 'Hello World! I have been seen {} times.\n'.format(count)if __name__ == "__main__":    app.run(host="0.0.0.0", debug=True)3.在项目目录下建另一个名叫requirements.txt的文件Flaskredis这些内容定义了应用的依赖步骤2：创建Dockerfile在这一步，我们编写一个用于构建docker image的Dockerfile。该image包含了python应用程序所需的所有依赖关系，包括python本身1.在项目目录下面，新建一个Dockerfile文件，内容如下FROM python:3.4-alpineADD . /codeWORKDIR /codeRUN pip install -r requirements.txtCMD ["python", "app.py"]该Dockerfile告诉docker：  从python 3.4构建一个image  将当前目录添加到image的/code  设置工作目录为/code  运行pip安装python依赖  设定默认的CMD命令步骤3：在compose file中定义服务1.建一个docker-compose.yml文件，内容如下：version: '2'services:  web:    build: .    ports:     - "5000:5000"    volumes:     - .:/code  redis:    image: "redis:alpine"该compose file定义了两个服务，web和redis:web service:  使用由当前目录下的Dockerfile构建的image  暴露5000端口到宿主机的5000端口  挂载当前项目目录到/code目录redis service：  直接使用从docker hub上拉取的image步骤4：使用compose构建和运行你的应用1.在你的项目目录，启动你的应用$ docker-compose up Pulling image redis... Building web... Starting composetest_redis_1... Starting composetest_web_1... redis_1 | [8] 02 Jan 18:43:35.576 # Server started, Redis version 2.8.3 web_1   |  * Running on http://0.0.0.0:5000/ web_1   |  * Restarting with statcompose将会构建web镜像，拉取redis镜像，然后启动服务2.在浏览器中反问http://ip:5000，将会显示Hello World! I have been seen 1 times.,并且，每当你刷新一次页面，次数会加1.步骤5：更新应用因为我们是将代码挂载到容器的卷组里面的，所以，我们可以随意修改代码，而不需要重新构建image1.改变app.py的代码return 'Hello from Docker! I have been seen {} times.\n'.format(count)2.在浏览器中刷新试试看刷新后，发现结果已经变成你刚刚改的内容步骤6：试试其他的命令如果我们想我们的服务在后台运行，我们可以在docker-compose后指定-d选项，然后使用docker-compose ps查看当前运行的服务$ docker-compose up -dStarting composetest_redis_1...Starting composetest_web_1...$ docker-compose psName                 Command            State       Ports-------------------------------------------------------------------composetest_redis_1   /usr/local/bin/run         Upcomposetest_web_1     /bin/sh -c python app.py   Up      5000-&gt;5000/tcpdocker-compose run命令允许为服务运行一次性命令，这也是我们在前面提到过的compose的一个特性。例如，我们要查看web服务的环境变量：$ docker-compose run web env更多关于docker-compose的命令，可使用docker-compose --help来查看如果你使用docker-cmpose up -d来启动，那么你可能需要使用下面的方式来停止服务$ docker-compose stop我们还可以把一切都关掉，用down命令停止并删除容器，网络或images和volumes，传递 --volumes也可以删除redis容器使用的数据卷$ docker-compose down --volumes">
-    <meta name="og:description" content="这一章，我们构建一个在docker compose上运行的简单python web程序。该应用使用Flask框架并在redis中维护一个命中计数器。前提准备确保你安装了docker engine和docker compose。不需要安装python或redis，这些都由docker image来提供。步骤1：建立1.建立项目目录$ mkdir composetest$ cd composetest2.建一个app.py文件在你的项目目录下，并copy下面的内容from flask import Flaskfrom redis import Redisapp = Flask(__name__)redis = Redis(host='redis', port=6379)@app.route('/')def hello():    count = redis.incr('hits')    return 'Hello World! I have been seen {} times.\n'.format(count)if __name__ == "__main__":    app.run(host="0.0.0.0", debug=True)3.在项目目录下建另一个名叫requirements.txt的文件Flaskredis这些内容定义了应用的依赖步骤2：创建Dockerfile在这一步，我们编写一个用于构建docker image的Dockerfile。该image包含了python应用程序所需的所有依赖关系，包括python本身1.在项目目录下面，新建一个Dockerfile文件，内容如下FROM python:3.4-alpineADD . /codeWORKDIR /codeRUN pip install -r requirements.txtCMD ["python", "app.py"]该Dockerfile告诉docker：  从python 3.4构建一个image  将当前目录添加到image的/code  设置工作目录为/code  运行pip安装python依赖  设定默认的CMD命令步骤3：在compose file中定义服务1.建一个docker-compose.yml文件，内容如下：version: '2'services:  web:    build: .    ports:     - "5000:5000"    volumes:     - .:/code  redis:    image: "redis:alpine"该compose file定义了两个服务，web和redis:web service:  使用由当前目录下的Dockerfile构建的image  暴露5000端口到宿主机的5000端口  挂载当前项目目录到/code目录redis service：  直接使用从docker hub上拉取的image步骤4：使用compose构建和运行你的应用1.在你的项目目录，启动你的应用$ docker-compose up Pulling image redis... Building web... Starting composetest_redis_1... Starting composetest_web_1... redis_1 | [8] 02 Jan 18:43:35.576 # Server started, Redis version 2.8.3 web_1   |  * Running on http://0.0.0.0:5000/ web_1   |  * Restarting with statcompose将会构建web镜像，拉取redis镜像，然后启动服务2.在浏览器中反问http://ip:5000，将会显示Hello World! I have been seen 1 times.,并且，每当你刷新一次页面，次数会加1.步骤5：更新应用因为我们是将代码挂载到容器的卷组里面的，所以，我们可以随意修改代码，而不需要重新构建image1.改变app.py的代码return 'Hello from Docker! I have been seen {} times.\n'.format(count)2.在浏览器中刷新试试看刷新后，发现结果已经变成你刚刚改的内容步骤6：试试其他的命令如果我们想我们的服务在后台运行，我们可以在docker-compose后指定-d选项，然后使用docker-compose ps查看当前运行的服务$ docker-compose up -dStarting composetest_redis_1...Starting composetest_web_1...$ docker-compose psName                 Command            State       Ports-------------------------------------------------------------------composetest_redis_1   /usr/local/bin/run         Upcomposetest_web_1     /bin/sh -c python app.py   Up      5000-&gt;5000/tcpdocker-compose run命令允许为服务运行一次性命令，这也是我们在前面提到过的compose的一个特性。例如，我们要查看web服务的环境变量：$ docker-compose run web env更多关于docker-compose的命令，可使用docker-compose --help来查看如果你使用docker-cmpose up -d来启动，那么你可能需要使用下面的方式来停止服务$ docker-compose stop我们还可以把一切都关掉，用down命令停止并删除容器，网络或images和volumes，传递 --volumes也可以删除redis容器使用的数据卷$ docker-compose down --volumes">
+    <meta name="description" content="这一章，我们构建一个在docker compose上运行的简单python web程序。该应用使用Flask框架并在redis中维护一个命中计数器。">
+    <meta name="og:description" content="这一章，我们构建一个在docker compose上运行的简单python web程序。该应用使用Flask框架并在redis中维护一个命中计数器。">
       
     
     
@@ -254,6 +254,7 @@ composetest_web_1     /bin/sh <span class="nt">-c</span> python app.py   Up     
     </article>
     <div class="share">
       <div class="share-component"></div>
+
     </div>
     <div class="comment">
       
@@ -307,7 +308,6 @@ composetest_web_1     /bin/sh <span class="nt">-c</span> python app.py   Up     
 <link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
 <script src="/assets/js/lunr.min.js"></script>
 <script src="/assets/js/search.js"></script>
-
 
     
 
@@ -405,3 +405,4 @@ composetest_web_1     /bin/sh <span class="nt">-c</span> python app.py   Up     
     
 </body>
 </html>
+

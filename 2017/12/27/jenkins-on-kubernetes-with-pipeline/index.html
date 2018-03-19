@@ -30,8 +30,8 @@
     <meta name="keywords" content="kubernetes,jenkins">
     <meta name="og:keywords" content="kubernetes,jenkins">
       
-    <meta name="description" content="  jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。该流程包含了 checkout scm –&gt; build artifacts –&gt; build image –&gt; deploy to k8s流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等一、集群以及必要组件的搭建请参考手动搭建kubernetes HA集群,kubernetes ceph笔记二、jenkins各个yaml文件所有文件都放在这里，我们搭建的时候只需将对应的位置修改成自己的即可三、配置jenkins  jenkins 部署成功之后，我们需要安装对应的插件，配置和kubernetes的关联，这里除了必要的插件之外，我们额外需要安装一个kubernetes Pluginkubernetes cloud的配置相对简单，我们只需要指定Kubernetes URL以及Jenkins URL即可，因为jenkins在kubernetes中，所以Kubernetes URL和Jenkins URL均为内部service就行了，如下图四、新建pipeline job 测试  jenkins kubernetes cloud配置成功之后，我们就需要来新建一个pipeline job测试一下，这里我新建了一个learn-groovy的job新建job更加的简单，只需要指定你的Jenkinsfile的地址即可，如下图  所有的工作都在Jenkinsfile中定义完成，这就是pipeline了关于当前这个example项目的对应配置文件有如下几个  app-deploy.yaml 当前项目部署所需的yaml文件  Jenkinsfile 当前项目部署流程所需文件  Jenkinsfile.yaml 当前项目构建部署过程中可变参数的变量文件  Dockerfile 构建image所需文件以上所有文件在这里我们的job构建成功后，最终的结果如下">
-    <meta name="og:description" content="  jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。该流程包含了 checkout scm –&gt; build artifacts –&gt; build image –&gt; deploy to k8s流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等一、集群以及必要组件的搭建请参考手动搭建kubernetes HA集群,kubernetes ceph笔记二、jenkins各个yaml文件所有文件都放在这里，我们搭建的时候只需将对应的位置修改成自己的即可三、配置jenkins  jenkins 部署成功之后，我们需要安装对应的插件，配置和kubernetes的关联，这里除了必要的插件之外，我们额外需要安装一个kubernetes Pluginkubernetes cloud的配置相对简单，我们只需要指定Kubernetes URL以及Jenkins URL即可，因为jenkins在kubernetes中，所以Kubernetes URL和Jenkins URL均为内部service就行了，如下图四、新建pipeline job 测试  jenkins kubernetes cloud配置成功之后，我们就需要来新建一个pipeline job测试一下，这里我新建了一个learn-groovy的job新建job更加的简单，只需要指定你的Jenkinsfile的地址即可，如下图  所有的工作都在Jenkinsfile中定义完成，这就是pipeline了关于当前这个example项目的对应配置文件有如下几个  app-deploy.yaml 当前项目部署所需的yaml文件  Jenkinsfile 当前项目部署流程所需文件  Jenkinsfile.yaml 当前项目构建部署过程中可变参数的变量文件  Dockerfile 构建image所需文件以上所有文件在这里我们的job构建成功后，最终的结果如下">
+    <meta name="description" content="  jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。">
+    <meta name="og:description" content="  jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。">
       
     
     
@@ -180,6 +180,7 @@
     </article>
     <div class="share">
       <div class="share-component"></div>
+
     </div>
     <div class="comment">
       
@@ -233,7 +234,6 @@
 <link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
 <script src="/assets/js/lunr.min.js"></script>
 <script src="/assets/js/search.js"></script>
-
 
     
 
@@ -331,3 +331,4 @@
     
 </body>
 </html>
+

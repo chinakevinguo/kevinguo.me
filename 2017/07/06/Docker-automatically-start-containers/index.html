@@ -30,8 +30,8 @@
     <meta name="keywords" content="docker">
     <meta name="og:keywords" content="docker">
       
-    <meta name="description" content="自动启动容器从docker1.2开始，重启策略内置在docker中，用于在容器退出时重启容器。如果设置了重启策略，它将在docker daemon启动的时候启用，通常发生在系统启动之后。重启策略将确保链接容器按正确的顺序启动。如果重启策略不适合你的环境，你可以使用像upstart,systemd or supervisor代替使用进程管理器docker 默认不会设定任何重启策略，因为它们与大多数进程管理器冲突，所以如果你正在使用进程管理器，请不要设置新的重启策略。当你已经完成了你的镜像设定，并且已经开心的运行一个容器之后，你可以附加一个进程管理器来管理它。当你运行docker start -a,docker会自动附加到正在运行的容器，或者，如果需要启动它，并转发所有信号，一边进程管理器可以检测到容器何时停止并正确重新启动它。下面有一些用于systemd的例子：systemd在这个例子中，我们假设我们有一个名叫--name redis-server的redis容器。这些文件会定义一个新服务，这个服务会在docker daemon启动后启动。[Unit]Description=Redis containerRequires=docker.serviceAfter=docker.service[Service]Restart=alwaysExecStart=/usr/bin/docker start -a redis_serverExecStop=/usr/bin/docker stop -t 2 redis_server[Install]WantedBy=default.target如果你打算将其作为系统服务，可以将上诉内容放在/etc/systemd/system/docker-redis_service.service文件中如果你还打算为redis容器传递一些选项[如 --env]，那么你需要使用docker run,而不是docker start,这将会在每次启动服务时创建一个新的容器，而在服务停止时则会停止和删除掉容器。确保您不是使用的-d或分离模式，因为从ExecStart运行的命令需要运行在前台。[Service]...ExecStart=/usr/bin/docker run --env foo=bar --name redis_server redisExecStop=/usr/bin/docker stop -t 2 redis_serverExecStopPost=/usr/bin/docker rm -f redis_server...应用该服务systemctl daemon-reloadsystemctl start docker-redis_server.service允许上面的服务开机启动systemctl enable docker-redis_server.service">
-    <meta name="og:description" content="自动启动容器从docker1.2开始，重启策略内置在docker中，用于在容器退出时重启容器。如果设置了重启策略，它将在docker daemon启动的时候启用，通常发生在系统启动之后。重启策略将确保链接容器按正确的顺序启动。如果重启策略不适合你的环境，你可以使用像upstart,systemd or supervisor代替使用进程管理器docker 默认不会设定任何重启策略，因为它们与大多数进程管理器冲突，所以如果你正在使用进程管理器，请不要设置新的重启策略。当你已经完成了你的镜像设定，并且已经开心的运行一个容器之后，你可以附加一个进程管理器来管理它。当你运行docker start -a,docker会自动附加到正在运行的容器，或者，如果需要启动它，并转发所有信号，一边进程管理器可以检测到容器何时停止并正确重新启动它。下面有一些用于systemd的例子：systemd在这个例子中，我们假设我们有一个名叫--name redis-server的redis容器。这些文件会定义一个新服务，这个服务会在docker daemon启动后启动。[Unit]Description=Redis containerRequires=docker.serviceAfter=docker.service[Service]Restart=alwaysExecStart=/usr/bin/docker start -a redis_serverExecStop=/usr/bin/docker stop -t 2 redis_server[Install]WantedBy=default.target如果你打算将其作为系统服务，可以将上诉内容放在/etc/systemd/system/docker-redis_service.service文件中如果你还打算为redis容器传递一些选项[如 --env]，那么你需要使用docker run,而不是docker start,这将会在每次启动服务时创建一个新的容器，而在服务停止时则会停止和删除掉容器。确保您不是使用的-d或分离模式，因为从ExecStart运行的命令需要运行在前台。[Service]...ExecStart=/usr/bin/docker run --env foo=bar --name redis_server redisExecStop=/usr/bin/docker stop -t 2 redis_serverExecStopPost=/usr/bin/docker rm -f redis_server...应用该服务systemctl daemon-reloadsystemctl start docker-redis_server.service允许上面的服务开机启动systemctl enable docker-redis_server.service">
+    <meta name="description" content="自动启动容器">
+    <meta name="og:description" content="自动启动容器">
       
     
     
@@ -166,6 +166,7 @@ systemctl start docker-redis_server.service
     </article>
     <div class="share">
       <div class="share-component"></div>
+
     </div>
     <div class="comment">
       
@@ -219,7 +220,6 @@ systemctl start docker-redis_server.service
 <link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
 <script src="/assets/js/lunr.min.js"></script>
 <script src="/assets/js/search.js"></script>
-
 
     
 
@@ -317,3 +317,4 @@ systemctl start docker-redis_server.service
     
 </body>
 </html>
+

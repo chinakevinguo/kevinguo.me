@@ -30,8 +30,8 @@
     <meta name="keywords" content="docker">
     <meta name="og:keywords" content="docker">
       
-    <meta name="description" content="在compose文件中引用环境变量可以在compose文件中引用运行docker-compose所在的shell中的环境变量，如：web:  image: "webapp:${TAG}"在容器中设置环境变量可以在compose文件中的environment关键字下设置容器的环境变量，就像使用docker run -e VARIABLE=VALUE一样web:  environment:    - DEBUG=1将环境变量传递到容器可以在compose文件中的environment关键字下定义一个环境变量而不是直接赋值，就像是docker run -e VARIABLEweb:  environment:    - DEBUGenv_file配置选项可以使用compose文件中的env_file选项从一个外部文件传递多个环境变量到容器中，就像docker run --env-file=FILEweb:  env_file:    - web-variables.env使用docker-compose run设置环境变量就像docker run -e,可以使用docker-compose run -e为一次性容器设置环境变量docker-compose run -e DEBUG=1 web python console.py也可以不赋值，直接从shell变量中取值docker-compose run -e DEBUG web python console.pyDEBUG的值是从执行compose文件所在的shell的同一个环境变量取得。.env文件可以在环境文件.env设置默认的环境变量，这些环境变量可以在compose文件中调用$ cat .envTAG=v1.5$ cat docker-compose.ymlversion: '2.0'services:  web:    image: "webapp:${TAG}"当执行docker-compose up命令时，上面定义的web服务将使用webapp:v1.5镜像，可以使用config命令来打印出来：$ docker-compose configversion: '2.0'services:  web:    image: 'webapp:v1.5'在shell中的环境变量将比定义在.env文件中的环境变量优先。如果在shell中设置一个不同的TAG，镜像将优先使用shell中的定义，而不是.evn文件中的：$ export TAG=v2.0$ docker-compose configversion: '2.0'services:  web:    image: 'webapp:v2.0'使用环境变量来配置compose某些环境变量可用来配置以改变docker compose的命令行特性，以COMPOSE_或DOCKER_开头，详细信息参考CLI Environment Variables">
-    <meta name="og:description" content="在compose文件中引用环境变量可以在compose文件中引用运行docker-compose所在的shell中的环境变量，如：web:  image: "webapp:${TAG}"在容器中设置环境变量可以在compose文件中的environment关键字下设置容器的环境变量，就像使用docker run -e VARIABLE=VALUE一样web:  environment:    - DEBUG=1将环境变量传递到容器可以在compose文件中的environment关键字下定义一个环境变量而不是直接赋值，就像是docker run -e VARIABLEweb:  environment:    - DEBUGenv_file配置选项可以使用compose文件中的env_file选项从一个外部文件传递多个环境变量到容器中，就像docker run --env-file=FILEweb:  env_file:    - web-variables.env使用docker-compose run设置环境变量就像docker run -e,可以使用docker-compose run -e为一次性容器设置环境变量docker-compose run -e DEBUG=1 web python console.py也可以不赋值，直接从shell变量中取值docker-compose run -e DEBUG web python console.pyDEBUG的值是从执行compose文件所在的shell的同一个环境变量取得。.env文件可以在环境文件.env设置默认的环境变量，这些环境变量可以在compose文件中调用$ cat .envTAG=v1.5$ cat docker-compose.ymlversion: '2.0'services:  web:    image: "webapp:${TAG}"当执行docker-compose up命令时，上面定义的web服务将使用webapp:v1.5镜像，可以使用config命令来打印出来：$ docker-compose configversion: '2.0'services:  web:    image: 'webapp:v1.5'在shell中的环境变量将比定义在.env文件中的环境变量优先。如果在shell中设置一个不同的TAG，镜像将优先使用shell中的定义，而不是.evn文件中的：$ export TAG=v2.0$ docker-compose configversion: '2.0'services:  web:    image: 'webapp:v2.0'使用环境变量来配置compose某些环境变量可用来配置以改变docker compose的命令行特性，以COMPOSE_或DOCKER_开头，详细信息参考CLI Environment Variables">
+    <meta name="description" content="在compose文件中引用环境变量">
+    <meta name="og:description" content="在compose文件中引用环境变量">
       
     
     
@@ -199,6 +199,7 @@ services:
     </article>
     <div class="share">
       <div class="share-component"></div>
+
     </div>
     <div class="comment">
       
@@ -252,7 +253,6 @@ services:
 <link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
 <script src="/assets/js/lunr.min.js"></script>
 <script src="/assets/js/search.js"></script>
-
 
     
 
@@ -350,3 +350,4 @@ services:
     
 </body>
 </html>
+

@@ -30,8 +30,8 @@
     <meta name="keywords" content="docker">
     <meta name="og:keywords" content="docker">
       
-    <meta name="description" content="你可以在macOS，windows 和64位的linux系统上运行compose。在安装它之前，你需要先安装docker。步骤如下：1.安装docker engine2.docker toolbox安装包括了docker engine和compose，因此Mac和windows已经安装好了。其他系统需要进入下一步3.进入compose repository release page on Github4.按照发行页中的说明，在你的终端下运行指定的curl命令  如果你收到”Permission denied”的报错，你的/usr/local/bin目录可能是不可写的，你需要用超级用户来进行安装。运行sudo -i，然后执行下面的两个命令，然后exit.下面这个例子： $ curl -L "https://github.com/docker/compose/releases/download/1.9.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose如果你对使用curl安装有疑问，你可以看看备用的安装选项5.赋权chmod +x /usr/local/bin/docker-compose6.(可选)，为bash和zsh安装命令补全7.测试$ docker-compose --version docker-compose version: 1.9.0备用安装选项pip安装这种方式是将compose当作一个python应用来从pip源中安装,建议使用virtualenv避免python冲突$ pip install docker-compose直接作为容器运行既然docker-compose是一个python应用，那么当然可以作为一个容器来执行它$ curl -L https://github.com/docker/compose/releases/download/1.9.0/run.sh &gt; /usr/local/bin/docker-compose$ chmod +x /usr/local/bin/docker-compose主构建如果你对预发布版本有兴趣，你可以从https://dl.bintray.com/docker-compose/master/ 下载二进制包。预发布版本有很多新的功能，但是不稳定。升级如果要把compose从1.2或更早的版本升级，你需要在升级compose后删除或迁移现有的容器，因为从1.3开始，compose使用docker labels来跟踪容器，因此需要使用添加的标签来重新创建它们。如果compose检测到没有label的容器，那么它将拒绝运行，因此最终你不会有两套的容器。如果你要继续使用现有的容器(例如，因为他们有要保留的数据volume)，可以使用compose 1.5.x来迁移它们：docker-compose migrate-to-labels或者，如果你不想保留它们，你可以删除，compose只会创建新的docker rm -f -v myapp_web_1 myapp_db_1 ..卸载卸载使用curl安装的composerm /usr/local/bin/docker-compose卸载使用pip安装的composepip uninstall docker-compose  如果你收到”Permission denied”的报错，说明你没有权限删除docker-compose，你可以使用sudo来强制删除，或者使用超级管理员用户来删除。">
-    <meta name="og:description" content="你可以在macOS，windows 和64位的linux系统上运行compose。在安装它之前，你需要先安装docker。步骤如下：1.安装docker engine2.docker toolbox安装包括了docker engine和compose，因此Mac和windows已经安装好了。其他系统需要进入下一步3.进入compose repository release page on Github4.按照发行页中的说明，在你的终端下运行指定的curl命令  如果你收到”Permission denied”的报错，你的/usr/local/bin目录可能是不可写的，你需要用超级用户来进行安装。运行sudo -i，然后执行下面的两个命令，然后exit.下面这个例子： $ curl -L "https://github.com/docker/compose/releases/download/1.9.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose如果你对使用curl安装有疑问，你可以看看备用的安装选项5.赋权chmod +x /usr/local/bin/docker-compose6.(可选)，为bash和zsh安装命令补全7.测试$ docker-compose --version docker-compose version: 1.9.0备用安装选项pip安装这种方式是将compose当作一个python应用来从pip源中安装,建议使用virtualenv避免python冲突$ pip install docker-compose直接作为容器运行既然docker-compose是一个python应用，那么当然可以作为一个容器来执行它$ curl -L https://github.com/docker/compose/releases/download/1.9.0/run.sh &gt; /usr/local/bin/docker-compose$ chmod +x /usr/local/bin/docker-compose主构建如果你对预发布版本有兴趣，你可以从https://dl.bintray.com/docker-compose/master/ 下载二进制包。预发布版本有很多新的功能，但是不稳定。升级如果要把compose从1.2或更早的版本升级，你需要在升级compose后删除或迁移现有的容器，因为从1.3开始，compose使用docker labels来跟踪容器，因此需要使用添加的标签来重新创建它们。如果compose检测到没有label的容器，那么它将拒绝运行，因此最终你不会有两套的容器。如果你要继续使用现有的容器(例如，因为他们有要保留的数据volume)，可以使用compose 1.5.x来迁移它们：docker-compose migrate-to-labels或者，如果你不想保留它们，你可以删除，compose只会创建新的docker rm -f -v myapp_web_1 myapp_db_1 ..卸载卸载使用curl安装的composerm /usr/local/bin/docker-compose卸载使用pip安装的composepip uninstall docker-compose  如果你收到”Permission denied”的报错，说明你没有权限删除docker-compose，你可以使用sudo来强制删除，或者使用超级管理员用户来删除。">
+    <meta name="description" content="你可以在macOS，windows 和64位的linux系统上运行compose。在安装它之前，你需要先安装docker。">
+    <meta name="og:description" content="你可以在macOS，windows 和64位的linux系统上运行compose。在安装它之前，你需要先安装docker。">
       
     
     
@@ -188,6 +188,7 @@
     </article>
     <div class="share">
       <div class="share-component"></div>
+
     </div>
     <div class="comment">
       
@@ -241,7 +242,6 @@
 <link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
 <script src="/assets/js/lunr.min.js"></script>
 <script src="/assets/js/search.js"></script>
-
 
     
 
@@ -339,3 +339,4 @@
     
 </body>
 </html>
+

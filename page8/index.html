@@ -114,86 +114,6 @@
                     </h3>
                     <p class="repo-list-description">
                         在compose文件中引用环境变量
-
-可以在compose文件中引用运行docker-compose所在的shell中的环境变量，如：
-
-
-
-web:
-  image: "webapp:${TAG}"
-
-
-在容器中设置环境变量
-
-可以在compose文件中的environment关键字下设置容器的环境变量，就像使用docker run -e VARIABLE=VALUE一样
-
-web:
-  environment:
-    - DEBUG=1
-
-
-将环境变量传递到容器
-
-可以在compose文件中的environment关键字下定义一个环境变量而不是直接赋值，就像是docker run -e VARIABLE
-
-web:
-  environment:
-    - DEBUG
-
-
-env_file配置选项
-
-可以使用compose文件中的env_file选项从一个外部文件传递多个环境变量到容器中，就像docker run --env-file=FILE
-
-web:
-  env_file:
-    - web-variables.env
-
-
-使用docker-compose run设置环境变量
-
-就像docker run -e,可以使用docker-compose run -e为一次性容器设置环境变量
-
-docker-compose run -e DEBUG=1 web python console.py
-
-也可以不赋值，直接从shell变量中取值
-docker-compose run -e DEBUG web python console.py
-
-DEBUG的值是从执行compose文件所在的shell的同一个环境变量取得。
-
-.env文件
-
-可以在环境文件.env设置默认的环境变量，这些环境变量可以在compose文件中调用
-$ cat .env
-TAG=v1.5
-
-$ cat docker-compose.yml
-version: '2.0'
-services:
-  web:
-    image: "webapp:${TAG}"
-
-
-当执行docker-compose up命令时，上面定义的web服务将使用webapp:v1.5镜像，可以使用config命令来打印出来：
-$ docker-compose config
-version: '2.0'
-services:
-  web:
-    image: 'webapp:v1.5'
-
-
-在shell中的环境变量将比定义在.env文件中的环境变量优先。如果在shell中设置一个不同的TAG，镜像将优先使用shell中的定义，而不是.evn文件中的：
-$ export TAG=v2.0
-$ docker-compose config
-version: '2.0'
-services:
-  web:
-    image: 'webapp:v2.0'
-
-
-使用环境变量来配置compose
-
-某些环境变量可用来配置以改变docker compose的命令行特性，以COMPOSE_或DOCKER_开头，详细信息参考CLI Environment Variables
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -214,100 +134,6 @@ services:
                     </h3>
                     <p class="repo-list-description">
                         在安装完docker之后，docker daemon会用默认的配置来运行。
-
-在生产环境中，系统管理员通常会根据需求来配置docker，在大多数例子中，系统管理员配置会配置进程管理器，如：sysvinit,upstart或systemd来管理docker的启动和停止。
-
-直接运行docker daemon
-
-我们可以直接用dockerd命令来直接运行docker daemon.默认是监听在unix socket
-unix:///var/run/docker.sock
-$ dockerd
-
-INFO[0000] +job init_networkdriver()
-INFO[0000] +job serveapi(unix:///var/run/docker.sock)
-INFO[0000] Listening for HTTP on unix (/var/run/docker.sock)
-...
-...
-
-
-直接配置docker daemon
-
-如果你是直接运行dockerd命令，而非使用进程管理器(systemctl start docker)，你可以直接将配置选项附加到docker run命令。其他配置选项可传递给docker daemon来配置
-配置选项如下：
-
-| Flag | Description |
-| :—- | :——— |
-| -D,–debug=false | 开启或关闭debug模式，默认是关闭的 |
-| -H,–host=[] | Daemon socket[s] 连接到哪 |
-| –tls=false | 开启或关闭TLS，默认是关闭的 |
-这里有一个使用配置选项运行docker daemon的例子：
-$ dockerd -D \
---tls=true \
---tlscert=/var/docker/server.pem \
---tlskey=/var/docker/serverkey.pem \
--H tcp://192.168.59.3:2376
-
-这些选项是：
-
-  开启debug模式 -D
-  开启tls并指定证书 --tlscert和--tlskey
-  监听连接tcp://192.168.59.3:2376
-
-
-命令行可参考complete list of daemon flags
-
-Daemon debugging
-
-如上所诉，开启debug模式来允许管理员或操作者来获取docker daemon运行时的信息。如果面对一个没有响应的daemon，管理员可以通过向Docker daemon发送SIGUSR1信号来强制所有线程的完整堆栈跟踪添加到daemon的日志中。在linux上通常使用kill命令。例：kill -USR1 &lt;daemon-pid&gt;发送SIGUSR1到daemon，这会导致堆栈被添加到daemon日志中。
-
-
-  Note: 日志级别至少是info及以上，默认日志界别是info
-
-
-在处理SIGUSR1信号并将堆栈跟踪转存到日志和欧，daemon将继续运行，堆栈跟踪可用于确定daemon所有线程和goroutines的状态
-
-在centos上配置docker
-
-在CENTOS 6.X和RHEL 6.X中，我们在/etc/sysconfig/docker文件中配置docker daemon，我们可以通过指定other_args变量来实现。短时间内，在Centos7.x 和RHEL 7.x我们使用OPTIONS变量值，不再推荐直接使用systemd。
-
-1.登录到你的系统，使用root账户，或者使用sudo
-2.创建/etc/systemd/system/docker.service.d目录
-$ sudo mkdir /etc/systemd/system/docker.service.d
-
-3.创建/etc/systemd/system/docker.service.d/docker.conf文件
-$ sudo mkdir /etc/systemd/system/docker.service.d/docker.conf
-
-4.打开这个docker.conf文件
-$ sudo vi /etc/systemd/system/docker.service.d/docker.conf
-
-5.覆盖从docker.service文件复制过来的ExecStart，用以自定义docker daemon。要修改ExecStart配置，必须先指定一个空配置，然后再知道你该一个新配置，如下所示：
-[Service]
-ExecStart=
-ExecStart=/usr/bin/dockerd -H fd:// -D --tls=true --tlscert=/var/docker/server.pem --tlskey=/var/docker/serverkey.pem -H tcp://192.168.59.3:2376
-
-6.保存关闭文件
-7.重新载入改变
-$ sudo systemctl daemon-reload
-
-8.重启docker daemon
-$ sudo systemctl restart docker
-
-9.检查docker daemon是否运行
-$ ps aux | grep docker | grep -v grep
-
-
-logs
-docker 在centos7.x上是将日志保存在/var/log/messages 中的，我们也可以使用journalctl -u docker来查看docker的日志
-[root@node01 log]# journalctl -u docker
--- Logs begin at Tue 2017-01-17 01:11:58 UTC, end at Tue 2017-01-17 02:52:15 UTC. --
-Jan 17 01:22:56 node01 systemd[1]: Starting Docker Application Container Engine...
-Jan 17 01:22:57 node01 dockerd[2141]: time="2017-01-17T01:22:57.477500482Z" level=info msg="libcontainerd: new containerd process, pid: 2145"
-Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.035780325Z" level=warning msg="devmapper: Usage of loopback devices is strongly
-Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.071446777Z" level=warning msg="devmapper: Base device already exists and has fi
-Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.077953805Z" level=info msg="[graphdriver] using prior storage driver \"devicema
-Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.442654952Z" level=info msg="Graph migration to content-addressability took 0.00
-Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.443436730Z" level=warning msg="mountpoint for pids not found"
-Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.443929680Z" level=info msg="Loading containers: start."
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
@@ -357,7 +183,6 @@ Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.443929680Z" leve
 <link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
 <script src="/assets/js/lunr.min.js"></script>
 <script src="/assets/js/search.js"></script>
-
 
             <h3>My Popular Repositories</h3>
 
@@ -637,3 +462,4 @@ Jan 17 01:22:59 node01 dockerd[2141]: time="2017-01-17T01:22:59.443929680Z" leve
     
 </body>
 </html>
+
