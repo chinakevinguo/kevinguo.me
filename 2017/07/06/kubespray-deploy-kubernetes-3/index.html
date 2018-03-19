@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>kubespray容器化部署kubernetes高可用集群(3) &mdash; KevinGuo</title>
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="kubespray容器化部署kubernetes高可用集群(3)">
+      
+    <meta name="keywords" content="kargo,kubernetes,docker">
+    <meta name="og:keywords" content="kargo,kubernetes,docker">
+      
+    <meta name="description" content="  上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。目前尚不确定kubernetes各个插件版本之间的兼容性，我使用kubespray部署的各个IMAGE在第一章中已经列出来了，中途在部署heapster和kibana的时候出了点问题，其他还未发现什么问题目前，我所用到的插件如下：  ingress  kubedns  dashboard  efk  heapsterkubernetes-dashboard1.从kubernetes官方git下载最新源码git clone https://github.com/kubernetes/kubernetes.git2.进入dashboard所在的目录，执行yml文件cd $(pwd)/kubernetes/cluster/addons/dashboardkubectl create -f .3.确认dashboard是否成功创建# 确认deploymentkubectl get deployment -n kube-system |grep dashboard# 确认svckubectl get svc -n kube-system |grep dashboard# 确认epkubectl get ep -n kube-system |grep dashboard# 确认podskubectl get pods -n kube-system |grep dashboard# 查看日志是否有报错kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看EFK1.从kubernetes官方git下载最新源码git clone https://github.com/kubernetes/kubernetes.git2.为你要运行fluentd的节点添加label，因为fluentd-es-ds.yml文件中有beta.kubernetes.io/fluentd-ds-ready: "true"标签kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready=truekubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready=truekubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready=true3.确认标签添加是否成功[root@k8s-master01 ~]# kubectl get nodes -l beta.kubernetes.io/fluentd-ds-readyNAME           STATUS    AGE       VERSIONk8s-node01     Ready     19h       v1.6.7+coreos.0k8s-node02     Ready     19h       v1.6.7+coreos.0k8s-registry   Ready     19h       v1.6.7+coreos.04.进入fluentd-elasticsearch所在的目录，执行yml文件cd $(pwd)/kubernetes/cluster/addons/fluentd-elasticsearchkubectl create -f .5.确认EFK是否创建成功# 确认elasticsearch是否创建成功kubectl get statefulset -n kube-system |grep elasticsearchkubectl get svc -n kube-system|grep elasticsearchkubectl get ep -n kube-system |grep elasticsearchkubectl get pods -n kube-system |grep elasticsearch# 确认fluentd是否创建成功kubectl get ds -n kube-system |grep fluentdkubectl get pods -n kube-system -o wide |grep fluentd# 确认kibana是否创建成功kubectl get deployment -n kube-system |grep kibanakubectl get svc -n kube-system|grep kibanakubectl get ep -n kube-system |grep kibanakubectl get pods -n kube-system |grep kibana# 查看日志是否有报错kubectl logs elasticsearch-logging-0kubectl logs fluentd-es-v2.0.1-kn2h2 -n kube-systemkubectl logs kibana-logging-3636197754-tnwjh -n kube-system初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看heapsterheapster比较简单1.从kubernetes官方git下载最新源码git clone https://github.com/kubernetes/heapster.git2.进入heapster的deploy目录，执行kube.shcd $(pwd)/heapster/deploysh kube.sh start3.确认heapster是否创建成功# 确认heapster是否创建成功kubectl get deployment -n kube-system |grep heapsterkubectl get svc -n kube-system |grep heapsterkubectl get ep -n kube-system |grep heapsterkubectl get pods -n kube-system |grep heapster# 确认influxdb是否创建成功kubectl get deployment -n kube-system |grep influxdbkubectl get svc -n kube-system |grep influxdbkubectl get ep -n kube-system |grep influxdbkubectl get pods -n kube-system |grep influxdb# 确认grafana是否创建成功kubectl get deployment -n kube-system |grep grafanakubectl get svc -n kube-system |grep grafanakubectl get ep -n kube-system |grep grafanakubectl get pods -n kube-system |grep grafana# 查看日志是否有报错kubectl logs heapster-1528902802-wcf24 -n kube-systemkubectl logs monitoring-grafana-2527507788-jsw1n -n kube-systemkubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看ingress我们知道kubernetes暴露服务的方式目前有三种: LoadBlancer Service、NodePort Service、Ingress，前两个这里暂时不讲，这里主要解释下什么是Ingress什么是 ingressIngress Controller 实质上可以理解为一个监视器，Ingress Controller 通过不断跟kubernetes API打交道，实时感知后端service、pod等变化，比如新增和减少pod，service增加与减少等；当得到这些变化信息后，Ingress Controller 再结合Ingress 生成配置，然后更新反向代理负载均衡器，并刷新配置，达到服务发现的作用下面的图说明一切问题注意： 如果你进入 Ingress Controller里面看过它的 nginx 配置，你会发现实际上，Ingress是直接将请求转发到了服务的 endpoint IP，并没有转发给 Service Cluster IP，据说是为了提高性能，那么这个 Service Cluster IP 存在的意义在哪呢，如果你也在问这个问题，那么你得重新学习下 Service Cluster IP在 kubernetes 集群中的作用了这里简单说一下，Cluster IP是kubernetes 集群中的一个虚拟IP，仅仅是为了方便集群内部通信和服务发现的概念说了这么多，下面就开始实际操作吧1.从kubernetes官方git下载最新源码git clone https://github.com/kubernetes/ingress.git2.为你要运行 Ingress 的节点添加label标签：role=frontalkubectl label node k8s-node01 role=frontalkubectl label node k8s-node02 role=frontal3.进入ingress的examples/daemonset/nginx目录，修改yml文件注意：官方给出的 daemonset 版本的yml文件中，没有绑定宿主机的80端口，也就是说前端 Nginx 没有监听宿主机的80端口（尚且不知为何），所以需要自己加一下hostNetwork；同时因为我是将ingress部署到我指定的前端，所以还需要在文件末尾加上nodeSelector,截图如下执行创建cd $(pwd)/ingress/examples/daemonset/nginxkubectl create -f nginx-ingress-daemonset.yaml4.确认 Ingress controller 是否创建成功# 确认 ingress 是否创建成功kubectl get ds -n kube-system |grep ingkubectl get pods -n kube-system |grep ingress# 查看日志是否有报错kubectl logs nginx-ingress-lb-mfdh5 -n kube-system初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看5.Ingress controller已经创建成功了，那么现在我们来创建ingress 检验一下前面创建的服务是否成功dashboard-ingress.ymlapiVersion: extensions/v1beta1kind: Ingressmetadata:  name: dashboard-ingress  namespace: kube-systemspec:  rules:  - host: dashboard.kevinguo.me    http:      paths:      - backend:          serviceName: kubernetes-dashboard          servicePort: 80        path: /kibana-ingress.ymlapiVersion: extensions/v1beta1kind: Ingressmetadata:  name: kibana-ingress  namespace: kube-systemspec:  rules:  - host: kibana.kevinguo.me    http:      paths:      - backend:          serviceName: kibana-logging          servicePort: 5601elasticsearch-ingress.ymlapiVersion: extensions/v1beta1kind: Ingressmetadata:  name: elasticsearch-ingress  namespace: kube-systemspec:  rules:  - host: elasticsearch.kevinguo.me    http:      paths:      - backend:          serviceName: elasticsearch-logging          servicePort: 9200        path: /执行创建kubectl create -f elasticsearch-ingress.ymlkubectl create -f dashboard-ingress.ymlkubectl create -f kibana-ingress.yml创建完成后，我们来看看据诶过如何呢Dashboard and heapsterEFK后期再研究新的东西了再加吧，头疼，下班了">
+    <meta name="og:description" content="  上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。目前尚不确定kubernetes各个插件版本之间的兼容性，我使用kubespray部署的各个IMAGE在第一章中已经列出来了，中途在部署heapster和kibana的时候出了点问题，其他还未发现什么问题目前，我所用到的插件如下：  ingress  kubedns  dashboard  efk  heapsterkubernetes-dashboard1.从kubernetes官方git下载最新源码git clone https://github.com/kubernetes/kubernetes.git2.进入dashboard所在的目录，执行yml文件cd $(pwd)/kubernetes/cluster/addons/dashboardkubectl create -f .3.确认dashboard是否成功创建# 确认deploymentkubectl get deployment -n kube-system |grep dashboard# 确认svckubectl get svc -n kube-system |grep dashboard# 确认epkubectl get ep -n kube-system |grep dashboard# 确认podskubectl get pods -n kube-system |grep dashboard# 查看日志是否有报错kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看EFK1.从kubernetes官方git下载最新源码git clone https://github.com/kubernetes/kubernetes.git2.为你要运行fluentd的节点添加label，因为fluentd-es-ds.yml文件中有beta.kubernetes.io/fluentd-ds-ready: "true"标签kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready=truekubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready=truekubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready=true3.确认标签添加是否成功[root@k8s-master01 ~]# kubectl get nodes -l beta.kubernetes.io/fluentd-ds-readyNAME           STATUS    AGE       VERSIONk8s-node01     Ready     19h       v1.6.7+coreos.0k8s-node02     Ready     19h       v1.6.7+coreos.0k8s-registry   Ready     19h       v1.6.7+coreos.04.进入fluentd-elasticsearch所在的目录，执行yml文件cd $(pwd)/kubernetes/cluster/addons/fluentd-elasticsearchkubectl create -f .5.确认EFK是否创建成功# 确认elasticsearch是否创建成功kubectl get statefulset -n kube-system |grep elasticsearchkubectl get svc -n kube-system|grep elasticsearchkubectl get ep -n kube-system |grep elasticsearchkubectl get pods -n kube-system |grep elasticsearch# 确认fluentd是否创建成功kubectl get ds -n kube-system |grep fluentdkubectl get pods -n kube-system -o wide |grep fluentd# 确认kibana是否创建成功kubectl get deployment -n kube-system |grep kibanakubectl get svc -n kube-system|grep kibanakubectl get ep -n kube-system |grep kibanakubectl get pods -n kube-system |grep kibana# 查看日志是否有报错kubectl logs elasticsearch-logging-0kubectl logs fluentd-es-v2.0.1-kn2h2 -n kube-systemkubectl logs kibana-logging-3636197754-tnwjh -n kube-system初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看heapsterheapster比较简单1.从kubernetes官方git下载最新源码git clone https://github.com/kubernetes/heapster.git2.进入heapster的deploy目录，执行kube.shcd $(pwd)/heapster/deploysh kube.sh start3.确认heapster是否创建成功# 确认heapster是否创建成功kubectl get deployment -n kube-system |grep heapsterkubectl get svc -n kube-system |grep heapsterkubectl get ep -n kube-system |grep heapsterkubectl get pods -n kube-system |grep heapster# 确认influxdb是否创建成功kubectl get deployment -n kube-system |grep influxdbkubectl get svc -n kube-system |grep influxdbkubectl get ep -n kube-system |grep influxdbkubectl get pods -n kube-system |grep influxdb# 确认grafana是否创建成功kubectl get deployment -n kube-system |grep grafanakubectl get svc -n kube-system |grep grafanakubectl get ep -n kube-system |grep grafanakubectl get pods -n kube-system |grep grafana# 查看日志是否有报错kubectl logs heapster-1528902802-wcf24 -n kube-systemkubectl logs monitoring-grafana-2527507788-jsw1n -n kube-systemkubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看ingress我们知道kubernetes暴露服务的方式目前有三种: LoadBlancer Service、NodePort Service、Ingress，前两个这里暂时不讲，这里主要解释下什么是Ingress什么是 ingressIngress Controller 实质上可以理解为一个监视器，Ingress Controller 通过不断跟kubernetes API打交道，实时感知后端service、pod等变化，比如新增和减少pod，service增加与减少等；当得到这些变化信息后，Ingress Controller 再结合Ingress 生成配置，然后更新反向代理负载均衡器，并刷新配置，达到服务发现的作用下面的图说明一切问题注意： 如果你进入 Ingress Controller里面看过它的 nginx 配置，你会发现实际上，Ingress是直接将请求转发到了服务的 endpoint IP，并没有转发给 Service Cluster IP，据说是为了提高性能，那么这个 Service Cluster IP 存在的意义在哪呢，如果你也在问这个问题，那么你得重新学习下 Service Cluster IP在 kubernetes 集群中的作用了这里简单说一下，Cluster IP是kubernetes 集群中的一个虚拟IP，仅仅是为了方便集群内部通信和服务发现的概念说了这么多，下面就开始实际操作吧1.从kubernetes官方git下载最新源码git clone https://github.com/kubernetes/ingress.git2.为你要运行 Ingress 的节点添加label标签：role=frontalkubectl label node k8s-node01 role=frontalkubectl label node k8s-node02 role=frontal3.进入ingress的examples/daemonset/nginx目录，修改yml文件注意：官方给出的 daemonset 版本的yml文件中，没有绑定宿主机的80端口，也就是说前端 Nginx 没有监听宿主机的80端口（尚且不知为何），所以需要自己加一下hostNetwork；同时因为我是将ingress部署到我指定的前端，所以还需要在文件末尾加上nodeSelector,截图如下执行创建cd $(pwd)/ingress/examples/daemonset/nginxkubectl create -f nginx-ingress-daemonset.yaml4.确认 Ingress controller 是否创建成功# 确认 ingress 是否创建成功kubectl get ds -n kube-system |grep ingkubectl get pods -n kube-system |grep ingress# 查看日志是否有报错kubectl logs nginx-ingress-lb-mfdh5 -n kube-system初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看5.Ingress controller已经创建成功了，那么现在我们来创建ingress 检验一下前面创建的服务是否成功dashboard-ingress.ymlapiVersion: extensions/v1beta1kind: Ingressmetadata:  name: dashboard-ingress  namespace: kube-systemspec:  rules:  - host: dashboard.kevinguo.me    http:      paths:      - backend:          serviceName: kubernetes-dashboard          servicePort: 80        path: /kibana-ingress.ymlapiVersion: extensions/v1beta1kind: Ingressmetadata:  name: kibana-ingress  namespace: kube-systemspec:  rules:  - host: kibana.kevinguo.me    http:      paths:      - backend:          serviceName: kibana-logging          servicePort: 5601elasticsearch-ingress.ymlapiVersion: extensions/v1beta1kind: Ingressmetadata:  name: elasticsearch-ingress  namespace: kube-systemspec:  rules:  - host: elasticsearch.kevinguo.me    http:      paths:      - backend:          serviceName: elasticsearch-logging          servicePort: 9200        path: /执行创建kubectl create -f elasticsearch-ingress.ymlkubectl create -f dashboard-ingress.ymlkubectl create -f kibana-ingress.yml创建完成后，我们来看看据诶过如何呢Dashboard and heapsterEFK后期再研究新的东西了再加吧，头疼，下班了">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/">
+    <meta property="og:site_name" content="KevinGuo">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2017-07-06">
+    
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="kubespray容器化部署k">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">kubespray容器化部署kubernetes高可用集群(3)</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2017/07/06
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#kubernetes" title="kubernetes">kubernetes</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#docker" title="docker">docker</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <blockquote>
+  <p>上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。</p>
+</blockquote>
+
+<!--more-->
+
+<p>目前尚不确定kubernetes各个插件版本之间的兼容性，我使用kubespray部署的各个IMAGE在<a href="https://kevinguo.me/2017/07/06/kargo%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2kubernetes%E9%AB%98%E5%8F%AF%E7%94%A8%E9%9B%86%E7%BE%A41">第一章</a>中已经列出来了，中途在部署heapster和kibana的时候出了点问题，其他还未发现什么问题</p>
+
+<p>目前，我所用到的插件如下：</p>
+
+<ul>
+  <li>ingress</li>
+  <li>kubedns</li>
+  <li>dashboard</li>
+  <li>efk</li>
+  <li>heapster</li>
+</ul>
+
+<h3 id="kubernetes-dashboard">kubernetes-dashboard</h3>
+
+<p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/kubernetes.git">最新源码</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
+</code></pre></div></div>
+
+<p>2.进入dashboard所在的目录，执行yml文件</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/dashboard
+kubectl create <span class="nt">-f</span> <span class="nb">.</span>
+</code></pre></div></div>
+
+<p>3.确认dashboard是否成功创建</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认deployment</span>
+kubectl get deployment <span class="nt">-n</span> kube-system |grep dashboard
+
+<span class="c"># 确认svc</span>
+kubectl get svc <span class="nt">-n</span> kube-system |grep dashboard
+
+<span class="c"># 确认ep</span>
+kubectl get ep <span class="nt">-n</span> kube-system |grep dashboard
+
+<span class="c"># 确认pods</span>
+kubectl get pods <span class="nt">-n</span> kube-system |grep dashboard
+
+<span class="c"># 查看日志是否有报错</span>
+kubectl logs kubernetes-dashboard-1041558748-sppxt <span class="nt">-n</span> kube-system
+</code></pre></div></div>
+
+<p>初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看</p>
+
+<h3 id="efk">EFK</h3>
+
+<p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/kubernetes.git">最新源码</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
+</code></pre></div></div>
+
+<p>2.为你要运行fluentd的节点添加label，因为<code class="highlighter-rouge">fluentd-es-ds.yml</code>文件中有<code class="highlighter-rouge">beta.kubernetes.io/fluentd-ds-ready: "true"</code>标签</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true
+</span>kubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true
+</span>kubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true</span>
+</code></pre></div></div>
+
+<p>3.确认标签添加是否成功</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@k8s-master01 ~]# kubectl get nodes <span class="nt">-l</span> beta.kubernetes.io/fluentd-ds-ready
+NAME           STATUS    AGE       VERSION
+k8s-node01     Ready     19h       v1.6.7+coreos.0
+k8s-node02     Ready     19h       v1.6.7+coreos.0
+k8s-registry   Ready     19h       v1.6.7+coreos.0
+</code></pre></div></div>
+
+<p>4.进入fluentd-elasticsearch所在的目录，执行yml文件</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/fluentd-elasticsearch
+kubectl create <span class="nt">-f</span> <span class="nb">.</span>
+</code></pre></div></div>
+
+<p>5.确认EFK是否创建成功</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认elasticsearch是否创建成功</span>
+kubectl get statefulset <span class="nt">-n</span> kube-system |grep elasticsearch
+kubectl get svc <span class="nt">-n</span> kube-system|grep elasticsearch
+kubectl get ep <span class="nt">-n</span> kube-system |grep elasticsearch
+kubectl get pods <span class="nt">-n</span> kube-system |grep elasticsearch
+
+<span class="c"># 确认fluentd是否创建成功</span>
+kubectl get ds <span class="nt">-n</span> kube-system |grep fluentd
+kubectl get pods <span class="nt">-n</span> kube-system <span class="nt">-o</span> wide |grep fluentd
+
+<span class="c"># 确认kibana是否创建成功</span>
+kubectl get deployment <span class="nt">-n</span> kube-system |grep kibana
+kubectl get svc <span class="nt">-n</span> kube-system|grep kibana
+kubectl get ep <span class="nt">-n</span> kube-system |grep kibana
+kubectl get pods <span class="nt">-n</span> kube-system |grep kibana
+
+<span class="c"># 查看日志是否有报错</span>
+kubectl logs elasticsearch-logging-0
+kubectl logs fluentd-es-v2.0.1-kn2h2 <span class="nt">-n</span> kube-system
+kubectl logs kibana-logging-3636197754-tnwjh <span class="nt">-n</span> kube-system
+</code></pre></div></div>
+
+<p>初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看</p>
+
+<h3 id="heapster">heapster</h3>
+
+<p>heapster比较简单</p>
+
+<p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/heapster.git">最新源码</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/heapster.git
+</code></pre></div></div>
+
+<p>2.进入heapster的deploy目录，执行kube.sh</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/heapster/deploy
+sh kube.sh start
+</code></pre></div></div>
+
+<p>3.确认heapster是否创建成功</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认heapster是否创建成功</span>
+kubectl get deployment <span class="nt">-n</span> kube-system |grep heapster
+kubectl get svc <span class="nt">-n</span> kube-system |grep heapster
+kubectl get ep <span class="nt">-n</span> kube-system |grep heapster
+kubectl get pods <span class="nt">-n</span> kube-system |grep heapster
+
+<span class="c"># 确认influxdb是否创建成功</span>
+kubectl get deployment <span class="nt">-n</span> kube-system |grep influxdb
+kubectl get svc <span class="nt">-n</span> kube-system |grep influxdb
+kubectl get ep <span class="nt">-n</span> kube-system |grep influxdb
+kubectl get pods <span class="nt">-n</span> kube-system |grep influxdb
+
+<span class="c"># 确认grafana是否创建成功</span>
+kubectl get deployment <span class="nt">-n</span> kube-system |grep grafana
+kubectl get svc <span class="nt">-n</span> kube-system |grep grafana
+kubectl get ep <span class="nt">-n</span> kube-system |grep grafana
+kubectl get pods <span class="nt">-n</span> kube-system |grep grafana
+
+<span class="c"># 查看日志是否有报错</span>
+kubectl logs heapster-1528902802-wcf24 <span class="nt">-n</span> kube-system
+kubectl logs monitoring-grafana-2527507788-jsw1n <span class="nt">-n</span> kube-system
+kubectl logs monitoring-influxdb-3480804314-31h4w <span class="nt">-n</span> kube-system
+</code></pre></div></div>
+
+<p>初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看</p>
+
+<h3 id="ingress">ingress</h3>
+
+<p>我们知道kubernetes暴露服务的方式目前有三种: LoadBlancer Service、NodePort Service、Ingress，前两个这里暂时不讲，这里主要解释下什么是Ingress</p>
+
+<h4 id="什么是-ingress">什么是 ingress</h4>
+
+<p>Ingress Controller 实质上可以理解为一个监视器，Ingress Controller 通过不断跟kubernetes API打交道，实时感知后端service、pod等变化，比如新增和减少pod，service增加与减少等；当得到这些变化信息后，Ingress Controller 再结合Ingress 生成配置，然后更新反向代理负载均衡器，并刷新配置，达到服务发现的作用</p>
+
+<p>下面的图说明一切问题
+<img src="/images/posts/Ingress.png" alt="" /></p>
+
+<p><strong>注意：</strong> 如果你进入 Ingress Controller里面看过它的 nginx 配置，你会发现实际上，Ingress是直接将请求转发到了服务的 endpoint IP，并没有转发给 Service Cluster IP，据说是为了提高性能，那么这个 Service Cluster IP 存在的意义在哪呢，如果你也在问这个问题，那么你得重新学习下 Service Cluster IP在 kubernetes 集群中的作用了</p>
+
+<p>这里简单说一下，Cluster IP是kubernetes 集群中的一个虚拟IP，仅仅是为了方便集群内部通信和服务发现的</p>
+
+<p>概念说了这么多，下面就开始实际操作吧</p>
+
+<p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/ingress.git">最新源码</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/ingress.git
+</code></pre></div></div>
+
+<p>2.为你要运行 Ingress 的节点添加label标签：role=frontal</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl label node k8s-node01 <span class="nv">role</span><span class="o">=</span>frontal
+kubectl label node k8s-node02 <span class="nv">role</span><span class="o">=</span>frontal
+</code></pre></div></div>
+
+<p>3.进入ingress的<code class="highlighter-rouge">examples/daemonset/nginx</code>目录，修改yml文件</p>
+
+<p><strong>注意：官方给出的 daemonset 版本的yml文件中，没有绑定宿主机的80端口，也就是说前端 Nginx 没有监听宿主机的80端口（尚且不知为何），所以需要自己加一下<code class="highlighter-rouge">hostNetwork</code>；同时因为我是将ingress部署到我指定的前端，所以还需要在文件末尾加上<code class="highlighter-rouge">nodeSelector</code>,截图如下</strong></p>
+
+<p><img src="/images/posts/ingress-daemonset.png" alt="" /></p>
+
+<p><img src="/images/posts/ingress-nodeselector.png" alt="" /></p>
+
+<p>执行创建</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/ingress/examples/daemonset/nginx
+
+kubectl create <span class="nt">-f</span> nginx-ingress-daemonset.yaml
+</code></pre></div></div>
+
+<p>4.确认 Ingress controller 是否创建成功</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认 ingress 是否创建成功</span>
+kubectl get ds <span class="nt">-n</span> kube-system |grep ing
+kubectl get pods <span class="nt">-n</span> kube-system |grep ingress
+
+<span class="c"># 查看日志是否有报错</span>
+kubectl logs nginx-ingress-lb-mfdh5 <span class="nt">-n</span> kube-system
+</code></pre></div></div>
+
+<p>初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看</p>
+
+<p>5.Ingress controller已经创建成功了，那么现在我们来创建ingress 检验一下前面创建的服务是否成功</p>
+
+<p>dashboard-ingress.yml</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">dashboard-ingress</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">dashboard.kevinguo.me</span>
+    <span class="na">http</span><span class="pi">:</span>
+      <span class="na">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
+          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">80</span>
+        <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
+</code></pre></div></div>
+
+<p>kibana-ingress.yml</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">kibana-ingress</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">kibana.kevinguo.me</span>
+    <span class="na">http</span><span class="pi">:</span>
+      <span class="na">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
+          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">kibana-logging</span>
+          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">5601</span>
+</code></pre></div></div>
+
+<p>elasticsearch-ingress.yml</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">elasticsearch-ingress</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">elasticsearch.kevinguo.me</span>
+    <span class="na">http</span><span class="pi">:</span>
+      <span class="na">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
+          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">elasticsearch-logging</span>
+          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">9200</span>
+        <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
+</code></pre></div></div>
+
+<p>执行创建</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create <span class="nt">-f</span> elasticsearch-ingress.yml
+kubectl create <span class="nt">-f</span> dashboard-ingress.yml
+kubectl create <span class="nt">-f</span> kibana-ingress.yml
+</code></pre></div></div>
+
+<p>创建完成后，我们来看看据诶过如何呢</p>
+
+<p>Dashboard and heapster
+<img src="/images/posts/dashboard-heapster.png" alt="" /></p>
+
+<p>EFK
+<img src="/images/posts/kibana.png" alt="" /></p>
+
+<p>后期再研究新的东西了再加吧，头疼，下班了</p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+    </div>
+    <div class="comment">
+      
+
+  
+
+  
+      
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+        
+          <div id="disqus_thread"></div>
+          <script>
+            var disqus_config = function () {
+              this.page.url = 'https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/';
+              this.page.identifier = '/2017/07/06/kubespray-deploy-kubernetes-3/';
+              this.page.title = 'kubespray容器化部署kubernetes高可用集群(3)';
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+              var d = document, s = d.createElement('script');
+
+              s.type = 'text/javascript';
+              s.async = true;
+              var shortname = 'kevinguo';
+
+              s.src = '//' + shortname + '.disqus.com/embed.js';
+
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+      
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
+
+
+    
+
+    
+<h3 class="post-directory-title mobile-hidden">Table of Contents</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2015
+                    <span title="KevinGuo">KevinGuo</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

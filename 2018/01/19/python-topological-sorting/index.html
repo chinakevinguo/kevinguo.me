@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>python 多重继承之拓扑排序 &mdash; KevinGuo</title>
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://kevinguo.me/2018/01/19/python-topological-sorting/">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="python 多重继承之拓扑排序">
+      
+    <meta name="keywords" content="python,topological-sorting">
+    <meta name="og:keywords" content="python,topological-sorting">
+      
+    <meta name="description" content="  最近在学python，学到class 多重继承，降到了c3算法，这里记录一下一、什么是拓扑排序在图论中，拓扑排序(Topological Sorting) 是一个 有向无环图(DAG,Directed Acyclic Graph) 的所有顶点的线性序列。且该序列必须满足下面两个条件：  每个顶点出现且只出现一次。  若存在一条从顶点A到顶点B的路径，那么在序列中顶点A出现在顶点B的前面。例如，下面这个图：它是一个DAG图，那么如何写出它的拓扑顺序呢？这里说一种比较常用的方法：  从DAG途中选择一个没有前驱(即入度为0)的顶点并输出  从图中删除该顶点和所有以它为起点的有向边。  重复1和2直到当前DAG图为空或当前途中不存在无前驱的顶点为止。后一种情况说明有向图中必然存在环。于是，得到拓扑排序后的结果是{1,2,4,3,5}下面，我们看看拓扑排序在python多重继承中的例子二、python 多重继承#!/usr/bin/env python3# -*- coding: utf-8 -*-class A(object):    def foo(self):        print('A foo')    def bar(self):        print('A bar')class B(object):    def foo(self):        print('B foo')    def bar(self):        print('B bar')class C1(A,B):    passclass C2(A,B):    def bar(self):        print('C2-bar')class D(C1,C2):    passif __name__ == '__main__':    print(D.__mro__)    d=D()    d.foo()    d.bar()  首先，我们根据上面的继承关系构成一张图，如下  找到入度为0的点，只有一个D，把D拿出来，把D相关的边剪掉  现在有两个入度为0的点(C1,C2)，取最左原则，拿C1，剪掉C1相关的边，这时候的排序是{D,C1}  现在我们看，入度为0的点(C2),拿C2,剪掉C2相关的边，这时候排序是{D,C1,C2}  接着看，入度为0的点(A,B),取最左原则，拿A，剪掉A相关的边，这时候的排序是{D,C1,C2,A}  继续，入度哦为0的点只有B，拿B，剪掉B相关的边，最后只剩下object  所以最后的排序是{D,C1,C2,A,B,object}我们执行上面的代码，发现print(D.__mro__)的结果也正是这样，而这也就是多重继承所使用的C3算法啦  为了进一步熟悉这个拓扑排序的方法，我们再来一张图，试试看排序结果是怎样的，它继承的内容是否如你所想#!/usr/bin/env python3# -*- coding: utf-8 -*-class A(object):    def foo(self):        print('A foo')    def bar(self):        print('A bar')class B(object):    def foo(self):        print('B foo')    def bar(self):        print('B bar')class C1(A):    passclass C2(B):    def bar(self):        print('C2-bar')class D(C1,C2):    passif __name__ == '__main__':    print(D.__mro__)    d=D()    d.foo()    d.bar()  还是先根据继承关系构一个继承图  找到入度为0的顶点，只有一个D，拿D，剪掉D相关的边  得到两个入度为0的顶点(C1,C2),根据最左原则，拿C1，剪掉C1相关的边，这时候序列为{D,C1}  接着看，入度为0的顶点有两个(A,C1),根据最左原则，拿A，剪掉A相关的边，这时候序列为{D,C1,A}  接着看，入度为0的顶点为C2,拿C2，剪掉C2相关的边，这时候序列为{D,C1,A,C2}  继续，入度为0的顶点为B，拿B，剪掉B相关的边，最后还有一个object  所以最后的序列为{D,C1,A,C2,B,object}最后，我们执行上面的代码，发现print(D.__mro__)的结果正如上面所计算的结果最后的最后，python继承顺序遵循C3算法，只要在一个地方找到了所需的内容，就不再继续查找">
+    <meta name="og:description" content="  最近在学python，学到class 多重继承，降到了c3算法，这里记录一下一、什么是拓扑排序在图论中，拓扑排序(Topological Sorting) 是一个 有向无环图(DAG,Directed Acyclic Graph) 的所有顶点的线性序列。且该序列必须满足下面两个条件：  每个顶点出现且只出现一次。  若存在一条从顶点A到顶点B的路径，那么在序列中顶点A出现在顶点B的前面。例如，下面这个图：它是一个DAG图，那么如何写出它的拓扑顺序呢？这里说一种比较常用的方法：  从DAG途中选择一个没有前驱(即入度为0)的顶点并输出  从图中删除该顶点和所有以它为起点的有向边。  重复1和2直到当前DAG图为空或当前途中不存在无前驱的顶点为止。后一种情况说明有向图中必然存在环。于是，得到拓扑排序后的结果是{1,2,4,3,5}下面，我们看看拓扑排序在python多重继承中的例子二、python 多重继承#!/usr/bin/env python3# -*- coding: utf-8 -*-class A(object):    def foo(self):        print('A foo')    def bar(self):        print('A bar')class B(object):    def foo(self):        print('B foo')    def bar(self):        print('B bar')class C1(A,B):    passclass C2(A,B):    def bar(self):        print('C2-bar')class D(C1,C2):    passif __name__ == '__main__':    print(D.__mro__)    d=D()    d.foo()    d.bar()  首先，我们根据上面的继承关系构成一张图，如下  找到入度为0的点，只有一个D，把D拿出来，把D相关的边剪掉  现在有两个入度为0的点(C1,C2)，取最左原则，拿C1，剪掉C1相关的边，这时候的排序是{D,C1}  现在我们看，入度为0的点(C2),拿C2,剪掉C2相关的边，这时候排序是{D,C1,C2}  接着看，入度为0的点(A,B),取最左原则，拿A，剪掉A相关的边，这时候的排序是{D,C1,C2,A}  继续，入度哦为0的点只有B，拿B，剪掉B相关的边，最后只剩下object  所以最后的排序是{D,C1,C2,A,B,object}我们执行上面的代码，发现print(D.__mro__)的结果也正是这样，而这也就是多重继承所使用的C3算法啦  为了进一步熟悉这个拓扑排序的方法，我们再来一张图，试试看排序结果是怎样的，它继承的内容是否如你所想#!/usr/bin/env python3# -*- coding: utf-8 -*-class A(object):    def foo(self):        print('A foo')    def bar(self):        print('A bar')class B(object):    def foo(self):        print('B foo')    def bar(self):        print('B bar')class C1(A):    passclass C2(B):    def bar(self):        print('C2-bar')class D(C1,C2):    passif __name__ == '__main__':    print(D.__mro__)    d=D()    d.foo()    d.bar()  还是先根据继承关系构一个继承图  找到入度为0的顶点，只有一个D，拿D，剪掉D相关的边  得到两个入度为0的顶点(C1,C2),根据最左原则，拿C1，剪掉C1相关的边，这时候序列为{D,C1}  接着看，入度为0的顶点有两个(A,C1),根据最左原则，拿A，剪掉A相关的边，这时候序列为{D,C1,A}  接着看，入度为0的顶点为C2,拿C2，剪掉C2相关的边，这时候序列为{D,C1,A,C2}  继续，入度为0的顶点为B，拿B，剪掉B相关的边，最后还有一个object  所以最后的序列为{D,C1,A,C2,B,object}最后，我们执行上面的代码，发现print(D.__mro__)的结果正如上面所计算的结果最后的最后，python继承顺序遵循C3算法，只要在一个地方找到了所需的内容，就不再继续查找">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://kevinguo.me/2018/01/19/python-topological-sorting/">
+    <meta property="og:site_name" content="KevinGuo">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2018-01-19">
+    
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="python 多重继承之拓扑排">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">python 多重继承之拓扑排序</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2018/01/19
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#python" title="python">python</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <blockquote>
+  <p>最近在学python，学到class 多重继承，降到了c3算法，这里记录一下</p>
+</blockquote>
+
+<!--more-->
+
+<h3 id="一什么是拓扑排序">一、什么是拓扑排序</h3>
+
+<p>在图论中，<strong>拓扑排序(Topological Sorting)</strong> 是一个 <strong>有向无环图(DAG,Directed Acyclic Graph)</strong> 的所有顶点的线性序列。且该序列必须满足下面两个条件：</p>
+
+<ul>
+  <li>每个顶点出现且只出现一次。</li>
+  <li>若存在一条从顶点A到顶点B的路径，那么在序列中顶点A出现在顶点B的前面。</li>
+</ul>
+
+<p>例如，下面这个图：</p>
+
+<p><img src="/images/posts/original.png" alt="" /></p>
+
+<p>它是一个DAG图，那么如何写出它的拓扑顺序呢？这里说一种比较常用的方法：</p>
+
+<ul>
+  <li>从DAG途中选择一个没有前驱(即入度为0)的顶点并输出</li>
+  <li>从图中删除该顶点和所有以它为起点的有向边。</li>
+  <li>重复1和2直到当前DAG图为空或当前途中不存在无前驱的顶点为止。后一种情况说明有向图中必然存在环。</li>
+</ul>
+
+<p><img src="/images/posts/topological-sorting.png" alt="" /></p>
+
+<p>于是，得到拓扑排序后的结果是{1,2,4,3,5}</p>
+
+<p>下面，我们看看拓扑排序在python多重继承中的例子</p>
+
+<h3 id="二python-多重继承">二、python 多重继承</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env python3</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="k">class</span> <span class="nc">A</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'A foo'</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'A bar'</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">B</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'B foo'</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'B bar'</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">C1</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">C2</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'C2-bar'</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">D</span><span class="p">(</span><span class="n">C1</span><span class="p">,</span><span class="n">C2</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">__mro__</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">=</span><span class="n">D</span><span class="p">()</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">bar</span><span class="p">()</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>首先，我们根据上面的继承关系构成一张图，如下</p>
+</blockquote>
+
+<p><img src="/images/posts/python-inherit.png" alt="" /></p>
+
+<ul>
+  <li>找到入度为0的点，只有一个D，把D拿出来，把D相关的边剪掉</li>
+  <li>现在有两个入度为0的点(C1,C2)，取最左原则，拿C1，剪掉C1相关的边，这时候的排序是{D,C1}</li>
+  <li>现在我们看，入度为0的点(C2),拿C2,剪掉C2相关的边，这时候排序是{D,C1,C2}</li>
+  <li>接着看，入度为0的点(A,B),取最左原则，拿A，剪掉A相关的边，这时候的排序是{D,C1,C2,A}</li>
+  <li>继续，入度哦为0的点只有B，拿B，剪掉B相关的边，最后只剩下object</li>
+  <li>所以最后的排序是{D,C1,C2,A,B,object}</li>
+</ul>
+
+<p>我们执行上面的代码，发现<code class="highlighter-rouge">print(D.__mro__)</code>的结果也正是这样，而这也就是多重继承所使用的C3算法啦</p>
+
+<blockquote>
+  <p>为了进一步熟悉这个拓扑排序的方法，我们再来一张图，试试看排序结果是怎样的，它继承的内容是否如你所想</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env python3</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="k">class</span> <span class="nc">A</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'A foo'</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'A bar'</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">B</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'B foo'</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'B bar'</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">C1</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">C2</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'C2-bar'</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">D</span><span class="p">(</span><span class="n">C1</span><span class="p">,</span><span class="n">C2</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">__mro__</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">=</span><span class="n">D</span><span class="p">()</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">foo</span><span class="p">()</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">bar</span><span class="p">()</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>还是先根据继承关系构一个继承图</p>
+</blockquote>
+
+<p><img src="/images/posts/python-inherit2.png" alt="" /></p>
+
+<ul>
+  <li>找到入度为0的顶点，只有一个D，拿D，剪掉D相关的边</li>
+  <li>得到两个入度为0的顶点(C1,C2),根据最左原则，拿C1，剪掉C1相关的边，这时候序列为{D,C1}</li>
+  <li>接着看，入度为0的顶点有两个(A,C1),根据最左原则，拿A，剪掉A相关的边，这时候序列为{D,C1,A}</li>
+  <li>接着看，入度为0的顶点为C2,拿C2，剪掉C2相关的边，这时候序列为{D,C1,A,C2}</li>
+  <li>继续，入度为0的顶点为B，拿B，剪掉B相关的边，最后还有一个object</li>
+  <li>所以最后的序列为{D,C1,A,C2,B,object}</li>
+</ul>
+
+<p>最后，我们执行上面的代码，发现<code class="highlighter-rouge">print(D.__mro__)</code>的结果正如上面所计算的结果</p>
+
+<p>最后的最后，python继承顺序遵循C3算法，只要在一个地方找到了所需的内容，就不再继续查找</p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+    </div>
+    <div class="comment">
+      
+
+  
+
+  
+      
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+        
+          <div id="disqus_thread"></div>
+          <script>
+            var disqus_config = function () {
+              this.page.url = 'https://kevinguo.me/2018/01/19/python-topological-sorting/';
+              this.page.identifier = '/2018/01/19/python-topological-sorting/';
+              this.page.title = 'python 多重继承之拓扑排序';
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+              var d = document, s = d.createElement('script');
+
+              s.type = 'text/javascript';
+              s.async = true;
+              var shortname = 'kevinguo';
+
+              s.src = '//' + shortname + '.disqus.com/embed.js';
+
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+      
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
+
+
+    
+
+    
+<h3 class="post-directory-title mobile-hidden">Table of Contents</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2015
+                    <span title="KevinGuo">KevinGuo</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

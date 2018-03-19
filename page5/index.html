@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>KevinGuo</title>
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+    <link rel="stylesheet" href="/assets/css/pages/index.css">
+    
+
+    
+    <link rel="canonical" href="https://kevinguo.me/page5/">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta name="keywords" content="KevinGuo">
+    <meta name="description" content="KevinGuo's blog">
+    
+    
+        
+    
+    <meta property="og:url" content="https://kevinguo.me/page5/">
+    <meta property="og:site_name" content="KevinGuo">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="home" data-mz="home">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="banner">
+    <div class="collection-head">
+        <div class="container">
+            <div class="collection-title">
+              <h1 class="collection-header" id="sub-title"><span>Just do it now !</span></h1>
+                <div class="collection-info">
+                    <span class="meta-info mobile-hidden">
+                        <span class="octicon octicon-location"></span>
+                        Wuhan, China
+                    </span>
+                    <span class="meta-info">
+                        <span class="octicon octicon-organization"></span>
+                        <a href="https://www.thoughtworks.com/" target="_blank">Thoughtworks,Inc.</a>
+                    </span>
+                     <span class="meta-info">
+                        <span class="octicon octicon-mark-github"></span>
+                        <a href="https://github.com/chinakevinguo" target="_blank">chinakevinguo</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.banner -->
+<section class="container content">
+    <div class="columns">
+        <div class="column two-thirds" >
+            <ol class="repo-list">
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-getting-started-compose/">Docker基础-docker compose基础知识</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        这一章，我们构建一个在docker compose上运行的简单python web程序。该应用使用Flask框架并在redis中维护一个命中计数器。
+
+
+前提准备
+
+确保你安装了docker engine和docker compose。不需要安装python或redis，这些都由docker image来提供。
+
+步骤1：建立
+
+1.建立项目目录
+$ mkdir composetest
+$ cd composetest
+
+2.建一个app.py文件在你的项目目录下，并copy下面的内容
+from flask import Flask
+from redis import Redis
+
+app = Flask(__name__)
+redis = Redis(host='redis', port=6379)
+
+@app.route('/')
+def hello():
+    count = redis.incr('hits')
+    return 'Hello World! I have been seen {} times.\n'.format(count)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", debug=True)
+
+3.在项目目录下建另一个名叫requirements.txt的文件
+Flask
+redis
+
+这些内容定义了应用的依赖
+
+步骤2：创建Dockerfile
+
+在这一步，我们编写一个用于构建docker image的Dockerfile。该image包含了python应用程序所需的所有依赖关系，包括python本身
+
+1.在项目目录下面，新建一个Dockerfile文件，内容如下
+FROM python:3.4-alpine
+ADD . /code
+WORKDIR /code
+RUN pip install -r requirements.txt
+CMD ["python", "app.py"]
+
+
+该Dockerfile告诉docker：
+
+  从python 3.4构建一个image
+  将当前目录添加到image的/code
+  设置工作目录为/code
+  运行pip安装python依赖
+  设定默认的CMD命令
+
+
+步骤3：在compose file中定义服务
+
+1.建一个docker-compose.yml文件，内容如下：
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+     - "5000:5000"
+    volumes:
+     - .:/code
+  redis:
+    image: "redis:alpine"
+
+
+该compose file定义了两个服务，web和redis:
+
+web service:
+
+  使用由当前目录下的Dockerfile构建的image
+  暴露5000端口到宿主机的5000端口
+  挂载当前项目目录到/code目录
+
+
+redis service：
+
+  直接使用从docker hub上拉取的image
+
+
+步骤4：使用compose构建和运行你的应用
+
+1.在你的项目目录，启动你的应用
+$ docker-compose up
+ Pulling image redis...
+ Building web...
+ Starting composetest_redis_1...
+ Starting composetest_web_1...
+ redis_1 | [8] 02 Jan 18:43:35.576 # Server started, Redis version 2.8.3
+ web_1   |  * Running on http://0.0.0.0:5000/
+ web_1   |  * Restarting with stat
+
+compose将会构建web镜像，拉取redis镜像，然后启动服务
+2.在浏览器中反问http://ip:5000，将会显示Hello World! I have been seen 1 times.,并且，每当你刷新一次页面，次数会加1.
+
+步骤5：更新应用
+
+因为我们是将代码挂载到容器的卷组里面的，所以，我们可以随意修改代码，而不需要重新构建image
+1.改变app.py的代码
+return 'Hello from Docker! I have been seen {} times.\n'.format(count)
+
+
+2.在浏览器中刷新试试看
+刷新后，发现结果已经变成你刚刚改的内容
+
+步骤6：试试其他的命令
+
+如果我们想我们的服务在后台运行，我们可以在docker-compose后指定-d选项，然后使用docker-compose ps查看当前运行的服务
+$ docker-compose up -d
+Starting composetest_redis_1...
+Starting composetest_web_1...
+
+$ docker-compose ps
+Name                 Command            State       Ports
+-------------------------------------------------------------------
+composetest_redis_1   /usr/local/bin/run         Up
+composetest_web_1     /bin/sh -c python app.py   Up      5000-&gt;5000/tcp
+
+
+docker-compose run命令允许为服务运行一次性命令，这也是我们在前面提到过的compose的一个特性。例如，我们要查看web服务的环境变量：
+$ docker-compose run web env
+
+
+更多关于docker-compose的命令，可使用docker-compose --help来查看
+
+如果你使用docker-cmpose up -d来启动，那么你可能需要使用下面的方式来停止服务
+$ docker-compose stop
+
+
+我们还可以把一切都关掉，用down命令停止并删除容器，网络或images和volumes，传递 --volumes也可以删除redis容器使用的数据卷
+$ docker-compose down --volumes
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-format-command-and-log-output/">Docker基础-docker 日志输出的格式化</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        docker 使用Go template来允许用户操作某些命令和日志的输出格式。详细如下：
+
+
+  Docker Images formatting
+  Docker Inspect formatting
+  Docker Log Tag formatting
+  Docker Network Inspect formatting
+  Docker ps formatting
+  Docker Volume Inspect formatting
+  Docker Version formatting
+
+
+函数模板
+Docker提供了一组基本函数来操作模板元素，下面简单举例几个可用函数的完整列表和示例：
+Json
+将结果格式化为json格式
+$ docker inspect --format '{ { json .NetworkSettings.IPAddress } }'
+
+
+upper
+将字符串转换成大写
+docker inspect --format '{ { upper .NetworkSettings.MacAddress } }' webtest1
+
+
+lower
+将字符转换成小写
+$ docker inspect --format "{ { lower .Name } }" container
+
+
+#Title
+第一个字母大写
+$ docker inspect --format "{ { title .Name } }" container
+
+
+split
+通过指定分隔符，将一个字符串拆分为多个字符串
+$ docker inspect --format '{ { split (join .Names "/") "/" } }' container
+
+
+Join
+join 将所有字符串组成一个新的字符串。原始字符串之间使用知道你该的分隔符进行分割。分隔符可以是多个字符组成的字符串
+$ docker ps --format '{ { join .Names " or " } }'
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-extending-services-in-compose/">Docker基础-docker compose配置共享</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        compose 支持两种方式来共享通用配置：
+
+1.使用多个compose文件来扩展整个compose文件
+2.使用extends字段扩展单个服务
+
+
+多个compose文件组合
+使用多个compose文件，可以为不同环境或不同工作流自定义compose应用程序
+
+理解多compose文件组合
+
+默认，compose会读取两个文件，一个docker-compose.yml和一个可选的docker-compose.override.yml文件。通常，docker-compose.yml文件包含你的基本配置，而docker-compose.override.yml，顾名思义，就是包含的现有服务配置的覆盖内容，或完全新的配置。
+
+如果一个服务在这两个文件中都有定义，那么compose将使用添加和覆盖配置中所描述的规则来合并服务。
+
+要使用多个override文件或不同名称的override文件，可以使用-f选项来指定文件列表。compose根据在命令行指定的顺序来合并它们。
+
+当使用多个配置文件时，必须确保文件中所有的路径都是相对于base compose文件的(-f 指定的第一个compose文件)。这样要求是因为override文件不需要一个有效的compose文件。override文件可以只包含配置中的一小片段。跟踪一个服务的片段是相对于那个路径的，这是很困难的事，所以一定要保持路径容易理解，所以路径必须定义为相对于base文件的路径。
+
+示例
+在本段介绍两个常见的多compose文件用例：为不同的环境更改compose app和正对compose app运行管理任务。
+
+不同环境
+使用多文件的一个常用案例是更改用于类生产环境(可能是生产环境，临时环境或配置项)的开发compose app。要支持这样的更改，可以把一个compose配置文件分割为多个不同的文件：
+从定义服务的规范配置的基本文件开始。
+docker-compose.yml
+
+web:
+  image: example/my_web_app:latest
+  links:
+    - db
+    - cache
+
+db:
+  image: postgres:latest
+
+cache:
+  image: redis:latest
+
+
+docker-compose.override.yml
+在下面这个示例中，开发配置内容向主机公开了一些端口，将代码安装为卷，并构建web镜像
+web:
+  build: .
+  volumes:
+    - '.:/code'
+  ports:
+    - 8883:80
+  environment:
+    DEBUG: 'true'
+
+db:
+  #command: '-d'
+  ports:
+    - 5432:5432
+
+cache:
+  ports:
+    - 6379:6379
+
+当执行docker-cmopose up命令时，它会自动读取这个override文件。
+
+现在我们创建另一个用于生产环境的override文件
+docker-compose.prod.yml
+web:
+  ports:
+    - 80:80
+  environment:
+    PRODUCTION: 'true'
+
+cache:
+  environment:
+    TTL: '500'
+
+要使用这个生产compose文件部署，运行如下命令：
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+这将会使用docker-compose.yml和docker-compose.prod.yml来部署这三个服务
+
+管理任务
+
+另一个常见的用力是正对在compose app中的一个或多个服务运行adhoc或管理任务。这个示例演示备份运行中的数据库。
+
+docker-compose.yml
+web:
+  image: example/my_web_app:latest
+  links:
+    - db
+
+db:
+  image: postgres:latest
+
+
+在docker-cmopose.admin.yml中添加一个新的服务来运行数据库导出或备份
+docker-compose.admin.yml
+dbadmin:
+  build: database_admin/
+  links:
+    - db
+
+
+要启动一个正常的环境运行docker-compose up -d。要备份数据库，运行：
+docker-compose -f docker-compose.yml -f docker-compose.admin.yml \
+    run dbadmin db-backup
+
+
+扩展服务
+
+docker compose的extends关键字能在不同的文件甚至是完全不同的项目之间共享通用的配置。如果有几个服务使用同样的通用配置项，则扩展服务非常有用。使用extends你可以在一个地方定义一个通用的服务选项集，然后在任何地方引用。
+
+  注意： 不能使用extends来共享links,volumes_from和depends_on配置。这是为了避免隐式依赖-始终在本地定义links和volumes_from.这确保了当读取当前文件时服务之间的依赖是清晰可见的。在本地定义这些还确保对引用文件的更改不会导致破坏。
+
+
+理解extends配置
+
+当在docker-compose.yml定义服务时，我们可以像这样声明扩展另一个服务：
+web:
+  extends:
+    file: common-services.yml
+    service: webapp
+
+这告诉compose重用定义在common-services.yml文件的webapp服务配置。假设common-services.yml的内容如下：
+webapp:
+  build: .
+  ports:
+    - "8000:8000"
+  volumes:
+    - "/data"
+
+在这种情况下，docker-compose.yml中定义的web服务将与webapp配置一样。
+
+然后，我们可以进一步在本地定义(或重新定义)docker-compose.yml：
+web:
+  extends:
+    file: common-services.yml
+    service: webapp
+  environment:
+    - DEBUG=1
+  cpu_shares: 5
+
+important_web:
+  extends: web
+  cpu_shares: 10
+
+
+也可以定义其他服务并在web服务链接它们：
+web:
+  extends:
+    file: common-services.yml
+    service: webapp
+  environment:
+    - DEBUG=1
+  cpu_shares: 5
+  links:
+    - db
+db:
+  image: postgres
+
+
+extends示例
+
+当多个服务有一个通用配置时，扩展单个服务非常有用。下面示例是有两个服务的compose app：一个web应用程序和一个queue worker。两个服务使用相同的代码和共享许多配置项
+
+在common.yml我们定义通用的配置：
+app:
+  build: .
+  environment:
+    CONFIG_FILE_PATH: /code/config
+    API_KEY: xxxyyy
+  cpu_shares: 5
+
+
+在docker-compose.yml文件我们定义使用通用配置的具体服务：
+webapp:
+  extends:
+    file: common.yml
+    service: app
+  command: /code/run_web_app
+  ports:
+    - 8080:8080
+  links:
+    - queue
+    - db
+
+queue_worker:
+  extends:
+    file: common.yml
+    service: app
+  command: /code/run_worker
+  links:
+    - queue
+
+
+添加和覆盖配置
+
+compose从原始服务复制配置到本地服务。如果配置项同时定义在原始服务和本地服务中，则本地服务的值会替换或扩展原始服务的值。
+对于单值选项如image，command或mem_limit，新值替换旧值
+# original service
+command: python app.py
+
+# local service
+command: python otherapp.py
+
+# result
+command: python otherapp.py
+
+
+
+  注意： 当使用的是version 1的compose文件格式时，build和image两个选项，在本地服务使用一个选项会导致compose忽略另一个定义在原始服务的选项
+例如，如果原始服务定义了image:webapp且本地服务定义了build:. 那么结果是服务有build:. 选项没有image选项
+因为在version 1文件中build和image不能一起使用
+
+
+对于多值选项，ports，expose，extenal_link，dns，dns_search 和tmpfs，compos合并两组值
+# original service
+expose:
+  - "3000"
+
+# local service
+expose:
+  - "4000"
+  - "5000"
+
+# result
+expose:
+  - "3000"
+  - "4000"
+  - "5000"
+
+
+对于environment，labels，volumes和devices，compose以本地定义的值优先原则来合并它们：
+# original service
+environment:
+  - FOO=original
+  - BAR=original
+
+# local service
+environment:
+  - BAR=local
+  - BAZ=local
+
+# result
+environment:
+  - FOO=original
+  - BAR=local
+  - BAZ=local
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-environment-file/">Docker基础-docker在文件中声明默认环境变量</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        compose 支持在名为.env的文件中声明默认环境变量，该文件和docker-compose.yml文件在同样的目录 (即docker-compose命令执行的目录)
+
+env文件中的格式是VAR=VAL,其中以#开头的为注释，空格也会被忽略。
+
+
+  Note: 运行时环境中存在的值会覆盖.env文件中定义的值，同样，通过命令行传递的值也会优先于.env中的值
+
+
+
+这些环境变量会用于替换你在compose文件中的环境变量，但也可以定义以下CLI变量：
+
+
+  COMPOSE_API_VERSION
+  COMPOSE_CONVERT_WINDOWS_PATHS
+  COMPOSE_FILE
+  COMPOSE_HTTP_TIMEOUT
+  COMPOSE_TLS_VERSION
+  COMPOSE_PROJECT_NAME
+  DOCKER_CERT_PATH
+  DOCKER_HOST
+  DOCKER_TLS_VERIFY
+
+
+更多compose文档
+
+
+  User guide
+  Command line reference
+  Compose file reference
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-custom-docker0/">Docker基础-docker自定义bridge网络</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        本章节主要讲了如何自定义docker默认的bridge网络，这个bridge网络是在docker安装的时候，系统默认创建的。
+
+  Note: docker允许创建除了默认bridge网络之外的bridge网络
+
+
+
+
+默认情况下，docker服务器会创建和配置宿主机的docker0接口作为linux内核中的以太网网桥，可以在其他物理或虚拟接口之间来回床底数据包，使其作为单个以太网网络运行。
+docker为 docker0配置IP地址，子网掩码和ip范围。主机可以为连接到docker0的容器发送和接受数据，并给他一个MTU(最大传输单元或最大包长-1500字节)，这些选项都是可以配置在docker的启动配置文件中：
+
+  --bip=CIDR 为docker0配置IP地址
+  --fixed-cidr=CIDR 限制docker0的子网范围,如：172.16.1.0/24，这个范围必须是包含了docker0 ip地址的范围
+  --mtu=BYTES 设置docker0的mtu值
+
+
+一旦你运行了一个或多个容器后，你可以使用brctl命令发现这些容器的接口都连接到了docker0网桥
+$ brctl show
+bridge name	bridge id		STP enabled	interfaces
+bridge0		8000.86de2e92d296	no		veth79dcc4b
+							vethc054462
+
+如果你的机器上没有brctl这个命令， 你可以使用yum install bridge-utils -y(on centos)来进行安装。
+
+最后，当你每次创建新容器的时候，都会使用docker0进行设置。docker会从docker0网桥的ip范围内，选择一个空闲的ip，分配给新容器，并且，会将docker0网络的IP地址，作为容器的网关：
+# The network, as seen from a container
+
+$ docker run -i -t --rm base /bin/bash
+
+root@f38c87f2a42d:/# ip addr show eth0
+
+24: eth0: &lt;BROADCAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 32:6f:e0:35:57:91 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.3/16 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::306f:e0ff:fe35:5791/64 scope link
+       valid_lft forever preferred_lft forever
+
+root@f38c87f2a42d:/# ip route
+
+default via 172.17.42.1 dev eth0
+172.17.0.0/16 dev eth0  proto kernel  scope link  src 172.17.0.3
+
+root@f38c87f2a42d:/# exit
+
+
+
+  Note: 记住，默认情况下，docker主机不会将容器包转发到外网，除非你设置ip_forward，具体可参考communication to the outside world
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-control-and-configure-docker-with-systemd/">Docker基础-自定义docker daemon</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        很多linux发行版使用systemd来启动docker daemon。这篇文档主要介绍了几个例子来展示如何自定义docker 的设置。
+
+
+
+启动docker daemon
+安装完docker后，你需要启动docker daemon
+$ sudo systemctl start docker
+# 在老版本上
+$ sudo service docker start
+
+如果你想开机启动docker
+$ sudo systemctl enable docker
+# 老版本
+$ sudo chkconfig docker on
+
+
+自定义docker daemon 选项
+有很多种方法为你的docker daemon配置daemon标志和环境变量。
+推荐的方法是使用systemd的插件文件[如systemd.unit所描述的]。这些插件文件是一些在本地/etc/systemd/system/docker.service.d目录下的名为&lt;something&gt;.conf文件。
+但是，如果你之前使用过一个包含EnvironmentFile[通常是/etc/sysconfig/docker]的包，那么为了向后兼容，你可将具有.conf扩展名的文件放到/etc/systemd/system/docker.service.d目录中，包含如下内容：
+[Service]
+EnvironmentFile=-/etc/sysconfig/docker
+EnvironmentFile=-/etc/sysconfig/docker-storage
+EnvironmentFile=-/etc/sysconfig/docker-network
+ExecStart=
+ExecStart=/usr/bin/dockerd $OPTIONS \
+          $DOCKER_STORAGE_OPTIONS \
+          $DOCKER_NETWORK_OPTIONS \
+          $BLOCK_REGISTRY \
+          $INSECURE_REGISTRY
+
+
+检查docker.service
+$ systemctl show docker | grep EnvironmentFile
+
+EnvironmentFile=-/etc/sysconfig/docker (ignore_errors=yes)
+
+
+找出service 文件的位置
+$ systemctl show --property=FragmentPath docker
+
+FragmentPath=/usr/lib/systemd/system/docker.service
+
+$ grep EnvironmentFile /usr/lib/systemd/system/docker.service
+
+EnvironmentFile=-/etc/sysconfig/docker
+
+/usr/lib/systemd/system 或/lib/systemd/system包含默认选项，建议不要修改。
+
+运行时的目录和存储驱动
+
+你可能希望通过将docker image，容器和volumes移动到单独的分区来控制用于docker image，容器和volumes的磁盘空间。
+在这个例子中，我们假设你的docker.service文件像这样：
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd
+ExecReload=/bin/kill -s HUP $MAINPID
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+# Uncomment TasksMax if your systemd version supports it.
+# Only systemd 226 and above support this version.
+#TasksMax=infinity
+TimeoutStartSec=0
+# set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+# kill only the docker process, not all processes in the cgroup
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+
+这将允许我们通过放置文件(如上所述)，通过在/etc/systemd/system/docker.service.d目录中放置一个包含以下内容的文件来添加额外的标志：
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd --graph="/mnt/docker-data" --storage-driver=overlay
+
+你还可以在这个文件中设置其他环境变量，比如:HTTP_PROXY环境变量
+
+修改ExecStart配置，先指定一个空配置，然后指定一个新的配置
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd --bip=172.17.42.1/16
+
+
+如果你没有指定空配置，那么可能会报错：
+docker.service has more than one ExecStart= setting, which is only allowed for Type=oneshot services. Refusing.
+
+
+HTTP proxy
+这个例子会覆盖默认的docker.service文件
+如果你在代理服务器后面，那么你需要将代理配置添加到docker systemd service文件中
+1.为docker服务创建一个systemd插件目录：
+$ mkdir -p /etc/systemd/system/docker.service.d
+
+
+2.创建一个/etc/systemd/system/docker.service.d/http-proxy.conf配置文件,并添加HTTP_PROXY环境变量
+[Service]
+Environment="HTTP_PROXY=http://proxy.example.com:80/"
+
+
+3.如果内部有不需要代理访问的docker Registry，那么你可以通过NO_PROXY来指定
+Environment="HTTP_PROXY=http://proxy.example.com:80/" "NO_PROXY=localhost,127.0.0.1,docker-registry.somecorporation.com"
+
+
+4.重新载入
+$ sudo systemctl daemon-reload
+
+
+5.检查配置是否加载
+$ sudo systemctl restart docker
+
+
+手动创建systemd 单元文件
+当安装没有包的二进制文件时，你可能想要将docker和systemd集成。为此，只需要将两个端圆文件(service 和 socket)从github repository 安装到/etc/systemd/system即可
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-container-networking/">Docker基础-docker网络</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        Docker container networking
+
+介绍docker网络常见的集中模式
+
+
+
+默认的网络模式
+这部分主要介绍了Docker Engine本机提供的默认网络特性，描述了默认创建的网络类型，以及如何创建用户自定义网络，同时还描述了在单个主机或集群上创建网络需要哪些资源。
+当你安装Docker的时候，Docker默认安装了三种网络，你可以使用docker network ls命令进行查看：
+$ docker network ls
+
+NETWORK ID          NAME                DRIVER
+7fca4eb8c647        bridge              bridge
+9f904ee27bf5        none                null
+cf03ee007fb4        host                host
+
+
+当运行容器的时候，可以使用--network来指定将容器运行在那个网络上
+
+bridge网络模式，表示Docker默认安装的docker0网络，除非你通过--network进行了指定，否则Docker daemon会将所有容器都连接到docker0网络，你可以使用ifconfig命令对docker0网络进行查看：
+$ ifconfig
+
+docker0   Link encap:Ethernet  HWaddr 02:42:47:bc:3a:eb
+          inet addr:172.17.0.1  Bcast:0.0.0.0  Mask:255.255.0.0
+          inet6 addr: fe80::42:47ff:febc:3aeb/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:9001  Metric:1
+          RX packets:17 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:8 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:1100 (1.1 KB)  TX bytes:648 (648.0 B)
+
+
+none网络模式，这种模式下，docker容器拥有自己的Network Namespace，但是，并不为Docker容器进行任何网络配置，也就是说，这个Docker容器没有网卡，IP，路由等信息，需要我们自己为Docker容器添加网卡，配置IP等。
+$ docker attach nonenetcontainer
+
+root@0cb243cd1293:/# cat /etc/hosts
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+root@0cb243cd1293:/# ifconfig
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+
+host网络模式，在这种模式下，docker没有自己的Network Namespace，而是和主机公用一个Network Namespace，容器不会虚拟出自己的网络卡，配置自己的IP，而是直接使用宿主机的IP和端口
+
+bridge网络的详细信息
+除了默认的bridge网络外，我们一般不需要和其他的网络进行任何交互，这些默认的网络模式，你不能删除，但是你可以使用docker network inspect来进行查看。
+[root@vultr ~]# docker network inspect bridge
+[
+    {
+        "Name": "bridge",
+        "Id": "83ffb543e3074f0071a84e809894d1d033211afa34100b088e4dd23c219f44e6",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Containers": {
+            "acc26c4abbd15c6bede466be22cfc3622c3e5e078d7de16a57f411ea1606f435": {
+                "Name": "container1",
+                "EndpointID": "d88640837d9f5a373e4fe44aa2c67ff503dea7db60085fa0d0a22598d226d065",
+                "MacAddress": "02:42:ac:11:00:03",
+                "IPv4Address": "172.17.0.3/16",
+                "IPv6Address": ""
+            },
+            "c4fd7144e3ad4426fdc9536e910efd1ad5dfd4fbc76d2d0b4c619e50dc616a7d": {
+                "Name": "vps-server",
+                "EndpointID": "c425566b3cbfdea5caf8d1790d8f75535d33c2eae109e674663e6651d64e0f66",
+                "MacAddress": "02:42:ac:11:00:02",
+                "IPv4Address": "172.17.0.2/16",
+                "IPv6Address": ""
+            },
+
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        },
+        "Labels": {}
+    }
+]
+
+
+上面的docker network inspect命令列出了给定网络上的所有连接的容器和网络资源。
+容器之间默认是使用IP地址进行通信，bridge网络模式不支持服务自动发现，如果你想要在bridge网络模式下容器之间通过容器名进行通信，你需要使用docker run --link来连接容器。
+
+用户自定义网络
+为了更好的隔离和操作容器，用户可以创建自己的自定义网络，为此，Docker提供了许多默认的网络驱动，包括bridge network,overlay network,MACVLAN network,你甚至可以自己来编写网络插件来操作自己的网络。
+
+用户可以创建多个网络，也可以将容器添加到多个网络，连接两个网络的容器可以与任意一个网络中的成员容器进行通信，但是，两个网络中的容器是不能进行通信的，所以说，容器只能在网络中通信，而不能在网络间通信（也就是说，容器只能在同一网络中通信）。
+A bridge network
+创建自定义网络最简单的是创建bridge网络
+[root@vultr ~]$ docker network create --driver bridge isolated_nw
+8a1c90ca9772d4b9be680f503a1aa9c8cabb660a28f947bb3e37519bc6cf5f45
+
+[root@vultr ~]$ docker network inspect isolated_nw
+[
+    {
+        "Name": "isolated_nw",
+        "Id": "8a1c90ca9772d4b9be680f503a1aa9c8cabb660a28f947bb3e37519bc6cf5f45",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1/16"
+                }
+            ]
+        },
+        "Internal": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+当你创建了网络后，你可以使用docker run  --network=&lt;NETWORK&gt;选项来启动容器
+[root@vultr ~]$ docker run --network=isolated_nw -tid --name=container1 busybox
+4d84de8318d4131fcb6d86a29a916d5354111667806fa15f6c5e3f9589766416
+
+[root@vultr ~]$ docker network inspect isolated_nw
+[
+    {
+        "Name": "isolated_nw",
+        "Id": "8a1c90ca9772d4b9be680f503a1aa9c8cabb660a28f947bb3e37519bc6cf5f45",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1/16"
+                }
+            ]
+        },
+        "Internal": false,
+        "Containers": {
+            "4d84de8318d4131fcb6d86a29a916d5354111667806fa15f6c5e3f9589766416": {
+                "Name": "container1",
+                "EndpointID": "77e6674aaec2441d078b010469f96510d6be21f2f552c0cc14e2650417e342c7",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+
+你在此网络启动的容器，必须是和该网络在同一台Docker主机上，虽然网络本身将容器与外部网络隔离开，但是在此网络中的容器，还是能立即与该网络中的其他容器进行通信，如下图：
+
+在用户自定义的网络中，不支持link。如果你想要使bridge的一部分网络可以访问外网，你可以在此网络中的容器上公开和发布容器端口。
+
+
+bridge网络在单个主机上运行比较有用，但是，在大规模网络中，一般使用overlay网络模式
+
+The docker_gwbridge network
+docker_gwbridge是一个本地的bridge network，一般在如下两种情况下，Docker会自动创建：
+
+  
+    初始化或者加入swarm,Docker会创建docker_gwbridge网络，并使用它在不同主机节点间进行通信
+    当容器的网络都不能提供外部链接时，Docker会将容器链接到docker_gwbridge网络以及容器的其他网络，以便容器能连接到外部网络或其他swarm节点
+  
+
+
+如果你需要自定义配置，你可以提前创建docker_gwbridge网络，否则Docker会按需创建，下面的例子介绍了，如何创建一个带有自定义选项的docker_gwbridge网络：
+$ docker network create --subnet 172.30.0.0/16 \
+                        --opt com.docker.network.bridge.name=docker_gwbridge \
+                        --opt com.docker.network.bridge.enable_icc=false \
+                        docker_gwbridge
+
+
+An overlay network with Docker Engine swarm mode without key-value store
+你可以在没有外部key-value存储的情况下，在swarm的管理节点上创建overlay网络，swarm集群使overlay网络仅对集群中需要服务的节点可用，当你创建了一个在overlay网络覆盖下的服务时，管理节点会自动扩展overlay到运行该服务的节点上。
+
+想了解更多有关Docker swarm的信息，可参考Swarm mode overview
+
+下面的例子介绍了如何创建overlay网络，并将其用于swarm集群中的服务节点：
+# Create an overlay network `my-multi-host-network`.
+$ docker network create \
+  --driver overlay \
+  --subnet 10.0.9.0/24 \
+  my-multi-host-network
+
+400g6bwzd68jizzdx5pgyoe95
+
+# Create an nginx service and extend the my-multi-host-network to nodes where
+# the service's tasks run.
+$ docker service create --replicas 2 --network my-multi-host-network --name my-web nginx
+
+716thylsndqma81j6kkkb5aus
+
+overlay网络不能应用于不属于swarm集群服务的容器，更多信息可参考Docker swarm mode overlay network security model
+
+An overlay network with an external key-value store
+如果你没有使用swarm，那么overlay网络可能会需要一个key-value的存储服务。支持以key-value方式存储的服务包括Cousul,Etcd,ZooKeeper…所以在此之前，你先要创建和配置你选择的key-valuestore，保证docker host和key-value store能够互相通信。
+
+
+  
+    注意： 集群模式下的Docker Engine和使用外部存储的网络不兼容
+
+在网络中的每个主机都必须运行一个Docker Engine实例，提供主机最简单的方法是使用Docker Machine
+
+  
+
+
+你还应该在每个主机上都打开如下的端口：
+
+
+  
+    
+      Protocol
+      Port
+      Description
+    
+  
+  
+    
+      udp
+      4789
+      Data plane[VXLAN]
+    
+    
+      tcp/upd
+      7946
+      Control plane
+    
+  
+
+
+你的key-value store服务如果还需要打开其他端口，可以参考服务供应商提供给你的文档进行操作
+如果你还准备使用加密方式[–opt encrypted]，你还需要打开50[ESP]端口
+一旦你配置了多态机器，你可以使用Docker swarm将他们快速的组成一个包含服务自动发现的集群。
+创建overlay网络，你可以在每个你需要使用overlay网络Docker Engine上配置如下选项：
+
+
+  
+    
+      Option
+      Description
+    
+  
+  
+    
+      –cluster-store=PROVIDER://URL
+      Describes the location of the kv service
+    
+    
+      –cluster-advertise=HOST_IP/HOST_IFACE:PORT
+      The IP address of the HOST used for clustering
+    
+    
+      –cluster-store-opt=KEY-VALUE OPTIONS
+      Options such as TLS certificate or tuning discovery Timers
+    
+  
+
+
+在docker swarm中的某一台机器上创建overlay网络：
+$ docker network create --driver overlay my-multi-host-network
+
+
+创建之后，overlay网络会覆盖多个主机，网络范围下的容器会与其他网络的主机完全隔离
+
+然后，在每个host上启动容器的时候记住都要制定network name
+$ docker run -tid --network=my-multi-host-network busybox
+
+
+一旦连接，overlay网络范围内的所有容器都可以互相访问，而不管该容器是在哪个主机上
+
+
+如果你想自己试试，可以参考Getting started for overlay
+
+自定义网络插件
+If you like ,you can write your own network driver plugin.网络驱动插件都是以Docker的基础插件为基础,if you like and you can do it ,you can refer Extending Docker and writing a network driver plugin
+
+Docker 内嵌的DNS server
+Docker daemon 运行一个内嵌的DNS服务来为链接到自定义网络的容器提供服务自动发现，来自容器的名称解析首先由内嵌的DNS服务进行解析，如果内置的DNS无法解析，那么就转发给为容器配置的任意外部DNS服务器，在resolv.conf文件中，可看到127.0.0.11DNS，更多关于内嵌DNS的信息可参考embedded DNS server in user-defined
+
+Links
+在这之前，我们使用docker link来让容器之间进行通信。通过引入docker network，容器可以通过主机名进行通信，但是，你仍然可以使用docker link，但是只能在docker0网桥中使用。更多有关信息，可以参考Legacy Links和linking containers in user-defined networks
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-container-communication/">Docker基础-docker容器之间通信</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        本章节主要讲了容器之间是如何在默认网桥上进行通信的，这个bridge网络是在docker安装的时候，系统默认创建的。
+
+  Note: docker允许创建除了默认bridge网络之外的bridge网络
+
+  和外网通信
+  容器能否和外网通信是由两个因素决定的。第一个因素是宿主机是否转发容器的IP包。第二个因素是宿主机的iptables是否允许这个特定的连接。
+IP包转发是由系统参数ip_forward来进行管理的。如果此参数是1，则只允许在容器之间传递数据包，此时容器是不能访问外网的。通常，你只需要保持docker服务器的默认设置(ip-forward=true)即可,并且当服务器启动时，docker会将ip_forward设置为1，并且系统内核已经启用，那么这时候哪怕你设置ip-forward=false也不会起作用。
+检查内核上的设置或手动打开：
+```bash
+$ sysctl net.ipv4.conf.all.forwarding
+
+
+net.ipv4.conf.all.forwarding = 1
+
+首先，我们测试容器能否ping通外网
+$ docker exec -ti nostalgic_agnesi ping www.baidu.com
+PING www.baidu.com (61.135.169.125): 56 data bytes
+64 bytes from 61.135.169.125: seq=0 ttl=51 time=62.042 ms
+
+我们将ip_forward设置为0之后试试
+$  sysctl net.ipv4.conf.all.forwarding=0
+$ docker exec -ti nostalgic_agnesi ping www.baidu.com
+^C
+&gt; **Note:** 注意，上面的设置不会影响到使用host网络的容器
+
+大多数使用docker的人都希望`ip_forward`卡其，至少让容器和外网通信成为可能。但是如果你在一个多网桥中，也可能需要在容器中设置`ip_forward`哟。
+除非你设置了`--iptables=false`，否则，docker会在启动的时候修改你的iptables规则，会添加`DOCKER`规则链。
+docker是不会删除或修改任何之前的防火墙规则，这就允许了用户可以提前设定好对容器的一些访问规则。
+默认情况下，docker是允许所有的外部IP，如果只想允许一个特定的ip或网段访问容器的话，可以在`DOCKER`规则链上添加新的规则。比如，限制是有源ip 8.8.8.8可以访问容器：
+```bash
+$ iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
+
+
+容器间通信
+容器间是否可以通信，由系统层的两个因素来控制：
+
+  网络的拓扑接口是否已经连接到容器的网络接口。默认情况下，docker会将所有的容器连接到docker0网桥，并为两个容器见包的传输提供路径。
+  iptables是否允许特殊连接？除非你设置了--iptables=false，否则，docker会在启动的时候修改你的iptables规则，会添加DOCKER规则链。另外，如果你保留默认设置--icc=true,docker服务器或向FORWARD链添加一个带有全局ACCEPT策略的默认规则，如果不保留默认设置即--icc=false,系统会把策略设置成DROP
+
+
+至于,是保留--icc=true,还是改变设置--icc=false，这是一个战略问题。如果设置了--icc=false，可以避免被攻击的容器来访问或扫描其他的主机和容器。
+如果你选择了最安全的模式--icc=false，那么当你想让它们彼此提供服务的时候应该怎么让他们互相通信呢？
+答案就是：前面提到的--link=CONTAINER_NAME:ALIAS选项。如果docker是在--icc=false和--iptables=true下运行，当它看到docker run 调用--link选项，docker将会插入一部分iptables ACCEPT规则，使得心容器可以连接到其他容器暴露出的端口(即是Dockerfile中EXPOSE所指定的端口)
+
+
+  Note: --link选项指定的CONTAINER_NAME，要么是运行docker run的时候自动生成的，要么是你在运行docker run时候指定--name的时候指定的。绝不能是主机名，否则在--link的上下文中是无法识别的。
+
+
+我们可以在docker主机上运行iptables命令来看看，FORWARD规则链是否有默认的ACCEPT或DROP策略。
+# 当设置--icc=false时
+$ sudo iptables -L -n
+
+...
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+DOCKER     all  --  0.0.0.0/0            0.0.0.0/0
+DROP       all  --  0.0.0.0/0            0.0.0.0/0
+...
+
+# 当在--icc=false模式下，使用--link时
+$ sudo iptables -L -n
+
+...
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+DOCKER     all  --  0.0.0.0/0            0.0.0.0/0
+DROP       all  --  0.0.0.0/0            0.0.0.0/0
+
+Chain DOCKER (1 references)
+target     prot opt source               destination
+ACCEPT     tcp  --  172.17.0.2           172.17.0.3           tcp spt:80
+ACCEPT     tcp  --  172.17.0.3           172.17.0.2           tcp dpt:80
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+            </ol>
+        </div>
+        <div class="column one-third">
+            
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
+
+
+            <h3>My Popular Repositories</h3>
+
+
+
+<a href="https://github.com/chinakevinguo/kubernetes-custom" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="kubernetes-custom">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    kubernetes-custom
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="3 stars">
+                    <span class="octicon octicon-star"></span> 3
+                </span>
+                <span class="meta-info" title="0 forks">
+                    <span class="octicon octicon-git-branch"></span> 0
+                </span>
+                <span class="meta-info" title="Last updated：2017-12-22 02:41:39 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2017-12-22 02:41:39 UTC">2017-12-22</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://github.com/chinakevinguo/learn-python" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="learn-python">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    learn-python
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="1 stars">
+                    <span class="octicon octicon-star"></span> 1
+                </span>
+                <span class="meta-info" title="1 forks">
+                    <span class="octicon octicon-git-branch"></span> 1
+                </span>
+                <span class="meta-info" title="Last updated：2018-03-02 03:11:20 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-03-02 03:11:20 UTC">2018-03-02</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://github.com/chinakevinguo/learn-groovy" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="learn-groovy">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    learn-groovy
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="1 stars">
+                    <span class="octicon octicon-star"></span> 1
+                </span>
+                <span class="meta-info" title="0 forks">
+                    <span class="octicon octicon-git-branch"></span> 0
+                </span>
+                <span class="meta-info" title="Last updated：2018-01-03 06:06:38 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-01-03 06:06:38 UTC">2018-01-03</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://github.com/chinakevinguo/sharelibrary" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="sharelibrary">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    sharelibrary
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="0 stars">
+                    <span class="octicon octicon-star"></span> 0
+                </span>
+                <span class="meta-info" title="0 forks">
+                    <span class="octicon octicon-git-branch"></span> 0
+                </span>
+                <span class="meta-info" title="Last updated：2017-12-07 03:41:29 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2017-12-07 03:41:29 UTC">2017-12-07</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://github.com/chinakevinguo/mritd.github.io" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="mritd.github.io">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    mritd.github.io
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text">十字路口,繁华街头......</p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="0 stars">
+                    <span class="octicon octicon-star"></span> 0
+                </span>
+                <span class="meta-info" title="0 forks">
+                    <span class="octicon octicon-git-branch"></span> 0
+                </span>
+                <span class="meta-info" title="Last updated：2018-03-19 06:51:22 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-03-19 06:51:22 UTC">2018-03-19</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+
+
+        </div>
+    </div>
+    <div class="pagination text-align">
+      <div class="btn-group">
+        
+          
+              <a href="/page4"  class="btn btn-outline">&laquo;</a>
+          
+        
+        
+            <a href="/"  class="btn btn-outline">1</a>
+        
+        
+          
+              <a href="/page2"  class="btn btn-outline">2</a>
+          
+        
+          
+              <a href="/page3"  class="btn btn-outline">3</a>
+          
+        
+          
+              <a href="/page4"  class="btn btn-outline">4</a>
+          
+        
+          
+              <a href="javascript:;"  class="active btn btn-outline">5</a>
+          
+        
+          
+              <a href="/page6"  class="btn btn-outline">6</a>
+          
+        
+          
+              <a href="/page7"  class="btn btn-outline">7</a>
+          
+        
+          
+              <a href="/page8"  class="btn btn-outline">8</a>
+          
+        
+        
+            <a href="/page6"  class="btn btn-outline">&raquo;</a>
+        
+        </div>
+    </div>
+    <!-- /pagination -->
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2015
+                    <span title="KevinGuo">KevinGuo</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

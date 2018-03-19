@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>KevinGuo</title>
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+    <link rel="stylesheet" href="/assets/css/pages/index.css">
+    
+
+    
+    <link rel="canonical" href="https://kevinguo.me/page4/">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta name="keywords" content="KevinGuo">
+    <meta name="description" content="KevinGuo's blog">
+    
+    
+        
+    
+    <meta property="og:url" content="https://kevinguo.me/page4/">
+    <meta property="og:site_name" content="KevinGuo">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="home" data-mz="home">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="banner">
+    <div class="collection-head">
+        <div class="container">
+            <div class="collection-title">
+              <h1 class="collection-header" id="sub-title"><span>Just do it now !</span></h1>
+                <div class="collection-info">
+                    <span class="meta-info mobile-hidden">
+                        <span class="octicon octicon-location"></span>
+                        Wuhan, China
+                    </span>
+                    <span class="meta-info">
+                        <span class="octicon octicon-organization"></span>
+                        <a href="https://www.thoughtworks.com/" target="_blank">Thoughtworks,Inc.</a>
+                    </span>
+                     <span class="meta-info">
+                        <span class="octicon octicon-mark-github"></span>
+                        <a href="https://github.com/chinakevinguo" target="_blank">chinakevinguo</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.banner -->
+<section class="container content">
+    <div class="columns">
+        <div class="column two-thirds" >
+            <ol class="repo-list">
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-storage-driver/">Docker基础-docker 存储驱动</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        Select a storage driver
+
+该篇主要介绍Docker的存储驱动，列出了Docker支持的存储驱动以及介绍了用来管理这些存储驱动的命令，同时也提供了在为Docker选择存储驱动的一些建议。
+
+热插拔存储驱动架构
+
+Docker提供了一个可热插拔的存储驱动架构，这意味着，你可以灵活的插入最合适你当前环境的存储驱动程序。每一个Docker存储驱动都是基于Linux文件系统或卷组管理器。
+每个存储驱动有自己独特的方式来管理数据层和镜像层，这意味着特定的驱动程序在特定的环境下，运行的会比其他的存储驱动好。
+
+一旦你决定使用那个存储驱动，那么在启动docker的时候，你就指定该驱动程序，因此，Docker每次只能运行一个存储驱动，并且所有的容器实例都是用该存储驱动。下表列出了所有支持的存储驱动：
+
+| Technology    | Storage driver name  |
+| ———-    | :——————-:|
+| OverlayFS     | overlay or overlay2  |
+| AUFS          | aufs                 |
+| Btrfs         | btrfs                |
+| Device Mapper | devicemapper         |
+| VFS           | vfs                  |
+| ZFS           | zfs                  |
+到底使用哪个存储驱动，部分取决于你本地后台的文件系统，比如说，你当前主机的文件系统是btrfs，那么你的存储驱动最好也选择btrfs，下表列出了每个存储驱动和它对应所匹配的后台文件系统：
+
+
+  
+    
+      Storage driver
+      Commonly used on
+      Disabled on
+    
+  
+  
+    
+      overlay
+      ext4 xfs
+      btrfs aufs overlay overlay2 zfs eCryptfs
+    
+    
+      overlay2
+      ext4 xfs
+      btrfs aufs overlay overlay2 zfs eCryptfs
+    
+    
+      aufs
+      ext4 xfs
+      btrfs aufs eCryptfs
+    
+    
+      devicemapper
+      direct-lvm
+      N/A
+    
+    
+      btrfs
+      btrfs only
+      N/A
+    
+    
+      vfs
+      debugging only
+      N/A
+    
+    
+      zfs
+      zfs only
+      N/A
+    
+  
+
+
+查看当前Docker使用的存储驱动命令
+$ docker info
+Containers: 10
+ Running: 1
+ Paused: 0
+ Stopped: 9
+Images: 5
+Server Version: 1.12.3
+Storage Driver: devicemapper
+Backing Filesystem: xfs
+
+在启动时Docker时指定存储驱动
+$ dockerd --storage-driver=overlay
+
+
+共享存储系统和存储驱动
+许多企业使用共享存储（如SAN和NAS等），而Docker存储驱动程序是可以在这些共享存储上操作的，这是Docker在存储上有了更高的性能和可用性，但是目前，Docker还没有与这些共享存储进行集成，虽然没有和共享存储集成，但是，Docker的存储驱动程序是基于Linux文件系统和卷管理器的，所以Docker也能很好的在共享存储上进行使用。
+
+选择存储驱动建议
+在选择存储驱动之前，你必须了解到以下两点：
+1.没有那个存储驱动最适合于那个用例
+2.存储驱动正序正在不停的发展和改进
+所以，我们在选择存储驱动的时候要注意：
+1.稳定性
+
+  
+    使用默认的存储驱动
+    使用Docker指定的稳定版的存储驱动
+  
+
+
+2.是否有使用该存储驱动的经验
+你的开发团队是否有使用该存储驱动的经验，这也是你在选择存储驱动的时候需要考虑的
+
+3.该存储驱动是否发展成熟
+许多人认为OverlayFS是Docker 存储驱动未来发展的趋势，但是，相对于aufs和devicemapper来说，它还不太成熟，所以在选择存储驱动的时候，要尽可能的选择已经发展成熟的存储驱动
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-overlay-security-model/">Docker基础-docker muti-host之overlay在docker swarm安全模式下的使用</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        Docker swarm mode overlay network security model
+overlay 网络在docker swarm下的安全模式也是开箱即用的。swarm 节点之间通过gossip协议来交换overlay 网络信息。节点使用GCM模式下的AES algorithm对通过gossip协议来交换的信息进行加密和认证.管理节点每12小时轮询加密key一次
+
+
+
+你还可以加密在overlay网路上运行的容器之间的交换数据，你可以通过使用--opt来开启加密：
+$ docker network create --opt encrypted --driver overlay my-multi-host-network
+
+
+当你开启了overlay 加密，docker 会为所有依附overlay网路的服务节点创建一个IPSEC通道，这个IPSEC通道也是使用GCM模式下的AES算法进行加密，并且每12小时轮询一次。
+
+Swarm mode overlay networks and unmanaged containers
+因为在swarm 模式下的overlay 网络使用来自管理节点的加密密钥来加密gossip通信，只有作为swarm 中的任务运行的容器才能访问密钥，所以在swarm之外的容器是无法附加到overlay网络的。
+$ docker run --network my-multi-host-network nginx
+
+docker: Error response from daemon: swarm-scoped network
+(my-multi-host-network) is not compatible with `docker create` or `docker
+run`. This network can only be used by a docker service.
+
+
+要解决这类问题，你可以将没在集群的容器，迁移到集群即可：
+$ docker service create --network my-multi-host-network my-image
+
+
+因为swarm mode是一个可选功能，docker engine保留了其向后的兼容性，你可以继续key-value的方式来存储overlay网络，但是，我们建议使用集群模式，不仅仅是因为前面所说的安全，swarm模式下还提供了很多API来提供更大的可伸缩性。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-network-with-Macvlan/">Docker基础-docker muti-host之macvlan</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        在这篇文章中，我将向您展示如何使用macvlan接口与Docker进行网络连接。’
+
+
+
+‘使用macvlan接口为Docker容器提供一个有趣的网络配置，可能(取决于您的环境)地址与标准Linux网桥配置。macvlan接口，如果你不熟悉它们，它们是一个最近才添加到Linux内核的东西，使用户能够添加多个基于MAC地址的逻辑接口到单个物理接口。这些逻辑接口必须位于与关联的物理接口相同的广播域中，换句话说，Docker容器将在与主机相同的网络上(没有iptables规则，没有Linux网桥)，只是直接连接到主机的网络。
+
+Docker官网的解释是，macvlan驱动使Docker用户的使用实例和审查实施硬件化和就绪化，Libnetwork使用户能够完全控制IPv4和IPv6的寻址。Vlan驱动程序就是在此基础上构建，使运营商能够完全控制第二层的vlan tag。
+
+Macvlan是一种新的尝试和真正的网络虚拟化技术。因为不是使用传统的Linux桥来进行隔离，所以Macvlan在linux上实现起来特别轻量级，它们只是关联到Linux物理接口，以实现网络之间的分离和到物理网络的连接。
+
+Macvlan的各种模式，提供了很多的独有的功能，以及其提供了大量改进和创新的空间。这样有两个好处：
+
+  绕开网桥，提高了网络性能
+  可移动的部件少，更简单
+移除了Docker主机和容器之间的接口，提升了外部访问容器的性能，因为这时候是没有了端口隐射的。
+
+
+前提条件
+
+  配置了Docker engine 1.12.0+的单台主机
+  内核必须是V3.9-3.19和4.0+
+  使用子接口(如eth0.10)的示例都可以替换成eth0或者其他接口，子接口eth0.x是动态创建的，可以和-o parent指定的接口一起创建，并且驱动程序会创建虚拟接口，其将使本机能够保持连接
+
+
+通过为物理网卡创建Macvlan子接口，允许一块物理网卡拥有多个独立的MAC地址和IP地址。虚拟出来的子接口将直接暴露在底层物理网络中。从外界看来，就像是把网线分成多股，分别接到了不同的主机上一样
+
+Macvlan 桥接模式例子
+Macvlan桥接模式拥有每个容器唯一的MAC地址，用于追踪Docker主机的MAC到端口映射
+
+  Macvlan 网络驱动连接到一个Docker主机的父接口。实例中是一个物理接口如eth0，一个用802.1q VLAN标记的子接口eth0.10(.10表示VLAN10)，或者捆绑两个以太网接口到一个逻辑接口的绑定主机适配器
+  一个外部的网关路由
+  每个Macvlan bridge 模式的Docker 网络彼此隔离，并且每次只能有一个网络连接到父接口，每个主机的适配器理论上可以连接4094个子接口
+  同一子网的任何容器可以与同一网络的任何其他容器进行通信
+  docker network命令同样适用于vlan驱动
+  在macvlan模式下，如果两个网络/子网之间没有外部路由，那么两个网络上的容器是无法通信的，这一规则同样适用于同一docker网络的多个子网
+
+
+在下面的例子中，都是在virtualbox中操作的
+Route host： enp0s8:192.168.1.100(Hostonly模式) enp0s3:10.0.2.15(NAT模式，连接外网)
+Docker host：enp0s8:192.168.1.1(Hostonly模式) gateway:192.168.1.100
+
+Note: Macvlan bridge模式下的子网必须和其所关联的网卡的网段相同，在这个例子中，使用-o parent=enp0s8来指定
+1.配置router host的ip，以及路由转发等功能，使其成为一台路由
+# 配置好IP
+$ ip addr show
+2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
+    link/ether 08:00:27:5a:e9:e7 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic enp0s3
+
+3: enp0s8: &lt;BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
+    link/ether 08:00:27:ac:4f:00 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.100/24 brd 192.168.1.255 scope global enp0s8
+
+# 开启路由转发,添加net.ipv4.ip_forward = 1
+$ vi /etc/sysctl.conf
+net.ipv4.ip_forward = 1
+
+# 让路由转发即可生效
+$ sysctl -p
+
+# 配置SNAT，使所有来自192.168.1.0网段的包都交给10.0.2.15
+$ iptables -t nat -A POSTROUTING -o enp0s3 -s 192.168.1.0/24 -j SNAT --to-source 10.0.2.15
+
+
+2.最关键的一步，在两台主机上开启混杂模式（也许实体机不需要，没有测试过），记住virtualbox上的网卡也要开启混杂模式中的全部允许。
+$ ip link set enp0s8 promisc on
+
+
+3.在docker host上创建macvlan网络，然后运行一对容器
+# 创建一个macvlan网络
+$ docker network create -d macvlan \
+      --subnet=192.168.1.0/24 \
+      --gateway=192.168.1.100 \
+      -o parent=enp0s8 macvlan_pub
+
+# 在macvlan网络上运行一个容器并且使用`--ip`指定它的ip地址
+$ docker run --network macvlan_pub --ip 192.168.1.201 -tid alpine /bin/sh
+$ docker run --network macvlan_pub --ip 192.168.1.202 -tid alpine /bin/sh
+
+
+登录一个容器查看IP
+[root@node01 ~]# docker exec -ti desperate_raman ip a
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+6: eth0@if3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN&gt; mtu 1500 qdisc noqueue state UNKNOWN
+    link/ether 02:42:c0:a8:01:c9 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.201/24 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:c0ff:fea8:1c9/64 scope link
+       valid_lft forever preferred_lft forever
+
+
+查看容器路由
+[root@node01 ~]# docker exec -ti desperate_raman route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.1.100   0.0.0.0         UG    0      0        0 eth0
+192.168.1.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0
+
+
+ping另一个容器和网关
+[root@node01 ~]# docker exec -ti desperate_raman ping 192.168.1.202
+    PING 192.168.1.202 (192.168.1.202): 56 data bytes
+    64 bytes from 192.168.1.202: seq=0 ttl=64 time=0.140 ms
+    64 bytes from 192.168.1.202: seq=1 ttl=64 time=0.127 ms
+
+[root@node01 ~]# docker exec -ti desperate_raman ping 192.168.1.100
+    PING 192.168.1.100 (192.168.1.100): 56 data bytes
+    64 bytes from 192.168.1.100: seq=0 ttl=64 time=0.140 ms
+    64 bytes from 192.168.1.100: seq=1 ttl=64 time=0.127 ms
+
+
+NOTE 在macvlan网络中，容器是无法ping通docker主机上的IP的。
+
+Macvlan 802.1q trunk bridge 模式例子
+VLAN(虚拟局域网)一直以来都是虚拟化数据中心网络的主要手段，目前任然在存在与大多数网络中。VLAN 是通过VLAN ID来实现广播隔离，网络运营商通常使用它将如web，db或其他需要隔离的应用进行隔离。
+单台主机运行多个虚拟网络的情况是比较常见的，Linux网络支持VLAN标记(也称为802.1q)，用于维护网络之间的数据隔离。通过创建Linux子接口(每个自接口有自己唯一的VLAN ID)，使连接到docker主机以太网链路可以支持802.1q vlan id。
+将802.1q中继到Linux宿主机是一件非常痛苦的事，它需要更改配置文件来保持持久化。如果涉及到网桥，还需要将物理网卡移动到网桥中，然后让网桥获取IP地址，在这一些列复杂的操作中，可能会导致服务器网络断开。
+
+和所有其他的docker网络驱动程序一样，macvlan的主要目的是为了减少网络资源管理的操作性，所以，当网络收到一个不存在的子接口时，驱动会在创建网络的时候创建vlan 标记接口。
+
+在宿主机重启的时候，驱动程序将在Docker守护程序重启的时候重新创建所有的网络连接，而不需要常常修改复杂的网络配置文件，驱动程序会跟踪，是否创建了最初网络创建时创建的带有VLAN 标记的子接口，并且在重启或者被删除后，会在原有的位置重新创建子接口（而且只会创建子接口）
+如果用户不希望docker使用-o parent修改子接口，用户只需要传递哪些已经存在了的被作为父接口的接口即可，父接口不会被删除，只会删除没有master的子接口。
+下面的例子就可以说明：
+# 在docker宿主机上添加两个子接口
+$ ip link add link enp0s8 name enp0s8.200 type vlan id 200
+$ ip link add link enp0s8 name enp0s8.201 type vlan id 201
+$ ip link set enp0s8.200 up
+$ ip link set enp0s8.201 up
+
+# 创建基于这两个子接口的macvlan
+$ docker network create -d macvlan --subnet 192.168.200.0/24 --gateway=192.168.200.100 -o parent=enp0s8.200 macvlan200
+$ docker network create -d macvlan --subnet 192.168.201.0/24 --gateway=192.168.201.100 -o parent=enp0s8.201 macvlan201
+
+#重启宿主机，查看ip，发现没有刚刚创建的子接口
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
+    link/ether 08:00:27:5a:e9:e7 brd ff:ff:ff:ff:ff:ff
+3: enp0s8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
+    link/ether 08:00:27:5f:be:76 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.1/24 brd 192.168.1.255 scope global enp0s8
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:fe5f:be76/64 scope link
+       valid_lft forever preferred_lft forever
+
+# 启动docker之后再查看
+$ systemctl start docker
+$ ip addr show
+valid_lft forever preferred_lft forever
+5: enp0s8.200@enp0s8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP
+link/ether 08:00:27:5f:be:76 brd ff:ff:ff:ff:ff:ff
+inet6 fe80::a00:27ff:fe5f:be76/64 scope link
+valid_lft forever preferred_lft forever
+6: enp0s8.201@enp0s8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP
+link/ether 08:00:27:5f:be:76 brd ff:ff:ff:ff:ff:ff
+inet6 fe80::a00:27ff:fe5f:be76/64 scope link
+valid_lft forever preferred_lft forever
+
+
+下面用个完整的例子来说明
+Docker host:
+enp0s8:192.168.1.100(Hostonly模式)
+enp0s3:10.0.2.15(NAT模式，连接外网)
+
+Router host:
+enp0s8:192.168.1.100
+enp0s8.200:192.168.200.100
+enp0s8.201:192.168.201.100
+
+
+1.因为是使用的turnk模式，所以，我们首先在route host上新建几个vlan，并配上IP
+# 安装工具
+$ yum install vconfig
+# 新建vlan
+$ vconfig add enp0s8 200
+$ vconfig add enp0s8 201
+# 配置IP
+$ ifconfig enp0s8.200 192.168.200.100 netmask 255.255.255.0 up
+$ ifconfig enp0s8.201 192.168.201.100 netmask 255.255.255.0 up
+# 开启混杂模式
+$ ip link set enp0s8.200 promisc on
+$ ip link set enp0s8.201 promisc on
+# 配置SNAT
+$ iptables -t nat -A POSTROUTING -o enp0s3 -s 192.168.200.0/24 -j SNAT --to-source 10.0.2.15
+$ iptables -t nat -A POSTROUTING -o enp0s3 -s 192.168.201.0/24 -j SNAT --to-source 10.0.2.15
+
+NOTE 上面配置的信息，如果想要保存的话，需要修改配置文件，这里是测试环境，所以，笔者我并没有保存
+2.在Docker host上配置对应的子接口，并创建macvlan
+# 在docker宿主机上添加两个子接口
+$ ip link add link enp0s8 name enp0s8.200 type vlan id 200
+$ ip link add link enp0s8 name enp0s8.201 type vlan id 201
+$ ip link set enp0s8.200 up
+$ ip link set enp0s8.201 up
+
+# 创建基于这两个子接口的macvlan
+$ docker network create -d macvlan --subnet 192.168.200.0/24 --gateway=192.168.200.100 -o parent=enp0s8.200 macvlan200
+$ docker network create -d macvlan --subnet 192.168.201.0/24 --gateway=192.168.201.100 -o parent=enp0s8.201 macvlan201
+
+3.运行容器
+# 运行容器
+$ docker run --net=macvlan200 -idt --ip=192.168.200.2 alpine /bin/sh
+$ docker run --net=macvlan201 -idt --ip=192.168.201.2 alpine /bin/sh
+
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+70448bfe282b        alpine              "/bin/sh"           19 hours ago        Up 15 hours                             gloomy_lalande
+2b6b92345148        alpine              "/bin/sh"           19 hours ago        Up 15 hours                             gloomy_stonebraker
+
+4.测试
+# 查看容器ip
+$ docker exec -ti gloomy_lalande ifconfig
+eth0      Link encap:Ethernet  HWaddr 02:42:C0:A8:C9:02  
+          inet addr:192.168.201.2  Bcast:0.0.0.0  Mask:255.255.255.0
+
+$ docker exec -ti gloomy_stonebraker ifconfig
+eth0      Link encap:Ethernet  HWaddr 02:42:C0:A8:C8:02  
+          inet addr:192.168.200.2  Bcast:0.0.0.0  Mask:255.255.255.0
+
+# 从201网段测试ping200网段
+$ docker exec -ti gloomy_lalande ping 192.168.200.2
+PING 192.168.200.2 (192.168.200.2): 56 data bytes
+64 bytes from 192.168.200.2: seq=0 ttl=63 time=0.946 ms
+64 bytes from 192.168.200.2: seq=1 ttl=63 time=1.490 ms
+
+# traceroute一下，发现是先将包丢给了自己网段的网关后，再转发给200网段的，所以说，如果没有路由的话，就无法ping通了
+$ docker exec -ti gloomy_lalande traceroute 192.168.200.2
+traceroute to 192.168.200.2 (192.168.200.2), 30 hops max, 46 byte packets
+ 1  192.168.201.100 (192.168.201.100)  0.734 ms  0.589 ms  1.002 ms
+ 2  192.168.200.2 (192.168.200.2)  0.939 ms  1.076 ms  1.030 ms
+
+
+通过上面的例子，我们发现，通过macvlan基本实现了vlan隔离，如果route host上没有200和201的话，两个vlan之间是完全无法通信的
+
+macvlan先说到这里，更多了解，后续如果有新的内容，再补充吧。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-network-command/">Docker基础-docker network常用命令</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        本文提供了几个Docker network和container进行交互的命令的示例。这些命令可通过CLI提供，这些命令是：
+
+
+  docker network create
+  docker network connect
+  docker network ls
+  docker network rm
+  docker network disconnect
+  docker network inspect
+
+
+虽然不是必须，但是在尝试这些示例之前，你最好先看看Understanding Docker network.这些例子都是依靠bridge网络，因此这些例子都可以马上执行。当然，如果你想要尝试overlay网络示例，你最好先看看Getting started with multi-host networks
+
+Create networks
+当你安装Docker的时候会自动安装bridge网络，这个bridge网络对应的是网卡上的docker0网络，除了这个bridge网络，你还可以创建自己的bridge网络或者overlay网络。
+
+bridge网络运行在一个运行了docker engine的单独主机上，而overlay网络则可以覆盖到多个运行了docker engine的主机上。如果你运行docker network create创建了一个bridge网络，并且给了它一个名字，那么你可以通过docker inspect命令来进行查看：
+$ docker network create simple-network
+69568e6336d8c96bbf57869030919f7c69524f71183b44d80948bd3927c87f6a
+
+$ docker network inspect simple-network
+[
+    {
+        "Name": "simple-network",
+        "Id": "69568e6336d8c96bbf57869030919f7c69524f71183b44d80948bd3927c87f6a",
+        "Scope": "local",
+        "Driver": "bridge",
+        "IPAM": {
+            "Driver": "default",
+            "Config": [
+                {
+                    "Subnet": "172.22.0.0/16",
+                    "Gateway": "172.22.0.1/16"
+                }
+            ]
+        },
+        "Containers": {},
+        "Options": {}
+    }
+]
+
+
+和bridge网络不一样，overlay网络的创建，需要提前做很多准备工作，准备工作如下：
+
+  有一个可以访问的key-value存储，如：Cousul，Etcd，Zookeeper等
+  有一个可以访问key-value存储的集群
+  在集群中的每个主机上配置正确运行的docker daemon
+
+
+dockerd支持运行overlay网络的选项有：
+
+  –cluster-store
+  –cluster-store-opt
+  –cluster-advertise
+
+
+默认情况下，当你创建网络的时候，Docker engine会创建一个不重复的子网，你可以覆盖这个默认值，并通过--subnet选项来自定义子网，在bridge网络中，你只能指定单个子网，而在overlay网络中，你可以指定多个子网。
+
+
+  
+    Note: 强烈建议使用--subnet来创建网络，如果没有指定--subnet，docker dameon会自动选择一个子网，但是这有可能会和其他没有被docker 管理的子网冲突，而当容器链接到这个网络的时候，子网重叠则会出现各种问题。
+除了--subnet选项之外，你还可以指定--gateway,--ip-range,--aux-address等选项：
+      $ docker network create -d overlay \
+--subnet=192.168.0.0/16 \
+--subnet=192.170.0.0/16 \
+--gateway=192.168.0.100 \
+--gateway=192.170.0.100 \
+--ip-range=192.168.1.0/24 \
+--aux-address="my-router=192.168.1.5" --aux-address="my-switch=192.168.1.6" \
+--aux-address="my-printer=192.170.1.5" --aux-address="my-nas=192.170.1.6" \
+my-multihost-network
+      
+      请确认你的网络没有冲突，如果冲突了，网络创建会出错，docker engine会返回错误值。
+    
+  
+
+
+当创建自定义网络时，可以传递一些选项给驱动，bridge网络可以传递如下选项：
+
+
+  
+    
+      Option
+      Equivalent
+      Description
+    
+  
+  
+    
+      com.docker.network.bridge.name
+      -
+      创建bridge网络时的名称
+    
+    
+      com.docker.network.bridge.enable_ip_masquerade
+      –ip-masq
+      开启网络地址转换
+    
+    
+      com.docker.network.bridge.enable_icc
+      –icc
+      开启或禁用容器间的链接
+    
+    
+      com.docker.network.bridge.host_binding_ipv4
+      –ip
+      隐射容器端口时的默认IP
+    
+    
+      com.docker.network.driver.mtu
+      –mtu
+      Set the containers network MTU
+    
+  
+
+
+com.docker.network.driver.mtu选项也支持overlay网络驱动
+当使用docker network create创建网络时，下面的参数可以床底给任何网络：
+| Argument | Equivalent | Description |
+| :—— :| :——–: | :———- |
+| –internal | - | 限制访问外部网络  |
+| –ipv6 | –ipv6 | 开启ipv6网络 |
+
+下面的例子是演示，使用-o选项来指定在运行容器并指定隐射端口时的默认IP地址，然后使用docker network inspect来查看
+$ docker network create -o "com.docker.network.bridge.host_binding_ipv4"="172.23.0.1" --subnet 172.23.0.0/16 my-network
+
+b1a086897963e6a2e7fc6868962e55e746bee8ad0c97b54a5831054b5f62672a
+
+$ docker network inspect my-network
+
+[
+    {
+        "Name": "my-network",
+        "Id": "b1a086897963e6a2e7fc6868962e55e746bee8ad0c97b54a5831054b5f62672a",
+        "Scope": "local",
+        "Driver": "bridge",
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.23.0.0/16",
+                    "Gateway": "172.23.0.1/16"
+                }
+            ]
+        },
+        "Containers": {},
+        "Options": {
+            "com.docker.network.bridge.host_binding_ipv4": "172.23.0.1"
+        }
+    }
+]
+
+$ docker run -d -P --name redis --network my-network redis
+
+bafb0c808c53104b2c90346f284bda33a69beadcab4fc83ab8f2c5a4410cd129
+
+$ docker ps
+#这里可以看到我在运行容器的时候使用-P选项隐射容器内部端口到宿主机的时候，默认的IP就是我刚刚指定的那个IP地址
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                        NAMES
+bafb0c808c53        redis               "/entrypoint.sh redis"   4 seconds ago       Up 3 seconds        172.23.0.1:32770-&gt;6379/tcp   redis
+
+$ ifconfig
+br-7a154192d2a8: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 172.23.0.1  netmask 255.255.0.0  broadcast 0.0.0.0
+        inet6 fe80::42:b3ff:fe4a:d59f  prefixlen 64  scopeid 0x20&lt;link&gt;
+        ether 02:42:b3:4a:d5:9f  txqueuelen 0  (Ethernet)
+        RX packets 8  bytes 648 (648.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 16  bytes 1296 (1.2 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+
+
+Connect containers
+Basic container networking example
+你可以将容器连接到一个或多个网络，一个容器可以连接到多个使用不同网络驱动的网络，一旦连接之后，容器之间可以使用IP地址或容器名进行通信。
+overlay网络或其他自定义的网络插件，哪怕容器在不同的主机上启动，只要支持能连接到多主机网络，就能够通过这种方式进行通信。通过下面的例子来看看：
+
+1.运行两个容器，container1和container2
+$ docker run -itd --name=container1 busybox
+
+18c062ef45ac0c026ee48a83afa39d25635ee5f02b58de4abc8f467bcaa28731
+
+$ docker run -itd --name=container2 busybox
+
+498eaaaf328e1018042c04b2de04036fc04719a6e39a097a4f4866043a2c2152
+
+2.创建一个名为isolated_nw的bridge网络
+$ docker network create -d bridge --subnet 172.25.0.0/16 --gateway 172.25.0.1 isolated_nw
+
+06a62f1c73c4e3107c0f555b7a5f163309827bfbbf999840166065a8f35455a8
+
+3.连接container2到上面创建的这个网络，并使用docker network inspect进行查看
+$ docker network connect isolated_nw container2
+
+$ docker network inspect isolated_nw
+
+[
+    {
+        "Name": "isolated_nw",
+        "Id": "06a62f1c73c4e3107c0f555b7a5f163309827bfbbf999840166065a8f35455a8",
+        "Scope": "local",
+        "Driver": "bridge",
+        "IPAM": {
+            "Driver": "default",
+            "Config": [
+                {
+                    "Subnet": "172.25.0.0/16",
+                    "Gateway": "172.25.0.1/16"
+                }
+            ]
+        },
+        "Containers": {
+            "90e1f3ec71caf82ae776a827e0712a68a110a3f175954e5bd4222fd142ac9428": {
+                "Name": "container2",
+                "EndpointID": "11cedac1810e864d6b1589d92da12af66203879ab89f4ccd8c8fdaa9b1c48b1d",
+                "MacAddress": "02:42:ac:19:00:02",
+                "IPv4Address": "172.25.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {}
+    }
+]
+
+我们发现container2已经被自动分配了一个IP地址，这是因为你在创建网络的时候指定了--subnet选项，因此在容器连接到网络的时候会自动从这个子网中选择IP分配。
+4.启动第三个容器，但是使用--ip来连接到isolated_nw网络
+$ docker run --network=isolated_nw --ip=172.25.3.3 -itd --name=container3 busybox
+
+467a7863c3f0277ef8e661b38427737f28099b61fa55622d6c30fb288d88c551
+
+只要你为容器指定的IP地址是网络子网的一部分，就可以使用--ip或--ip6来为该容器指定IP地址，当您使用用户自定义网络时用这种方法来指定IP地址，配置将会作为容器的一部分保留，并在容器重新加载的时候应用，如果您使用的不是用户自定义玩过的时候，Docker容器重启之后，容器内的子网可能会丢失。
+5.查看container3的网络配置
+$ docker inspect --format=''  container3
+
+{"isolated_nw":
+  {"IPAMConfig":
+    {
+      "IPv4Address":"172.25.3.3"},
+      "NetworkID":"1196a4c5af43a21ae38ef34515b6af19236a3fc48122cf585e3f3054d509679b",
+      "EndpointID":"dffc7ec2915af58cc827d995e6ebdc897342be0420123277103c40ae35579103",
+      "Gateway":"172.25.0.1",
+      "IPAddress":"172.25.3.3",
+      "IPPrefixLen":16,
+      "IPv6Gateway":"",
+      "GlobalIPv6Address":"",
+      "GlobalIPv6PrefixLen":0,
+      "MacAddress":"02:42:ac:19:03:03"}
+    }
+  }
+}
+
+上面可以看到我们指定的IP地址，因为你在启动的时候将container3连接到了isolated_nw网络，并且指定了IP，所以它不再会连接到默认的bridge网络
+6.查看container2的网络信息
+$ docker inspect --format=''  container2 | python -m json.tool
+
+{
+    "bridge": {
+        "NetworkID":"7ea29fc1412292a2d7bba362f9253545fecdfa8ce9a6e37dd10ba8bee7129812",
+        "EndpointID": "0099f9efb5a3727f6a554f176b1e96fca34cae773da68b3b6a26d046c12cb365",
+        "Gateway": "172.17.0.1",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "IPAMConfig": null,
+        "IPAddress": "172.17.0.3",
+        "IPPrefixLen": 16,
+        "IPv6Gateway": "",
+        "MacAddress": "02:42:ac:11:00:03"
+    },
+    "isolated_nw": {
+        "NetworkID":"1196a4c5af43a21ae38ef34515b6af19236a3fc48122cf585e3f3054d509679b",
+        "EndpointID": "11cedac1810e864d6b1589d92da12af66203879ab89f4ccd8c8fdaa9b1c48b1d",
+        "Gateway": "172.25.0.1",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "IPAMConfig": null,
+        "IPAddress": "172.25.0.2",
+        "IPPrefixLen": 16,
+        "IPv6Gateway": "",
+        "MacAddress": "02:42:ac:19:00:02"
+    }
+}
+
+我们可以看到container2同时属于两个网络，当你启动它的时候默认加入了bridge网络，然后在第三步的时候，你将它加入了isolated_nw网络，所以如下图所示：
+
+$ docker exec -ti container2 ifconfig
+eth0      Link encap:Ethernet  HWaddr 02:42:AC:11:00:04  
+          inet addr:172.17.0.4  Bcast:0.0.0.0  Mask:255.255.0.0
+          inet6 addr: fe80::42:acff:fe11:4/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:13 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:8 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:982 (982.0 B)  TX bytes:648 (648.0 B)
+
+eth1      Link encap:Ethernet  HWaddr 02:42:AC:19:00:02  
+          inet addr:172.25.0.2  Bcast:0.0.0.0  Mask:255.255.0.0
+          inet6 addr: fe80::42:acff:fe19:2/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:32 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:8 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:2592 (2.5 KiB)  TX bytes:648 (648.0 B)
+
+
+7.Docker 内置的DNS服务会为连接到自定义网络的容器提供解析，这意味着任何链接到同样自定义网络的容器之间可以通过容器名进行通信。例子如下：
+# 我们进入container2，container2即属于isolated_nw网络，也属于bridge网络
+$ docker exec -ti container2 /bin/sh
+
+#  ping我们刚刚启动的container3，可以ping通，因为container3是连接到自定义网络isolated_nw
+/ # ping -w 4 container3
+PING container3 (172.25.3.3): 56 data bytes
+64 bytes from 172.25.3.3: seq=0 ttl=64 time=0.070 ms
+64 bytes from 172.25.3.3: seq=1 ttl=64 time=0.080 ms
+64 bytes from 172.25.3.3: seq=2 ttl=64 time=0.080 ms
+64 bytes from 172.25.3.3: seq=3 ttl=64 time=0.097 ms
+
+# 而我们ping刚刚启动的container1，是无法ping通的，因为container1是连接到默认的bridge网络的
+/ # ping container1
+ping: bad address 'container1'
+
+# 我们再将container1和isolated_nw网络连接起来
+$ docker network connect isolated_nw container1
+
+#接着再ping container1，发现是可以ping通的
+/ # ping container1
+PING container1 (172.25.0.4): 56 data bytes
+64 bytes from 172.25.0.4: seq=0 ttl=64 time=0.250 ms
+64 bytes from 172.25.0.4: seq=1 ttl=64 time=0.149 ms
+64 bytes from 172.25.0.4: seq=2 ttl=64 time=0.102 ms
+
+上面的例子告诉我们，如果要使内置的DNS起作用，看到效果，我们应该使用自定义网络，而不是使用默认网络。
+
+8.当前，container2同时属于isolated_nw和bridge网络，所以它可以和container1和container3进行通信，其中和container1通过IP进行通信，而container3可以通过IP和容器名进行通信，然而container1和container3没有任何相同的网络，所以它们之间是不能进行通信的。
+$ docker attach container3
+
+$ ping 172.17.0.2
+PING 172.17.0.2 (172.17.0.2): 56 data bytes
+^C
+
+--- 172.17.0.2 ping statistics ---
+10 packets transmitted, 0 packets received, 100% packet loss
+
+Linking container without using user-defined networks
+在我们完成了前面的Basic container networking examples例子后，container2和container3之间因为是通过自定义网络isolated_nw网络连接，所以可以通过容器名进行通信，然而那些通过默认的bridge网络连接的容器则不可以，那么应该怎么办呢，这里，我们使用--link来允许连接到bridge网络的容器通过容器名进行通信。
+
+
+  NOTE: 官方强烈建议，不使用--link来允许容器间通过容器名通信，而使用自定义网络来允许容器见通过容器名进行通信
+
+
+通过传统的link在默认bridge网络上通信，会添加如下功能：
+
+  
+    解析容器名到IP
+    为将要连接到的容器定义一个别名，--link CONTAINER-NAME:ALIAS
+    安全的容器连接[通过–icc=false进行隔离]
+    环境变量注入
+  
+
+
+
+  再次重申： 所有上面的功能都能通过自定义网络实现，而且自定义网络还能动态附加到多个网络或从多个网络分离
+  
+    使用DNS自动名称解析
+    使用--link为连接的容器提供别名
+    为网络中的容器自动提供安全隔离
+    环境变量注入
+  
+
+
+下面的例子简要的介绍了如何使用--link
+1.运行一个container1容器，在启动container2的时候使用--link对container2和container1进行连接
+$ docker run -tid --name container1 busybox
+$ docker run -tid --name container2 --link container1:c1 busybox
+
+2.我们在container2来ping下container1或c1试试
+$ docker exec -ti container2 ping container1
+PING container1 (172.17.0.3): 56 data bytes
+64 bytes from 172.17.0.3: seq=0 ttl=64 time=0.294 ms
+64 bytes from 172.17.0.3: seq=1 ttl=64 time=0.116 ms
+64 bytes from 172.17.0.3: seq=2 ttl=64 time=0.142 ms
+64 bytes from 172.17.0.3: seq=3 ttl=64 time=0.108 ms
+
+$ docker exec -ti container2 ping c1
+PING c1 (172.17.0.3): 56 data bytes
+64 bytes from 172.17.0.3: seq=0 ttl=64 time=0.206 ms
+64 bytes from 172.17.0.3: seq=1 ttl=64 time=0.125 ms
+64 bytes from 172.17.0.3: seq=2 ttl=64 time=0.097 ms
+64 bytes from 172.17.0.3: seq=3 ttl=64 time=0.122 ms
+
+3.我们在container1下来pingcontainer2试试
+$ docker exec -ti container1 ping container2
+ping: bad address 'container2'
+
+我们发现只能在container2下能ping通container1，这说明，在bridge网络下，只有使用--link进行连接的容器之间能够通过主机名或别名进行互相通信，且只能是要主动连接的容器container2可以ping通被连接的容器container1
+
+别名示例
+
+当你使用link的时候，无论是使用传统的link，还是使用自定义网络的方式，任何别名都只会对你所指定的容器生效，而不会影响到其他的容器，此外，如果容器属于多个网络，你所给定的别名也只会你所限定的网络中生效。因此，容器可以连接到不同的网络使用不同的别名。请看下面的例子：
+1.创建一个另外的网络local_alias
+$ docker network create -d bridge --subnet 172.26.0.0/24 local_alias
+
+2.将容器连接到新建的网络
+$ docker network connect --link container1:foo local_alias container2
+$ docker network connect --link container2:bar local_alias container1
+
+3.我们进入container2，来进行测试
+$ docker exec -ti container2 /bin/sh
+/ # ping c1
+PING c1 (172.17.0.3): 56 data bytes
+64 bytes from 172.17.0.3: seq=0 ttl=64 time=0.263 ms
+
+/ # ping foo
+PING foo (172.26.0.3): 56 data bytes
+64 bytes from 172.26.0.3: seq=0 ttl=64 time=0.134 ms
+
+4.断开container1和local_alias网络的连接，再来测试
+/ # ping c1
+PING c1 (172.17.0.3): 56 data bytes
+64 bytes from 172.17.0.3: seq=0 ttl=64 time=0.263 ms
+
+/ # ping foo
+ping: bad address 'foo'
+
+你会发现，我依然能ping通c1,这是因为c1是我在连接bridge网络时指定的别名，而我无法ping通foo，这是因为foo是我在连接local_alias时指定的别名，现在我断开了和local_alias网络的连接， 当然就不能ping通了
+
+docker 网络限制
+虽然我们建议使用docker network来控制你的容器，但是目前docker的网络在使用上还是有些限制的
+环境变量注入
+环境变量注入是静态的，而且一旦容器启动就无法更改了，传统的--link会将所有的环境变量共享给被连接的容器，而docker network则不会，当你使用docker network连接时，容器之间是不能动态的存在环境变量的。
+网络别名
+传统的links是提供的单向隔离以及单向别名，而网network-scoped会为所有的网络成员提供别名，我们来看看下面的例子：
+1.先启动一个连接到isolated_nw网络的容器container2,并为它设定别名app1
+$ docker run -tid --network isolated_nw --network-alias app1 --name container2 busybox
+
+2.再启动一个连接到local_alias网络的容器container3，并为它设定别名app2
+$ docker run -tid --network local_alias --network-alias app2 --name container3 busybox
+
+3.将container2通过连接到local_alias网络，并为它设定别名app3
+$ docker network connect --alias app3 local_alias container2
+
+4.进入container2测试
+#进入container2
+/ # ping app1
+PING app1 (172.19.0.2): 56 data bytes
+64 bytes from 172.19.0.2: seq=0 ttl=64 time=0.059 ms
+
+/ # ping app2
+PING app2 (172.18.0.2): 56 data bytes
+64 bytes from 172.18.0.2: seq=0 ttl=64 time=0.396 ms
+
+/ # ping app3
+PING app3 (172.18.0.3): 56 data bytes
+64 bytes from 172.18.0.3: seq=0 ttl=64 time=0.069 ms
+
+5.进入container3测试
+/ # ping app1
+ping: bad address 'app1'
+
+/ # ping app2
+PING app2 (172.18.0.2): 56 data bytes
+64 bytes from 172.18.0.2: seq=0 ttl=64 time=0.117 ms
+
+/ # ping app3
+PING app3 (172.18.0.3): 56 data bytes
+64 bytes from 172.18.0.3: seq=0 ttl=64 time=0.125 ms
+
+我们发现在container2中能ping通所有，而在container3中无法ping通app1，这是因为app1属于isolated_nw网络，而container3只属于local_alias网络，所以无法ping通app1，而container2同时属于isolated_nw和local_alias网络，所以都能ping通
+
+多个容器共享一个别名，类似于集群
+多个容器共享一个别名，当其中一个容器不可用的时候，将解析到具有同样别名的其他容器，如下面的例子：
+1.接这上面的例子，我们再启动一个容器container4,并设定别名为app1
+$ docker run -tid --network isolated_nw --name container4 --network-alias app1 busybox
+
+2.进入container2进行测试,发现这时候ping通的是container4的IP(如果你重复多次ping会发现，app1的IP一会儿是172.19.0.2，一会儿是172.19.0.3)
+/ # ping app1
+PING app1 (172.19.0.3): 56 data bytes
+64 bytes from 172.19.0.3: seq=0 ttl=64 time=0.064 ms
+
+3.停掉container4，再测试，发现，只会ping到container2，而不会再ping到container4
+$ docker stop container4
+
+/ # ping app1
+PING app1 (172.19.0.2): 56 data bytes
+64 bytes from 172.19.0.2: seq=0 ttl=64 time=0.064 ms
+
+
+容器断开网络
+使用docker network disconnect命令来将容器和网络断开，当容器和网络断开后，容器就不能再和网络中的其他容器进行通信了。
+$ docker network disconnect local_alias container2
+
+
+处理过时的网络终端
+某些情况下，可能会出现守护进程无法清除过时的连接，这时候我们就需要删除容器，并强行断开它与网络的连接(docker network disconnect -f)，这样之后，你才能成功的连接到网络。
+
+删除网络
+当所有的容器都已经停止或者都已经断开连接，这时候可以使用docker network rm命令来进行删除操作。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-multi-host-networking-with-vagrant/">Docker基础-docker multi-host网络测试</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        这篇只是上一篇主要介绍了，如何使用vagrant来创建虚拟机，进行外部key-value存储overlay网络的测试。
+
+
+使用vagrant创建实验环境
+什么是vagrant?请参考vagrant官网
+创建实验环境
+安装virtualbox,vagrant,git-bash
+1.打开git-bash,新建一个vagrant工作的目录
+$ mkdir docker-multi-host
+
+2.初始化一个vagrant配置文件
+$ cd docker-multi-host
+$ vagrant init
+A `Vagrantfile` has been placed in this directory. You are now
+ready to `vagrant up` your first virtual environment! Please read
+the comments in the Vagrantfile as well as documentation on
+`vagrantup.com` for more information on using Vagrant
+
+3.你会发现目录下多了个Vagrantfile文件，编辑这个文件，替换成如下内容：
+## files: Vagrantfile
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+hosts = {
+  "node01" =&gt; "192.168.1.1",
+  "node02" =&gt; "192.168.1.2",
+  "node03" =&gt; "192.168.1.3",
+  "node04" =&gt; "192.168.1.4",
+  "node05" =&gt; "192.168.1.5"
+}
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/centos-7.2"
+  config.vm.box_url = "./vagrant-centos-7.2.box"
+  config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm",:id,"--memory",512]
+  end
+  config.vm.define "my-keystore" do |machine|
+    machine.vm.network :private_network, ip: "192.168.1.100"
+    machine.vm.hostname = "my-keystore"
+    machine.vm.synced_folder ".","/vagrant", disabled: true
+    machine.vm.provision "shell",
+    run: "always",
+    inline: "sudo ifup enp0s8"
+  end
+  hosts.each do |name, ip|
+    config.vm.define name do |nodes|
+      nodes.vm.hostname = name
+      nodes.vm.network :private_network, ip: ip
+      nodes.vm.provision "shell",
+        run: "always",
+        inline: "sudo ifup enp0s8"
+      end
+    end
+  end
+
+
+
+  NOTE: 该配置文件是ruby语法，具体可参考vagrant官网
+
+
+4.使用vagrant up启动
+$ vagrant up
+Bringing machine 'my-keystore' up with 'virtualbox' provider...
+
+5.验证刚刚启动的虚拟机的状态
+$ vagrant status
+Current machine states:
+
+my-keystore               running (virtualbox)
+node01                    running (virtualbox)
+node02                    running (virtualbox)
+node03                    running (virtualbox)
+node04                    running (virtualbox)
+node05                    running (virtualbox)
+
+
+6.使用ssh登录VM，两种方法：
+
+  
+    方法一：
+使用vagrant ssh &lt;vm-name&gt;直接在git-bash里登录
+$ vagrant ssh my-keystore
+Last login: Wed Jan  4 06:26:23 2017 from 10.0.2.2
+[vagrant@my-keystore ~]$
+  
+  
+    方法二：
+使用ssh客户端工具登录，如XSHELL等等
+    
+      至此，实验所需的环境，我们已经搭建完毕
+    
+  
+
+
+配置key-value store
+overlay网络依赖key-value存储.key-value存储保存着一些关于网络的状态信息，包括，发现，网络，终端，IP地址等等.Docker 支持Consul,Etcd,ZooKepper等key-value存储，这里使用的是Consul.
+1.进入my-keystore虚拟机，配置安装
+# 系统更新
+$ yum update -y
+#安装时间同步
+$ yum install ntp -y
+#配置hosts文件
+$ cat /etc/hosts
+192.168.1.100 my-keystore
+192.168.1.1 node01
+192.168.1.2 node02
+192.168.1.3 node03
+192.168.1.4 node04
+192.168.1.5 node05
+#添加docker repo
+$ tee /etc/yum.repos.d/docker.repo &lt;&lt;-'EOF'
+[dockerrepo]
+name=Docker Repository
+baseurl=https://yum.dockerproject.org/repo/main/centos/7/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum.dockerproject.org/gpg
+EOF
+# 安装docker
+$ yum install docker-engine -y
+
+2.在my-keystore虚拟机中运行一个consul容器
+$  docker run -d \
+     -p "8500:8500" \
+     -h "consul" \
+     progrium/consul -server -bootstrap
+
+3.我们可以看到在mh-keystore里面已经有了一个运行着consul的容器,并监听到8500端口
+[root@my-keystore ~]# docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                                                            NAMES
+3cdee7709575        progrium/consul     "/bin/start -server -"   3 hours ago         Up 2 seconds        53/tcp, 53/udp, 8300-8302/tcp, 8400/tcp, 8301-8302/udp, 0.0.0.0:8500-&gt;8500/tcp   angry_gates
+
+
+配置其他所有swarm节点
+1.进入所有swarm节点虚拟机，配置安装
+# 系统更新
+$ yum update -y
+#安装时间同步
+$ yum install ntp -y
+#配置hosts文件
+$ cat /etc/hosts
+192.168.1.100 my-keystore
+192.168.1.1 node01
+192.168.1.2 node02
+192.168.1.3 node03
+192.168.1.4 node04
+192.168.1.5 node05
+#添加docker repo
+$ tee /etc/yum.repos.d/docker.repo &lt;&lt;-'EOF'
+[dockerrepo]
+name=Docker Repository
+baseurl=https://yum.dockerproject.org/repo/main/centos/7/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum.dockerproject.org/gpg
+EOF
+# 安装docker
+$ yum install docker-engine -y
+
+2.在所有swarm节点上配置docker daemon的启动配置文件
+vi /usr/lib/systemed/system/docker.service
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --cluster-store consul://my-keystore:8500 --cluster-advertise enp0s8:2375
+
+3.配置完成后，使用docker info查看
+[root@node01 ~]# docker info
+Containers: 0
+ Running: 0
+ Paused: 0
+ Stopped: 0
+Images: 0
+Server Version: 1.12.5
+Storage Driver: devicemapper
+...
+Cluster Store: consul://my-keystore:8500
+Cluster Advertise: 192.168.1.1:2375
+Insecure Registries:
+ 127.0.0.0/8
+
+4.创建一个overlay网络
+$  docker network create --driver overlay --subnet=10.0.9.0/24 my-net
+
+5.去所有节点上看看，是否已经有了这个my-net网络
+#进入node01
+[root@node01 ~]# docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+0cacaf83d82f        bridge              bridge              local               
+fc2a7860f8a1        host                host                local               
+3fc32842e291        my-net              overlay             global              
+ebf3c8e333e9        none                null                local
+
+#进入node02
+[root@node02 ~]# docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+e3ed743a143c        bridge              bridge              local               
+1274cd7fe49f        host                host                local               
+3fc32842e291        my-net              overlay             global              
+03724cede8c1        none                null                local
+
+可以看到my-net网络在两个节点上都生效了
+6.这时候也可以直接去consul上查看
+
+可以看到我们已经在consul上存储了两个网络(其中有一个网络是我以前创建的)
+
+测试.在my-net网络上运行应用试试
+1.在node01上运行一个nginx web应用
+$ docker run -itd --name=web --network=my-net --env="constraint:node==node01" nginx
+
+2.在node02上运行一个busybox容器，来获取Nginx服务器主页上的内容
+$ docker run -it --rm --network=my-net --env="constraint:node==node02" busybox wget -O- http://web
+Connecting to web (10.0.9.2:80)
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a href="http://nginx.org/"&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a href="http://nginx.com/"&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you for using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+-                    100% |*******************************|   612   0:00:00 ETA
+
+
+可以看到是通过my-net网络进行访问的
+
+
+  PS 这里我们可以对比上一篇Get started with multi-host networking，我们发现，在使用key-value存储的时候，只要docker engine指定了key-value存储，就能获取到网络，而使用swarm mode的时候，则必须是在swarm manager管理下的节点才能获取网络。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-multi-host-networking-with-docker-machine/">Docker基础-docker multi-host网络之overlay</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        本章主要是通过例子来讲解multi-host network，Docker engine 支持使用overlay驱动的网络开箱即用，不像bridge网络，overlay网络的使用，需要做一些前提准备工作：
+
+
+
+
+  Docker Engine在swarm模式下运行
+OR
+  Docker Engine运行在使用kv存储的集群
+
+
+overlay networking and swarm mode
+在swarm mode下运行Docker Engine，你可以在管理节点上创建overlay网络
+swarm使overlay网络只有在swarm中的service需要时才可用，比如当你创建了一个overlay网络时，管理节点会首先将overlay同步到其他管理节点，然后当你创建的service使用这个overlay网络的时候，overlay才会同步到这些service所在的节点。
+下面的例子显示了如何在管理节点上创建网络，并将其应用到swarm中的service：
+# create an overlay network `my-multi-host-network`
+$ docker network create --driver overlay --subnet 10.0.9.0/24 my-multi-host-network
+
+# show overlay network ,可以看到它的SCOPE是swarm
+$ docker network ls |grep my-multi-host-network
+3cy4vcgiin5g        my-multi-host-network   overlay             swarm
+
+# create an nginx service and extend the my-multi-host-network to nodes where the service's run
+$ docker service create --network my-multi-host-network --name my-web --replicas 5 nginx
+
+overlay网络不会覆盖到那些没有被swarm管理起来的容器，更多信息可以参考Docker swarm mode overlay network security model
+也可以参考Attach service to an overlay network
+
+overlay networking with an external key-value store
+如果使用外部的key-value存储，你需要以下几步：
+
+  一个可以访问的key-value存储.docker  支持Consul,Etcd,ZooKeeper等key-value存储。
+  一个连接到key-value存储的集群
+  在集群中的每台机器上有正常运行的Docker Engine daemon
+  集群中的主机必须拥有唯一的主机名，因为key-value存储使用主机名来标识集群成员
+
+
+Docker machine和Docker swarm不强制使用key-value存储来体验multi-host network，这里用key-value 存储主要是为了展示他们是怎么集成的。这个例子中，你将使用docker machine来创建key-value store 和集群。
+
+  Note: 在swarm模式下运行的Docker engine和使用外部存储的网络不兼容
+
+
+前提条件
+开始之前，请确认你的网络上安装了最新版的Docker Engine 和Docker Machine.这个例子中使用的是Virtualbox，如果你在Windows或MAC上安装了Docker Toolbox，那么这些东西，你已经安装了。
+如果之前你已经在windows上安装了virtualbox，那么这时你只需要按照Install Docker Machine安装docker-machine即可
+
+配置key-value store
+overlay网络依赖key-value存储.key-value存储保存着一些关于网络的状态信息，包括，发现，网络，终端，IP地址等等.Docker 支持Consul,Etcd,ZooKepper等key-value存储，这里使用的是Consul.
+1.创建一个名叫mh-keystore的虚拟机.
+$ docker-machine create -d virtualbox mh-keystore
+
+当你创建这个虚拟机时，会自动在虚拟机中创建Docker Engine.相对于手动安装Consul，用这种方式可以直接从Docker Hub上拉去Consul镜像
+2.将mh-keystore机器的环境变量添加到本地
+# 下面这条命令的意思将`docker-machine env mh-keystore`输出的结果作为命令在本地执行
+$ eval "$(docker-machine env mh-keystore)"
+
+3.在mh-keystore虚拟机里面运行一个consul容器
+$  docker run -d \
+     -p "8500:8500" \
+     -h "consul" \
+     progrium/consul -server -bootstrap
+
+4.我们可以看到在mh-keystore里面已经有了一个运行着consul的容器,并监听到8500端口
+docker@mh-keystore:~$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                                                            NAMES
+c7075a337757        progrium/consul     "/bin/start -server -"   11 hours ago        Up About an hour    53/tcp, 53/udp, 8300-8302/tcp, 8400/tcp, 8301-8302/udp, 0.0.0.0:8500-&gt;8500/tcp   drunk_lovelace
+
+
+创建swarm集群
+在这步，使用docker-machine来为你的网络创建主机，此时，你不会真正的创建网络，你会在virtualbox中创建几个虚拟机，其中一个作为swarm master，master要首先创建，然后当你创建其它节点时，overlay网络，覆盖到所需的节点上。
+1.创建swarm master
+$ docker-machine create \
+ -d virtualbox \
+ --swarm --swarm-master \
+ --swarm-discovery="consul://$(docker-machine ip mh-keystore):8500" \
+ --engine-opt="cluster-store=consul://$(docker-machine ip mh-keystore):8500" \
+ --engine-opt="cluster-advertise=eth1:2376" \
+ mhs-demo0
+
+创建可能需要几分钟，这里要说到几个参数：
+
+  –swarm 将机器加入到swarm集群中
+  –swarm-master 将机器配置成swarm master
+  –swarm-discovery 在使用swarm集群的时候使用discovery服务
+  –engine-opt 指定在创建machine时的参数，比如这里指定了保存overlay网络的存储
+
+
+2.创建另外一台主机，并加入到swarm集群
+$ docker-machine create -d virtualbox \
+    --swarm \
+    --swarm-discovery="consul://$(docker-machine ip mh-keystore):8500" \
+    --engine-opt="cluster-store=consul://$(docker-machine ip mh-keystore):8500" \
+    --engine-opt="cluster-advertise=eth1:2376" \
+  mhs-demo1
+
+3.列出所有的机器，并确认他们都已经在运行
+$ docker-machine ls
+NAME          ACTIVE   DRIVER       STATE     URL                         SWARM                DOCKER    ERRORS
+mh-keystore   -        virtualbox   Running   tcp://192.168.99.100:2376                        v1.12.5
+mhs-demo0     *        virtualbox   Running   tcp://192.168.99.102:2376   mhs-demo0 (master)   v1.12.5
+mhs-demo1     -        virtualbox   Running   tcp://192.168.99.103:2376   mhs-demo0            v1.12.5
+
+此时，你已经拥有了一组在网络上运行的主机，可以开始为这些主机的容器创建multi-host-network。
+
+创建Overlay网络
+1.将swarm master的环境变量添加到本地
+$ eval $(docker-machine env --swarm mhs-demo0)
+
+2.进入mhs-demo0，查看docker info信息
+$ docker-machine ssh mhs-demo0
+
+$ docker info
+Containers: 3
+ Running: 3
+ Paused: 0
+ Stopped: 0
+Images: 2
+Server Version: 1.12.5
+Storage Driver: aufs
+ Root Dir: /mnt/sda1/var/lib/docker/aufs
+ Backing Filesystem: extfs
+ Dirs: 12
+ Dirperm1 Supported: true
+Logging Driver: json-file
+Cgroup Driver: cgroupfs
+Plugins:
+ Volume: local
+ Network: overlay bridge null host
+Swarm: inactive
+Runtimes: runc
+Default Runtime: runc
+Security Options: seccomp
+Kernel Version: 4.4.39-boot2docker
+Operating System: Boot2Docker 1.12.5 (TCL 7.2); HEAD : fc49b1e - Fri Dec 16 12:44:49 UTC 2016
+OSType: linux
+Architecture: x86_64
+CPUs: 1
+Total Memory: 995.8 MiB
+Name: mhs-demo0
+ID: 7IIW:YM6F:ONBD:34ID:7P5A:IWMR:R5EU:IKPG:RQ7U:GFNY:QQ6J:F5GN
+Docker Root Dir: /mnt/sda1/var/lib/docker
+Debug Mode (client): false
+Debug Mode (server): true
+ File Descriptors: 44
+ Goroutines: 73
+ System Time: 2016-12-31T05:48:48.647020582Z
+ EventsListeners: 1
+Registry: https://index.docker.io/v1/
+Labels:
+ provider=virtualbox
+Cluster Store: consul://192.168.99.100:8500
+Cluster Advertise: 192.168.99.102:2376
+Insecure Registries:
+ 127.0.0.0/8
+
+3.开始创建overlay网络
+$  docker network create --driver overlay --subnet=10.0.9.0/24 my-net
+
+你只需要在swarm master上创建overlay网络，后续使用的时候，swarm会自动同步到其他机器上
+
+  NOTE: 强烈建议在创建网络的时候指定--subnet选项，如果不指定的话，可能会和其他没有在swarm集群中管理的机器IP冲突
+
+
+4.分别进入mhs-demo0和mhs-demo1容器，查看刚刚创建的my-net网络是否生效
+# 进入mhs-demo0
+$ docker-machine ssh mhs-demo0
+
+docker@mhs-demo0:~$ docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+9b5899502854        bridge              bridge              local
+2b0344b0f275        docker_gwbridge     bridge              local
+9bdb81aab8b8        host                host                local
+89645f6295f4        my-net              overlay             global
+71113ce8e823        none                null                local
+
+#进入mhs-demo1
+$ docker-machine ssh mhs-demo1
+
+docker@mhs-demo1:~$ docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+4ad6d85d6654        bridge              bridge              local
+037c69787c0c        docker_gwbridge     bridge              local
+b823a92977d6        host                host                local
+89645f6295f4        my-net              overlay             global
+700571c2dae2        none                null                local
+
+可以看到my-net网络在两个主机上都已经生效了
+
+测试.在my-net网络上运行应用
+
+1.我们在mhs-demo0上运行一个nginx web应用
+$ docker run -itd --name=web --network=my-net --env="constraint:node==mhs-demo0" nginx
+
+2.在mhs-demo1上运行一个busybox容器，并获取Nginx服务器主页上的内容
+docker@mhs-demo1:~$ docker run -it --rm --network=my-net --env="constraint:node==mhs-demo1" busybox wget -O- http://web
+Connecting to web (10.0.9.2:80)
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a href="http://nginx.org/"&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a href="http://nginx.com/"&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you for using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+-                    100% |*******************************|   612   0:00:00 ETA
+
+
+
+检查外部网络连接
+如你所见，Docker内置的overlay网络在使用同样网络的同台主机的容器之间是开箱即用的。此外，容器连接到多台主机时会自动连接到docker_gwbridge网络，这个网络会让容器拥有集群外的连接。
+
+我们来查看nginx容器的网络接口信息
+$ docker exec web ip addr
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+13: eth0@if14: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1450 qdisc noqueue state UP group default
+    link/ether 02:42:0a:00:09:02 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.9.2/24 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:aff:fe00:902/64 scope link
+       valid_lft forever preferred_lft forever
+16: eth1@if17: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default
+    link/ether 02:42:ac:12:00:02 brd ff:ff:ff:ff:ff:ff
+    inet 172.18.0.2/16 scope global eth1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:acff:fe12:2/64 scope link
+       valid_lft forever preferred_lft forever
+
+我们可以看到，eth0连接到my-net网络,eth1连接到docker_gwbridge网络
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-links/">Docker基础-docker容器之间如何通过link进行通信</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        传统容器链接
+
+本章节主要介绍了在我们安装Docker的时候，自动创建的docker 默认bridge网络中的传统容器link。
+
+在Docker network 功能之前，你可以使用docker的link功能来允许容器彼此发现，将一个容器的信息安全的传输到另一个容器。随着docker network功能的引入，您仍然可以创建link。但是link功能在默认的bridge网络和用户自定义网络上还是有所不同。
+
+
+  Warning: --link是docker的一个传统功能。它以后可能会被移除。除非你确定你非要使用它，否则，我们建议你最好使用用户自定义网络。用户自定义网络唯一不支持的是，你可以使用–link来在容器之间共享环境变量。但是，你可以使用其他方式(如volumes)等方式来在容器中共享环境变量。
+
+
+使用端口映射连接
+
+$ docker run -d -P training/webapp python app.py
+
+当容器运行的时候，使用-P选项，会将容器内部发布的端口，随机映射到书主机上的任意端口，这里可以看到，容器的5000端口，已经绑定到了宿主机上的32768端口上
+$ docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                     NAMES
+0de1cf226109        training/webapp     "python app.py"     2 minutes ago       Up 2 minutes        0.0.0.0:32768-&gt;5000/tcp   stoic_lamport
+
+你也可以使用-p选项，来指定绑定到宿主机的端口
+$ docker run -d -p 6666:5000 training/webapp python app.py
+
+
+你甚至可以指定绑定到宿主机的端口范围
+$ docker run -d -p 8000-9000:5000 training/webapp python app.py
+
+
+默认情况下，-p标志是绑定到所有的接口。你可以绑定到指定的接口的指定端口，如localhost
+$ docker run -d -p 127.0.0.1:8000-9000:5000 training/webapp python app.py
+
+
+当然，你也可以绑定到指定接口的随机端口上
+$ docker run -d -p 127.0.0.1::5000 training/webapp python app.py
+
+
+你还可以绑定UDP端口
+$ docker run -d -p 127.0.0.1:80:5000/udp training/webapp python app.py
+
+
+我们可以使用docker port来查看绑定的信息
+$ docker port nostalgic_morse 5000
+
+127.0.0.1:49155
+
+
+使用link连接
+
+本节主要是讲解的传统的link功能，关于用户自定义网络的link，可参考docker network command
+端口映射不是容器彼此连接的唯一方式，你还可以将多个容器连接到一起，并将信息从一个发动到另一个。当容器被连接后，关于源容器的信息，可以发动到接受容器，这允许接收者看到源容器的数据。
+
+命名的重要性
+
+为了建立链接，docker依赖于你的容器名。你可以看到，当你创建容器的时候，它会创建一个默认的容器名，实际上，你可以自定义容器名，给容器命名有两个好处：
+1.好记
+2.方便连接
+
+我们可以使用--name来进行容器命名
+$ docker run -d -P --name web training/webapp python app.py
+
+
+连接之间的通信
+
+link 允许容器之间互相发现 ，并将一个容器的信息安全的传送到另外一个容器。在设置link时，会在两个容器间创建一个父子关系，其中父容器可以访问子容器内部的某些信息。
+
+首先，我们来创建一个数据库的容器
+$ docker run -d --name db training/postgres
+
+
+然后，创建一个web容器，并且将它连接到db容器
+$ docker run -d -P --name web --link db:db training/webapp python app.py
+
+这将会把新的web容器和之前的db容器连接起来，web容器可以访问db容器的信息
+
+我们知道link允许子容器向父容器提供自身的信息。在我们上面的例子中，父容器web可以访问子容器db提供的数据库信息，为此，我们在创建子容器的时候，不需要在容器外部暴露任何端口，你会发现，上面在创建db容器的时候没有指定-p或-P,这样做的好处就是避免了暴露子容器（数据库）端口的风险。
+
+docker以两种方式将子容器的连接信息暴露给父容器：
+
+  环境变量
+  更新/etc/hosts配置文件
+
+
+环境变量
+
+当你链接容器的时候docker会创建几个环境变量。docker会基于--link目标参数在目标容器中创建环境变量。它还将从子容器暴露所有来自docker主机的环境变量，包括：
+
+  Dockerfile中指定的ENV
+  启动容器时通过-e,--env和--env-file选项指定的环境变量
+
+
+
+  Warning: 来自docker的所有环境变量对于目标容器都是可用的，如果有敏感数据存储器中，这可能会有安全风险
+
+
+Docker为--link后的每个目标容器设定了别名。例如，如果一个名叫web的新容器连接到一个名叫db的数据库容器(--link db:webdb)。那么docker会在web容器中创建一个WEBDB_NAME=/web/webdb的环境变量
+
+Docker还会为源容器公开的每个端口定义一组环境变量。每个变量在表单中都有一个唯一的前缀：
+_PORT__
+前缀部分包含如下：
+* 通过`--link`指定的别名
+* 公开的端口
+* tcp/udp协议
+
+Docker使用这种前缀格式指定了三个不同的环境变量：
+* `prefix_ADDR` IP，例：WEBDB_PORT_5432_TCP_ADDR=172.17.0.82.
+* `prefix_PORT` 端口，例：WEBDB_PORT_5432_TCP_PORT=5432
+* `prefix_PROTO` 协议，例：WEBDB_PORT_5432_TCP_PROTO=tcp
+
+如果容器公开了多个端口，那么每个端口都要定义一个变量集。这意味着，比如，如果一个容器公开了4个端口，那么我们就需要设置12个环境变量，每个端口三个变量(包含ip，端口，协议)
+
+另外，docker会创建一个名叫`_PORT`的环境变量，这个环境变量是源容器的第一个公开端口。这个所谓的`第一`端口，被称之为最低编号的暴露端口。例如：`DB_PORT=tcp://172.17.0.82:5432`
+
+最后，docker还会将源容器里那些来自docker主机的环境变量暴露为目标容器的变量，这些变量会在目标容器中被创建成`_ENV_`的样子，变量的值来自于源容器
+
+我们可以进入web容器，使用`env`命令看看这个目标容器里面的环境变量
+```bash
+$ docker exec -ti web env
+
+DB_PORT=tcp://172.17.0.2:5432
+DB_PORT_5432_TCP=tcp://172.17.0.2:5432
+DB_PORT_5432_TCP_ADDR=172.17.0.2
+DB_PORT_5432_TCP_PORT=5432
+DB_PORT_5432_TCP_PROTO=tcp
+DB_NAME=/web/db
+```
+你可以看到docker已经创建了一些列有关源db容器的环境变量，每个变量的前缀都是`DB_`,这个DB就是你在上面指定的别名。如果别名是db1,那么这个前缀就是`DB1_`.你可以使用这些环境变量来配置应用程序连接到db容器上的数据库，连接是安全的，只有目标容器web能够访问源容器db。
+
+#### 有关docker环境变量的重要注意事项
+
+与`/etc/hosts file`中的host条目不一样，如果重新启动源容器，不会自动更新存储在环境变量中的IP地址，我们建议使用/etc/hosts来解析连接容器的IP地址。
+
+#### 更新/etc/hosts配置文件
+
+除了环境变量，Docker还会将源容器的主机条目添加到/etc/hosts文件中：
+```bash
+$ docker exec -ti web cat /etc/hosts
+
+172.17.0.3	80e0d81d8652
+172.17.0.2	db 60bedbc24041 webdb
+```
+可以看到有两条主机条目。第一条是使用容器ID作为主机名的web容器，第二条是使用容器名和别名来作为主机名的db容器。除了你提供的别名之外，容器本身的容器名也会被添加到/etc/hosts，这两个主机条目你都可以ping通：
+```bash
+$ docker exec -ti web ping db
+PING webdb (172.17.0.2) 56(84) bytes of data.
+64 bytes from webdb (172.17.0.2): icmp_seq=1 ttl=64 time=0.044 ms
+
+$ docker exec -ti web ping webdb
+PING webdb (172.17.0.2) 56(84) bytes of data.
+64 bytes from webdb (172.17.0.2): icmp_seq=1 ttl=64 time=0.044 ms
+```
+&gt; **Note:** 我们可以将当个源容器连接到多个目标容器
+
+如果我们重启了源容器，目标容器的/etc/hosts会自动更新到新的IP地址
+```bash
+$ docker restart db
+$ docker exec -ti web cat /etc/hosts
+172.17.0.5	webdb 60bedbc24041 db
+172.17.0.3	80e0d81d8652
+```
+而我们来看看目标容器web的env，发现环境变量并没有更新
+```bash
+$ docker exec -ti web env
+
+DB_PORT=tcp://172.17.0.2:5432
+DB_PORT_5432_TCP=tcp://172.17.0.2:5432
+DB_PORT_5432_TCP_ADDR=172.17.0.2
+DB_PORT_5432_TCP_PORT=5432
+DB_PORT_5432_TCP_PROTO=tcp
+DB_NAME=/web/db
+DB_ENV_PG_VERSION=9.3
+```
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-install-docker-compose/">Docker基础-docker compose安装</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        你可以在macOS，windows 和64位的linux系统上运行compose。在安装它之前，你需要先安装docker。
+
+
+
+步骤如下：
+1.安装docker engine
+2.docker toolbox安装包括了docker engine和compose，因此Mac和windows已经安装好了。其他系统需要进入下一步
+3.进入compose repository release page on Github
+4.按照发行页中的说明，在你的终端下运行指定的curl命令
+
+  如果你收到”Permission denied”的报错，你的/usr/local/bin目录可能是不可写的，你需要用超级用户来进行安装。运行sudo -i，然后执行下面的两个命令，然后exit.
+
+
+下面这个例子：
+ $ curl -L "https://github.com/docker/compose/releases/download/1.9.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+如果你对使用curl安装有疑问，你可以看看备用的安装选项
+5.赋权
+chmod +x /usr/local/bin/docker-compose
+
+6.(可选)，为bash和zsh安装命令补全
+7.测试
+$ docker-compose --version
+ docker-compose version: 1.9.0
+
+
+备用安装选项
+
+pip安装
+
+这种方式是将compose当作一个python应用来从pip源中安装,建议使用virtualenv避免python冲突
+$ pip install docker-compose
+
+
+直接作为容器运行
+
+既然docker-compose是一个python应用，那么当然可以作为一个容器来执行它
+
+$ curl -L https://github.com/docker/compose/releases/download/1.9.0/run.sh &gt; /usr/local/bin/docker-compose
+$ chmod +x /usr/local/bin/docker-compose
+
+
+主构建
+
+如果你对预发布版本有兴趣，你可以从https://dl.bintray.com/docker-compose/master/ 下载二进制包。预发布版本有很多新的功能，但是不稳定。
+
+升级
+
+如果要把compose从1.2或更早的版本升级，你需要在升级compose后删除或迁移现有的容器，因为从1.3开始，compose使用docker labels来跟踪容器，因此需要使用添加的标签来重新创建它们。
+
+如果compose检测到没有label的容器，那么它将拒绝运行，因此最终你不会有两套的容器。如果你要继续使用现有的容器(例如，因为他们有要保留的数据volume)，可以使用compose 1.5.x来迁移它们：
+docker-compose migrate-to-labels
+
+
+或者，如果你不想保留它们，你可以删除，compose只会创建新的
+docker rm -f -v myapp_web_1 myapp_db_1 ..
+
+
+卸载
+
+卸载使用curl安装的compose
+rm /usr/local/bin/docker-compose
+
+
+卸载使用pip安装的compose
+pip uninstall docker-compose
+
+
+  如果你收到”Permission denied”的报错，说明你没有权限删除docker-compose，你可以使用sudo来强制删除，或者使用超级管理员用户来删除。
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+            </ol>
+        </div>
+        <div class="column one-third">
+            
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
+
+
+            <h3>My Popular Repositories</h3>
+
+
+
+<a href="https://github.com/chinakevinguo/kubernetes-custom" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="kubernetes-custom">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    kubernetes-custom
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="3 stars">
+                    <span class="octicon octicon-star"></span> 3
+                </span>
+                <span class="meta-info" title="0 forks">
+                    <span class="octicon octicon-git-branch"></span> 0
+                </span>
+                <span class="meta-info" title="Last updated：2017-12-22 02:41:39 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2017-12-22 02:41:39 UTC">2017-12-22</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://github.com/chinakevinguo/learn-python" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="learn-python">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    learn-python
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="1 stars">
+                    <span class="octicon octicon-star"></span> 1
+                </span>
+                <span class="meta-info" title="1 forks">
+                    <span class="octicon octicon-git-branch"></span> 1
+                </span>
+                <span class="meta-info" title="Last updated：2018-03-02 03:11:20 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-03-02 03:11:20 UTC">2018-03-02</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://github.com/chinakevinguo/learn-groovy" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="learn-groovy">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    learn-groovy
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="1 stars">
+                    <span class="octicon octicon-star"></span> 1
+                </span>
+                <span class="meta-info" title="0 forks">
+                    <span class="octicon octicon-git-branch"></span> 0
+                </span>
+                <span class="meta-info" title="Last updated：2018-01-03 06:06:38 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-01-03 06:06:38 UTC">2018-01-03</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://github.com/chinakevinguo/sharelibrary" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="sharelibrary">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    sharelibrary
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text"></p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="0 stars">
+                    <span class="octicon octicon-star"></span> 0
+                </span>
+                <span class="meta-info" title="0 forks">
+                    <span class="octicon octicon-git-branch"></span> 0
+                </span>
+                <span class="meta-info" title="Last updated：2017-12-07 03:41:29 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2017-12-07 03:41:29 UTC">2017-12-07</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://github.com/chinakevinguo/mritd.github.io" target="_blank" class="card text-center">
+    <div class="thumbnail">
+        <div class="card-image geopattern" data-pattern-id="mritd.github.io">
+            <div class="card-image-cell">
+                <h3 class="card-title">
+                    mritd.github.io
+                </h3>
+            </div>
+        </div>
+        <div class="caption">
+            <div class="card-description">
+                <p class="card-text">十字路口,繁华街头......</p>
+            </div>
+            <div class="card-text">
+                <span class="meta-info" title="0 stars">
+                    <span class="octicon octicon-star"></span> 0
+                </span>
+                <span class="meta-info" title="0 forks">
+                    <span class="octicon octicon-git-branch"></span> 0
+                </span>
+                <span class="meta-info" title="Last updated：2018-03-19 06:51:22 UTC">
+                    <span class="octicon octicon-clock"></span>
+                    <time datetime="2018-03-19 06:51:22 UTC">2018-03-19</time>
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+
+
+        </div>
+    </div>
+    <div class="pagination text-align">
+      <div class="btn-group">
+        
+          
+              <a href="/page3"  class="btn btn-outline">&laquo;</a>
+          
+        
+        
+            <a href="/"  class="btn btn-outline">1</a>
+        
+        
+          
+              <a href="/page2"  class="btn btn-outline">2</a>
+          
+        
+          
+              <a href="/page3"  class="btn btn-outline">3</a>
+          
+        
+          
+              <a href="javascript:;"  class="active btn btn-outline">4</a>
+          
+        
+          
+              <a href="/page5"  class="btn btn-outline">5</a>
+          
+        
+          
+              <a href="/page6"  class="btn btn-outline">6</a>
+          
+        
+          
+              <a href="/page7"  class="btn btn-outline">7</a>
+          
+        
+          
+              <a href="/page8"  class="btn btn-outline">8</a>
+          
+        
+        
+            <a href="/page5"  class="btn btn-outline">&raquo;</a>
+        
+        </div>
+    </div>
+    <!-- /pagination -->
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2015
+                    <span title="KevinGuo">KevinGuo</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>
