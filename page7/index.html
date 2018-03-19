@@ -110,19 +110,148 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2015/05/06/android-studio/">Android Studio 遇到问题集锦</a>
+                      <a href="https://kevinguo.me/2017/07/06/Docker-Use-compose-with-swarm/">Docker基础-在swarm上使用docker compose</a>
                     </h3>
                     <p class="repo-list-description">
-                        打开 Android Studio 卡在「Fetching Android SDK component information」界面。
+                        现在看到的是旧版本的独立版的swarm。如果你使用的是docker 1.12或更高的版本，swarm mode已经继承到了docker engine中。大多数用户都使用集成的swarm mode。可参考Getting started with swarm mode和Swarm mode CLI commands，独立的swarm没有集成到docker engine API和CLI commands中。
+
+docker compose和docker swarm旨在实现完全集成，这意味着你可以将一个compose应用程序指向一个swarm集群，并使其全部工作，就像使用单个主机一样。
+
+
+实际的集成程度取决于你使用的compose file版本:
+1.如果你使用版本1以及links，你的app可以工作，但是swarm将调度一个主机上的所有容器，因为容器之间的links不能在具有旧网络系统的主机上工作。
+2.如果你使用版本2，你的app可以工作，并且不需要任何修改：
+
+  受下面描述的限制
+只需swarm集群配置使用overlay驱动或自定义网络驱动
+
+
+参考Get started with multi-host networking来查看如何使用Docker Machine和overlay driver配置swarm 集群.运行后，部署app就变得非常简单：
+$ eval "$(docker-machine env --swarm &lt;name of swarm master machine&gt;)"
+$ docker-compose up
+
+
+限制
+
+构建images
+swarm 可以像单台docker主机实例一样从Dockerfile构建image，但是生成的image只会保存在单个的节点上，不会分发到其他节点。
+如果你想将服务扩展到多个节点，你需要自己来构建，然后push到registry[例如 docker hub]，然后在docker-compose.yml中引用它：
+$ docker build -t myusername/web .
+$ docker push myusername/web
+
+$ cat docker-compose.yml
+web:
+  image: myusername/web
+
+$ docker-compose up -d
+$ docker-compose scale web=3
+
+
+多依赖
+
+如果service有需要同时调度的依赖，那么很有可能swarm调度的依赖在不同的节点上，是依赖服务无法调度，例如，下面的foo同时调度bar和baz：
+version: "2"
+services:
+  foo:
+    image: foo
+    volumes_from: ["bar"]
+    network_mode: "service:baz"
+  bar:
+    image: bar
+  baz:
+    image: baz
+
+那么问题来了，swarm很有可能先在不同的节点上调度bar和baz（因为它们不依赖其他节点），使得不可能为foo选择一个合适的节点，那么应该怎么解决这个问题呢？
+要解决上面的问题，我们可以使用手动调度来确保三个service都在同一个节点上，如下：
+version: "2"
+services:
+  foo:
+    image: foo
+    volumes_from: ["bar"]
+    network_mode: "service:baz"
+    environment:
+      - "constraint:node==node-1"
+  bar:
+    image: bar
+    environment:
+      - "constraint:node==node-1"
+  baz:
+    image: baz
+    environment:
+      - "constraint:node==node-1"
+
+
+主机端口和重建容器
+如果service映射host主机上的端口，如：80:8080，那么在第一次运行docker-compose up的时候，可能会报错：
+docker: Error response from daemon: unable to find a node that satisfies
+container==6ab2dfe36615ae786ef3fc35d641a260e3ea9663d6e69c5b70ce0ca6cb373c02.
+
+产生这个错误主要是因为容器有一个volume(在image或compose文件中定义的)没有映射，所以为了保留数据，compose指示swarm在调度新容器的时候会调度到和旧容器相同的节点，这就导致了端口冲突。
+
+这里有两种方式来解决这个问题：
+
+  为卷组指定一个名字，并使用volume驱动程序，该驱动程序能将volume安装到容器中，而不管其被调度到什么节点上
+如果service仅使用命名volume，则compose不会向swarm发送任何特定的调度命令
+```bash
+version: “2”
+
+
+services:
+  web:
+    build: .
+    ports:
+      - “80:8000”
+    volumes:
+      - web-logs:/var/log/web
+
+volumes:
+  web-logs:
+    driver: custom-volume-driver
+&gt; 在新建容器之前，删除旧的容器，但是你会丢失卷组里面的数据
+
+```bash
+$ docker-compose stop web
+$ docker-compose rm -f web
+$ docker-compose up web
+
+
+容器调度
+
+自动调度
+
+某些配置选项将导致在同一swarm节点上自动调度容器，以确保它们正常工作，这些是：
+
+  版本1中的network_mode: "service:..." and network_mode: "container:..." (and net: "container:..."
+volumes_from
+links
+
+
+手动调度
+
+swarm提供了一组丰富的调度和关联提示，使您可以控制容器所在的位置。他们是通过容器的环境变量来指定的，因此，你可以使用compose的环境变量来设置
+# Schedule containers on a specific node
+environment:
+  - "constraint:node==node-1"
+
+# Schedule containers on a node that has the 'storage' label set to 'ssd'
+environment:
+  - "constraint:storage==ssd"
+
+# Schedule containers where the 'redis' image is already pulled
+environment:
+  - "affinity:image==redis"
+
+
+更多有关swarm调度的内容，可参考swarm documentation
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2015/05/06
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Android" title="Android">Android</a>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -130,19 +259,174 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2015/04/06/dp-sp-px/">Android UI 开发里的尺寸单位理解</a>
+                      <a href="https://kevinguo.me/2017/07/06/Docker-Stacks-and-Distributed-Application-Bundles/">Docker基础-docker stacks</a>
                     </h3>
                     <p class="repo-list-description">
-                        在学习 Android UI 开发的初期，经常被一些常用概念如 dp、sp 和它们与 px 的换算等虐，要避免被虐，最好的方法当然是知其所以然，再见到它们就胸中有料心不慌了。
+                        该章节介绍的功能都是实验性的，在变成正式版本之前，可能发生变动
+
+
+
+  这些内容来自docker/docker repo的Docker Stacks and Distributed Application Bundles
+
+
+
+概述
+docker stacks 和分布式应用程序bundles是在docker 1.12和docker compose 1.8中引入的一个新特性，目前还在实验阶段，同Engine API中的swarm、nodes和service同时进行
+
+截至目前，大家已经可以选定一个Dockerfile，并利用docker build命令由此创建镜像。使用docker run命令则可启动容器。这条命令亦能够轻松同时启动多套容器。另外，大家也可以使用Docker Compose文件并利用docker-compose scale命令对容器进行规模扩展。
+
+那么同样，一个docker-compose.yml可以创建一个分布式的应用程序bundle。使用docker-compose bundle可以启动docker stack。其专门面向多套容器的迁移需求，每个捆绑包都可以作为stack在运行时进行部署。
+
+
+简单来说，我们可以使用一个类比来进行说明：
+Dockerfile –&gt; 镜像 –&gt; 容器
+Docker Compose –&gt; 分布式应用程序包 –&gt; Docker Stack
+
+从Docker 1.12和compose 1.8开始，这些功能是实验性的。Docker Engine和Docker Registry 都不支持捆绑包的分发。
+
+生成一个捆绑包
+生成捆绑包最简单的方法就是使用docker-compose从docker-compose.yml中生成。当然，这仅仅是一种可能的方式，用同样的方式， docker build不是唯一能生成docker image的方式。
+
+1.新建docker-compose.yml文件
+$ cat docker-compose.yml
+version: "2"
+services:
+ db:
+   container_name: "db"
+   image: arungupta/oreilly-couchbase:latest
+   ports:
+     - 8091:8091
+     - 8092:8092
+     - 8093:8093
+     - 11210:11210
+ web:
+   image: arungupta/oreilly-wildfly:latest
+   depends_on:
+     - db
+   environment:
+     - COUCHBASE_URI=db
+   ports:
+     - 8080:8080
+
+
+2.拉取服务镜像
+$ docker-compose pull db
+$ docker-compose pull web
+
+
+3.生成捆绑包
+$ docker-compose bundle
+WARNING: Unsupported key 'depends_on' in services.web - ignoring
+WARNING: Unsupported key 'container_name' in services.db - ignoring
+Wrote bundle to composetest.dab
+
+
+从bundle创建一个stack
+
+
+  Note: 因为目前stack和应用程序捆绑包还在试验阶段，所以最好使用最新版的docker-engine才会有这些新特性，想要使用这些新特性，可参考experimental build README
+
+
+在这之前，我们先开启这些实验版的特性
+$ vi /lib/systemd/system/docker.service
+  ExecStart=/usr/bin/dockerd --experimental
+
+# 重启服务
+$ systemctl daemon-reload
+$ systemctl restart docker
+
+# 确认是否开启成功
+$ docker version -f '{ { .Server.Experimental } }'
+true
+
+
+使用docker deploy命令来创建stack
+$ docker deploy --help
+
+Usage:	docker deploy [OPTIONS] STACK
+
+Deploy a new stack or update an existing stack
+
+Options:
+      --bundle-file string    Path to a Distributed Application Bundle file
+  -c, --compose-file string   Path to a Compose file
+      --help                  Print usage
+      --with-registry-auth    Send registry authentication details to Swarm agents
+
+
+依据前面生成的捆绑包来部署stack
+$ docker deploy --bundle-file composetest.dab composetest
+Loading bundle from composetest.dab
+Creating network composetest_default
+Creating service composetest_db
+Creating service composetest_web
+
+
+检查我们刚部署的服务
+$ docker service ls
+ID            NAME             MODE        REPLICAS  IMAGE
+1658d7kh5gs9  composetest_web  replicated  1/1       arungupta/oreilly-wildfly@sha256:d567ade7bb82ba8f15a85df0c6d692d85c15ec5a78d8826dfba92756babcb914
+pr6ympnpgv9g  composetest_db   replicated  1/1       arungupta/oreilly-couchbase@sha256:f150fcb9fca5392075c96f1baffc7f893858ba763f3c05cf0908ef2613cbf34c
+
+
+管理stacks
+使用docker stack命令来进行管理
+$ docker stack --help
+
+Usage:	docker stack COMMAND
+
+Manage Docker stacks
+
+Options:
+      --help   Print usage
+
+Commands:
+  deploy      Deploy a new stack or update an existing stack
+  ls          List stacks
+  ps          List the tasks in the stack
+  rm          Remove the stack
+  services    List the services in the stack
+
+Run 'docker stack COMMAND --help' for more information on a command.
+
+
+Bundle 文件格式
+分布式应用程序包用JSON格式来描述。当bundles以文件方式保存时，文件的后缀是.dab。
+一个bundle有两个顶级字段：version和services。docker1.12工具使用的是0.1版
+
+services是指构成应用程序的服务。他们对应1.12 Docker Engine API中引述的新services对象
+
+一个services包含如下字段：
+Image[必须]
+服务将运行的image。docker images应该使用hash码来引用，如：arungupta/oreilly-couchbase@sha256:f150fcb9fca5392075c96f1baffc7f893858ba763f3c05cf0908ef2613cbf34c
+Command[]
+在服务容器中运行的命令
+Args[]
+传递给服务容器的参数
+Env[]
+环境变量
+Labelsmap[string]
+设置标签
+Ports[]
+服务端口(由端口和协议组成)，服务描述只能指定要暴露的容器端口，具体要隐射到主机的那些端口，就有管理员自己决定了
+WorkingDir
+服务容器内部的工作目录
+User
+用户名或UID
+Networks[]
+应该要连接到服务容器的网络
+
+
+  Note: 目前尚有很多选项不支持DAB格式，包括volume mount
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2015/04/06
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Android" title="Android">Android</a>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -150,19 +434,522 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2015/04/03/java-date/">Java 日期类常用写法小结</a>
+                      <a href="https://kevinguo.me/2017/07/06/Docker-Registry/">Docker基础-docker registry的几种方式</a>
                     </h3>
                     <p class="repo-list-description">
-                        Date 和 Calendar 转 String
+                        Registry
+Registry用来管理您的IMAGE镜像，常见的有:
+Private Registry:私有仓库，自己搭建
+DockerHub：由Docker维护
+Docker Trusted Registry：采购
+
+今天我们主要介绍，如何搭建自己的Private Registry
+Why use it
+官网列了三条，其实就一句话，能够自己管理自己的IMAGE
+
+Storage
+默认是存储在本地，所有的数据都作为Docker volume持久保存在本地主机上，适用于开发和小型部署，还支持其他云存储方式，如S3,Microsoft Azure,OpenStack Swift和Aliyun OSS，如果使用其他的存储方式，用户需要自己编写Storage API。
+Running a domain registry
+搭建Private Registry不仅仅是为了自己用，还可能给公司其他的人用，那这个时候就需要使用TLS来确保Registry的安全，有点类似于Web服务器的SSL
+纯HTTP的Registry
+从官方拉取一个Registry
+$ docker run -d -p 5000:5000 --restart=always --name registry \
+    -v `pwd`/data:/var/lib/registry \
+    registry:2
+
+修改Registry server以及所有要访问Registry server的client端，让其支持HTTP传输(默认是HTTPS传输)
+##1.12版
+#Create or modify /etc/docker/daemon.json
+$ { "insecure-registries":["youripordomain:5000"] }
+#Restart docker daemon
+$ systemctl restart docker
+
+##1.10版
+#Modify /etc/default/docker or /etc/sysconfig/docker,add or edit
+$ INSECURE_REGISTRY='--insecure-registry youripordomain:5000'
+#Restart docker daemon
+$ systemctl restart docker
+
+pull or push IMAGE from your Private Registry
+$ docker pull ubuntu
+$ docker tag ubuntu oo3p.com:5000/ubuntu
+$ docker push oo3p.com:5000/ubuntu
+$ docker pull oo3p.com:5000/ubuntu
+
+
+自签名证书的Registry
+Generate a certificate
+$ mkdir -p certs
+$ openssl req \
+    -newkey rsa:2048 -nodes -keyout certs/domain.key
+    -x509 -days 365 -out certs/domain.crt
+
+将生成的domain.crt文件的内容，放入docker客户端系统的ca-bundle文件中，使操作系统信任我们的自签名证书，或者将domain.crt复制成docker客户端的/etc/docker/certs.d/www.oo3p.com:5000/ca.crt，两种方式皆可
+$ cat ~/certs/domain.crt &gt;&gt;/etc/pki/tls/certs/ca-bundle.crt
+$ systemctl restart docker
+
+$ cp ~/certs/domain.crt /etc/docker/certs.d/www.oo3p.com:5000/ca.crt
+$ systemctl restart docker
+
+
+Start your Registry with TLS enabled
+$ docker run -d -p 5000:5000 --restart=always --name registry \
+    -v `pwd` /certs:/certs \
+    -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
+    -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
+    registry:2
+
+Pull or Push IMAGE from your Private Registry on another docker client
+$ docker pull ubuntu
+$ docker tag ubuntu oo3p.com:5000/ubuntu
+$ docker push oo3p.com:5000/ubuntu
+$ docker pull oo3p.com:5000/ubuntu
+
+
+从Lets Encrypt获取证书的Registry
+从认证CA处获取签名证书，大多数需要付出一定的费用，这里可以使用Lets Encrypt(被大多数浏览器信任)提供的免费证书，和自签名证书不一样的是，我们不需要将domain.crt文件再复制到我们的docker客户端中了
+获取证书所需条件
+
+  Registry server需要有公网IP地址
+  Registry server的80，443端口未被占用
+
+
+Get letsencrypt
+$ git clone https://github.com/certbot/certbot.git
+$ cd certbot
+$ ./certbot-auto certonly --standalone --email chinakevinguo@live.com -d oo3p.com -d www.oo3p.com
+
+#看到这就表示已经获取证书成功，时间是90天，我们需要在到期之前手动续约，然后我们在`/etc/letsencrypt/live/域名`目录中可以看到4个文件(cert.pem chain.pem fullchain.pem privkey.pem)
+IMPORTANT NOTES:
+ - Congratulations! Your certificate and chain have been saved at
+   /etc/letsencrypt/live/oo3p.com/fullchain.pem. Your cert will expire
+   on 2017-02-23. To obtain a new or tweaked version of this
+   certificate in the future, simply run certbot-auto again. To
+   non-interactively renew *all* of your certificates, run
+   "certbot-auto renew"
+ - If you like Certbot, please consider supporting our work by:
+
+   Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+   Donating to EFF:                    https://eff.org/donate-le
+
+
+查看证书，以及更新证书
+#查看证书
+$ ls /etc/letsencrypt/live/oo3p.com/
+    cert.pem  chain.pem  fullchain.pem  privkey.pem
+
+#更新证书
+$ ./certbot-auto renew --dry-run
+
+
+将从letsencrypt获取到的证书，复制到Registry server上的/certs目录下，方便挂载到Registry 容器里
+cp /etc/letsencrypt/live/oo3p.com/fullchain.pem ~/certs/domain.crt
+cp /etc/letsencrypt/live/oo3p.com/privkey.pem   ~/certs/domain.key
+
+
+Start your Registry with TLS enabled
+$ docker run -d -p 5000:5000 --restart=always --name registry \
+    -v `pwd` /certs:/certs \
+    -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
+    -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
+    registry:2
+
+Pull or Push IMAGE from your Private Registry on another docker client
+$ docker pull ubuntu
+$ docker tag ubuntu oo3p.com:5000/ubuntu
+$ docker push oo3p.com:5000/ubuntu
+$ docker pull oo3p.com:5000/ubuntu
+
+
+Load Balancing 注意事项以及访问控制
+
+在做Registry集群的时候，下面这几个必须保持相同：
+
+  Storage Driver
+  HTTP Secret
+  Redis Cache(if configured)
+
+
+本机基本访问认证
+在这之前，你需要先配置了TLS认证
+$ mkdir auth -p
+# 创建密码文件，替换用户名：testuser，密码：testpassword
+$ docker run --entrypoint htpasswd registry:2 -Bbn testuser testpassword &gt; auth/htpasswd
+# 停止registry，然后用下面的代码再次启动
+$ docker run -d -p 5000:5000 --restart=always --name registry \
+  -v /data/registry:/var/lib/registry \
+  -v ~/auth:/auth \
+  -e "REGISTRY_AUTH=htpasswd" \
+  -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+  -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+  -v ~/certs:/certs \
+  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
+  -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
+  registry:2
+# 然后登录
+$ docker login www.oo3p.com:5000
+
+通过代理进行认证
+
+  using Apache as an authenticating proxy
+  using Nginx as an authenticating proxy
+  mirror the Docker Hub
+
+
+通过委派第三方认证
+将用户重定向到指定的可信任的服务器上进行认证，这比较耗费成本
+
+  background information here
+  configuration information here
+
+
+使用Dockerfile构建自己的Registry
+
+从docker的Github上拉取有关docker-registry的代码
+$ git clone https://github.com/docker/distribution-library-image.git
+
+
+修改distribution-library-image下的Dockerfile文件
+FROM alpine:3.4
+
+RUN set -ex \
+    &amp;&amp; apk add --no-cache ca-certificates apache2-utils
+
+COPY ./registry/registry /bin/registry
+COPY ./registry/config-example.yml /etc/docker/registry/config.yml
+# 这里我们自己添加，后面将在certs目录下生成证书
+COPY ./registry/certs /etc/ssl/docker
+
+VOLUME ["/var/lib/registry"]
+EXPOSE 5000
+
+COPY docker-entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["/etc/docker/registry/config.yml"]
+
+
+生成自签名证书
+$ mkdir -p ~/distribution-library-image/registry/certs
+$ openssl req -newkey rsa:2048 -nodes -keyout ~/distribution-library-image/registry/certs/docker_registry.key -x509 -days 365 -out ~/distribution-library-image/registry/certs/docker_registry.crt
+
+
+修改distribution-library-image/registry 下的config-example.yml
+$ cp -a config-example.yml config-example.yml.bak
+$ vi config-example.yml
+version: 0.1
+log:
+  accesslog:
+    disabled: true
+  level: debug
+  formatter: text
+  fields:
+    service: registry
+# 该处设置hook，触发邮件发送
+  # hooks:
+  #   - type: mail
+  #     disabled: true
+  #     levels:
+  #       - panic
+  #     options:
+  #       smtp:
+  #         addr: mail.example.com:25
+  #         username: mailuser
+  #         password: password
+  #         insecure: true
+  #       from: sender@example.com
+  #       to:
+  #         - errors@example.com
+# 该处指定存储方式和位置，我是直接使用的filesystem
+storage:
+  filesystem:
+    rootdirectory: /var/lib/registry
+    maxthreads: 100
+  delete:
+    enabled: false
+  redirect:
+    disable: false
+  cache:
+    blobdescriptor: inmemory
+# 该处指定你的清楚策略
+  maintenance:
+  # 表示上传168h后删除，没隔1天清除一次
+    uploadpurging:
+      enabled: true
+      age: 168h
+      interval: 24h
+      dryrun: false
+    readonly:
+      enabled: false
+http:
+  addr: :5000
+#  host: https://registry.quarkfinance.com:5000
+# 该处指定你的证书所在的位置
+tls:
+  certificate: /etc/ssl/docker/docker_registry.crt
+  key: /etc/ssl/docker/docker_registry.key
+headers:
+  X-Content-Type-Options: [nosniff]
+health:
+storagedriver:
+  enabled: true
+  interval: 10s
+  threshold: 3
+# 该处指定你的代理，如果你有的话
+#proxy:
+#  remoteurl: https://registry-1.docker.io
+#  username: [username]
+#  password: [password]
+
+更多内容参考configuring a registry
+
+开始构建(该命令在Dockerfile文件所在的目录执行)
+$  docker build -t registry.quarkfinance.com:5000/docker_registry:latest .
+
+
+启动docker registry(我这里挂载了hosts目录，是因为我的registry是通过域名访问的，而我的域名实际上是不存在的，所以，我只能在/etc/hosts文件中添加了隐射，后期如果有实际存在的域名解析，就不需要挂载了)
+$ docker run -d -p 5000:5000 --name docker_registry --privileged -v /etc/hosts:/etc/hosts --restart always registry.quarkfinance.com:5000/docker_registry
+
+
+如何使用
+
+在所有要访问docker registry的主机上执行如下操作
+$ mkdir -p /etc/docker/certs.d/registry.quarkfinance.com:5000
+
+
+将registry主机上生成的证书docker_registry.crt复制到所有要访问docker registry的主机上
+$ ip=(192.168.1.1 192.168.1.2 192.168.1.3)
+$ for i in ${ip[*]};
+    \ do
+    \ scp ~/distribution-library-image/registry/certs/docker_registry.crt
+    \ $i:/etc/docker/certs.d/registry.quarkfinance.com:5000/
+    \ done
+
+
+试着push
+[root@k8s-master01 ~]# docker push registry.quarkfinance.com:5000/nginx:1.11.4-alpine
+The push refers to a repository [registry.quarkfinance.com:5000/nginx]
+e83e87cb73c3: Pushed
+740e5e49ea89: Pushed
+092e6cb28bdb: Pushed
+9007f5987db3: Pushed
+1.11.4-alpine: digest: sha256:36b95728c0d9b6668bb8e4aa31476de27aeedbeba07dcddb6821b76fb72830b2 size: 1154
+
+
+发现push成功了,至此你的私有registry就算是成功了，下面我们来使用nginx来做认证
+
+nginx+registry认证登录
+
+从docker的Github上拉取有关docker-registry的代码
+$ git clone https://github.com/docker/distribution-library-image.git
+
+
+生成自签名证书
+$ mkdir -p ~/distribution-library-image/registry/certs
+$ openssl req -newkey rsa:2048 -nodes -keyout ~/distribution-library-image/registry/certs/docker_registry.key -x509 -days 365 -out ~/distribution-library-image/registry/certs/docker_registry.crt
+
+
+修改distribution-library-image/registry 下的config-example.yml
+$ cp -a config-example.yml config-example.yml.bak
+$ vi config-example.yml
+version: 0.1
+log:
+  accesslog:
+    disabled: true
+  level: info
+  formatter: text
+  fields:
+    service: registry
+# 该处设置hook，触发邮件发送
+  # hooks:
+  #   - type: mail
+  #     disabled: true
+  #     levels:
+  #       - panic
+  #     options:
+  #       smtp:
+  #         addr: mail.example.com:25
+  #         username: mailuser
+  #         password: password
+  #         insecure: true
+  #       from: sender@example.com
+  #       to:
+  #         - errors@example.com
+# 该处指定存储方式和位置，我是直接使用的filesystem
+storage:
+  filesystem:
+    rootdirectory: /var/lib/registry
+    maxthreads: 100
+  delete:
+    enabled: false
+  redirect:
+    disable: false
+  cache:
+    blobdescriptor: inmemory
+# 该处指定你的清楚策略
+  maintenance:
+  # 表示上传168h后删除，没隔1天清除一次
+    uploadpurging:
+      enabled: true
+      age: 168h
+      interval: 24h
+      dryrun: false
+    readonly:
+      enabled: false
+http:
+  addr: :5000
+#  host: https://registry.quarkfinance.com:5000
+# 该处指定你的证书所在的位置，注释掉，因为我们这里使用nginx的认证，如果指定两处，会出问题
+#tls:
+#  certificate: /etc/ssl/docker/docker_registry.crt
+#  key: /etc/ssl/docker/docker_registry.key
+headers:
+  X-Content-Type-Options: [nosniff]
+health:
+storagedriver:
+  enabled: true
+  interval: 10s
+  threshold: 3
+# 该处指定你的代理，如果你有的话
+#proxy:
+#  remoteurl: https://registry-1.docker.io
+#  username: [username]
+#  password: [password]
+
+更多内容参考configuring a registry
+
+开始构建(该命令在Dockerfile文件所在的目录执行)
+$  docker build -t registry.quarkfinance.com/docker_registry:latest .
+
+
+启动docker registry(我这里挂载了hosts目录，是因为我的registry是通过域名访问的，而我的域名实际上是不存在的，所以，我只能在/etc/hosts文件中添加了隐射，后期如果有实际存在的域名解析，就不需要挂载了),同时需要指定监听的ip，不让其它主机访问registry的5000端口，其它主机通过nginx代理访问
+$ docker run -d -p 127.0.0.1:5000:5000 --name docker_registry --privileged -v /etc/hosts:/etc/hosts --restart always registry.quarkfinance.com:5000/docker_registry
+
+配置nginx
+
+安装nginx
+# 配置nginx的yum repo
+vi /etc/yum.repos.d/nginx.repo
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=0
+enabled=1
+
+# 安装nginx
+$ yum install nginx -y         
+
+
+配置nginx的配置文件/etc/nginx/conf.d/(不同版本的nginx配置文件有所不同)
+[root@k8s-registry conf.d]# ll
+total 12
+-rw-r--r-- 1 root root 1097 Apr 12 23:21 default.conf
+-rw-r--r-- 1 root root  933 Apr 13 18:24 registry.conf
+-rw-r--r-- 1 root root   46 Apr 13 15:11 registry-upstream.conf
+
+
+# registry.conf
+
+server {
+    listen       443;
+    server_name  registry.quarkfinance.com;
+    # 指定证书的位置，这里我们使用的就是上面生成的证书
+    ssl          on;
+    ssl_certificate /etc/nginx/ssl/docker_registry.crt;
+    ssl_certificate_key /etc/nginx/ssl/docker_registry.key;
+    client_max_body_size 0;
+
+   # charset koi8-r;
+   # access_log  /var/log/nginx/log/host.access.log  main;
+
+    location / {
+        auth_basic "Registry realm";
+        # 指定认证文件
+        auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+        add_header 'Docker-Distribution-Api-Version' 'registry/2.0' always;
+        proxy_pass                          http://registry;
+        proxy_set_header  Host              $http_host;   # required for docker client's sake
+        proxy_set_header  X-Real-IP         $remote_addr; # pass on real client's IP
+        proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header  X-Forwarded-Proto $scheme;
+        proxy_read_timeout                  900;
+    }
+
+}
+
+
+
+# registry-upstream.conf
+
+upstream registry {
+        server 127.0.0.1:5000;
+}                             
+
+
+生成认证文件.htpasswd
+
+$ yum install httpd-tool -y
+
+$ htpasswd -cb /etc/nginx/conf.d/.htpasswd ${username} ${password}
+
+
+重启nginx，就算是完成了
+
+$ systemctl restart nginx
+
+
+如何使用
+
+在所有要访问docker registry的主机上执行如下操作，目的是为了让其他主机信任registry主机签发的证书
+$ mkdir -p /etc/docker/certs.d/registry.quarkfinance.com
+
+
+将registry主机上生成的证书docker_registry.crt复制到所有要访问docker registry的主机上
+$ ip=(192.168.1.1 192.168.1.2 192.168.1.3)
+$ for i in ${ip[*]};
+    \ do
+    \ scp ~/distribution-library-image/registry/certs/docker_registry.crt
+    \ $i:/etc/docker/certs.d/registry.quarkfinance.com/
+    \ done
+
+
+试着push，提示没有认证
+[root@k8s-master02 registry.quarkfinance.com]# docker push registry.quarkfinance.com/calico/node:v1.1.0-rc8
+The push refers to a repository [registry.quarkfinance.com/calico/node]
+
+a48093c264c7: Preparing
+ca135d205d41: Preparing
+cb8d3fea875c: Preparing
+24a574387e35: Preparing
+no basic auth credentials
+
+
+我们先登录
+[root@k8s-master02 registry.quarkfinance.com]# docker login registry.quarkfinance.com
+Username: admin
+Password:
+Login Succeeded
+
+
+
+再push
+[root@k8s-master02 registry.quarkfinance.com]# docker push registry.quarkfinance.com/calico/node:v1.1.0-rc8
+The push refers to a repository [registry.quarkfinance.com/calico/node]
+a48093c264c7: Pushed
+ca135d205d41: Pushed
+cb8d3fea875c: Pushed
+24a574387e35: Pushed
+9f8566ee5135: Pushed
+v1.1.0-rc8: digest: sha256:234b00b8712c80d0e8d0170c6cc65c005c0057484fe2c463d439f37ddb1fd889 size: 1371
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2015/04/03
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Java" title="Java">Java</a>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -170,19 +957,83 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2015/03/31/singleton-process/">Windows 实现单实例进程的两种方法</a>
+                      <a href="https://kevinguo.me/2017/07/06/Docker-Overview/">Docker基础-docker 简介</a>
                     </h3>
                     <p class="repo-list-description">
-                        方法一：共享静态数据。
+                        什么是Docker
+Docker是一个提供开发、传输及运行应用程序的开放平台，Docker能将应用程序和基础架构平台进行分离，以便快速交付，使用Docker，你能用像管理基础架构一样的的方式来管理你的应用程序，通过利用Docker来开发，测试，部署，传输代码，可以显著的提高开发部署的效率。
+
+Docker使用Google公司推出的Go语言进行开发实现，基于Linux内核的Control groups,Union file systems，Namespace等技术，对进程进行封装隔离，属于操作系统层面的虚拟化技术。由于隔离的进程独立于宿主机和其他被隔离的进程，因此也称其为容器。最初实现是基于LXC，从0.7之后开始去除LXC，转而使用自行开发的libcontainer，从1.11开始，则进一步演进为使用RUNC和containerd
+
+Docker Engine
+Docker engine 是一个C/S架构应用程序，包含如下组件，如下图：
+
+  Docker server daemon
+一个长时间运行的守护进程
+  REST API
+程序和damon通信的接口
+  Docker client CLI
+命令行界面
+这里的Docker client CLI就是通过REST API 和Docker server daemon进行通信，而其它的底层程序则是通过底层的API来和REST API接口进行通信，最终和Docker server daemon进行通信
+
+
+
+Docker VS Virtual Machines
+下面的图片比较了Docker和传统虚拟化方式的不同之处。传统虚拟机技术是虚拟出一套硬件后，在其上运行一套完整的操作系统，再在系统上运行应用程序；而Docker的应用程序则是直接运行于主机的内核之上，容器没有自己的内核，也没有进行硬件虚拟化。因此容器比传统虚拟机更为轻量。
+
+
+
+The underlying technology
+
+  Namespaces
+Docker 使用namespaces来对容器进行隔离，当你运行一个容器时，Docker为该容器创建一组namespaces，这个namespaces提供一个隔离层，容器的所有操作都被限制在这个单独的namespaces中
+Docker在Linux上使用如下的namespaces：
+    
+      
+        PID 进程隔离
+        NET 网络隔离
+        IPC 消息队列隔离
+        MNT 文件系统挂载隔离
+        UTS 主机名和域名隔离
+        USER 用户和用户组隔离
+      
+    
+  
+  Control groups
+Cgroup技术将应用程序限制为特定的一进程集，Cgroup允许Docker Engine将可用的硬件资源共享到容器，并且可以对其进行限制和约束，例如，你可以限制容器的内存大小
+  Union file systems
+UFS，其实就是一个层级概念，将多个目录挂载到同一个目录下，然后进行修改，修改的内容会被重新保存到另外的层里面，而不会影响到原有挂载层数据
+  Container format
+Docker将namespaces，cgroup和UnionFS组合在一起，形成了一个libcontainer
+
+
+Docker的存储方式-Storage Driver
+为了能有效的理解Docker的存储方式，首先，你必须要了解如何构建和存储镜像，然后，了解如何通过镜像使用容器，最后，了解如何使用镜像和容器。
+在这之前，你必须先了解layers和image，container的概念.
+Docker模型的核心部分是有效利用分层镜像机制，镜像可以通过分层来进行继承，基于基础镜像，可以制作各种具体的应用镜像，不同的Docker容器就可以共享一些基础的文件系统层，同时加上自己独有的改动层，大大提高了存储的效率，其中主要的机制就是分层模型和ufs。针对镜像存储，docker采用了集中不同的存储drivers，包括：aufs，devicemapper，btrfs和overlay
+内容寻址存储
+在Docker 1.10版中引入了一个新的内容寻址存储模型，这是一种在磁盘上定位镜像层和数据层的新方式。原来的版本中，镜像层和数据层使用随机生成的UUID来进行存储，这样可能会出现ID冲突，而新版本的存储模型，使用哈希来进行存储，提高了安全性，同时也保证了数据的完整性。
+另：
+镜像是由多个只读层组成，并且多个只读层是可以被多个镜像共享的，如果其中一个数据层，在某个镜像中已经存在，那么根据内容寻址存储的原理，该数据层，就不需要被再此下载，可以节省空间。
+容器是建立在镜像层之上的一个可读可写的层，多个容器层可以共享一个镜像层，容器层内数据的修改是遵循cow原则，更高效。
+
+可以看到所有的镜像层ID都是加密的哈希值，但是容器层依旧是使用的随机生成的UUID
+copy-on-write
+写时复制，多个进程共享资源，只有当某个进程需要进行修改的时候，才会复制一份给该进程，而其他进程依然使用原始的数据。
+Images and layers
+Images其实是由多个表示不同文件系统的只读层组成，层级从底层开始，逐层堆叠，形成一个完整的Image,Docker storage driver就负责来堆叠这些层
+
+Container and layers
+当你创建了一个新的容器，你就是在Images layers的最上层添加了一个新的可读，可写的层，这个层就称之为容器，所有的变动都在这个容器层里面发生。
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2015/03/31
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Windows" title="Windows">Windows</a>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -190,19 +1041,130 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2015/03/30/work-lesson/">工作中得来的教训</a>
+                      <a href="https://kevinguo.me/2017/07/06/Docker-Overview-of-Docker-Compose/">Docker基础-docker compose简介</a>
                     </h3>
                     <p class="repo-list-description">
-                        把每一次的挫败，化解为下一次生长的营养。
+                        Compose 是一个定义和运行多个docker容器的应用程序的工具。你可以使用compose file来配置你的应用服务。然后，使用单个命令，docker就会根据你的compose配置文件来创建和启动所有的服务。想要了解更多关于compose的特性，可以参考后面的the list of features
+
+compose 非常适用于开发，测试和临时环境以及CI工作流。我们可以在下面的Common Use Cases中了解更多。
+
+使用compose一般有三步：
+
+1.在Dockerfile中定义好你的应用的运行环境
+2.在docker-compose.yml中定义组成应用的服务，以便他们可以在一个隔离的环境中一起运行
+3.运行docker-compose up命令，compose将会启动和运行你定义的应用服务
+
+docker-compose.yml文件内容如下：
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+    - "5000:5000"
+    volumes:
+    - .:/code
+    - logvolume01:/var/log
+    links:
+    - redis
+  redis:
+    image: redis
+volumes:
+  logvolume01: {}
+
+
+更多关于compose文件的信息，可参考Compose file reference
+
+compose具有管理应用程序整个生命周期的命令：
+
+
+  start,stop和rebuild 服务
+  查看正在运行服务的状态
+  运行服务的日志的输出
+  在服务上运行一次性命令
+
+
+compose 文档
+
+
+  installing compose
+  getting started
+  get started with django
+  get start with rails
+  get started with wordpress
+  frequently asked questions
+  command line reference
+  compose file reference
+
+
+特性
+
+单个主机上的多个环境的隔离
+
+compose 使用项目名称来互相隔离环境。你可以在几个不同的上下文中使用此项目的名称：
+
+
+  在dev主机上，创建单个环境的多个副本(例如，您要为项目的每个功能部分运行稳定的副本)
+  在CI服务器上，为了使构建不会互相干扰，可以将项目名称设定为唯一的内部版本号
+  在共享主机或dev主机上，以防止可能使用相同服务名称的不同项目互相干扰
+
+
+默认的项目名称是项目 目录的基本名称。你可以使用-p命令行选项或COMPOSE_PROJECT_NAME环境变量设置自定义项目名称。
+
+当容器创建时，保留volume 数据
+
+compose 会保留你的服务所使用的所有的vomules。当docker-compose up运行时，如果找到先前运行的任何容器，都会将volume从旧容器复制到新容器。以确保你在volume中的数据不会丢失。
+
+如果是在windows上运行docker-compose，需要根据特定的环境设定必要的环境变量。
+
+只重建发生改变的容器
+
+compose 缓存配置来创建容器。当你在没有发生改变时重启服务。compose会重新使用已经存在的容器。重新使用容器，以为着你可以快速的改变你的环境
+
+变量和组合在环境之间的移动
+
+compose 支持在compose file中使用变量。你可以使用这些变量来为不同的环境或不同的用户自定义组合。详情variable substitution
+
+你还可以使用extend字段或通过创建多个compose文件来扩展compose文件。详情参考extends
+
+compose 使用例子
+
+compose 可以以很多不同的方式使用，一些常用的使用例子如下：
+
+开发环境
+
+当你开发软件时，在独立的环境中运行应用程序并与其交互十分重要，compose命令行工具可用于创建环境并与之交互。
+compose 文件提供了一种记录和配置所有应用服务之间依赖(数据库，队列，缓存，web服务API等)的方法。使用compose命令行工具，你可以使用单个命令docker-compose up为每个依赖关系创建一个或多个容器。
+
+总之，这些功能为开发人员提供了一个方便的方法来开始项目。compose可以将多页的”开发人员入门指南”减少到单个机器可读的compose文件和几个命令。
+
+自动测试环境
+
+持续开发或持续集成中一个重要的部分是自动化测试套件。自动化端到端测试需要一个运行测试的环境。compose提供了一种方便的方法来创建和销毁隔离测试环境的测试套件。通过在compose文件中定义完整的环境，你只需要几个命令就可以创建和销毁这些环境：
+$ docker-compose up -d
+$ ./run_tests
+$ docker-compose down
+
+
+单台主机的部署
+
+compose 在以前一直专注于开发和测试，但随着版本的更新，我们现在正在开发更多面向生产的功能。你可以使用compose来部署到远程的docker engine。docker engine可以是使用docker machine或docker swarm集群提供的单个实例。
+
+Getting help
+
+docker compose目前正在积极开发中，如果，你需要获取帮助，想要贡献，或者只是想要和志同道合的人沟通，我们有以下开发的渠道：
+
+  反馈bug或者功能请求，issue tracker on Github
+  和其他人讨论，可以加入IRC上的docker-compose频道
+  提交贡献，pull request on Github
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2015/03/30
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Blog" title="Blog">Blog</a>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -210,19 +1172,137 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2015/02/14/strum-life/">乱弹一气人生</a>
+                      <a href="https://kevinguo.me/2017/07/06/Docker-Networking-in-compose/">Docker基础-docker compose网络</a>
                     </h3>
                     <p class="repo-list-description">
-                        直到临离开北京的这个凌晨，整个人才完全放松下来，暂时忘却那因工作 Delay 带来的耿耿于怀，赶走那常伴左右粘腻的莫名焦虑感，不用担心晚睡导致的第二天工作效率低下，身体和脑袋平日里要应付各种事务带来的紧绷感逐渐远离，难得的体会，当然任思绪飘飞。
+                        注意： 本文涉及的compose只适用于compose文件格式为version 2的版本，v1(旧的)不支持网络功能
+
+
+默认compose会为你的app配置一个单独的网络。服务中的每个容器加入到这个默认的网络且在这个网络的容器都能互相通信，它们也能通过与容器名称相同的主机名发现对方。
+
+
+  注意： app的网络基于”项目名称”设置网络名称，这个项目名称基于项目所处的目录名。可以使用--project-name选项或COMPOSE_PROJECT_NAME环境变量来覆盖。
+
+
+
+例如，假设app在一个名为myapp的目录，docker-compose.yml内容如下：
+version: '2'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+  db:
+    image: postgres
+
+当执行docker-compose up时，网络部分设置如下：
+1.创建了称之为myapp_default的网络
+2.使用web的配置创建容器，然后这个容器加入到myapp_default网络
+3.使用db的配置创建容器，这个容器加入到myapp_default网络
+
+每个容器现在能直接查找主机名web或db来得到容器的IP地址。例如，web应用程序的代码可以连接URL postgres://db:5432并开始使用postgres数据库。
+由于web明确的映射了一个端口，外部网络也就能通过在docker主机的网络接口的8000端口连接容器。
+
+容器更新
+
+如果更改了服务的配置并执行docker-compose up来更新它，将删除旧的容器并且新的容器会加入到相同的网络，分配到了不同的IP地址，不过主机名不变。运行中的容器应该能够查找主机名并连接到新的地址，不过旧的地址将失效。
+
+如果任何一个容器与旧容器有连接，它们会被关闭掉。容器有责任检测这种情况然后重新查找旧容器的主机来重新连接。
+
+Links
+
+links可以为一个容器定义一个额外的别名。即使服务没有启动，它们也能进行通信。默认任何服务都可以通过该服务的名称访问其他的服务。例如：在web容器中可以通过db和database访问db容器
+
+version: '2'
+services:
+  web:
+    build: .
+    links:
+      - "db:database"
+  db:
+    image: postgres
+
+
+多主机网络
+
+当在swarm集群中部署compose app的时候，你可以使用内置的overlaydriver来启用容器之间的多主机通信，这不会更改你的compose文件和app code。
+
+请参阅Getting started with multi-host networking来了解怎么配置swarm集群。swarm默认是使用overlay网络驱动，当然你也可以自己自定义。详情在下一段
+
+指定自定义网络
+
+除了使用默认的app网络之外，还可以使用最顶层的networks关键字来指定自定义的网络。这让你可以创建更复杂的网络并制定自定义网络驱动及其选项。也可以使用它将服务连接到不是有compose管理的外部网络。
+
+每个服务都能指定由networks关键字配置的网络，可以配置service级别和top级的网络。
+
+下面的示例compose文件定义了两个自定义网络。proxy服务与db服务隔离，因为它们没有指定相同的网络。
+version: '2'
+
+services:
+  proxy:
+    build: ./proxy
+    networks:
+      - front
+  app:
+    build: ./app
+    networks:
+      - front
+      - back
+  db:
+    image: postgres
+    networks:
+      - back
+
+networks:
+  front:
+    # Use a custom driver
+    driver: custom-driver-1
+  back:
+    # Use a custom driver which takes special options
+    driver: custom-driver-2
+    driver_opts:
+      foo: "1"
+      bar: "2"
+
+
+配置默认网络
+
+除了指定你自己的网络之外，还可以通过在名为default的网络下定义一个条目来更改应用范围内的默认网络设置：
+version: '2'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+  db:
+    image: postgres
+
+networks:
+  default:
+    # Use a custom driver
+    driver: custom-driver-1
+
+
+使用预先存在的网络
+
+如果你希望你的容器加入一个预先存在的网络，使用external选项：
+networks:
+  default:
+    external:
+      name: my-pre-existing-network
+
+compose检测到有external选项后，不会创建名为[PROJECTNAME]_default的网络，而是会查找一个名为my-pre-existing-network的网络，并将应用程序连接到它。
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2015/02/14
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Blog" title="Blog">Blog</a>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -230,19 +1310,85 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2015/02/01/some-impressions/">生活这件小事，烦请费思量</a>
+                      <a href="https://kevinguo.me/2017/07/06/Docker-Log-tag-for-logging-driver/">Docker基础-docker 容器日志命名</a>
                     </h3>
                     <p class="repo-list-description">
-                        我不生产鸡汤，我只是源自心灵的鸡汤的搬运工。
+                        tag 选项指定你该为容器的日志如何命名。默认是容器ID的前12个字符。要覆盖默认值，可指定一个tag选项:
+
+$ docker run --log-driver=fluentd --log-opt fluentd-address=myhost.local:24224 --log-opt tag="mailer"
+
+
+docker支持一些特殊的标记模板，你可以在指定的时候使用
+
+
+  
+    
+      标记
+      描述
+    
+  
+  
+    
+      { { .ID } }
+      容器ID的前12个字符
+    
+    
+      { { .FullID } }
+      容器的全部ID
+    
+    
+      { { .Name } }
+      容器名
+    
+    
+      { { .ImageID } }
+      Image ID 前12个字符
+    
+    
+      { { .ImageFullID } }
+      全部的Image ID
+    
+    
+      { { .ImageName } }
+      Image 名
+    
+    
+      { { .DaemonName } }
+      docker 进程的名称
+    
+  
+
+
+例如：指定一个 --log-opt tag="{ { .ImageName } }/{ { .Name } }/{ { .ID } }",让其输出到syslog，那么最终他输出的内容如下
+
+Aug  7 18:33:19 HOSTNAME docker/hello-world/foobar/5790672ab6a0[9103]: Hello from Docker
+
+
+在启动时，系统会在tag中设置container_name 字段和{ { .name } }字段，如果你使用docker rename重命名容器，新名称不会反映在日志消息中，这些消息会继续使用原来的容器名。
+
+更高级的用法，可以去参考go templates和container’s logging context
+
+下面是一个syslog的例子，如果我们使用下面的内容,就会得到如下的日志内容
+
+$ docker run -it --rm \
+    --log-driver syslog \
+    --log-opt tag="{ {  (.ExtraAttributes nil).SOME_ENV_VAR  } }" \
+    --log-opt env=SOME_ENV_VAR \
+    -e SOME_ENV_VAR=logtester.1234 \
+    flyinprogrammer/logtester
+
+
+Apr  1 15:22:17 ip-10-27-39-73 docker/logtester.1234[45499]: + exec app
+Apr  1 15:22:17 ip-10-27-39-73 docker/logtester.1234[45499]: 2016-04-01 15:22:17.075416751 +0000 UTC stderr msg: 1
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2015/02/01
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Blog" title="Blog">Blog</a>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -250,19 +1396,151 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2015/01/19/printf/">一个 printf 引发的基础复习</a>
+                      <a href="https://kevinguo.me/2017/07/06/Docker-Limit-container-resources/">Docker基础-docker limit资源限制</a>
                     </h3>
                     <p class="repo-list-description">
-                        先看一下引发我追究一下 printf 和栈桢等相关知识的一段简单的程序：
+                        默认情况下，容器没有资源约束，可以使用与主机的内核调度程序允许的的资源一样多的资源。docker提供了在运行docker run指定选项来控制容器内存，cpu或IO的方法。这部分提供了有关何时应该设置这类限制以及设置这些限制可能有什么影响的详细信息。
+
+
+Memory
+Docker 可以强制执行硬内存限制，其允许容器使用不超过用户或系统给定的内存大小，或者软限制，允许容器在满足条件的情况下使用所需内存，例如,当内核检测到主机上的内存不足或有争抢。下面的选项单独使用或集中使用会有不同的效果。
+这些选项中大部分都是采用正整数，后面跟一个后缀b,k,m,g，表示字节，千字节，兆字节，千兆字节。
+
+
+  
+    
+      Option
+      Description
+    
+  
+  
+    
+      -m or –memory=
+      容器可以使用的最大内存大小，如果你设置了这个选项，那么内存最小也要4m
+    
+    
+      –memory-swarp*
+      容器可以交换到硬盘的内存大小，可参考–memory-swap details
+    
+    
+      –memory-swappiness
+      默认情况下，主机内核可以交换容器使用的匿名页面的百分比，可以在0-100之间设置--memory-swappiness的百分比，可参考–memory-swappiness details
+    
+    
+      –memory-reservation
+      允许你指定一个小于--memory的软限制，当docker在主机上检测到争用或低内存时激活该限制。如果使用--memory-reservation，则必须将其设置为低于--memory，以使其优先。因为它是一个软限制，不保证容器不会超过限制。
+    
+    
+      –kernel-memory
+      容器可以使用的最大内核内存，最小值是4m。因为内核内存无法交换出来，一个缺少内核内存的容器可能会阻塞主机资源，这会对主机和其他容器产生副作用
+    
+    
+      –oom-kill-disable
+      默认情况下，如果发生内存不足(OOM)错误，内核会杀死容器中的进程。我们可以使用--oom-kill-disable选项来改变设置，如果你设置了-m/--memory选项，那么容器会一直耗尽到-m限制的内存大小。而如果你没有设定-m，主机会尽可能的耗尽内存，内核可能需要杀死主机系统的进程以释放内存。
+    
+  
+
+
+–memory-swap details
+
+
+  
+    如果没有设置--memory-swap，而设置了--memory，容器能够使用--memory值的两倍的swap。例如：--memory=300m,--memory-swap没有设置，那么容器能够使用300m内存和600m swap。
+    如果--memory和--memory-swap都设置了，--memory-swap表示能够使用内存和swap的总数，--memory控制非swap的内存大小。例如：--memory=300m,--memory-swap=1g，那么容器能够使用300m内存和700m的swap。
+    如果设置为-1(默认)，表示容器可以无限使用swap
+  
+
+
+–memory-swappiness details
+
+
+  
+    如果值为0，关闭匿名页面交换
+    值100，将所有匿名页面设置为可交换
+    默认情况下，如果不设置--memory-swappiness，容器将继承主机计算机的值
+  
+
+
+–kernel-memory details
+
+内核内存限制以分配给容器的总内存来表示，有以下几种场景：
+
+
+  
+    没有限制--memory，没有限制--kernel-memory： 这是默认值
+    没有限制--memory，有限制--kernel-memory: 当所有的cgroups所需的内存量超过主机实际拥有的内存量时，适合设置为这样子。你可以设置内核内存不超过主机可用内存，容器需要更多内存只能等待了。
+    有限制--memory，没有限制--kernel-memory：总内存是限制的，不过内核内存无限制
+    有限制--memory，有限制--kernel-memory：用户和内核限制都限制时，对调试内存相关问题会有帮助。如果一个容器用完了这两种内存之中的一种，它不会影响到其他的容器和主机。如果内核内存限制比用户内存低，使用完内核内存后，会导致容器长生OOM错误，反之，则不会。
+  
+
+
+CPU
+
+默认情况下，所有容器获得CPU周期的比例相同，你可以通过下面的选项来对容器的CPU使用进行调整。
+
+
+  
+    
+      Option
+      Description
+    
+  
+  
+    
+      –cpu-shares
+      设置权重，修改默认的1024增大或者减小。当其他容器有空闲CPU时，其他容器可使用空闲CPU时间
+    
+    
+      –cpu-period
+      容器的一个逻辑CPU的调度周期。默认值是100000（100ms），当然我们也可以自己设置CPU周期，限制容器CPU用量，通常和--cpu-quota参数使用
+    
+    
+      –cpu-quota
+      在由--cpu-period设置的时间段内，容器可以调度的最大CPU使用量，默认是0，以为着允许容器获得1个CPU的100%的资源量。设置50000限制CPU资源的50%
+    
+    
+      –cpuset-cpus
+      定容器允许运行的CPU号(在多核心系统中)
+    
+  
+
+
+Block IO
+
+有两个选项可用于调整容器对直连块IO设备的访问。你还可以按照每秒字节数或每秒IO操作来指定带宽限制。
+
+
+  
+    
+      Option
+      Description
+    
+  
+  
+    
+      blkio-weight
+      默认情况下，每个容器可以使用相同比例的IO带宽。默认权重是500，要提高或者降低，可以设置--blkio-weight来设置介于10-1000之间的值，此设置会平等的影响到所有块IO设备
+    
+    
+      blkio-weight-device
+      与--blkio-weight相同，但你可以使用--blkio-weight-device=DEVICE_NAME:WEGITH为每个设备设置权重。
+    
+    
+      –device-read-bps和–device-write-bps
+      根据大小限制设备读取或写入的速率，使用kb，mb或gb后缀
+    
+    
+      –device-read-iops和–device-write-iops
+      通过IO操作/秒限制设备读取或写入的速率
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2015/01/19
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#CPlusPlus" title="CPlusPlus">CPlusPlus</a>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -416,18 +1694,18 @@ SimpleJekyllSearch({
     </div>
 </a>
 
-<a href="https://github.com/chinakevinguo/kubernetes-jenkins" target="_blank" class="card text-center">
+<a href="https://github.com/chinakevinguo/mritd.github.io" target="_blank" class="card text-center">
     <div class="thumbnail">
-        <div class="card-image geopattern" data-pattern-id="kubernetes-jenkins">
+        <div class="card-image geopattern" data-pattern-id="mritd.github.io">
             <div class="card-image-cell">
                 <h3 class="card-title">
-                    kubernetes-jenkins
+                    mritd.github.io
                 </h3>
             </div>
         </div>
         <div class="caption">
             <div class="card-description">
-                <p class="card-text"></p>
+                <p class="card-text">十字路口,繁华街头......</p>
             </div>
             <div class="card-text">
                 <span class="meta-info" title="0 stars">
@@ -436,9 +1714,9 @@ SimpleJekyllSearch({
                 <span class="meta-info" title="0 forks">
                     <span class="octicon octicon-git-branch"></span> 0
                 </span>
-                <span class="meta-info" title="Last updated：2017-12-27 07:13:36 UTC">
+                <span class="meta-info" title="Last updated：2018-03-19 06:51:22 UTC">
                     <span class="octicon octicon-clock"></span>
-                    <time datetime="2017-12-27 07:13:36 UTC">2017-12-27</time>
+                    <time datetime="2018-03-19 06:51:22 UTC">2018-03-19</time>
                 </span>
             </div>
         </div>
@@ -486,26 +1764,6 @@ SimpleJekyllSearch({
         
           
               <a href="https://kevinguo.me/page8"  class="btn btn-outline">8</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page9"  class="btn btn-outline">9</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page10"  class="btn btn-outline">10</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page11"  class="btn btn-outline">11</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page12"  class="btn btn-outline">12</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page13"  class="btn btn-outline">13</a>
           
         
         

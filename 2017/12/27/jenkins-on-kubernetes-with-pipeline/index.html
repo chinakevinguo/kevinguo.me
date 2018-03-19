@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>jenkins with pipeline on kubernetes &mdash; KevinGuo</title>
+    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
+    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    
+    <meta property="og:title" content="jenkins with pipeline on kubernetes">
+      
+    <meta name="keywords" content="kubernetes,jenkins">
+    <meta name="og:keywords" content="kubernetes,jenkins">
+      
+    <meta name="description" content="  jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。该流程包含了 checkout scm –&gt; build artifacts –&gt; build image –&gt; deploy to k8s流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等一、集群以及必要组件的搭建请参考手动搭建kubernetes HA集群,kubernetes ceph笔记二、jenkins各个yaml文件所有文件都放在这里，我们搭建的时候只需将对应的位置修改成自己的即可三、配置jenkins  jenkins 部署成功之后，我们需要安装对应的插件，配置和kubernetes的关联，这里除了必要的插件之外，我们额外需要安装一个kubernetes Pluginkubernetes cloud的配置相对简单，我们只需要指定Kubernetes URL以及Jenkins URL即可，因为jenkins在kubernetes中，所以Kubernetes URL和Jenkins URL均为内部service就行了，如下图四、新建pipeline job 测试  jenkins kubernetes cloud配置成功之后，我们就需要来新建一个pipeline job测试一下，这里我新建了一个learn-groovy的job新建job更加的简单，只需要指定你的Jenkinsfile的地址即可，如下图  所有的工作都在Jenkinsfile中定义完成，这就是pipeline了关于当前这个example项目的对应配置文件有如下几个  app-deploy.yaml 当前项目部署所需的yaml文件  Jenkinsfile 当前项目部署流程所需文件  Jenkinsfile.yaml 当前项目构建部署过程中可变参数的变量文件  Dockerfile 构建image所需文件以上所有文件在这里我们的job构建成功后，最终的结果如下">
+    <meta name="og:description" content="  jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。该流程包含了 checkout scm –&gt; build artifacts –&gt; build image –&gt; deploy to k8s流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等一、集群以及必要组件的搭建请参考手动搭建kubernetes HA集群,kubernetes ceph笔记二、jenkins各个yaml文件所有文件都放在这里，我们搭建的时候只需将对应的位置修改成自己的即可三、配置jenkins  jenkins 部署成功之后，我们需要安装对应的插件，配置和kubernetes的关联，这里除了必要的插件之外，我们额外需要安装一个kubernetes Pluginkubernetes cloud的配置相对简单，我们只需要指定Kubernetes URL以及Jenkins URL即可，因为jenkins在kubernetes中，所以Kubernetes URL和Jenkins URL均为内部service就行了，如下图四、新建pipeline job 测试  jenkins kubernetes cloud配置成功之后，我们就需要来新建一个pipeline job测试一下，这里我新建了一个learn-groovy的job新建job更加的简单，只需要指定你的Jenkinsfile的地址即可，如下图  所有的工作都在Jenkinsfile中定义完成，这就是pipeline了关于当前这个example项目的对应配置文件有如下几个  app-deploy.yaml 当前项目部署所需的yaml文件  Jenkinsfile 当前项目部署流程所需文件  Jenkinsfile.yaml 当前项目构建部署过程中可变参数的变量文件  Dockerfile 构建image所需文件以上所有文件在这里我们的job构建成功后，最终的结果如下">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/">
+    <meta property="og:site_name" content="KevinGuo">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2017-12-27">
+    
+    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="jenkins with pi">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">jenkins with pipeline on kubernetes</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2017/12/27
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="https://kevinguo.me/categories/#jenkins" title="jenkins">jenkins</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <blockquote>
+  <p>jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。</p>
+</blockquote>
+
+<p>该流程包含了 <code class="highlighter-rouge">checkout scm</code> –&gt; <code class="highlighter-rouge">build artifacts</code> –&gt; <code class="highlighter-rouge">build image</code> –&gt; <code class="highlighter-rouge">deploy to k8s</code></p>
+
+<p>流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等</p>
+
+<h3 id="一集群以及必要组件的搭建">一、集群以及必要组件的搭建</h3>
+
+<p>请参考<a href="https://kevinguo.me/categories/#kubernetes">手动搭建kubernetes HA集群</a>,<a href="https://kevinguo.me/categories/#ceph">kubernetes ceph笔记</a></p>
+
+<h3 id="二jenkins各个yaml文件">二、jenkins各个yaml文件</h3>
+
+<p>所有文件都放在<a href="https://github.com/chinakevinguo/kubernetes-jenkins.git">这里</a>，我们搭建的时候只需将对应的位置修改成自己的即可</p>
+
+<h3 id="三配置jenkins">三、配置jenkins</h3>
+
+<blockquote>
+  <p>jenkins 部署成功之后，我们需要安装对应的插件，配置和kubernetes的关联，这里除了必要的插件之外，我们额外需要安装一个kubernetes Plugin</p>
+</blockquote>
+
+<p>kubernetes cloud的配置相对简单，我们只需要指定<code class="highlighter-rouge">Kubernetes URL</code>以及<code class="highlighter-rouge">Jenkins URL</code>即可，因为jenkins在kubernetes中，所以<code class="highlighter-rouge">Kubernetes URL</code>和<code class="highlighter-rouge">Jenkins URL</code>均为内部service就行了，如下图</p>
+
+<p><img src="/images/posts/kubernetes-cloud.png" alt="" /></p>
+
+<h3 id="四新建pipeline-job-测试">四、新建pipeline job 测试</h3>
+
+<blockquote>
+  <p>jenkins kubernetes cloud配置成功之后，我们就需要来新建一个pipeline job测试一下，这里我新建了一个<code class="highlighter-rouge">learn-groovy</code>的job</p>
+</blockquote>
+
+<p>新建job更加的简单，只需要指定你的<code class="highlighter-rouge">Jenkinsfile</code>的地址即可，如下图</p>
+
+<p><img src="/images/posts/jenkins-pipeline.png" alt="" /></p>
+
+<blockquote>
+  <p>所有的工作都在<code class="highlighter-rouge">Jenkinsfile</code>中定义完成，这就是pipeline了</p>
+</blockquote>
+
+<p>关于当前这个example项目的对应配置文件有如下几个</p>
+<ul>
+  <li>app-deploy.yaml 当前项目部署所需的yaml文件</li>
+  <li>Jenkinsfile 当前项目部署流程所需文件</li>
+  <li>Jenkinsfile.yaml 当前项目构建部署过程中可变参数的变量文件</li>
+  <li>Dockerfile 构建image所需文件</li>
+</ul>
+
+<p>以上所有文件在<a href="https://github.com/chinakevinguo/learn-groovy.git">这里</a></p>
+
+<p>我们的job构建成功后，最终的结果如下</p>
+
+<p><img src="/images/posts/jenkins-kubernetes-result.png" alt="" /></p>
+
+<p><img src="/images/posts/jenkins-kubernetes-result-2.png" alt="" /></p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+    </div>
+    <div class="comment">
+      
+
+  
+
+  
+      
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+        
+          <div id="disqus_thread"></div>
+          <script>
+            var disqus_config = function () {
+              this.page.url = 'https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/';
+              this.page.identifier = '/2017/12/27/jenkins-on-kubernetes-with-pipeline/';
+              this.page.title = 'jenkins with pipeline on kubernetes';
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+              var d = document, s = d.createElement('script');
+
+              s.type = 'text/javascript';
+              s.async = true;
+              var shortname = 'kevinguo';
+
+              s.src = '//' + shortname + '.disqus.com/embed.js';
+
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+      
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
+<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
+<script src="https://kevinguo.me/assets/js/search.js"></script>
+
+<script type="text/javascript">
+SimpleJekyllSearch({
+    searchInput: document.getElementById('search_box'),
+    resultsContainer: document.getElementById('search_results'),
+    json: 'https://kevinguo.me/assets/search_data.json',
+    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
+    noResultsText: 'No results found',
+    limit: ,
+    fuzzy: false,
+    exclude: ['Welcome']
+})
+</script>
+
+    
+
+    
+<h3 class="post-directory-title mobile-hidden">Table of Contents</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2015
+                    <span title="KevinGuo">KevinGuo</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
+    <script src="https://kevinguo.me/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

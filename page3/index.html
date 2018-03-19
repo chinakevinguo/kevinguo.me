@@ -110,19 +110,198 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2016/08/03/add-outline-for-markdown-in-vim/">在 Vim 里为 Markdown 文档展示导航窗格</a>
+                      <a href="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(1)/">jekyll 搭建静态博客(1)</a>
                     </h3>
                     <p class="repo-list-description">
-                        假设我们正在 Vim 里编辑一个很长的 Markdown 文档，这时想跳转到另一个章节去查看或编辑内容，可以怎么做？
+                        这段时间将原来在hexo上的博客迁到了jekyll上；采用Jekyll生成静态站点，Travis CI自动化部署，记录下来，以免以后忘记了
+
+
+
+
+整体思路
+
+我们都知道通过jekyll搭建博客最终都是将通过jekyll build生成的_site下的静态文件发布出去，那么我们是不是可以直接采用 nginx + 静态文件的方式来发布呢，当然是可以的
+
+准备两个站点仓库
+
+
+  主站点Github (保存静态文件)
+  镜像站点Github (触发 travis ，生成静态文件)
+
+
+我们只需要将 Travis CI生成的静态文件推送到 主站点Github，博客通过 docker 化部署，采用 nginx + 静态文件 方式；每次容器启动后都要从主站点Github pull 最新的静态文件，流程如下
+
+
+  本地提交博客 Markdown 文件到镜像站点Github
+  Github 触发 Travis CI 执行jekyll 编译
+  Travis CI 将编译后的静态文件push到主站点Github
+  Travis CI 通知服务器重启容器
+  容器重启拉去最新静态文件完成更新
+
+
+Travis 是啥？ 就是个类似jenkins的东西. Jenkins 是啥？ 就是个类似Travis的东西.
+
+构建所需docker镜像
+
+既然博客是通过 docker 化部署，采用nginx + 静态文件 的方式发布，那么我们第一步就是要构建我们博客所需的镜像，Dockerfile 内容如下
+
+FROM nginx:1.11.10-alpine
+
+MAINTAINER KevinGuo "chinakevinguo@live.com"
+
+ENV TZ 'Asia/Shanghai'
+
+RUN apk upgrade --no-cache \
+    &amp;&amp; apk add --no-cache bash git \
+    &amp;&amp; rm -rf /usr/share/nginx/html \
+    &amp;&amp; git clone https://github.com/chinakevinguo/kevinguo.me.git /usr/share/nginx/html \
+    &amp;&amp; ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    &amp;&amp; echo "Asia/Shanghai" &gt; /etc/timezone \
+    &amp;&amp; rm -rf /var/cache/apk/*
+
+ADD entrypoint.sh /entrypoint.sh
+
+WORKDIR /usr/share/nginx/html
+
+CMD ["/entrypoint.sh"]
+
+
+容器每次重启的时候都会去主站点Github上拉取最新的静态文件，并且启动 nginx，entrypoint.sh内容如下
+
+#!/bin/bash
+
+git pull
+nginx -g "daemon off;"
+
+
+最后执行docker build，生成我们所需的镜像
+
+docker build -t chinakevinguo_jekyll_kevinguo_me .
+
+
+博客所需镜像制作完成后，启动容器
+
+docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart=always -p 80:80 -p 443:443 chinakevinguo_jekyll_kevinguo_me
+
+下一步就是 静态文件 了
+
+静态文件的自动更新
+
+通过上面 Dockerfile 文件中的内容，你会发现，我是将 kevinguo.me.git下的内容clone到 /usr/share/nginx/html，也就是说，我实际上是发布的 kevinguo.me.git 下的静态文件，那么 kevinguo.me.git 下面的内容又是怎么来的呢
+
+实际上这些文件是 Travis CI 基于镜像站点(chinakevinguo.github.io) 完成 build 后在 _site目录下生成的镜像文件
+
+Travis 配置
+
+1.使用 Github 账号登录 Travis，右上方按钮点击同步项目，下方打开需要继承的项目，最后点击齿轮进入项目配置页面
+
+
+
+2.打开 Build only if .travis.yml is present
+
+
+
+3.Travis CI push静态文件到Github 通过 Github的token实现授权配置，准备 Github上的token
+
+注意： 这里的token，复制之后，最好自己保存好哟，因为只显示一次，如果丢失只能再次生成了
+
+
+
+4.配置Travis CI 部署所需环境变量，$JEKYLL_GITHUB_TOKEN
+
+
+
+5.Travis CI 和服务器之间通过密钥认证，并且对密钥进行了加密，所以我们需要在服务器上进行一些加密操作，并将密钥传到Travis上
+
+# clone 镜像站点
+git clone git@github.com:chinakevinguo/chinakevinguo.github.io.git
+
+# 在镜像站点(chinakevinguo.github.io)下，新建`.travis.yml`文件
+touch .travis.yml
+
+# 生成公钥和私钥
+ssh-keygen
+
+# 安装travis命令行工具，如无法使用gem指令需先安装ruby
+gem install travis
+
+# --auto自动登录github账户
+travis login --auto
+
+# 在.travis.yml同级目录下执行，此处的--add参数表示自动添加脚本到.travis.yml文件中
+travis encrypt-file ~/.ssh/id_rsa --add
+
+# 在服务器上执行ssh-copy-id操作，实现ssh连接的时候免密钥登陆
+ssh-copy-id root@kevinguo.me
+
+
+执行完成后会发现travis网站项目里的环境变量多了两个参数
+
+
+
+并且在.travis.yml里的 before_install周期中多了下面2行
+
+- openssl aes-256-cbc -K $encrypted_3870315c7a22_key -iv $encrypted_3870315c7a22_iv
+  -in id_rsa.enc -out ~\/.ssh/id_rsa -d
+
+
+默认生成的命令会在/前面带转义符\，我们不需要，手动删除即可
+
+6.进一步修改 .travis.yml 文件，内容如下
+
+language: ruby
+rvm:
+- 2.3.3
+before_install:
+- openssl aes-256-cbc -K $encrypted_3870315c7a22_key -iv $encrypted_3870315c7a22_iv -in id_rsa.enc -out ~/.ssh/id_rsa -d
+- chmod 600 ~/.ssh/id_rsa
+- echo -e "Host 主机IP地址\n\tStrictHostKeyChecking no\n" &gt;&gt; ~/.ssh/config
+install:
+  - gem install jekyll
+  - gem install html-proofer
+script:
+- bundle install
+- bundle exec jekyll build
+after_success:
+- git clone https://github.com/chinakevinguo/kevinguo.me.git
+- cd kevinguo.me &amp;&amp; rm -rf * &amp;&amp; cp -r ../_site/* .
+- git config user.name "chinakevinguo"
+- git config user.email "chinakevinguo@live.com"
+- git add --all .
+- git commit -m "Travis CI Auto Builder"
+- git push --force https://${JEKYLL_GITHUB_TOKEN}@github.com/chinakevinguo/kevinguo.me.git master
+- ssh root@host.kevinguo.me "docker restart chinakevinguo_jekyll_kevinguo_me"
+branches:
+  only:
+  - master
+env:
+  global:
+  - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
+addons:
+  ssh_known_hosts: host.kevinguo.me
+
+
+7.修改镜像站点下的其他内容，比如_config.yml，将一些内容替换成你自己的,下一篇，我将会介绍 disqus 和 cloudflare
+
+8.所有内容都修改好后，push到 Github上，会发现触发了 Travis CI，并且将生成的静态文件 push 到了主站点仓库 kevinguo.me，然后重启了容器
+
+
+
+博客发布成功
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2016/08/03
+                          <span class="octicon octicon-calendar"></span> 2017/07/12
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Vim" title="Vim">Vim</a>
+                          <a href="https://kevinguo.me/categories/#jekyll" title="jekyll">jekyll</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="https://kevinguo.me/categories/#travis" title="travis">travis</a>
                         </span>
                         
                     </p>
@@ -130,19 +309,30 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2016/07/11/remove-https/">Kloudsec 挂了，GitHub Pages 去 HTTPS 化</a>
+                      <a href="https://kevinguo.me/2017/07/06/video-test/">video</a>
                     </h3>
                     <p class="repo-list-description">
-                        前天收到来自 Kloudsec 的邮件，说 Kloudsec 将于 2016/08/01 停止服务。Bad news，请容许我做一个悲伤的表情。
+                        就是加个视频链接，测试一下看看行不行，代码如下
+
+
+
+
+&lt;video id="video" controls="" preload="none" height=498 width=510 poster="http://media.w3.org/2010/05/sintel/poster.png"&gt;
+      &lt;source id="mp4" src="http://media.w3.org/2010/05/sintel/trailer.mp4" type="video/mp4"&gt;
+      &lt;source id="webm" src="http://media.w3.org/2010/05/sintel/trailer.webm" type="video/webm"&gt;
+      &lt;source id="ogv" src="http://media.w3.org/2010/05/sintel/trailer.ogv" type="video/ogg"&gt;
+    &lt;/video&gt;
+
+效果如下
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2016/07/11
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#GitHub" title="GitHub">GitHub</a>
+                          <a href="https://kevinguo.me/categories/#生活" title="生活">生活</a>
                         </span>
                         
                     </p>
@@ -150,19 +340,65 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2016/06/28/vim-kramdown-tab/">简化 kramdown 列表嵌套内容缩进的 Vim 插件</a>
+                      <a href="https://kevinguo.me/2017/07/06/saltstack%E4%B9%8Bpillar/">saltstack之pillar</a>
                     </h3>
                     <p class="repo-list-description">
-                        kramdown 的列表嵌套内容的缩进规则很「奇葩」，不是使用自然的 Tab 缩进。
+                        Pillar
+主要作用是存储和定义配置管理中需要的一些变量，比如数据，比如软件版本，用户名密码等信息
+
+
+1.在master上开启pillar_roots
+
+pillar_roots:
+  base:
+    - /srv/pillar
+
+
+2.在master的/srv/pillar目录下新建top.sls，packages.sls，services.sls
+
+[root@saltstack-node1 pillar]# cat top.sls
+base:
+  '*':
+    - packages
+    - services
+
+
+[root@saltstack-node1 pillar]# cat packages.sls
+zabbix:
+  package-name: zabbix
+  version: 2.2.4
+
+
+[root@saltstack-node1 pillar]# cat services.sls
+zabbix:
+  port: 10050
+  user: admin
+
+
+3.执行pillar.item zabbix查看指定的信息
+
+[root@saltstack-node1 pillar]# salt 'saltstack-node2*' pillar.item zabbix
+saltstack-node2.example.com:
+    ----------
+    zabbix:
+        ----------
+        package-name:
+            zabbix
+        port:
+            10050
+        user:
+            admin
+        version:
+            2.2.4
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2016/06/28
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Vim" title="Vim">Vim</a>
+                          <a href="https://kevinguo.me/categories/#saltstack" title="saltstack">saltstack</a>
                         </span>
                         
                     </p>
@@ -170,19 +406,296 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2016/05/21/enable-https-for-github-pages/">为绑定域名的 GitHub Pages 启用 HTTPS</a>
+                      <a href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/">kubespray容器化部署kubernetes高可用集群(3)</a>
                     </h3>
                     <p class="repo-list-description">
-                        Update 2016/07/11: 收到 Kloudsec 的邮件，说将在 2016/08/01 停止服务，所以如下方法在那之后会无法使用，寻找 GitHub Pages + Custom Domain + HTTPS 的方法的童鞋请不要再尝试 Kloudsec 了，去找一找别的方法吧。
+                        上一篇我们详细的剥析了通过kargo生成的各类服务的配置文件，学会了，如何生成证书，如何配置etcd,calico,kubelet，学会了如何配置一个kubernetes的高可用集群。既然集群已经配好了，那么这一章，我们就来学学如何配置一些常用的插件。
+
+
+
+目前尚不确定kubernetes各个插件版本之间的兼容性，我使用kubespray部署的各个IMAGE在第一章中已经列出来了，中途在部署heapster和kibana的时候出了点问题，其他还未发现什么问题
+
+目前，我所用到的插件如下：
+
+
+  ingress
+  kubedns
+  dashboard
+  efk
+  heapster
+
+
+kubernetes-dashboard
+
+1.从kubernetes官方git下载最新源码
+
+git clone https://github.com/kubernetes/kubernetes.git
+
+
+2.进入dashboard所在的目录，执行yml文件
+
+cd $(pwd)/kubernetes/cluster/addons/dashboard
+kubectl create -f .
+
+
+3.确认dashboard是否成功创建
+
+# 确认deployment
+kubectl get deployment -n kube-system |grep dashboard
+
+# 确认svc
+kubectl get svc -n kube-system |grep dashboard
+
+# 确认ep
+kubectl get ep -n kube-system |grep dashboard
+
+# 确认pods
+kubectl get pods -n kube-system |grep dashboard
+
+# 查看日志是否有报错
+kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system
+
+
+初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看
+
+EFK
+
+1.从kubernetes官方git下载最新源码
+
+git clone https://github.com/kubernetes/kubernetes.git
+
+
+2.为你要运行fluentd的节点添加label，因为fluentd-es-ds.yml文件中有beta.kubernetes.io/fluentd-ds-ready: "true"标签
+
+kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready=true
+kubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready=true
+kubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready=true
+
+
+3.确认标签添加是否成功
+
+[root@k8s-master01 ~]# kubectl get nodes -l beta.kubernetes.io/fluentd-ds-ready
+NAME           STATUS    AGE       VERSION
+k8s-node01     Ready     19h       v1.6.7+coreos.0
+k8s-node02     Ready     19h       v1.6.7+coreos.0
+k8s-registry   Ready     19h       v1.6.7+coreos.0
+
+
+4.进入fluentd-elasticsearch所在的目录，执行yml文件
+
+cd $(pwd)/kubernetes/cluster/addons/fluentd-elasticsearch
+kubectl create -f .
+
+
+5.确认EFK是否创建成功
+
+# 确认elasticsearch是否创建成功
+kubectl get statefulset -n kube-system |grep elasticsearch
+kubectl get svc -n kube-system|grep elasticsearch
+kubectl get ep -n kube-system |grep elasticsearch
+kubectl get pods -n kube-system |grep elasticsearch
+
+# 确认fluentd是否创建成功
+kubectl get ds -n kube-system |grep fluentd
+kubectl get pods -n kube-system -o wide |grep fluentd
+
+# 确认kibana是否创建成功
+kubectl get deployment -n kube-system |grep kibana
+kubectl get svc -n kube-system|grep kibana
+kubectl get ep -n kube-system |grep kibana
+kubectl get pods -n kube-system |grep kibana
+
+# 查看日志是否有报错
+kubectl logs elasticsearch-logging-0
+kubectl logs fluentd-es-v2.0.1-kn2h2 -n kube-system
+kubectl logs kibana-logging-3636197754-tnwjh -n kube-system
+
+
+初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看
+
+heapster
+
+heapster比较简单
+
+1.从kubernetes官方git下载最新源码
+
+git clone https://github.com/kubernetes/heapster.git
+
+
+2.进入heapster的deploy目录，执行kube.sh
+
+cd $(pwd)/heapster/deploy
+sh kube.sh start
+
+
+3.确认heapster是否创建成功
+
+# 确认heapster是否创建成功
+kubectl get deployment -n kube-system |grep heapster
+kubectl get svc -n kube-system |grep heapster
+kubectl get ep -n kube-system |grep heapster
+kubectl get pods -n kube-system |grep heapster
+
+# 确认influxdb是否创建成功
+kubectl get deployment -n kube-system |grep influxdb
+kubectl get svc -n kube-system |grep influxdb
+kubectl get ep -n kube-system |grep influxdb
+kubectl get pods -n kube-system |grep influxdb
+
+# 确认grafana是否创建成功
+kubectl get deployment -n kube-system |grep grafana
+kubectl get svc -n kube-system |grep grafana
+kubectl get ep -n kube-system |grep grafana
+kubectl get pods -n kube-system |grep grafana
+
+# 查看日志是否有报错
+kubectl logs heapster-1528902802-wcf24 -n kube-system
+kubectl logs monitoring-grafana-2527507788-jsw1n -n kube-system
+kubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system
+
+
+初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看
+
+ingress
+
+我们知道kubernetes暴露服务的方式目前有三种: LoadBlancer Service、NodePort Service、Ingress，前两个这里暂时不讲，这里主要解释下什么是Ingress
+
+什么是 ingress
+
+Ingress Controller 实质上可以理解为一个监视器，Ingress Controller 通过不断跟kubernetes API打交道，实时感知后端service、pod等变化，比如新增和减少pod，service增加与减少等；当得到这些变化信息后，Ingress Controller 再结合Ingress 生成配置，然后更新反向代理负载均衡器，并刷新配置，达到服务发现的作用
+
+下面的图说明一切问题
+
+
+注意： 如果你进入 Ingress Controller里面看过它的 nginx 配置，你会发现实际上，Ingress是直接将请求转发到了服务的 endpoint IP，并没有转发给 Service Cluster IP，据说是为了提高性能，那么这个 Service Cluster IP 存在的意义在哪呢，如果你也在问这个问题，那么你得重新学习下 Service Cluster IP在 kubernetes 集群中的作用了
+
+这里简单说一下，Cluster IP是kubernetes 集群中的一个虚拟IP，仅仅是为了方便集群内部通信和服务发现的
+
+概念说了这么多，下面就开始实际操作吧
+
+1.从kubernetes官方git下载最新源码
+
+git clone https://github.com/kubernetes/ingress.git
+
+
+2.为你要运行 Ingress 的节点添加label标签：role=frontal
+
+kubectl label node k8s-node01 role=frontal
+kubectl label node k8s-node02 role=frontal
+
+
+3.进入ingress的examples/daemonset/nginx目录，修改yml文件
+
+注意：官方给出的 daemonset 版本的yml文件中，没有绑定宿主机的80端口，也就是说前端 Nginx 没有监听宿主机的80端口（尚且不知为何），所以需要自己加一下hostNetwork；同时因为我是将ingress部署到我指定的前端，所以还需要在文件末尾加上nodeSelector,截图如下
+
+
+
+
+
+执行创建
+
+cd $(pwd)/ingress/examples/daemonset/nginx
+
+kubectl create -f nginx-ingress-daemonset.yaml
+
+
+4.确认 Ingress controller 是否创建成功
+
+# 确认 ingress 是否创建成功
+kubectl get ds -n kube-system |grep ing
+kubectl get pods -n kube-system |grep ingress
+
+# 查看日志是否有报错
+kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
+
+
+初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看
+
+5.Ingress controller已经创建成功了，那么现在我们来创建ingress 检验一下前面创建的服务是否成功
+
+dashboard-ingress.yml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dashboard-ingress
+  namespace: kube-system
+spec:
+  rules:
+  - host: dashboard.kevinguo.me
+    http:
+      paths:
+      - backend:
+          serviceName: kubernetes-dashboard
+          servicePort: 80
+        path: /
+
+
+kibana-ingress.yml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kibana-ingress
+  namespace: kube-system
+spec:
+  rules:
+  - host: kibana.kevinguo.me
+    http:
+      paths:
+      - backend:
+          serviceName: kibana-logging
+          servicePort: 5601
+
+
+elasticsearch-ingress.yml
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: elasticsearch-ingress
+  namespace: kube-system
+spec:
+  rules:
+  - host: elasticsearch.kevinguo.me
+    http:
+      paths:
+      - backend:
+          serviceName: elasticsearch-logging
+          servicePort: 9200
+        path: /
+
+
+执行创建
+
+kubectl create -f elasticsearch-ingress.yml
+kubectl create -f dashboard-ingress.yml
+kubectl create -f kibana-ingress.yml
+
+
+创建完成后，我们来看看据诶过如何呢
+
+Dashboard and heapster
+
+
+EFK
+
+
+后期再研究新的东西了再加吧，头疼，下班了
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2016/05/21
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#GitHub" title="GitHub">GitHub</a>
+                          <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -190,19 +703,684 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2016/04/20/determine-if-my-activities-foreground/">判断前台 Activity 是否属于本进程</a>
+                      <a href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-2/">kubespray容器化部署kubernetes高可用集群(2)</a>
                     </h3>
                     <p class="repo-list-description">
-                        本文记录的是一种判断当前激活的 Activity 是否属于本进程的方法。
+                        上一篇已经使用kargo搭建了kubernetes高可用集群，这里重点通过剥析kargo生成的配置文件来更加细化的了解下kubernetes，方便后期对kubernetes的自定义。所有的配置文件，我会放到github上
+
+
+
+etcd service
+
+kargo中也将etcd以容器的方式运行，不过不是放在manifest中，而是单独用systemd的方式管理起来，然后通过etcd cluster来实现高可用
+
+主要文件
+
+/usr/local/etcd # etcd server启动的shell脚本文件
+/usr/local/etcdctl # etcd 命令,使用命令docker cp etcd1:/usr/local/bin/etcdctl /usr/local/bin/etcdctl将命令复制到本地
+/etc/systemd/system/etcd.service # etcd 的service文件
+/etc/etcd.env # etcd 的环境文件
+/etc/ssl/etcd/ # etcd 证书文件存放目录
+/etc/ssl/etcd/openssl.conf # 生成etcd证书所需要的openssl文件
+/usr/local/bin/etcd-scripts/ # 生成etcd证书的脚本文件
+
+
+etcd shell脚本
+
+$ vim /usr/local/etcd
+#!/bin/bash
+/usr/bin/docker run \
+  --restart=on-failure:5 \
+  --env-file=/etc/etcd.env \
+  --net=host \
+  -v /etc/ssl/certs:/etc/ssl/certs:ro \
+  -v /etc/ssl/etcd/ssl:/etc/ssl/etcd/ssl:ro \
+  -v /var/lib/etcd:/var/lib/etcd:rw \
+    --memory=512M \
+      --name=etcd1 \
+  quay.io/coreos/etcd:v3.1.5 \
+    /usr/local/bin/etcd \
+    "$@"
+
+
+etcd.service
+
+$ vim /etc/systemd/system/etcd.service
+[Unit]
+Description=etcd docker wrapper
+Wants=docker.socket
+After=docker.service
+
+[Service]
+User=root
+PermissionsStartOnly=true
+EnvironmentFile=/etc/etcd.env
+ExecStart=/usr/local/bin/etcd
+ExecStartPre=-/usr/bin/docker rm -f etcd1
+ExecStop=/usr/bin/docker stop etcd1
+Restart=always
+RestartSec=15s
+TimeoutStartSec=30s
+
+[Install]
+WantedBy=multi-user.target
+
+
+etcd.env
+
+$ vim /etc/etcd.env
+ETCD_DATA_DIR=/var/lib/etcd
+ETCD_ADVERTISE_CLIENT_URLS=https://172.30.33.90:2379
+ETCD_INITIAL_ADVERTISE_PEER_URLS=https://172.30.33.90:2380
+ETCD_INITIAL_CLUSTER_STATE=existing
+ETCD_LISTEN_CLIENT_URLS=https://172.30.33.90:2379,https://127.0.0.1:2379
+ETCD_ELECTION_TIMEOUT=5000
+ETCD_HEARTBEAT_INTERVAL=250
+ETCD_INITIAL_CLUSTER_TOKEN=k8s_etcd
+ETCD_LISTEN_PEER_URLS=https://172.30.33.90:2380
+ETCD_NAME=etcd1
+ETCD_PROXY=off
+ETCD_INITIAL_CLUSTER=etcd1=https://172.30.33.90:2380,etcd2=https://172.30.33.91:2380,etcd3=https://172.30.33.92:2380
+
+# TLS settings
+ETCD_TRUSTED_CA_FILE=/etc/ssl/etcd/ssl/ca.pem
+ETCD_CERT_FILE=/etc/ssl/etcd/ssl/member-node1.pem
+ETCD_KEY_FILE=/etc/ssl/etcd/ssl/member-node1-key.pem
+ETCD_PEER_TRUSTED_CA_FILE=/etc/ssl/etcd/ssl/ca.pem
+ETCD_PEER_CERT_FILE=/etc/ssl/etcd/ssl/member-node1.pem
+ETCD_PEER_KEY_FILE=/etc/ssl/etcd
+
+
+安装步骤
+安装步骤很简单
+
+1.按照最后的步骤生成证书
+2.在每个etcd server的节点上配置好上面的配置文件
+3.将etcd.service配置成系统服务(其实就是将运行docker的shell脚本写到systemd中)
+calico service
+
+主要文件
+
+/usr/local/bin/calicoctl #calicoctl命令
+/etc/systemd/system/calico-node.service #calico-node service文件
+/etc/calico/calico.env # calico 环境文件
+/etc/calico/certs/  #(将etcd/ssl目录下的ca.pem 复制成cert.crt, node-nodex.pem复制成cert.crt, node-nodex-key.pem复制成key.pem)
+/etc/cni/net.d/10-calico.conf # calico cni config
+/etc/kubernetes/node-kubeconfig.yaml # 为kubernetes 配置calico网络
+/opt/cni/bin/ #(将hyperkube和calico/cni镜像中/opt/cni/bin/目录下的所有插件复制到宿主机的/opt/cni/bin/目录下，可通过-v挂载的方式)
+
+
+calicoctl shell脚本
+运行这个脚本其实就是运行一个容器来进行查询
+#!/bin/bash
+/usr/bin/docker run -i --privileged --rm \
+--net=host --pid=host \
+-e ETCD_ENDPOINTS=https://172.30.33.90:2379,https://172.30.33.91:2379,https://172.30.33.92:2379 \
+-e ETCD_CA_CERT_FILE=/etc/calico/certs/ca_cert.crt \
+-e ETCD_CERT_FILE=/etc/calico/certs/cert.crt \
+-e ETCD_KEY_FILE=/etc/calico/certs/key.pem \
+-v /usr/bin/docker:/usr/bin/docker \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v /var/run/calico:/var/run/calico \
+-v /etc/calico/certs:/etc/calico/certs:ro \
+--memory=170M --cpu-shares=100 \
+calico/ctl:v1.1.0 \
+"$@"
+
+
+calico-node.service
+这个系统服务，其实就是启动一个容器
+[Unit]
+Description=calico-node
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/calico/calico.env
+ExecStartPre=-/usr/bin/docker rm -f calico-node
+ExecStart=/usr/bin/docker run --net=host --privileged \
+ --name=calico-node \
+ -e HOSTNAME=${CALICO_HOSTNAME} \
+ -e IP=${CALICO_IP} \
+ -e IP6=${CALICO_IP6} \
+ -e CALICO_NETWORKING_BACKEND=${CALICO_NETWORKING_BACKEND} \
+ -e FELIX_DEFAULTENDPOINTTOHOSTACTION=RETURN \
+ -e AS=${CALICO_AS} \
+ -e NO_DEFAULT_POOLS=${CALICO_NO_DEFAULT_POOLS} \
+ -e CALICO_LIBNETWORK_ENABLED=${CALICO_LIBNETWORK_ENABLED} \
+ -e ETCD_ENDPOINTS=${ETCD_ENDPOINTS} \
+ -e ETCD_CA_CERT_FILE=${ETCD_CA_CERT_FILE} \
+ -e ETCD_CERT_FILE=${ETCD_CERT_FILE} \
+ -e ETCD_KEY_FILE=${ETCD_KEY_FILE} \
+ -v /var/log/calico:/var/log/calico \
+ -v /run/docker/plugins:/run/docker/plugins \
+ -v /lib/modules:/lib/modules \
+ -v /var/run/calico:/var/run/calico \
+ -v /etc/calico/certs:/etc/calico/certs:ro \
+ --memory=500M --cpu-shares=300 \
+ calico/node:v1.1.0
+
+Restart=always
+RestartSec=10s
+
+ExecStop=-/usr/bin/docker stop calico-node
+
+[Install]
+WantedBy=multi-user.target
+
+
+calico.env 文件
+系统服务所需的环境变量信息
+ETCD_ENDPOINTS="https://172.30.33.90:2379,https://172.30.33.91:2379,https://172.30.33.92:2379"
+ETCD_CA_CERT_FILE="/etc/calico/certs/ca_cert.crt"
+ETCD_CERT_FILE="/etc/calico/certs/cert.crt"
+ETCD_KEY_FILE="/etc/calico/certs/key.pem"
+CALICO_IP="172.30.33.90"
+CALICO_IP6=""
+CALICO_NO_DEFAULT_POOLS="true"
+CALICO_LIBNETWORK_ENABLED="true"
+CALICO_HOSTNAME="k8s-master01"
+
+
+10-calico.conf
+Calico CNI插件需要有一个标准的CNI配置文件
+{
+  "name": "calico-k8s-network",
+  "hostname": "k8s-master01",
+  "type": "calico",
+  "etcd_endpoints": "https://172.30.33.90:2379,https://172.30.33.91:2379,https://172.30.33.92:2379",
+  "etcd_cert_file": "/etc/ssl/etcd/ssl/node-node1.pem",
+  "etcd_key_file": "/etc/ssl/etcd/ssl/node-node1-key.pem",
+  "etcd_ca_cert_file": "/etc/ssl/etcd/ssl/ca.pem",
+  "log_level": "info",
+  "ipam": {
+    "type": "calico-ipam"
+  },
+  "kubernetes": {
+    "kubeconfig": "/etc/kubernetes/node-kubeconfig.yaml"
+  }
+}
+
+
+安装步骤
+
+安装步骤也很简单
+
+1.首先将hyperkube和calico/cni镜像中的CNI插件拷贝到宿主机本地的/opt/cni/bin/目录下
+2.将和etcd通信的证书配置好
+3.将calicoctl,calico.env,10-calico.conf文件配置好放到指定的目录
+4.将calico-node配置成systemd管理的系统服务
+5.配置kubelet和kube-proxy
+kubelet service
+
+主要文件
+
+/usr/local/bin/kubelet # 启动kubelet的shell脚本文件
+/usr/local/bin/kubectl # kubectl二进制文件
+/etc/systemd/system/kubelet.service # kubelet 的service文件
+/etc/kubernetes/kubelet.env # kubelet service相关的环境文件
+/etc/kubernetes/ssl # kubernetes证书文件存放目录
+/etc/kubernetes/openssl.conf # 生成kubernetes证书所依赖的openssl文件
+/usr/local/bin/kubernetes-scripts/ # 生成证书文件的shell脚本
+/etc/kubernetes/node-kubeconfig.yaml #
+
+
+kubelet shell 脚本
+
+$ vim /usr/local/bin/kubelet
+#!/bin/bash
+/usr/bin/docker run \
+  --net=host \
+  --pid=host \
+  --privileged \
+  --name=kubelet \
+  --restart=on-failure:5 \
+  --memory=512M \
+  --cpu-shares=100 \
+  -v /dev:/dev:rw \
+  -v /etc/cni:/etc/cni:ro \
+  -v /opt/cni:/opt/cni:ro \
+  -v /etc/ssl:/etc/ssl:ro \
+  -v /etc/resolv.conf:/etc/resolv.conf \
+  -v /etc/pki/tls:/etc/pki/tls:ro \
+  -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
+  -v /sys:/sys:ro \
+  -v /var/lib/docker:/var/lib/docker:rw \
+  -v /var/log:/var/log:rw \
+  -v /var/lib/kubelet:/var/lib/kubelet:shared \
+  -v /var/lib/cni:/var/lib/cni:shared \
+  -v /var/run:/var/run:rw \
+  -v /etc/kubernetes:/etc/kubernetes:ro \
+  quay.io/coreos/hyperkube:v1.6.1_coreos.0 \
+  ./hyperkube kubelet \
+  "$@"
+
+
+kubelet.service 文件
+
+$ vim /etc/systemd/system/kubelet.service
+[Unit]
+Description=Kubernetes Kubelet Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=docker.service docker.socket calico-node.service
+Wants=docker.socket calico-node.service
+
+[Service]
+EnvironmentFile=/etc/kubernetes/kubelet.env
+ExecStart=/usr/local/bin/kubelet \
+                $KUBE_LOGTOSTDERR \
+                $KUBE_LOG_LEVEL \
+                $KUBELET_API_SERVER \
+                $KUBELET_ADDRESS \
+                $KUBELET_PORT \
+                $KUBELET_HOSTNAME \
+                $KUBE_ALLOW_PRIV \
+                $KUBELET_ARGS \
+                $DOCKER_SOCKET \
+                $KUBELET_NETWORK_PLUGIN \
+                $KUBELET_CLOUDPROVIDER
+ExecStartPre=-/usr/bin/docker rm -f kubelet
+ExecReload=/usr/bin/docker restart kubelet
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+
+
+kubelet.env
+
+$ vim /etc/kubernetes/kubelet.env
+# logging to stderr means we get it in the systemd journal
+KUBE_LOGGING="--logtostderr=true"
+KUBE_LOG_LEVEL="--v=2"
+# The address for the info server to serve on (set to 0.0.0.0 or "" for all interfaces)
+KUBELET_ADDRESS="--address=172.30.33.90"
+# The port for the info server to serve on
+# KUBELET_PORT="--port=10250"
+# You may leave this blank to use the actual hostname
+KUBELET_HOSTNAME="--hostname-override=k8s-master01"
+
+KUBELET_ARGS="--pod-manifest-path=/etc/kubernetes/manifests \
+--pod-infra-container-image=gcr.io/google_containers/pause-amd64:3.0 \
+--kube-reserved cpu=100m,memory=512M \
+--node-status-update-frequency=10s \
+--enable-cri=False --cgroups-per-qos=False \
+--enforce-node-allocatable=''  --cluster_dns=10.233.0.2 --cluster_domain=cluster.local --resolv-conf=/etc/resolv.conf --kubeconfig=/etc/kubernetes/node-kubeconfig.yaml --require-kubeconfig --node-labels=node-role.kubernetes.io/master=true,node-role.kubernetes.io/node=true"
+KUBELET_NETWORK_PLUGIN="--network-plugin=cni --network-plugin-dir=/etc/cni/net.d --cni-bin-dir=/opt/cni/bin"
+# Should this cluster be allowed to run privileged docker containers
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+KUBELET_CLOUDPROVIDER=""
+
+
+node-kubeconfig.yaml
+
+apiVersion: v1
+kind: Config
+clusters:
+- name: local
+  cluster:
+    certificate-authority: /etc/kubernetes/ssl/ca.pem
+    server: http://127.0.0.1:8080
+users:
+- name: kubelet
+  user:
+    client-certificate: /etc/kubernetes/ssl/node-node1.pem
+    client-key: /etc/kubernetes/ssl/node-node1-key.pem
+contexts:
+- context:
+    cluster: local
+    user: kubelet
+  name: kubelet-cluster.local
+current-context: kubelet-cluster.local
+
+
+kubernetes manifest文件
+
+/etc/kubernetes/manifests
+$ ls -l
+-rw-r--r--. 1 root root 2234 Apr 12 15:26 kube-apiserver.manifest
+-rw-r--r--. 1 root root 1331 Apr 12 15:26 kube-controller-manager.manifest
+-rw-r--r--. 1 root root 1319 Apr 12 15:23 kube-proxy.manifest
+-rw-r--r--. 1 root root  708 Apr 12 15:26 kube-scheduler.manifest
+
+
+我们知道在kubernetes中，/etc/kubernetes/manifests 目录下的文件，会由kubelet来在文件所在的节点生成static pod，下面看看每个文件的详细信息。
+
+kube-apiserver.manifest
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+  labels:
+    k8s-app: kube-apiserver
+    kargo: v2
+spec:
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  containers:
+  - name: kube-apiserver
+    image: quay.io/coreos/hyperkube:v1.6.1_coreos.0
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 800m
+        memory: 2000M
+      requests:
+        cpu: 100m
+        memory: 256M
+    command:
+    - /hyperkube
+    - apiserver
+    - --advertise-address=172.30.33.90
+    - --etcd-servers=https://172.30.33.90:2379,https://172.30.33.91:2379,https://172.30.33.92:2379
+    - --etcd-quorum-read=true
+    # etcd 证书认证
+    - --etcd-cafile=/etc/ssl/etcd/ssl/ca.pem
+    - --etcd-certfile=/etc/ssl/etcd/ssl/node-node1.pem
+    - --etcd-keyfile=/etc/ssl/etcd/ssl/node-node1-key.pem
+    - --insecure-bind-address=127.0.0.1
+    - --apiserver-count=3
+    - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
+    - --service-cluster-ip-range=10.233.0.0/18
+    - --service-node-port-range=30000-32767
+    # kubernetes apiserver证书认证
+    - --client-ca-file=/etc/kubernetes/ssl/ca.pem
+    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
+    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    # token auth认证
+    - --token-auth-file=/etc/kubernetes/tokens/known_tokens.csv
+    - --basic-auth-file=/etc/kubernetes/users/known_users.csv
+    # service account
+    - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --secure-port=6443
+    - --insecure-port=8080
+    - --storage-backend=etcd3
+    - --v=2
+    - --allow-privileged=true
+    - --anonymous-auth=False
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 30
+      timeoutSeconds: 10
+    volumeMounts:
+    - mountPath: /etc/kubernetes
+      name: kubernetes-config
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+    - mountPath: /etc/ssl/etcd/ssl
+      name: etcd-certs
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes
+    name: kubernetes-config
+  - hostPath:
+      path: /etc/ssl/certs/
+    name: ssl-certs-host
+  - hostPath:
+      path: /etc/ssl/etcd/ssl
+    name: etcd-certs
+
+
+kube-controller-manager.manifest
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+  labels:
+    k8s-app: kube-controller
+spec:
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  containers:
+  - name: kube-controller-manager
+    image: quay.io/coreos/hyperkube:v1.6.1_coreos.0
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 250m
+        memory: 512M
+      requests:
+        cpu: 100m
+        memory: 100M
+    command:
+    - /hyperkube
+    - controller-manager
+    # master ip
+    - --master=http://127.0.0.1:8080
+    - --leader-elect=true
+    - --service-account-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    # 集群范围内的证书
+    - --root-ca-file=/etc/kubernetes/ssl/ca.pem
+    - --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem
+    - --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem
+    - --enable-hostpath-provisioner=false
+    - --node-monitor-grace-period=40s
+    - --node-monitor-period=5s
+    - --pod-eviction-timeout=5m0s
+    - --v=2
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10252
+      initialDelaySeconds: 30
+      timeoutSeconds: 10
+    volumeMounts:
+    - mountPath: /etc/kubernetes/ssl
+      name: ssl-certs-kubernetes
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/ssl
+    name: ssl-certs-kubernetes
+  - hostPath:
+      path: /etc/ssl/certs
+    name: ssl-certs-host
+
+
+kube-scheduler.manifest
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-scheduler
+  namespace: kube-system
+  labels:
+    k8s-app: kube-scheduler
+spec:
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  containers:
+  - name: kube-scheduler
+    image: quay.io/coreos/hyperkube:v1.6.1_coreos.0
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 250m
+        memory: 512M
+      requests:
+        cpu: 80m
+        memory: 170M
+    command:
+    - /hyperkube
+    - scheduler
+    - --leader-elect=true
+    - --master=http://127.0.0.1:8080
+    - --v=2
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10251
+      initialDelaySeconds: 30
+      timeoutSeconds: 10
+
+
+kube-proxy.manifest
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-proxy
+  namespace: kube-system
+  labels:
+    k8s-app: kube-proxy
+spec:
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  containers:
+  - name: kube-proxy
+    image: quay.io/coreos/hyperkube:v1.6.1_coreos.0
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 2000M
+      requests:
+        cpu: 150m
+        memory: 64M
+    command:
+    - /hyperkube
+    - proxy
+    - --v=2
+    - --master=http://127.0.0.1:8080
+    - --bind-address=172.30.33.90
+    - --cluster-cidr=10.233.64.0/18
+    - --proxy-mode=iptables
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+    - mountPath: /etc/kubernetes/node-kubeconfig.yaml
+      name: "kubeconfig"
+      readOnly: true
+    - mountPath: /etc/kubernetes/ssl
+      name: "etc-kube-ssl"
+      readOnly: true
+    - mountPath: /var/run/dbus
+      name: "var-run-dbus"
+      readOnly: false
+  volumes:
+  - name: ssl-certs-host
+    hostPath:
+      path: /etc/pki/tls
+  - name: "kubeconfig"
+    hostPath:
+      path: "/etc/kubernetes/node-kubeconfig.yaml"
+  - name: "etc-kube-ssl"
+    hostPath:
+      path: "/etc/kubernetes/ssl"
+  - name: "var-run-dbus"
+    hostPath:
+      path: "/var/run/dbus"
+
+
+生成证书
+
+  上面的文件都配置好后，我们就需要生正认证所需的证书了，以前看过漠神的一篇kubernetes双向TSL认证，有兴趣的可以去看下，说实话证书这块，我也不是很懂。
+
+
+生成etcd证书
+
+修改make-ssl-etcd.sh脚本
+# 在脚本开头加上
+MASTERS=(node1 node2 node3)
+HOSTS=(node1 node2 node3 node4 node5)
+
+# 修改ETCD member的for循环语句，修改成下面这样
+for host in ${MASTERS[*]}
+
+# 修改Node keys的for循环语句，修改成下面这样
+for host in ${HOSTS[*]}
+
+生成证书
+$ cd /usr/local/bin/etcd-scripts/
+$ ./make-ssl-etcd.sh -f /etc/ssl/etcd/openssl.conf -d ~/certs/etcd/
+$ chown kube.root ~/certs/etcd/*
+$ chmod 700 ~/certs/etcd/*
+
+
+生成kubernetes证书
+
+修改make-ssl.sh脚本
+# 在脚本开头加上
+MASTERS=(node1 node2 node3)
+HOSTS=(node1 node2 node3 node4 node5)
+
+# 修改ETCD member的for循环语句，修改成下面这样
+for host in ${MASTERS[*]}
+
+# 修改Node keys的for循环语句，修改成下面这样
+for host in ${HOSTS[*]}
+
+
+生成证书
+$ cd /usr/local/bin/kubernetes-scripts/
+$ ./make-ssl.sh -f /etc/kubernetes/openssl.conf -d ~/certs/kubernetes/
+$ chown kube.kube-cert ~/certs/kubernetes/*
+$ chmod 600 ~/certs/kubernetes/*
+
+
+node节点上的主要文件
+
+以后所有节点就按照这个来改就行了
+
+/etc/kubernetes/kubelet.env
+/etc/kubernetes/node-kubeconfig.yaml
+/etc/kubernetes/manifests/kube-proxy.manifest
+/etc/kubernetes/manifests/nginx-proxy.yml
+
+
+  Note: 最后要重点注意一下，kargo会在node节点上配置单独的nginx反向代理，代理到apiserver集群，而node-kubeconfig.yaml和kube-proxy.manifest文件的内容需要修改一下
+
+
+node-kubeconfig.yaml
+apiVersion: v1
+kind: Config
+clusters:
+- name: local
+  cluster:
+    certificate-authority: /etc/kubernetes/ssl/ca.pem
+    # server: https://172.30.33.90:6443 默认生成的
+    server: https://127.0.0.1:6443 #修改成这样，因为本地节点上的nginx反向代理是监听的这个地址，这样就确保了高可用
+    ...
+
+
+kube-proxy.manifest
+apiVersion: v1
+...
+  # - --master=https://172.30.33.90:6443 默认生成
+    - --master=https://127.0.0.1:6443
+    - --kubeconfig=/etc/kubernetes/node-kubeconfig.yaml
+
+
+至此， 基本上可以搭建一个基础的HA kubernetes 集群了，下一章将主要讲解如何配置一些常用插件
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2016/04/20
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Android" title="Android">Android</a>
+                          <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -210,19 +1388,478 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2016/04/18/develop-nodejs-with-atom/">配置 Node.js 开发环境——使用 Atom</a>
+                      <a href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-1/">kubespray容器化部署kubernetes高可用集群(1)</a>
                     </h3>
                     <p class="repo-list-description">
-                        Node.js 的开发环境选择很多，比如 WebStrom/Visual Studio Code/Atom/HBuilder，还有万能的 Vim/Emacs 等等。
+                        捣鼓kubernetes有一段时间了，先后用过yum,kubeadm,custom等方式，但都不尽如人意，不是缺胳膊就是短腿，后来有幸翻到漠然大神的快速部署kubernetes高可用集群，并且请教了无数次才最终搭建成功，在此，再次膜拜漠然大神，同时该篇blog也参考了漠神的的博客，主要是为了记录下来，方便以后查看。
+
+
+
+一、基础环境
+
+
+  docker版本1.12.6
+  CentOS 7
+
+
+1.准备好要部署的机器
+
+
+  
+    
+      IP
+      ROLE
+    
+  
+  
+    
+      172.30.33.89
+      k8s-registry-lb
+    
+    
+      172.30.33.90
+      k8s-master01-etcd01
+    
+    
+      172.30.33.91
+      k8s-master02-etcd02
+    
+    
+      172.30.33.92
+      k8s-master03-etcd03
+    
+    
+      172.30.33.93
+      k8s-node01-ingress01
+    
+    
+      172.30.33.94
+      k8s-node02-ingress02
+    
+    
+      172.30.33.31
+      ansible-client
+    
+  
+
+
+2.准备部署机器 ansible-client
+
+3.准备所需要镜像,由于被墙，所需镜像可以在百度云去下载，点击这里
+
+
+  
+    
+      IMAGE
+      VERSION
+    
+  
+  
+    
+      quay.io/coreos/hyperkube
+      v1.6.7_coreos.0
+    
+    
+      quay.io/coreos/etcd
+      v3.1.10
+    
+    
+      calico/ctl
+      v1.1.3
+    
+    
+      calico/node
+      v2.4.1
+    
+    
+      calico/cni
+      v1.10.0
+    
+    
+      calico/kube-policy-controller
+      v0.7.0
+    
+    
+      quay.io/calico/routereflector
+      v0.3.0
+    
+    
+      gcr.io/google_containers/kubernetes-dashboard-amd64
+      v1.6.3
+    
+    
+      gcr.io/google_containers/nginx-ingress-controller
+      0.9.0-beta.11
+    
+    
+      gcr.io/google_containers/defaultbackend
+      1.3
+    
+    
+      gcr.io/google_containers/cluster-proportional-autoscaler-amd64
+      1.1.1
+    
+    
+      gcr.io/google_containers/fluentd-elasticsearch
+      1.22
+    
+    
+      gcr.io/google_containers/kibana
+      v4.6.1
+    
+    
+      gcr.io/google_containers/elasticsearch
+      v2.4.1
+    
+    
+      gcr.io/google_containers/k8s-dns-sidecar-amd64
+      1.14.4
+    
+    
+      gcr.io/google_containers/k8s-dns-kube-dns-amd64
+      1.14.4
+    
+    
+      gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64
+      1.14.4
+    
+    
+      andyshinn/dnsmasq
+      2.72
+    
+    
+      nginx
+      1.11.4-alpine
+    
+    
+      gcr.io/google_containers/heapster-grafana-amd64
+      v4.4.1
+    
+    
+      gcr.io/google_containers/heapster-amd64
+      v1.4.0
+    
+    
+      gcr.io/google_containers/heapster-influxdb-amd64
+      v1.1.1
+    
+    
+      gcr.io/google_containers/pause-amd64
+      3.0
+    
+    
+      lachlanevenson/k8s-helm
+      v2.2.2
+    
+    
+      gcr.io/kubernetes-helm/tiller
+      v2.2.2
+    
+  
+
+
+4.load所有下载的镜像
+# 在ansible-client上操作
+$ IP=(172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94)
+$ for i in ${IP[*]}; do scp -r kubespray_images_v1.6.7 $i:~/; done
+# 对所有要部署的节点操作
+$ IMAGES=$(ls -l ~/kubespray_images_v1.6.7|awk -F' ' '{ print $9 }')
+$ for x in ${images[*]}; do docker load -i kubespray_images_v1.6.7/$x; done
+
+二、搭建集群
+
+1.获取kubespray源码
+$ git clone https://github.com/kubernetes-incubator/kubespray.git
+
+
+2.编辑配置文件
+
+$ vim ~/kubespray/inventory/group_vars/k8s-cluster.yml
+
+---
+# 启动集群的基础系统,支持ubuntu, coreos, centos, none
+bootstrap_os: centos
+
+# etcd数据存放位置
+etcd_data_dir: /var/lib/etcd
+
+# kubernetes所需二进制文件将要安装的位置
+bin_dir: /usr/local/bin
+
+# kubrnetes配置文件存放目录
+kube_config_dir: /etc/kubernetes
+# 生成证书和token的脚本的存放位置
+kube_script_dir: "{ { bin_dir } }/kubernetes-scripts"
+# kubernetes manifest文件存放目录
+kube_manifest_dir: "{ { kube_config_dir } }/manifests"
+# kubernetes 命名空间
+system_namespace: kube-system
+
+# 日志存放位置
+kube_log_dir: "/var/log/kubernetes"
+
+# kubernetes证书存放位置
+kube_cert_dir: "{ { kube_config_dir } }/ssl"
+
+# kubernetes token存放位置
+kube_token_dir: "{ { kube_config_dir } }/tokens"
+
+# basic auth 认证文件存放位置
+kube_users_dir: "{ { kube_config_dir } }/users"
+
+# 关闭匿名授权
+kube_api_anonymous_auth: false
+
+## kubernetes使用版本
+kube_version: v1.6.7
+
+# 安装过程中缓存文件下载位置(最少1G)
+local_release_dir: "/tmp/releases"
+# 重试次数，比如下载失败等情况
+retry_stagger: 5
+
+# 证书组
+kube_cert_group: kube-cert
+
+# 集群日志等级
+kube_log_level: 2
+
+# HTTP下api server的basic auth认证用户名密码
+kube_api_pwd: "test123"
+kube_users:
+  kube:
+    pass: "{ {kube_api_pwd} }"
+    role: admin
+  root:
+    pass: "{ {kube_api_pwd} }"
+    role: admin
+
+
+
+## 开关认证 (basic auth, static token auth)
+#kube_oidc_auth: false
+#kube_basic_auth: false
+#kube_token_auth: false
+
+
+## Variables for OpenID Connect Configuration https://kubernetes.io/docs/admin/authentication/
+## To use OpenID you have to deploy additional an OpenID Provider (e.g Dex, Keycloak, ...)
+
+# kube_oidc_url: https:// ...
+# kube_oidc_client_id: kubernetes
+## Optional settings for OIDC
+# kube_oidc_ca_file: { { kube_cert_dir } }/ca.pem
+# kube_oidc_username_claim: sub
+# kube_oidc_groups_claim: groups
+
+
+# 网络插件 (calico, weave or flannel)
+kube_network_plugin: calico
+
+# 开启 kubernetes network policies
+enable_network_policy: false
+
+# Kubernetes 服务的地址范围.
+kube_service_addresses: 10.233.0.0/18
+
+# pod 地址范围
+kube_pods_subnet: 10.233.64.0/18
+
+# 网络节点大小分配
+kube_network_node_prefix: 24
+
+# api server 监听地址及端口
+kube_apiserver_ip: "{ { kube_service_addresses|ipaddr('net')|ipaddr(1)|ipaddr('address') } }"
+kube_apiserver_port: 6443 # (https)
+kube_apiserver_insecure_port: 8080 # (http)
+
+# 默认dns后缀
+cluster_name: cluster.local
+# 为使用主机网络的pods使用/etc/resolv.conf解析DNS的子域
+ndots: 2
+# DNS 组件dnsmasq_kubedns/kubedns
+dns_mode: dnsmasq_kubedns
+# dns模式，可以是 docker_dns, host_resolvconf or none
+resolvconf_mode: docker_dns
+# 部署netchecker来检测DNS和HTTP状态
+deploy_netchecker: false
+# skydns service IP配置
+skydns_server: "{ { kube_service_addresses|ipaddr('net')|ipaddr(3)|ipaddr('address') } }"
+dns_server: "{ { kube_service_addresses|ipaddr('net')|ipaddr(2)|ipaddr('address') } }"
+dns_domain: "{ { cluster_name } }"
+
+# docker 存储目录
+docker_daemon_graph: "/var/lib/docker"
+
+## A string of extra options to pass to the docker daemon.
+## This string should be exactly as you wish it to appear.
+## An obvious use case is allowing insecure-registry access
+## to self hosted registries like so:
+docker_options: "--insecure-registry={ { kube_service_addresses } } --graph={ { docker_daemon_graph } } --iptables=false --storage-driver=devicemapper"
+docker_bin_dir: "/usr/bin"
+
+# 组件部署方式
+# Settings for containerized control plane (etcd/kubelet/secrets)
+etcd_deployment_type: docker
+kubelet_deployment_type: docker
+cert_management: script
+vault_deployment_type: docker
+
+# K8s image pull policy (imagePullPolicy)
+k8s_image_pull_policy: IfNotPresent
+
+# Monitoring apps for k8s
+efk_enabled: true
+
+# Helm deployment
+helm_enabled: false
+
+
+3.生成集群配置
+配置完基本集群参数后，还需要生成一个集群配置文件，用于指定需要在哪几台服务器安装，和指定 master、node 节点分布，以及 etcd 集群等安装在那几台机器上。
+
+# 定义集群IP
+$ IP=(172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94)
+# 利用kubespray自带的python脚本生成配置
+$ CONFIG_FILE=~/kubespray/inventory/inventory.cfg python3 ~/kubespray/contrib/inventory_builder/inventory.py ${ IP[*] }
+
+
+
+生成的配置如下，最好是在配置上加上ansible_user=root,我最开始在搭建的时候没有指定，报错了
+node1    ansible_user=root ansible_host=172.30.33.90 ip=172.30.33.90
+node2    ansible_user=root ansible_host=172.30.33.91 ip=172.30.33.91
+node3    ansible_user=root ansible_host=172.30.33.92 ip=172.30.33.92
+node4    ansible_user=root ansible_host=172.30.33.93 ip=172.30.33.93
+node5    ansible_user=root ansible_host=172.30.33.94 ip=172.30.33.94
+
+[kube-master]
+node1
+node2
+node3
+
+[kube-node]
+node1
+node2
+node3
+node4
+node5
+
+[etcd]
+node1
+node2
+node3
+
+[k8s-cluster:children]
+kube-node
+kube-master
+
+[calico-rr]
+
+
+5.docker,efk,etcd配置修改
+
+提前修改ansbile中有关docker,efk,etcd的配置，因为后面在部署的过程中，ansible会检测docker的版本并下载最新的版本，但是由于墙的原因，导致无法下载，会一直卡在下载的地方，所以这里，我们要提前修改，同时需要升级etcd的版本，默认的3.0.6的版本，存在不稳定因素。
+
+修改docker配置,将下面关于docker安装的部分全部注释掉
+vim ~/kubespray/roles/docker/tasks/main.yml
+
+# - name: ensure docker repository public key is installed
+#  action: "{ { docker_repo_key_info.pkg_key } }"
+#  args:
+#    id: "{ {item} }"
+#    keyserver: "{ {docker_repo_key_info.keyserver} }"
+#    state: present
+#  register: keyserver_task_result
+#  until: keyserver_task_result|succeeded
+#  retries: 4
+#  delay: "{ { retry_stagger | random + 3 } }"
+#  with_items: "{ { docker_repo_key_info.repo_keys } }"
+#  when: not (ansible_os_family in ["CoreOS", "Container Linux by CoreOS"] or is_atomic)
+
+# - name: ensure docker repository is enabled
+#  action: "{ { docker_repo_info.pkg_repo } }"
+#  args:
+#    repo: "{ {item} }"
+#    state: present
+#  with_items: "{ { docker_repo_info.repos } }"
+#  when: not (ansible_os_family in ["CoreOS", "Container Linux by CoreOS"] or is_atomic) and (docker_repo_info.repos|length &gt; 0)
+
+# - name: Configure docker repository on RedHat/CentOS
+#  template:
+#    src: "rh_docker.repo.j2"
+#    dest: "/etc/yum.repos.d/docker.repo"
+#  when: ansible_distribution in ["CentOS","RedHat"] and not is_atomic
+
+# - name: ensure docker packages are installed
+#  action: "{ { docker_package_info.pkg_mgr } }"
+#  args:
+#    pkg: "{ {item.name} }"
+#    force: "{ {item.force|default(omit)} }"
+#    state: present
+#  register: docker_task_result
+#  until: docker_task_result|succeeded
+#  retries: 4
+#  delay: "{ { retry_stagger | random + 3 } }"
+#  with_items: "{ { docker_package_info.pkgs } }"
+#  notify: restart docker
+#  when: not (ansible_os_family in ["CoreOS", "Container Linux by CoreOS"] or is_atomic) and (docker_package_info.pkgs|length &gt; 0)
+
+# 如果你是自己安装的docker,记得将这段注释掉,除非你觉得template中的docker.service你能用
+#- name: Set docker systemd config
+#  include: systemd.yml
+
+
+修改efk配置，注释掉KIBANA_BASE_URL这段，否则后面你搭建efk之后，无法访问kibana
+vim ~/kubespray/roles/kubernetes-apps/efk/kibana/templates/kibana-deployment.yml.j2
+
+#          - name: "KIBANA_BASE_URL"
+#            value: "{ { kibana_base_url } }"
+
+
+
+修改download配置，更改etcd和kubedns版本
+
+1.6.7版本中,为了使用更高版本的calico node,我自己多添加了一个变量calico_node_version
+
+vim ~/kubespray/roles/download/defaults/main.yml
+etcd_version: v3.1.10
+calico_node_version: "v2.4.1"
+kubedns_version: 1.14.4
+calico_policy_version: "v0.7.0"
+
+
+注意: 如果你修改了kubedns_version版本，那么也需要修改/root/kubespray/roles/kubernetes-apps/ansible/defaults/main.yml文件中的kubedns_version版本
+
+(可选)6.修改docker.service
+
+# 如果你的docker.service中没有MountFlags则不需要这一步
+# 注释掉/usr/lib/systemd/system/docker.service 中的MountFlags=slave
+
+
+7.在ansible-client上一键部署
+
+$ ansible-playbook -i ~/kubespray/inventory/inventory.cfg cluster.yml -b -v --private-key=~/.ssh/id_rsa
+
+
+部署成功后如下
+
+相关node信息
+
+相关pod信息
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2016/04/18
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Node.js" title="Node.js">Node.js</a>
+                          <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
                         </span>
                         
                     </p>
@@ -230,19 +1867,50 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2016/04/07/how-to-use-github-effective/">如何有效使用 GitHub</a>
+                      <a href="https://kevinguo.me/2017/07/06/ansible-client/">ansible客户端配置</a>
                     </h3>
                     <p class="repo-list-description">
-                        这是一个知乎问题下我的回答，原帖传送门。
+                        为kargo kubernetes准备ansible客户端
+
+
+
+1.ansible-client 免密钥登录所有要部署的节点
+$ ssh-keygen -t rsa -P ''
+
+2.将ansible-client上的id_rsa.pub复制到其他所有节点
+$ IP=(172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94)
+
+$ for x in ${IP[*]}; do ssh-copy-id -i ~/.ssh/id_rsa.pub $x; done
+
+
+2.ansible-client 上安装pip,python,setuptools,最好能先yum update一下
+# setuptools安装
+$ wget https://bootstrap.pypa.io/get-pip.py
+$ python get-pip.py
+
+# pip安装
+$ wget https://pypi.python.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz#md5=35f01da33009719497f01a4ba69d63c9
+$ tar zxvf pip-9.0.1.tar.gz
+$ python setup.py install
+
+
+3.ansible安装
+$ yum install pycrypto python2-cryptography python-netaddr epel-release python-pip python34 python34-pip -y
+$ pip install ansible
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2016/04/07
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#GitHub" title="GitHub">GitHub</a>
+                          <a href="https://kevinguo.me/categories/#ansible" title="ansible">ansible</a>
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="https://kevinguo.me/categories/#kargo" title="kargo">kargo</a>
                         </span>
                         
                     </p>
@@ -250,19 +1918,119 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
-                      <a href="https://kevinguo.me/2016/03/14/show-chump/">不藏拙的人生</a>
+                      <a href="https://kevinguo.me/2017/07/06/Maven-setting.xml/">Maven之setting.xml</a>
                     </h3>
                     <p class="repo-list-description">
-                        按我以往写博客平白直述的风格来讲，这是一个「弄玄」的标题。
+                        什么是Maven
+Maven是一个项目管理和综合工具，用java编写，能简化和标准化项目建设过程。处理编译，部署，文档，团队协作和其他任务的无缝连接。 Maven增加可重用性并负责建立相关的任务。
+
+
+
+Maven资源库
+
+  
+    Maven本地资源库
+    Maven私服库
+    Maven中央仓库
+一般在打包编译的时候，会先从本地仓库中查找，如果本地仓库没有，就会去设定好的私服仓库去查找，私服仓库上如果有就下载下来，没有私服仓库就会去中央仓库查找
+  
+
+
+Maven的settings.xml文件
+在安装好maven之后，我们首先要做的是根据我们的需求配置maven的settings.xml文件
+settings.xml对于maven来说，相当于全局性的配置，用于所有的项目。在Maven2中存在两个settings.xml，一个位于maven2的安装目录conf下面，作为全局性配置。对于团队设置，保持一致的定义是关键，所以conf下的settings.xml就作为团队共同的配置文件。而对于每个单独的成员，如果有特殊的需要自定义的设置，如用户信息之类，就可以在~/.m2/settings.xml中进行设定
+
+settings.xml的基本结构如下
+&lt;settings xmlns="http://maven.apache.org/POM/4.0.0"  
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0  
+                               http://maven.apache.org/xsd/settings-1.0.0.xsd"&gt;  
+  &lt;localRepository/&gt;  
+  &lt;interactiveMode/&gt;  
+  &lt;usePluginRegistry/&gt;  
+  &lt;offline/&gt;  
+  &lt;pluginGroups/&gt;  
+  &lt;servers/&gt;  
+  &lt;mirrors/&gt;  
+  &lt;proxies/&gt;  
+  &lt;profiles/&gt;  
+  &lt;activeProfiles/&gt;  
+&lt;/settings&gt;
+
+#表示本地仓库的位置，默认在~/.m2/repository
+&lt;localRepository&gt;/path/to/local/repo&lt;localRepository/&gt;
+
+#如果不想每次编译都去查找中心库，就设置为true，前提是你必须已经下载好了必须的依赖包，默认是false
+&lt;offline&gt;false&lt;offline/&gt;
+
+#在POM文件中定义了distributionManagement元素，然而特定的username和password不能用于pom.xml，所以通过此配置来保存server信息，这里的id必须和后面repository中定义的id一致，主要是用来部署到nexus私服
+&lt;server&gt;
+  &lt;id&gt;release&lt;/id&gt;
+  &lt;username&gt;admin&lt;/username&gt;
+  &lt;password&gt;admin123&lt;/password&gt;
+&lt;/server&gt;
+
+#表示镜像仓库，指定库的镜像，这里的mirrorOf表示此镜像是那个库的镜像，*表示所有库
+&lt;mirrors&gt;
+&lt;mirror&gt;
+  &lt;id&gt;nexus&lt;/id&gt;
+  &lt;mirrorOf&gt;*&lt;/mirrorOf&gt;
+  &lt;name&gt;Nexus Repository&lt;/name&gt;
+  &lt;url&gt;http://192.168.56.22:8081/nexus/content/groups/public/&lt;/url&gt;
+&lt;/mirror&gt;
+&lt;mirrors/&gt;
+
+#代理服务器设置，主要用于无法直接访问中心的库用户设置
+&lt;proxies&gt;  
+   &lt;proxy&gt;  
+     &lt;id&gt;myproxy&lt;/id&gt;  
+     &lt;active&gt;true&lt;/active&gt;  
+     &lt;protocol&gt;http&lt;/protocol&gt;  
+     &lt;host&gt;proxy.somewhere.com&lt;/host&gt;  
+     &lt;port&gt;8080&lt;/port&gt;  
+     &lt;username&gt;proxyuser&lt;/username&gt;  
+     &lt;password&gt;somepassword&lt;/password&gt;  
+     &lt;nonProxyHosts&gt;*.google.com|ibiblio.org&lt;/nonProxyHosts&gt;  
+   &lt;/proxy&gt;  
+ &lt;/proxies&gt;
+
+#自定义配置，可以指定repositories，properties，pluginRepositories，activation等元素
+#这里的repositories表示，开发团队自己的开发库，定义这个库，一般是为了方便distributionManagement发布
+&lt;profiles&gt;
+&lt;profile&gt;
+      &lt;id&gt;nexus&lt;/id&gt;
+      &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;public&lt;/id&gt;
+            &lt;name&gt;public&lt;/name&gt;
+            &lt;url&gt;http://192.168.56.22:8081/nexus/content/groups/public/&lt;/url&gt;
+            &lt;releases&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/releases&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;false&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+      &lt;/repositories&gt;
+&lt;/profile&gt;
+&lt;/profiles&gt;
+
+#properties作为maven的占位符之，包括5中类型值：
+env.x：返回当前的环境变量
+project.x：返回pom文件中定义的project元素值
+settings.x：返回settings.xml中定义的元素
+java系统属性：返回经过java.lang.System.getProperties()返回的值
+x：用户自定义的值
+
+#激活指定的profile，通过profile id 来指定
+&lt;activeProfiles&gt;  
+    &lt;activeProfile&gt;env-test&lt;/activeProfile&gt;
+&lt;/activeProfiles&gt;
                     </p>
                     <p class="repo-list-meta">
                         <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2016/03/14
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
                         </span>
                         
                         <span class="meta-info">
                           <span class="octicon octicon-file-directory"></span>
-                          <a href="https://kevinguo.me/categories/#Blog" title="Blog">Blog</a>
+                          <a href="https://kevinguo.me/categories/#maven" title="maven">maven</a>
                         </span>
                         
                     </p>
@@ -416,18 +2184,18 @@ SimpleJekyllSearch({
     </div>
 </a>
 
-<a href="https://github.com/chinakevinguo/kubernetes-jenkins" target="_blank" class="card text-center">
+<a href="https://github.com/chinakevinguo/mritd.github.io" target="_blank" class="card text-center">
     <div class="thumbnail">
-        <div class="card-image geopattern" data-pattern-id="kubernetes-jenkins">
+        <div class="card-image geopattern" data-pattern-id="mritd.github.io">
             <div class="card-image-cell">
                 <h3 class="card-title">
-                    kubernetes-jenkins
+                    mritd.github.io
                 </h3>
             </div>
         </div>
         <div class="caption">
             <div class="card-description">
-                <p class="card-text"></p>
+                <p class="card-text">十字路口,繁华街头......</p>
             </div>
             <div class="card-text">
                 <span class="meta-info" title="0 stars">
@@ -436,9 +2204,9 @@ SimpleJekyllSearch({
                 <span class="meta-info" title="0 forks">
                     <span class="octicon octicon-git-branch"></span> 0
                 </span>
-                <span class="meta-info" title="Last updated：2017-12-27 07:13:36 UTC">
+                <span class="meta-info" title="Last updated：2018-03-19 06:51:22 UTC">
                     <span class="octicon octicon-clock"></span>
-                    <time datetime="2017-12-27 07:13:36 UTC">2017-12-27</time>
+                    <time datetime="2018-03-19 06:51:22 UTC">2018-03-19</time>
                 </span>
             </div>
         </div>
@@ -486,26 +2254,6 @@ SimpleJekyllSearch({
         
           
               <a href="https://kevinguo.me/page8"  class="btn btn-outline">8</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page9"  class="btn btn-outline">9</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page10"  class="btn btn-outline">10</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page11"  class="btn btn-outline">11</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page12"  class="btn btn-outline">12</a>
-          
-        
-          
-              <a href="https://kevinguo.me/page13"  class="btn btn-outline">13</a>
           
         
         

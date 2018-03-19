@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Harbor+etcd+docker结合Ceph搭建高可用集群 &mdash; KevinGuo</title>
+    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://kevinguo.me/2017/11/22/harbor-etcd-ceph/">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
+    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    
+    <meta property="og:title" content="Harbor+etcd+docker结合Ceph搭建高可用集群">
+      
+    <meta name="keywords" content="harbor,docker,etcd">
+    <meta name="og:keywords" content="harbor,docker,etcd">
+      
+    <meta name="description" content="  由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:docker 安装1.安装依赖包sudo yum install -y yum-utils device-mapper-persistent-data lvm22.添加docker stable 库yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo3.关闭edge和test库yum-config-manager --disable docker-ce-edgeyum-config-manager --disable docker-ce-test4.安装docker-ceyum install docker-ce -y5.配置docker graph drivervim /etc/docker/daemon.json{  "graph": "/data_docker/docker"}6.配置成开机启动，这时候先别启动dockersystemctl enable dockerceph 搭建在管理节点上操作1.添加ceph源[ceph-noarch]name=Ceph noarch packagesbaseurl=https://download.ceph.com/rpm/el7/noarchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.asc2.更新并安装ceph-deploy$ sudo yum update &amp;&amp; sudo yum install ceph-deploy2.配置从部署机器到所有其他节点的免密钥登录，具体参考这里在节点上操作1.安装epel源$ yum install yum-plugin-priorities -y$ yum install epel-release -y2.校对时间，由于ceph使用Paxos算法保证数据一致性，所以安装前要先保证各个节点的时间同步$ sudo yum install ntp ntpdate ntp-doc$ ntpdate 0.cn.pool.ntp.org3.开放所需端口或关闭防火墙$ systemctl stop firewalld$ sudo firewall-cmd --zone=public --add-port=6789/tcp --permanent4.关闭selinux$ sudo setenforce 0创建集群1.由于ceph-deploy工具部署集群前需要创建一些集群配置信息，其保存在ceph.conf文件中，这个文件将来会被复制到每个节点的 /etc/ceph/ceph.conf# 创建集群配置目录mkdir ceph-cluster &amp;&amp; cd ceph-cluster# 创建 monitor-nodeceph-deploy new i711-ustorage-1 i711-ustorage-2 i711-ustorage-3# 追加 OSD 副本数量(测试虚拟机总共有3台)echo "osd pool default size = 3" &gt;&gt; ceph.conf# 追加时间ceph允许的误差时间范围到ceph.confmon_clock_drift_allowed = 5mon_clock_drift_warn_backoff = 302.创建集群使用 ceph-deploy工具在部署节点上执行即可# 安装ceph$ ceph-deploy install i711-ustorage-1 i711-ustorage-2 i711-ustorage-3注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下# 添加ceph 源[Ceph]name=Ceph packages for $basearchbaseurl=http://download.ceph.com/rpm-jewel/el7/$basearchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascpriority=1[Ceph-noarch]name=Ceph noarch packagesbaseurl=http://download.ceph.com/rpm-jewel/el7/noarchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascpriority=1[ceph-source]name=Ceph source packagesbaseurl=http://download.ceph.com/rpm-jewel/el7/SRPMSenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascpriority=1# 执行安装$ yum install ceph ceph-radosgw -y3.初始化monitor node 和密钥文件$ ceph-deploy mon create-initial4.在管理节点上初始化osd$ ceph-deploy osd prepare i711-ustorage-1:/dev/sdb i711-ustorage-2:/dev/sdb i711-ustorage-3:/dev/sdb5.在管理节点上激活osd$ ceph-deploy osd activate i711-ustorage-1:/dev/sdb1 i711-ustorage-2:/dev/sdb1 i711-ustorage-3:/dev/sdb16.在管理节点上部署 ceph cli 工具和密钥文件$ ceph-deploy admin i711-ustorage-1 i711-ustorage-2 i711-ustorage-37.确保你对 ceph.client.admin.keyring有正确的操作权限，在每个节点上执行$ sudo chmod +r /etc/ceph/ceph.client.admin.keyring8.最后检查集群状态$ ceph healthHEALTH_OK$ ceph osd treeID WEIGHT  TYPE NAME               UP/DOWN REWEIGHT PRIMARY-AFFINITY-1 1.44955 root default                                              -2 0.48318     host i711-ustorage-1                                    0 0.48318         osd.0                up  1.00000          1.00000-3 0.48318     host i711-ustorage-2                                    1 0.48318         osd.1                up  1.00000          1.00000-4 0.48318     host i711-ustorage-3                                    2 0.48318         osd.2                up  1.00000          1.00000Ceph rados创建1.创建pool$ rados mkpool docker2.创建imagerbd create docker1 --size 100G -p dockerrbd create docker2 --size 100G -p dockerrbd create docker3 --size 100G -p docker3.关闭不支持的特性rbd feature disable docker1 exclusive-lock, object-map, fast-diff, deep-flatten -p dockerrbd feature disable docker2 exclusive-lock, object-map, fast-diff, deep-flatten -p dockerrbd feature disable docker3 exclusive-lock, object-map, fast-diff, deep-flatten -p docker4.隐射image到块设备(依次在每个节点映射)# docker1rbd map docker1 --name client.admin -p docker# docker2rbd map docker2 --name client.admin -p docker# docker3rbd map docker3 --name client.admin -p docker5.格式化设备  这里我们为了满足docker overlay2的需求，格式化的时候需要指定-n ftype=1mkfs.xfs -n ftype=1 /dev/rbd06.创建docker root 目录，进行挂载，并添加到fstab中# docker1$ mkdir -p /data_docker/docker1# 将下面的内容添加到/etc/fstab中/dev/rbd0       /data_docker/docker1    xfs     noauto  0 0# docker2$ mkdir -p /data_docker/docker2# 将下面的内容添加到/etc/fstab中/dev/rbd0       /data_docker/docker2    xfs     noauto  0 0# docker3$ mkdir -p /data_docker/docker3# 将下面的内容添加到/etc/fstab中/dev/rbd0       /data_docker/docker3    xfs     noauto  0 0  因为ceph在每次重启的时候都需要去重新map，所以这里，我们需要配置下rbdmap.service7.配置/etc/ceph/rbdmap(依次在每个节点上操作)# docker1# RbdDevice             Parameters#poolname/imagename     id=client,keyring=/etc/ceph/ceph.client.keyringdocker/docker1           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring# docker2docker/docker2           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring# docker3docker/docker3           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring# 配置成开机启动$ systemctl enable rbdmap.service8.修改docker 的service文件，将rbdmap添加到after后面，保证rbdmap先运行挂载成功之后，再启动dockervim /usr/lib/systemd/system/docker.serviceAfter=network-online.target firewalld.service rbdmap.serviceWants=network-online.target9.重启下机器，看看重启之后，docker是否启动成功，rbd image时候隐射成功docker infoCeph FS 创建1.创建MDS$ ceph-deploy mds create i711-ustorage-1 i711-ustorage-2 i711-ustorage-32.创建pool和fs，创建pool需要指定PG数量ceph osd pool create data_data 32ceph osd pool create data_metadata 32ceph fs new data data_metadata data_data3.复制密钥到文件中保存，将该文件复制到每个节点上的/etc/ceph下，并保证其权限echo "AQCF8QxaBIkrCxAAt12YUP+NzLv0TB5XHeJ4xQ==" &gt; ceph-key4.将挂载添加到每个节点的fstab中172.30.33.39:6789,172.30.33.40,172.30.33.41:6789:/      /data_harbor_etcd   ceph name=admin,secretfile=/etc/ceph/ceph-key,noatime,_netdev        0 25.重启机器后查看挂载$ df -ThFilesystem                                         Type      Size  Used Avail Use% Mounted on172.30.33.39:6789,172.30.33.40,172.30.33.41:6789:/ ceph      1.5T  436M  1.5T   1% /data_harbor_etcd至此，我们的共享存储就算是创建好了etcd 集群搭建etcd 集群的搭建很简单，我们只需要执行yum 安装即可，重点在后面的配置文件修改1.安装etcd$ yum install etcd -y# 在data目录下创建etcd目录，并修改其权限$ mkdir -p /data/etcd$ chown etcd.etcd  /data/etcd2.修改配置文件,其他几个节点同理# 本member名字ETCD_NAME=etcd1# 存放数据的位置ETCD_DATA_DIR="/data_harbor_etcd/etcd/etcd1.etcd"# 监听其他etcd实例的地址ETCD_LISTEN_PEER_URLS="http://172.30.33.39:2380"#监听客户端地址ETCD_LISTEN_CLIENT_URLS="http://127.0.0.1:2379,http://172.30.33.39:2379"# 通知其他etcd实例地址ETCD_INITIAL_ADVERTISE_PEER_URLS="http://172.30.33.39:2380"# 初始化集群内节点地址ETCD_INITIAL_CLUSTER="etcd1=http://172.30.33.39:2380,etcd2=http://172.30.33.40:2380,etcd3=http://172.30.33.41:2380"# 初始化集群状态，new 表示新建ETCD_INITIAL_CLUSTER_STATE="new"# 通知客户端地址ETCD_ADVERTISE_CLIENT_URLS="http://172.30.33.39:2379"3.启动集群，然后查看$ systemctl start etcd$ systemctl enable etcd$ etcdctl member list186fb106f678cc55: name=etcd3 peerURLs=http://172.30.33.41:2380 clientURLs=http://172.30.33.41:2379 isLeader=falsebbe26c67e852d6f9: name=etcd1 peerURLs=http://172.30.33.39:2380 clientURLs=http://172.30.33.39:2379 isLeader=trued4155475d1205f97: name=etcd2 peerURLs=http://172.30.33.40:2380 clientURLs=http://172.30.33.40:2379 isLeader=false至此，etcd集群，也算是搭建完成了，这里我们没有使用域名和https，如果需要使用https的话，则需要证书制作，可参考k8s-manualharbor 集群搭建1.安装docker-composesudo curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose2.配置docker网络# 安装flannel网络$ yum install flannel -y# 配置flannelFLANNEL_ETCD_ENDPOINTS="http://10.19.65.27:2379,http://10.19.65.28:2379,http://10.19.65.29:2379"FLANNEL_ETCD_PREFIX="/quarkfinance.com/network"FLANNEL_OPTIONS="--iface=eth0"# 在etcd中添加网络记录etcdctl set /quarkfinance.com/network/config '{ "Network": "10.1.0.0/16" }'# 在/usr/lib/systemd/system/docker.service中添加 $DOCKER_NETWORK_OPTIONSExecStart=/usr/bin/dockerd $DOCKER_NETWORK_OPTIONS# 配置docker用非root用户启动groupadd dockergpasswd -a ${USER} dockersystemctl restart docker# 启动docker，并将各服务配置成开机启动systemctl start dockersystemctl enable flanneldsystemctl enable docker3.查看docker网络是否生效3: docker0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc noqueue state DOWN    link/ether 02:42:90:6e:ac:b3 brd ff:ff:ff:ff:ff:ff    inet 10.1.82.1/24 scope global docker0       valid_lft forever preferred_lft forever    inet6 fe80::42:90ff:fe6e:acb3/64 scope link       valid_lft forever preferred_lft forever9: flannel0: &lt;POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP&gt; mtu 1472 qdisc pfifo_fast state UNKNOWN qlen 500    link/none    inet 10.1.82.0/16 scope global flannel0       valid_lft forever preferred_lft forever    inet6 fe80::ff4f:42ff:391f:2a9d/64 scope link flags 800       valid_lft forever preferred_lft forever4.万事俱备，只欠harbor，下面，我们就来搭建我们的harbor  从git上下载最新的harbor包，git上有online和offlinle两个版，这里我选择online版，image都从外网拉取wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz5.修改harbor配置文件  1.修改挂载位置将`docker-compose.yml`和`harbor.cfg`文件中所有的`/data`都修改成`/data_harbor_etcd/harbor`  2.由于使用外部mysql，所以删除mysqlservice，并且删除掉其他service对mysql的依赖(depends_on)如果你的harbor中已经有数据，那么请先导出mysql的数据，然后导入到你外部的mysql中docker exec -ti ${containerID} /bin/bashmysqldump -u root -proot123 --databases registry &gt; registry.dumpdocker cp ${containerID}:/root/registry.dump ./mysql -h ${your_mysql_host} -u ${your_mysql_user} -pmysql&gt; source ./registry.dump  3.在./common/templates/adminserver/env中添加如下内容MYSQL_HOST=${your_mysql_host}MYSQL_PORT=3306MYSQL_USR=${your_mysql_user}MYSQL_PWD=${your_mysql_passwd}  4.修改./common/templates/adminserver/env文件将`RESET=false`改为`RESET=true`  5.由于要使用redis共享session，所以在./common/templates/ui/env中添加如下内容_REDIS_URL=redis_ip:6379,100,password,0  6.关闭其他两个节点上的crt生成功能，留一个生成一套数字证书和私钥custom_crt=false  7.修改common/templates/nginx/nginx.http.conf，找到location /, location /v2/ and location /service/这3个配置块， 将这三个配置块中的proxy_set_header X-Forwarded-Proto $scheme;配置移除# When setting up Harbor behind other proxy, such as an Nginx instance, remove the below line if the proxy already has similar settings.#proxy_set_header X-Forwarded-Proto $$scheme;  8.修改common/templates/registry/config.yml，修改auth.token.realm的地址auth:  token:    issuer: harbor-token-issuer    realm: https://harbor.quark.com/service/token    # realm: $ui_url/service/token    rootcertbundle: /etc/registry/root.crt    service: harbor-registry  9.在各个节点上执行prepare脚本生成harbor各容器服务器的配置，然后启动容器./preparedocker-compose up -d注意：如果你启动之后，提示你无法连接远程数据库，请重启网络和docker daemon6.前端nginx LB https配置  1.新建一个证书脚本gencert.sh，内容如下#!/bin/sh# create self-signed server certificate:read -p "Enter your domain [www.example.com]: " DOMAINecho "Create server key..."openssl genrsa -des3 -out $DOMAIN.key 1024echo "Create server certificate signing request..."SUBJECT="/C=CN/ST=Hubei/L=Wuhan/O=quark/OU=devops/CN=$DOMAIN"openssl req -new -subj $SUBJECT -key $DOMAIN.key -out $DOMAIN.csrecho "Remove password..."mv $DOMAIN.key $DOMAIN.origin.keyopenssl rsa -in $DOMAIN.origin.key -out $DOMAIN.keyecho "Sign SSL certificate..."openssl x509 -req -days 3650 -in $DOMAIN.csr -signkey $DOMAIN.key -out $DOMAIN.crtecho "TODO:"echo "Copy $DOMAIN.crt to /etc/nginx/ssl/$DOMAIN.crt"echo "Copy $DOMAIN.key to /etc/nginx/ssl/$DOMAIN.key"echo "Add configuration in nginx:"echo "server {"echo "    ..."echo "    listen 443 ssl;"echo "    ssl_certificate     /etc/nginx/ssl/$DOMAIN.crt;"echo "    ssl_certificate_key /etc/nginx/ssl/$DOMAIN.key;"echo "}"  2.生成证书，按提示输入./gencert.sh  3.生成内容如下[root@i612-devopsyw-1 ssl]# lltotal 20-rwxr-xr-x 1 root root 949 Nov 22 16:28 gencert.sh-rw-r--r-- 1 root root 887 Nov 22 17:40 harbor.quark.com.crt-rw-r--r-- 1 root root 672 Nov 22 16:28 harbor.quark.com.csr-rw-r--r-- 1 root root 887 Nov 22 17:40 harbor.quark.com.key-rw-r--r-- 1 root root 963 Nov 22 16:28 harbor.quark.com.origin.key  4.将harbor.quark.com.crt 和 harbor.quark.com.key 复制到你自己的nginx的ssl目录下cp harbor.quark.com.* /data/bkv2.0.1/common/nginx/ssl  5.配置nginx的upstream 和 .conf文件harbor-upstream.confupstream harbor-server {        ip_hash;        server 172.30.33.40:80;        server 172.30.33.39:80;        server 172.30.33.41:80;}map $http_upgrade $connection_upgrade {    default Upgrade;    ''      close;}harbor.confserver {    listen 80;    server_name harbor.quark.com;    # Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.    rewrite ^(.*)$  https://$host$1 permanent;}server {    listen 443 ssl;    server_name harbor.quark.com;    ssl_certificate /data/bkv2.0.1/common/nginx/ssl/harbor.quark.com.crt;    ssl_certificate_key /data/bkv2.0.1/common/nginx/ssl/harbor.quark.com.key;    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;    access_log logs/harbor_access.log ;    error_log logs/harbor_error.log ;    location / {        proxy_pass   http://harbor-server;        proxy_set_header   Host             $host;        proxy_set_header   X-Real-IP        $remote_addr;        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;        proxy_set_header   X-Forwarded-Proto https;        client_max_body_size 300M;    }}  6.重新加载nginx$ nginx reload  7.访问试试效果七.配置docker，让docker可以访问自签名证书的harbor  1.在每个docker主机上创建/etc/docker/certs.d/harbor.quark.com目录$ mkdir -p /etc/docker/certs.d/harbor.quark.com  2.将harbor.quark.com.crt 复制到每个docker主机上的 /etc/docker/certs.d/harbor.quark.com/目录下$ for IP in seq `39 31`;do  scp harbor.quark.com.crt root@172.30.33.$IP:/etc/docker/certs.d/habor.quark.com/done  3.我们login试试，然后push一个image$ docker login harbor.quark.comUsername: ${your_ldap_user}Password:Login Succeeded$ docker tag vmware/harbor-adminserver:v1.2.2 harbor.quark.com/quark/harbor-adminserver:v1.2.2$ docker push harbor.quark.com/quark/harbor-adminserver:v1.2.2The push refers to a repository [harbor.quark.com/quark/harbor-adminserver]4fe250d3c912: Pushed2202528221a2: Pushedabf0579c40fd: Pusheddd60b611baaa: Pushedv1.2.2: digest: sha256:80bfbc20a1ee2bc6b05dfe31f1e082c08961a0f62e94089ef952800e92a1fc4c size: 1157看看harbor是否已经有了这个image呢有了，至此，我们的harbor就算是搭建完成，因为我们是在内网使用，所以使用自签名证书无所谓，如果要上到公网，那么就必须使用可信任的证书机构颁发的证书了">
+    <meta name="og:description" content="  由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:docker 安装1.安装依赖包sudo yum install -y yum-utils device-mapper-persistent-data lvm22.添加docker stable 库yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo3.关闭edge和test库yum-config-manager --disable docker-ce-edgeyum-config-manager --disable docker-ce-test4.安装docker-ceyum install docker-ce -y5.配置docker graph drivervim /etc/docker/daemon.json{  "graph": "/data_docker/docker"}6.配置成开机启动，这时候先别启动dockersystemctl enable dockerceph 搭建在管理节点上操作1.添加ceph源[ceph-noarch]name=Ceph noarch packagesbaseurl=https://download.ceph.com/rpm/el7/noarchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.asc2.更新并安装ceph-deploy$ sudo yum update &amp;&amp; sudo yum install ceph-deploy2.配置从部署机器到所有其他节点的免密钥登录，具体参考这里在节点上操作1.安装epel源$ yum install yum-plugin-priorities -y$ yum install epel-release -y2.校对时间，由于ceph使用Paxos算法保证数据一致性，所以安装前要先保证各个节点的时间同步$ sudo yum install ntp ntpdate ntp-doc$ ntpdate 0.cn.pool.ntp.org3.开放所需端口或关闭防火墙$ systemctl stop firewalld$ sudo firewall-cmd --zone=public --add-port=6789/tcp --permanent4.关闭selinux$ sudo setenforce 0创建集群1.由于ceph-deploy工具部署集群前需要创建一些集群配置信息，其保存在ceph.conf文件中，这个文件将来会被复制到每个节点的 /etc/ceph/ceph.conf# 创建集群配置目录mkdir ceph-cluster &amp;&amp; cd ceph-cluster# 创建 monitor-nodeceph-deploy new i711-ustorage-1 i711-ustorage-2 i711-ustorage-3# 追加 OSD 副本数量(测试虚拟机总共有3台)echo "osd pool default size = 3" &gt;&gt; ceph.conf# 追加时间ceph允许的误差时间范围到ceph.confmon_clock_drift_allowed = 5mon_clock_drift_warn_backoff = 302.创建集群使用 ceph-deploy工具在部署节点上执行即可# 安装ceph$ ceph-deploy install i711-ustorage-1 i711-ustorage-2 i711-ustorage-3注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下# 添加ceph 源[Ceph]name=Ceph packages for $basearchbaseurl=http://download.ceph.com/rpm-jewel/el7/$basearchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascpriority=1[Ceph-noarch]name=Ceph noarch packagesbaseurl=http://download.ceph.com/rpm-jewel/el7/noarchenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascpriority=1[ceph-source]name=Ceph source packagesbaseurl=http://download.ceph.com/rpm-jewel/el7/SRPMSenabled=1gpgcheck=1type=rpm-mdgpgkey=https://download.ceph.com/keys/release.ascpriority=1# 执行安装$ yum install ceph ceph-radosgw -y3.初始化monitor node 和密钥文件$ ceph-deploy mon create-initial4.在管理节点上初始化osd$ ceph-deploy osd prepare i711-ustorage-1:/dev/sdb i711-ustorage-2:/dev/sdb i711-ustorage-3:/dev/sdb5.在管理节点上激活osd$ ceph-deploy osd activate i711-ustorage-1:/dev/sdb1 i711-ustorage-2:/dev/sdb1 i711-ustorage-3:/dev/sdb16.在管理节点上部署 ceph cli 工具和密钥文件$ ceph-deploy admin i711-ustorage-1 i711-ustorage-2 i711-ustorage-37.确保你对 ceph.client.admin.keyring有正确的操作权限，在每个节点上执行$ sudo chmod +r /etc/ceph/ceph.client.admin.keyring8.最后检查集群状态$ ceph healthHEALTH_OK$ ceph osd treeID WEIGHT  TYPE NAME               UP/DOWN REWEIGHT PRIMARY-AFFINITY-1 1.44955 root default                                              -2 0.48318     host i711-ustorage-1                                    0 0.48318         osd.0                up  1.00000          1.00000-3 0.48318     host i711-ustorage-2                                    1 0.48318         osd.1                up  1.00000          1.00000-4 0.48318     host i711-ustorage-3                                    2 0.48318         osd.2                up  1.00000          1.00000Ceph rados创建1.创建pool$ rados mkpool docker2.创建imagerbd create docker1 --size 100G -p dockerrbd create docker2 --size 100G -p dockerrbd create docker3 --size 100G -p docker3.关闭不支持的特性rbd feature disable docker1 exclusive-lock, object-map, fast-diff, deep-flatten -p dockerrbd feature disable docker2 exclusive-lock, object-map, fast-diff, deep-flatten -p dockerrbd feature disable docker3 exclusive-lock, object-map, fast-diff, deep-flatten -p docker4.隐射image到块设备(依次在每个节点映射)# docker1rbd map docker1 --name client.admin -p docker# docker2rbd map docker2 --name client.admin -p docker# docker3rbd map docker3 --name client.admin -p docker5.格式化设备  这里我们为了满足docker overlay2的需求，格式化的时候需要指定-n ftype=1mkfs.xfs -n ftype=1 /dev/rbd06.创建docker root 目录，进行挂载，并添加到fstab中# docker1$ mkdir -p /data_docker/docker1# 将下面的内容添加到/etc/fstab中/dev/rbd0       /data_docker/docker1    xfs     noauto  0 0# docker2$ mkdir -p /data_docker/docker2# 将下面的内容添加到/etc/fstab中/dev/rbd0       /data_docker/docker2    xfs     noauto  0 0# docker3$ mkdir -p /data_docker/docker3# 将下面的内容添加到/etc/fstab中/dev/rbd0       /data_docker/docker3    xfs     noauto  0 0  因为ceph在每次重启的时候都需要去重新map，所以这里，我们需要配置下rbdmap.service7.配置/etc/ceph/rbdmap(依次在每个节点上操作)# docker1# RbdDevice             Parameters#poolname/imagename     id=client,keyring=/etc/ceph/ceph.client.keyringdocker/docker1           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring# docker2docker/docker2           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring# docker3docker/docker3           id=admin,keyring=/etc/ceph/ceph.client.admin.keyring# 配置成开机启动$ systemctl enable rbdmap.service8.修改docker 的service文件，将rbdmap添加到after后面，保证rbdmap先运行挂载成功之后，再启动dockervim /usr/lib/systemd/system/docker.serviceAfter=network-online.target firewalld.service rbdmap.serviceWants=network-online.target9.重启下机器，看看重启之后，docker是否启动成功，rbd image时候隐射成功docker infoCeph FS 创建1.创建MDS$ ceph-deploy mds create i711-ustorage-1 i711-ustorage-2 i711-ustorage-32.创建pool和fs，创建pool需要指定PG数量ceph osd pool create data_data 32ceph osd pool create data_metadata 32ceph fs new data data_metadata data_data3.复制密钥到文件中保存，将该文件复制到每个节点上的/etc/ceph下，并保证其权限echo "AQCF8QxaBIkrCxAAt12YUP+NzLv0TB5XHeJ4xQ==" &gt; ceph-key4.将挂载添加到每个节点的fstab中172.30.33.39:6789,172.30.33.40,172.30.33.41:6789:/      /data_harbor_etcd   ceph name=admin,secretfile=/etc/ceph/ceph-key,noatime,_netdev        0 25.重启机器后查看挂载$ df -ThFilesystem                                         Type      Size  Used Avail Use% Mounted on172.30.33.39:6789,172.30.33.40,172.30.33.41:6789:/ ceph      1.5T  436M  1.5T   1% /data_harbor_etcd至此，我们的共享存储就算是创建好了etcd 集群搭建etcd 集群的搭建很简单，我们只需要执行yum 安装即可，重点在后面的配置文件修改1.安装etcd$ yum install etcd -y# 在data目录下创建etcd目录，并修改其权限$ mkdir -p /data/etcd$ chown etcd.etcd  /data/etcd2.修改配置文件,其他几个节点同理# 本member名字ETCD_NAME=etcd1# 存放数据的位置ETCD_DATA_DIR="/data_harbor_etcd/etcd/etcd1.etcd"# 监听其他etcd实例的地址ETCD_LISTEN_PEER_URLS="http://172.30.33.39:2380"#监听客户端地址ETCD_LISTEN_CLIENT_URLS="http://127.0.0.1:2379,http://172.30.33.39:2379"# 通知其他etcd实例地址ETCD_INITIAL_ADVERTISE_PEER_URLS="http://172.30.33.39:2380"# 初始化集群内节点地址ETCD_INITIAL_CLUSTER="etcd1=http://172.30.33.39:2380,etcd2=http://172.30.33.40:2380,etcd3=http://172.30.33.41:2380"# 初始化集群状态，new 表示新建ETCD_INITIAL_CLUSTER_STATE="new"# 通知客户端地址ETCD_ADVERTISE_CLIENT_URLS="http://172.30.33.39:2379"3.启动集群，然后查看$ systemctl start etcd$ systemctl enable etcd$ etcdctl member list186fb106f678cc55: name=etcd3 peerURLs=http://172.30.33.41:2380 clientURLs=http://172.30.33.41:2379 isLeader=falsebbe26c67e852d6f9: name=etcd1 peerURLs=http://172.30.33.39:2380 clientURLs=http://172.30.33.39:2379 isLeader=trued4155475d1205f97: name=etcd2 peerURLs=http://172.30.33.40:2380 clientURLs=http://172.30.33.40:2379 isLeader=false至此，etcd集群，也算是搭建完成了，这里我们没有使用域名和https，如果需要使用https的话，则需要证书制作，可参考k8s-manualharbor 集群搭建1.安装docker-composesudo curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose2.配置docker网络# 安装flannel网络$ yum install flannel -y# 配置flannelFLANNEL_ETCD_ENDPOINTS="http://10.19.65.27:2379,http://10.19.65.28:2379,http://10.19.65.29:2379"FLANNEL_ETCD_PREFIX="/quarkfinance.com/network"FLANNEL_OPTIONS="--iface=eth0"# 在etcd中添加网络记录etcdctl set /quarkfinance.com/network/config '{ "Network": "10.1.0.0/16" }'# 在/usr/lib/systemd/system/docker.service中添加 $DOCKER_NETWORK_OPTIONSExecStart=/usr/bin/dockerd $DOCKER_NETWORK_OPTIONS# 配置docker用非root用户启动groupadd dockergpasswd -a ${USER} dockersystemctl restart docker# 启动docker，并将各服务配置成开机启动systemctl start dockersystemctl enable flanneldsystemctl enable docker3.查看docker网络是否生效3: docker0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc noqueue state DOWN    link/ether 02:42:90:6e:ac:b3 brd ff:ff:ff:ff:ff:ff    inet 10.1.82.1/24 scope global docker0       valid_lft forever preferred_lft forever    inet6 fe80::42:90ff:fe6e:acb3/64 scope link       valid_lft forever preferred_lft forever9: flannel0: &lt;POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP&gt; mtu 1472 qdisc pfifo_fast state UNKNOWN qlen 500    link/none    inet 10.1.82.0/16 scope global flannel0       valid_lft forever preferred_lft forever    inet6 fe80::ff4f:42ff:391f:2a9d/64 scope link flags 800       valid_lft forever preferred_lft forever4.万事俱备，只欠harbor，下面，我们就来搭建我们的harbor  从git上下载最新的harbor包，git上有online和offlinle两个版，这里我选择online版，image都从外网拉取wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz5.修改harbor配置文件  1.修改挂载位置将`docker-compose.yml`和`harbor.cfg`文件中所有的`/data`都修改成`/data_harbor_etcd/harbor`  2.由于使用外部mysql，所以删除mysqlservice，并且删除掉其他service对mysql的依赖(depends_on)如果你的harbor中已经有数据，那么请先导出mysql的数据，然后导入到你外部的mysql中docker exec -ti ${containerID} /bin/bashmysqldump -u root -proot123 --databases registry &gt; registry.dumpdocker cp ${containerID}:/root/registry.dump ./mysql -h ${your_mysql_host} -u ${your_mysql_user} -pmysql&gt; source ./registry.dump  3.在./common/templates/adminserver/env中添加如下内容MYSQL_HOST=${your_mysql_host}MYSQL_PORT=3306MYSQL_USR=${your_mysql_user}MYSQL_PWD=${your_mysql_passwd}  4.修改./common/templates/adminserver/env文件将`RESET=false`改为`RESET=true`  5.由于要使用redis共享session，所以在./common/templates/ui/env中添加如下内容_REDIS_URL=redis_ip:6379,100,password,0  6.关闭其他两个节点上的crt生成功能，留一个生成一套数字证书和私钥custom_crt=false  7.修改common/templates/nginx/nginx.http.conf，找到location /, location /v2/ and location /service/这3个配置块， 将这三个配置块中的proxy_set_header X-Forwarded-Proto $scheme;配置移除# When setting up Harbor behind other proxy, such as an Nginx instance, remove the below line if the proxy already has similar settings.#proxy_set_header X-Forwarded-Proto $$scheme;  8.修改common/templates/registry/config.yml，修改auth.token.realm的地址auth:  token:    issuer: harbor-token-issuer    realm: https://harbor.quark.com/service/token    # realm: $ui_url/service/token    rootcertbundle: /etc/registry/root.crt    service: harbor-registry  9.在各个节点上执行prepare脚本生成harbor各容器服务器的配置，然后启动容器./preparedocker-compose up -d注意：如果你启动之后，提示你无法连接远程数据库，请重启网络和docker daemon6.前端nginx LB https配置  1.新建一个证书脚本gencert.sh，内容如下#!/bin/sh# create self-signed server certificate:read -p "Enter your domain [www.example.com]: " DOMAINecho "Create server key..."openssl genrsa -des3 -out $DOMAIN.key 1024echo "Create server certificate signing request..."SUBJECT="/C=CN/ST=Hubei/L=Wuhan/O=quark/OU=devops/CN=$DOMAIN"openssl req -new -subj $SUBJECT -key $DOMAIN.key -out $DOMAIN.csrecho "Remove password..."mv $DOMAIN.key $DOMAIN.origin.keyopenssl rsa -in $DOMAIN.origin.key -out $DOMAIN.keyecho "Sign SSL certificate..."openssl x509 -req -days 3650 -in $DOMAIN.csr -signkey $DOMAIN.key -out $DOMAIN.crtecho "TODO:"echo "Copy $DOMAIN.crt to /etc/nginx/ssl/$DOMAIN.crt"echo "Copy $DOMAIN.key to /etc/nginx/ssl/$DOMAIN.key"echo "Add configuration in nginx:"echo "server {"echo "    ..."echo "    listen 443 ssl;"echo "    ssl_certificate     /etc/nginx/ssl/$DOMAIN.crt;"echo "    ssl_certificate_key /etc/nginx/ssl/$DOMAIN.key;"echo "}"  2.生成证书，按提示输入./gencert.sh  3.生成内容如下[root@i612-devopsyw-1 ssl]# lltotal 20-rwxr-xr-x 1 root root 949 Nov 22 16:28 gencert.sh-rw-r--r-- 1 root root 887 Nov 22 17:40 harbor.quark.com.crt-rw-r--r-- 1 root root 672 Nov 22 16:28 harbor.quark.com.csr-rw-r--r-- 1 root root 887 Nov 22 17:40 harbor.quark.com.key-rw-r--r-- 1 root root 963 Nov 22 16:28 harbor.quark.com.origin.key  4.将harbor.quark.com.crt 和 harbor.quark.com.key 复制到你自己的nginx的ssl目录下cp harbor.quark.com.* /data/bkv2.0.1/common/nginx/ssl  5.配置nginx的upstream 和 .conf文件harbor-upstream.confupstream harbor-server {        ip_hash;        server 172.30.33.40:80;        server 172.30.33.39:80;        server 172.30.33.41:80;}map $http_upgrade $connection_upgrade {    default Upgrade;    ''      close;}harbor.confserver {    listen 80;    server_name harbor.quark.com;    # Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.    rewrite ^(.*)$  https://$host$1 permanent;}server {    listen 443 ssl;    server_name harbor.quark.com;    ssl_certificate /data/bkv2.0.1/common/nginx/ssl/harbor.quark.com.crt;    ssl_certificate_key /data/bkv2.0.1/common/nginx/ssl/harbor.quark.com.key;    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;    access_log logs/harbor_access.log ;    error_log logs/harbor_error.log ;    location / {        proxy_pass   http://harbor-server;        proxy_set_header   Host             $host;        proxy_set_header   X-Real-IP        $remote_addr;        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;        proxy_set_header   X-Forwarded-Proto https;        client_max_body_size 300M;    }}  6.重新加载nginx$ nginx reload  7.访问试试效果七.配置docker，让docker可以访问自签名证书的harbor  1.在每个docker主机上创建/etc/docker/certs.d/harbor.quark.com目录$ mkdir -p /etc/docker/certs.d/harbor.quark.com  2.将harbor.quark.com.crt 复制到每个docker主机上的 /etc/docker/certs.d/harbor.quark.com/目录下$ for IP in seq `39 31`;do  scp harbor.quark.com.crt root@172.30.33.$IP:/etc/docker/certs.d/habor.quark.com/done  3.我们login试试，然后push一个image$ docker login harbor.quark.comUsername: ${your_ldap_user}Password:Login Succeeded$ docker tag vmware/harbor-adminserver:v1.2.2 harbor.quark.com/quark/harbor-adminserver:v1.2.2$ docker push harbor.quark.com/quark/harbor-adminserver:v1.2.2The push refers to a repository [harbor.quark.com/quark/harbor-adminserver]4fe250d3c912: Pushed2202528221a2: Pushedabf0579c40fd: Pusheddd60b611baaa: Pushedv1.2.2: digest: sha256:80bfbc20a1ee2bc6b05dfe31f1e082c08961a0f62e94089ef952800e92a1fc4c size: 1157看看harbor是否已经有了这个image呢有了，至此，我们的harbor就算是搭建完成，因为我们是在内网使用，所以使用自签名证书无所谓，如果要上到公网，那么就必须使用可信任的证书机构颁发的证书了">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://kevinguo.me/2017/11/22/harbor-etcd-ceph/">
+    <meta property="og:site_name" content="KevinGuo">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2017-11-22">
+    
+    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="Harbor+etcd+doc">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">Harbor+etcd+docker结合Ceph搭建高可用集群</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2017/11/22
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="https://kevinguo.me/categories/#harbor" title="harbor">harbor</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="https://kevinguo.me/categories/#etcd" title="etcd">etcd</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <blockquote>
+  <p>由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:</p>
+</blockquote>
+
+<p><img src="/images/posts/overall-structure.png" alt="" /></p>
+
+<h3 id="docker-安装">docker 安装</h3>
+
+<p>1.安装依赖包</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>yum install <span class="nt">-y</span> yum-utils device-mapper-persistent-data lvm2
+</code></pre></div></div>
+
+<p>2.添加docker stable 库</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum-config-manager <span class="nt">--add-repo</span> https://download.docker.com/linux/centos/docker-ce.repo
+</code></pre></div></div>
+
+<p>3.关闭edge和test库</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum-config-manager <span class="nt">--disable</span> docker-ce-edge
+yum-config-manager <span class="nt">--disable</span> docker-ce-test
+</code></pre></div></div>
+
+<p>4.安装docker-ce</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum install docker-ce <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p>5.配置docker graph driver</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim /etc/docker/daemon.json
+
+<span class="o">{</span>
+  <span class="s2">"graph"</span>: <span class="s2">"/data_docker/docker"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>6.配置成开机启动，这时候先别启动docker</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl <span class="nb">enable </span>docker
+</code></pre></div></div>
+
+<h3 id="ceph-搭建">ceph 搭建</h3>
+
+<h4 id="在管理节点上操作">在管理节点上操作</h4>
+
+<p>1.添加ceph源</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>ceph-noarch]
+<span class="nv">name</span><span class="o">=</span>Ceph noarch packages
+<span class="nv">baseurl</span><span class="o">=</span>https://download.ceph.com/rpm/el7/noarch
+<span class="nv">enabled</span><span class="o">=</span>1
+<span class="nv">gpgcheck</span><span class="o">=</span>1
+<span class="nb">type</span><span class="o">=</span>rpm-md
+<span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
+</code></pre></div></div>
+
+<p>2.更新并安装<code class="highlighter-rouge">ceph-deploy</code></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>yum update <span class="o">&amp;&amp;</span> <span class="nb">sudo </span>yum install ceph-deploy
+</code></pre></div></div>
+
+<p>2.配置从部署机器到所有其他节点的免密钥登录，具体参考<a href="https://kevinguo.me/2017/07/06/ansible-client/">这里</a></p>
+
+<h4 id="在节点上操作">在节点上操作</h4>
+
+<p>1.安装epel源</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>yum install yum-plugin-priorities <span class="nt">-y</span>
+<span class="nv">$ </span>yum install epel-release <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p>2.校对时间，由于ceph使用Paxos算法保证数据一致性，所以安装前要先保证各个节点的时间同步</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>yum install ntp ntpdate ntp-doc
+
+<span class="nv">$ </span>ntpdate 0.cn.pool.ntp.org
+</code></pre></div></div>
+
+<p>3.开放所需端口或关闭防火墙</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>systemctl stop firewalld
+<span class="nv">$ </span><span class="nb">sudo </span>firewall-cmd <span class="nt">--zone</span><span class="o">=</span>public <span class="nt">--add-port</span><span class="o">=</span>6789/tcp <span class="nt">--permanent</span>
+</code></pre></div></div>
+
+<p>4.关闭selinux</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>setenforce 0
+</code></pre></div></div>
+
+<h4 id="创建集群">创建集群</h4>
+
+<p>1.由于ceph-deploy工具部署集群前需要创建一些集群配置信息，其保存在<code class="highlighter-rouge">ceph.conf</code>文件中，这个文件将来会被复制到每个节点的 <code class="highlighter-rouge">/etc/ceph/ceph.conf</code></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建集群配置目录</span>
+mkdir ceph-cluster <span class="o">&amp;&amp;</span> <span class="nb">cd </span>ceph-cluster
+<span class="c"># 创建 monitor-node</span>
+ceph-deploy new i711-ustorage-1 i711-ustorage-2 i711-ustorage-3
+<span class="c"># 追加 OSD 副本数量(测试虚拟机总共有3台)</span>
+<span class="nb">echo</span> <span class="s2">"osd pool default size = 3"</span> <span class="o">&gt;&gt;</span> ceph.conf
+<span class="c"># 追加时间ceph允许的误差时间范围到ceph.conf</span>
+mon_clock_drift_allowed <span class="o">=</span> 5
+mon_clock_drift_warn_backoff <span class="o">=</span> 30
+</code></pre></div></div>
+
+<p>2.创建集群使用 <code class="highlighter-rouge">ceph-deploy</code>工具在部署节点上执行即可</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 安装ceph</span>
+<span class="nv">$ </span>ceph-deploy install i711-ustorage-1 i711-ustorage-2 i711-ustorage-3
+</code></pre></div></div>
+<p><strong>注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 添加ceph 源</span>
+<span class="o">[</span>Ceph]
+<span class="nv">name</span><span class="o">=</span>Ceph packages <span class="k">for</span> <span class="nv">$basearch</span>
+<span class="nv">baseurl</span><span class="o">=</span>http://download.ceph.com/rpm-jewel/el7/<span class="nv">$basearch</span>
+<span class="nv">enabled</span><span class="o">=</span>1
+<span class="nv">gpgcheck</span><span class="o">=</span>1
+<span class="nb">type</span><span class="o">=</span>rpm-md
+<span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
+<span class="nv">priority</span><span class="o">=</span>1
+
+<span class="o">[</span>Ceph-noarch]
+<span class="nv">name</span><span class="o">=</span>Ceph noarch packages
+<span class="nv">baseurl</span><span class="o">=</span>http://download.ceph.com/rpm-jewel/el7/noarch
+<span class="nv">enabled</span><span class="o">=</span>1
+<span class="nv">gpgcheck</span><span class="o">=</span>1
+<span class="nb">type</span><span class="o">=</span>rpm-md
+<span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
+<span class="nv">priority</span><span class="o">=</span>1
+
+<span class="o">[</span>ceph-source]
+<span class="nv">name</span><span class="o">=</span>Ceph <span class="nb">source </span>packages
+<span class="nv">baseurl</span><span class="o">=</span>http://download.ceph.com/rpm-jewel/el7/SRPMS
+<span class="nv">enabled</span><span class="o">=</span>1
+<span class="nv">gpgcheck</span><span class="o">=</span>1
+<span class="nb">type</span><span class="o">=</span>rpm-md
+<span class="nv">gpgkey</span><span class="o">=</span>https://download.ceph.com/keys/release.asc
+<span class="nv">priority</span><span class="o">=</span>1
+
+
+<span class="c"># 执行安装</span>
+<span class="nv">$ </span>yum install ceph ceph-radosgw <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p>3.初始化monitor node 和密钥文件</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy mon create-initial
+</code></pre></div></div>
+
+<p>4.在管理节点上初始化osd</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy osd prepare i711-ustorage-1:/dev/sdb i711-ustorage-2:/dev/sdb i711-ustorage-3:/dev/sdb
+</code></pre></div></div>
+
+<p>5.在管理节点上激活osd</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy osd activate i711-ustorage-1:/dev/sdb1 i711-ustorage-2:/dev/sdb1 i711-ustorage-3:/dev/sdb1
+</code></pre></div></div>
+
+<p>6.在管理节点上部署 ceph cli 工具和密钥文件</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy admin i711-ustorage-1 i711-ustorage-2 i711-ustorage-3
+</code></pre></div></div>
+
+<p>7.确保你对 <code class="highlighter-rouge">ceph.client.admin.keyring</code>有正确的操作权限，在每个节点上执行</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>chmod +r /etc/ceph/ceph.client.admin.keyring
+</code></pre></div></div>
+
+<p>8.最后检查集群状态</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph health
+HEALTH_OK
+
+<span class="nv">$ </span>ceph osd tree
+ID WEIGHT  TYPE NAME               UP/DOWN REWEIGHT PRIMARY-AFFINITY
+<span class="nt">-1</span> 1.44955 root default                                              
+<span class="nt">-2</span> 0.48318     host i711-ustorage-1                                   
+ 0 0.48318         osd.0                up  1.00000          1.00000
+<span class="nt">-3</span> 0.48318     host i711-ustorage-2                                   
+ 1 0.48318         osd.1                up  1.00000          1.00000
+<span class="nt">-4</span> 0.48318     host i711-ustorage-3                                   
+ 2 0.48318         osd.2                up  1.00000          1.00000
+</code></pre></div></div>
+
+<h4 id="ceph-rados创建">Ceph rados创建</h4>
+
+<p>1.创建pool</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>rados mkpool docker
+</code></pre></div></div>
+
+<p>2.创建image</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rbd create docker1 <span class="nt">--size</span> 100G <span class="nt">-p</span> docker
+rbd create docker2 <span class="nt">--size</span> 100G <span class="nt">-p</span> docker
+rbd create docker3 <span class="nt">--size</span> 100G <span class="nt">-p</span> docker
+</code></pre></div></div>
+
+<p>3.关闭不支持的特性</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rbd feature disable docker1 exclusive-lock, object-map, fast-diff, deep-flatten <span class="nt">-p</span> docker
+rbd feature disable docker2 exclusive-lock, object-map, fast-diff, deep-flatten <span class="nt">-p</span> docker
+rbd feature disable docker3 exclusive-lock, object-map, fast-diff, deep-flatten <span class="nt">-p</span> docker
+</code></pre></div></div>
+
+<p>4.隐射image到块设备(依次在每个节点映射)</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># docker1</span>
+rbd map docker1 <span class="nt">--name</span> client.admin <span class="nt">-p</span> docker
+<span class="c"># docker2</span>
+rbd map docker2 <span class="nt">--name</span> client.admin <span class="nt">-p</span> docker
+<span class="c"># docker3</span>
+rbd map docker3 <span class="nt">--name</span> client.admin <span class="nt">-p</span> docker
+</code></pre></div></div>
+
+<p>5.格式化设备</p>
+
+<blockquote>
+  <p>这里我们为了满足docker overlay2的需求，格式化的时候需要指定<code class="highlighter-rouge">-n ftype=1</code></p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkfs.xfs <span class="nt">-n</span> <span class="nv">ftype</span><span class="o">=</span>1 /dev/rbd0
+</code></pre></div></div>
+
+<p>6.创建docker root 目录，进行挂载，并添加到fstab中</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># docker1</span>
+<span class="nv">$ </span>mkdir <span class="nt">-p</span> /data_docker/docker1
+
+<span class="c"># 将下面的内容添加到/etc/fstab中</span>
+/dev/rbd0       /data_docker/docker1    xfs     noauto  0 0
+
+<span class="c"># docker2</span>
+<span class="nv">$ </span>mkdir <span class="nt">-p</span> /data_docker/docker2
+
+<span class="c"># 将下面的内容添加到/etc/fstab中</span>
+/dev/rbd0       /data_docker/docker2    xfs     noauto  0 0
+
+<span class="c"># docker3</span>
+<span class="nv">$ </span>mkdir <span class="nt">-p</span> /data_docker/docker3
+
+<span class="c"># 将下面的内容添加到/etc/fstab中</span>
+/dev/rbd0       /data_docker/docker3    xfs     noauto  0 0
+</code></pre></div></div>
+
+<blockquote>
+  <p>因为ceph在每次重启的时候都需要去重新map，所以这里，我们需要配置下rbdmap.service</p>
+</blockquote>
+
+<p>7.配置<code class="highlighter-rouge">/etc/ceph/rbdmap</code>(依次在每个节点上操作)</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># docker1</span>
+<span class="c"># RbdDevice             Parameters</span>
+<span class="c">#poolname/imagename     id=client,keyring=/etc/ceph/ceph.client.keyring</span>
+docker/docker1           <span class="nv">id</span><span class="o">=</span>admin,keyring<span class="o">=</span>/etc/ceph/ceph.client.admin.keyring
+
+<span class="c"># docker2</span>
+docker/docker2           <span class="nv">id</span><span class="o">=</span>admin,keyring<span class="o">=</span>/etc/ceph/ceph.client.admin.keyring
+
+<span class="c"># docker3</span>
+docker/docker3           <span class="nv">id</span><span class="o">=</span>admin,keyring<span class="o">=</span>/etc/ceph/ceph.client.admin.keyring
+<span class="c"># 配置成开机启动</span>
+<span class="nv">$ </span>systemctl <span class="nb">enable </span>rbdmap.service
+</code></pre></div></div>
+
+<p>8.修改docker 的service文件，将rbdmap添加到after后面，保证rbdmap先运行挂载成功之后，再启动docker</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim /usr/lib/systemd/system/docker.service
+
+<span class="nv">After</span><span class="o">=</span>network-online.target firewalld.service rbdmap.service
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+</code></pre></div></div>
+
+<p>9.重启下机器，看看重启之后，docker是否启动成功，rbd image时候隐射成功</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker info
+</code></pre></div></div>
+
+<h4 id="ceph-fs-创建">Ceph FS 创建</h4>
+
+<p>1.创建MDS</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph-deploy mds create i711-ustorage-1 i711-ustorage-2 i711-ustorage-3
+</code></pre></div></div>
+
+<p>2.创建pool和fs，创建pool需要指定PG数量</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ceph osd pool create data_data 32
+ceph osd pool create data_metadata 32
+ceph fs new data data_metadata data_data
+</code></pre></div></div>
+
+<p>3.复制密钥到文件中保存，将该文件复制到每个节点上的/etc/ceph下，并保证其权限</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"AQCF8QxaBIkrCxAAt12YUP+NzLv0TB5XHeJ4xQ=="</span> <span class="o">&gt;</span> ceph-key
+</code></pre></div></div>
+
+<p>4.将挂载添加到每个节点的fstab中</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>172.30.33.39:6789,172.30.33.40,172.30.33.41:6789:/      /data_harbor_etcd   ceph <span class="nv">name</span><span class="o">=</span>admin,secretfile<span class="o">=</span>/etc/ceph/ceph-key,noatime,_netdev        0 2
+</code></pre></div></div>
+
+<p>5.重启机器后查看挂载</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>df <span class="nt">-Th</span>
+Filesystem                                         Type      Size  Used Avail Use% Mounted on
+172.30.33.39:6789,172.30.33.40,172.30.33.41:6789:/ ceph      1.5T  436M  1.5T   1% /data_harbor_etcd
+</code></pre></div></div>
+
+<p>至此，我们的共享存储就算是创建好了</p>
+
+<h3 id="etcd-集群搭建">etcd 集群搭建</h3>
+
+<p>etcd 集群的搭建很简单，我们只需要执行yum 安装即可，重点在后面的配置文件修改</p>
+
+<p>1.安装etcd</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>yum install etcd <span class="nt">-y</span>
+
+<span class="c"># 在data目录下创建etcd目录，并修改其权限</span>
+<span class="nv">$ </span>mkdir <span class="nt">-p</span> /data/etcd
+<span class="nv">$ </span>chown etcd.etcd  /data/etcd
+</code></pre></div></div>
+
+<p>2.修改配置文件,其他几个节点同理</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 本member名字</span>
+<span class="nv">ETCD_NAME</span><span class="o">=</span>etcd1
+
+<span class="c"># 存放数据的位置</span>
+<span class="nv">ETCD_DATA_DIR</span><span class="o">=</span><span class="s2">"/data_harbor_etcd/etcd/etcd1.etcd"</span>
+
+<span class="c"># 监听其他etcd实例的地址</span>
+<span class="nv">ETCD_LISTEN_PEER_URLS</span><span class="o">=</span><span class="s2">"http://172.30.33.39:2380"</span>
+
+<span class="c">#监听客户端地址</span>
+<span class="nv">ETCD_LISTEN_CLIENT_URLS</span><span class="o">=</span><span class="s2">"http://127.0.0.1:2379,http://172.30.33.39:2379"</span>
+
+<span class="c"># 通知其他etcd实例地址</span>
+<span class="nv">ETCD_INITIAL_ADVERTISE_PEER_URLS</span><span class="o">=</span><span class="s2">"http://172.30.33.39:2380"</span>
+
+<span class="c"># 初始化集群内节点地址</span>
+<span class="nv">ETCD_INITIAL_CLUSTER</span><span class="o">=</span><span class="s2">"etcd1=http://172.30.33.39:2380,etcd2=http://172.30.33.40:2380,etcd3=http://172.30.33.41:2380"</span>
+
+<span class="c"># 初始化集群状态，new 表示新建</span>
+<span class="nv">ETCD_INITIAL_CLUSTER_STATE</span><span class="o">=</span><span class="s2">"new"</span>
+
+<span class="c"># 通知客户端地址</span>
+<span class="nv">ETCD_ADVERTISE_CLIENT_URLS</span><span class="o">=</span><span class="s2">"http://172.30.33.39:2379"</span>
+</code></pre></div></div>
+
+<p>3.启动集群，然后查看</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>systemctl start etcd
+<span class="nv">$ </span>systemctl <span class="nb">enable </span>etcd
+<span class="nv">$ </span>etcdctl member list
+
+186fb106f678cc55: <span class="nv">name</span><span class="o">=</span>etcd3 <span class="nv">peerURLs</span><span class="o">=</span>http://172.30.33.41:2380 <span class="nv">clientURLs</span><span class="o">=</span>http://172.30.33.41:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">false
+</span>bbe26c67e852d6f9: <span class="nv">name</span><span class="o">=</span>etcd1 <span class="nv">peerURLs</span><span class="o">=</span>http://172.30.33.39:2380 <span class="nv">clientURLs</span><span class="o">=</span>http://172.30.33.39:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">true
+</span>d4155475d1205f97: <span class="nv">name</span><span class="o">=</span>etcd2 <span class="nv">peerURLs</span><span class="o">=</span>http://172.30.33.40:2380 <span class="nv">clientURLs</span><span class="o">=</span>http://172.30.33.40:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">false</span>
+</code></pre></div></div>
+
+<p>至此，etcd集群，也算是搭建完成了，这里我们没有使用域名和https，如果需要使用https的话，则需要证书制作，可参考<a href="https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/#24-%E5%88%9B%E5%BB%BAetcd%E8%AF%81%E4%B9%A6%E9%85%8D%E7%BD%AE%E7%94%9F%E6%88%90-etcd-%E8%AF%81%E4%B9%A6%E5%92%8C%E7%A7%81%E9%92%A5">k8s-manual</a></p>
+
+<h3 id="harbor-集群搭建">harbor 集群搭建</h3>
+
+<p>1.安装docker-compose</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>curl <span class="nt">-L</span> https://github.com/docker/compose/releases/download/1.17.0/docker-compose-<span class="sb">`</span>uname <span class="nt">-s</span><span class="sb">`</span>-<span class="sb">`</span>uname <span class="nt">-m</span><span class="sb">`</span> <span class="nt">-o</span> /usr/local/bin/docker-compose
+</code></pre></div></div>
+
+<p>2.配置docker网络</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 安装flannel网络</span>
+<span class="nv">$ </span>yum install flannel <span class="nt">-y</span>
+
+<span class="c"># 配置flannel</span>
+<span class="nv">FLANNEL_ETCD_ENDPOINTS</span><span class="o">=</span><span class="s2">"http://10.19.65.27:2379,http://10.19.65.28:2379,http://10.19.65.29:2379"</span>
+<span class="nv">FLANNEL_ETCD_PREFIX</span><span class="o">=</span><span class="s2">"/quarkfinance.com/network"</span>
+<span class="nv">FLANNEL_OPTIONS</span><span class="o">=</span><span class="s2">"--iface=eth0"</span>
+
+<span class="c"># 在etcd中添加网络记录</span>
+etcdctl <span class="nb">set</span> /quarkfinance.com/network/config <span class="s1">'{ "Network": "10.1.0.0/16" }'</span>
+
+<span class="c"># 在/usr/lib/systemd/system/docker.service中添加 $DOCKER_NETWORK_OPTIONS</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$DOCKER_NETWORK_OPTIONS</span>
+
+<span class="c"># 配置docker用非root用户启动</span>
+groupadd docker
+gpasswd <span class="nt">-a</span> <span class="k">${</span><span class="nv">USER</span><span class="k">}</span> docker
+systemctl restart docker
+
+<span class="c"># 启动docker，并将各服务配置成开机启动</span>
+systemctl start docker
+systemctl <span class="nb">enable </span>flanneld
+systemctl <span class="nb">enable </span>docker
+</code></pre></div></div>
+
+<p>3.查看docker网络是否生效</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3: docker0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc noqueue state DOWN
+    link/ether 02:42:90:6e:ac:b3 brd ff:ff:ff:ff:ff:ff
+    inet 10.1.82.1/24 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::42:90ff:fe6e:acb3/64 scope link
+       valid_lft forever preferred_lft forever
+9: flannel0: &lt;POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP&gt; mtu 1472 qdisc pfifo_fast state UNKNOWN qlen 500
+    link/none
+    inet 10.1.82.0/16 scope global flannel0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ff4f:42ff:391f:2a9d/64 scope link flags 800
+       valid_lft forever preferred_lft forever
+</code></pre></div></div>
+
+<p>4.万事俱备，只欠harbor，下面，我们就来搭建我们的harbor</p>
+
+<blockquote>
+  <p>从git上下载最新的harbor包，git上有online和offlinle两个版，这里我选择online版，image都从外网拉取</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://github.com/vmware/harbor/releases/download/v1.2.2/harbor-online-installer-v1.2.2.tgz
+</code></pre></div></div>
+
+<p>5.修改harbor配置文件</p>
+
+<blockquote>
+  <p>1.修改挂载位置</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>将<span class="sb">`</span>docker-compose.yml<span class="sb">`</span>和<span class="sb">`</span>harbor.cfg<span class="sb">`</span>文件中所有的<span class="sb">`</span>/data<span class="sb">`</span>都修改成<span class="sb">`</span>/data_harbor_etcd/harbor<span class="sb">`</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>2.由于使用外部mysql，所以删除<code class="highlighter-rouge">mysql</code>service，并且删除掉其他service对mysql的依赖(depends_on)
+<strong>如果你的harbor中已经有数据，那么请先导出mysql的数据，然后导入到你外部的mysql中</strong></p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker <span class="nb">exec</span> <span class="nt">-ti</span> <span class="k">${</span><span class="nv">containerID</span><span class="k">}</span> /bin/bash
+mysqldump <span class="nt">-u</span> root <span class="nt">-proot123</span> <span class="nt">--databases</span> registry <span class="o">&gt;</span> registry.dump
+
+docker cp <span class="k">${</span><span class="nv">containerID</span><span class="k">}</span>:/root/registry.dump ./
+mysql <span class="nt">-h</span> <span class="k">${</span><span class="nv">your_mysql_host</span><span class="k">}</span> <span class="nt">-u</span> <span class="k">${</span><span class="nv">your_mysql_user</span><span class="k">}</span> <span class="nt">-p</span>
+mysql&gt; <span class="nb">source</span> ./registry.dump
+</code></pre></div></div>
+
+<blockquote>
+  <p>3.在./common/templates/adminserver/env中添加如下内容</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">MYSQL_HOST</span><span class="o">=</span><span class="k">${</span><span class="nv">your_mysql_host</span><span class="k">}</span>
+<span class="nv">MYSQL_PORT</span><span class="o">=</span>3306
+<span class="nv">MYSQL_USR</span><span class="o">=</span><span class="k">${</span><span class="nv">your_mysql_user</span><span class="k">}</span>
+<span class="nv">MYSQL_PWD</span><span class="o">=</span><span class="k">${</span><span class="nv">your_mysql_passwd</span><span class="k">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>4.修改./common/templates/adminserver/env文件</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>将<span class="sb">`</span><span class="nv">RESET</span><span class="o">=</span><span class="nb">false</span><span class="sb">`</span>改为<span class="sb">`</span><span class="nv">RESET</span><span class="o">=</span><span class="nb">true</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>5.由于要使用redis共享session，所以在./common/templates/ui/env中添加如下内容</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">_REDIS_URL</span><span class="o">=</span>redis_ip:6379,100,password,0
+</code></pre></div></div>
+
+<blockquote>
+  <p>6.关闭其他两个节点上的crt生成功能，留一个生成一套数字证书和私钥</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">custom_crt</span><span class="o">=</span><span class="nb">false</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>7.修改common/templates/nginx/nginx.http.conf，找到location /, location /v2/ and location /service/这3个配置块， 将这三个配置块中的proxy_set_header X-Forwarded-Proto $scheme;配置移除</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># When setting up Harbor behind other proxy, such as an Nginx instance, remove the below line if the proxy already has similar settings.</span>
+<span class="c">#proxy_set_header X-Forwarded-Proto $$scheme;</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>8.修改<code class="highlighter-rouge">common/templates/registry/config.yml</code>，修改<code class="highlighter-rouge">auth.token.realm</code>的地址</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>auth:
+  token:
+    issuer: harbor-token-issuer
+    realm: https://harbor.quark.com/service/token
+    <span class="c"># realm: $ui_url/service/token</span>
+    rootcertbundle: /etc/registry/root.crt
+    service: harbor-registry
+</code></pre></div></div>
+
+<blockquote>
+  <p>9.在各个节点上执行prepare脚本生成harbor各容器服务器的配置，然后启动容器</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./prepare
+docker-compose up <span class="nt">-d</span>
+</code></pre></div></div>
+
+<p><strong>注意：如果你启动之后，提示你无法连接远程数据库，请重启网络和docker daemon</strong></p>
+
+<p>6.前端nginx LB https配置</p>
+
+<blockquote>
+  <p>1.新建一个证书脚本gencert.sh，内容如下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+
+<span class="c"># create self-signed server certificate:</span>
+
+<span class="nb">read</span> <span class="nt">-p</span> <span class="s2">"Enter your domain [www.example.com]: "</span> DOMAIN
+
+<span class="nb">echo</span> <span class="s2">"Create server key..."</span>
+
+openssl genrsa <span class="nt">-des3</span> <span class="nt">-out</span> <span class="nv">$DOMAIN</span>.key 1024
+
+<span class="nb">echo</span> <span class="s2">"Create server certificate signing request..."</span>
+
+<span class="nv">SUBJECT</span><span class="o">=</span><span class="s2">"/C=CN/ST=Hubei/L=Wuhan/O=quark/OU=devops/CN=</span><span class="nv">$DOMAIN</span><span class="s2">"</span>
+
+openssl req <span class="nt">-new</span> <span class="nt">-subj</span> <span class="nv">$SUBJECT</span> <span class="nt">-key</span> <span class="nv">$DOMAIN</span>.key <span class="nt">-out</span> <span class="nv">$DOMAIN</span>.csr
+
+<span class="nb">echo</span> <span class="s2">"Remove password..."</span>
+
+mv <span class="nv">$DOMAIN</span>.key <span class="nv">$DOMAIN</span>.origin.key
+openssl rsa <span class="nt">-in</span> <span class="nv">$DOMAIN</span>.origin.key <span class="nt">-out</span> <span class="nv">$DOMAIN</span>.key
+
+<span class="nb">echo</span> <span class="s2">"Sign SSL certificate..."</span>
+
+openssl x509 <span class="nt">-req</span> <span class="nt">-days</span> 3650 <span class="nt">-in</span> <span class="nv">$DOMAIN</span>.csr <span class="nt">-signkey</span> <span class="nv">$DOMAIN</span>.key <span class="nt">-out</span> <span class="nv">$DOMAIN</span>.crt
+
+<span class="nb">echo</span> <span class="s2">"TODO:"</span>
+<span class="nb">echo</span> <span class="s2">"Copy </span><span class="nv">$DOMAIN</span><span class="s2">.crt to /etc/nginx/ssl/</span><span class="nv">$DOMAIN</span><span class="s2">.crt"</span>
+<span class="nb">echo</span> <span class="s2">"Copy </span><span class="nv">$DOMAIN</span><span class="s2">.key to /etc/nginx/ssl/</span><span class="nv">$DOMAIN</span><span class="s2">.key"</span>
+<span class="nb">echo</span> <span class="s2">"Add configuration in nginx:"</span>
+<span class="nb">echo</span> <span class="s2">"server {"</span>
+<span class="nb">echo</span> <span class="s2">"    ..."</span>
+<span class="nb">echo</span> <span class="s2">"    listen 443 ssl;"</span>
+<span class="nb">echo</span> <span class="s2">"    ssl_certificate     /etc/nginx/ssl/</span><span class="nv">$DOMAIN</span><span class="s2">.crt;"</span>
+<span class="nb">echo</span> <span class="s2">"    ssl_certificate_key /etc/nginx/ssl/</span><span class="nv">$DOMAIN</span><span class="s2">.key;"</span>
+<span class="nb">echo</span> <span class="s2">"}"</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>2.生成证书，按提示输入</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./gencert.sh
+</code></pre></div></div>
+
+<blockquote>
+  <p>3.生成内容如下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@i612-devopsyw-1 ssl]# ll
+total 20
+<span class="nt">-rwxr-xr-x</span> 1 root root 949 Nov 22 16:28 gencert.sh
+<span class="nt">-rw-r--r--</span> 1 root root 887 Nov 22 17:40 harbor.quark.com.crt
+<span class="nt">-rw-r--r--</span> 1 root root 672 Nov 22 16:28 harbor.quark.com.csr
+<span class="nt">-rw-r--r--</span> 1 root root 887 Nov 22 17:40 harbor.quark.com.key
+<span class="nt">-rw-r--r--</span> 1 root root 963 Nov 22 16:28 harbor.quark.com.origin.key
+</code></pre></div></div>
+
+<blockquote>
+  <p>4.将<code class="highlighter-rouge">harbor.quark.com.crt</code> 和 <code class="highlighter-rouge">harbor.quark.com.key</code> 复制到你自己的nginx的ssl目录下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cp harbor.quark.com.<span class="k">*</span> /data/bkv2.0.1/common/nginx/ssl
+</code></pre></div></div>
+
+<blockquote>
+  <p>5.配置nginx的upstream 和 <code class="highlighter-rouge">.conf</code>文件</p>
+</blockquote>
+
+<p><strong>harbor-upstream.conf</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upstream harbor-server <span class="o">{</span>
+        ip_hash<span class="p">;</span>
+        server 172.30.33.40:80<span class="p">;</span>
+        server 172.30.33.39:80<span class="p">;</span>
+        server 172.30.33.41:80<span class="p">;</span>
+<span class="o">}</span>
+map <span class="nv">$http_upgrade</span> <span class="nv">$connection_upgrade</span> <span class="o">{</span>
+    default Upgrade<span class="p">;</span>
+    <span class="s1">''</span>      close<span class="p">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>harbor.conf</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>server <span class="o">{</span>
+    listen 80<span class="p">;</span>
+    server_name harbor.quark.com<span class="p">;</span>
+    <span class="c"># Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.</span>
+    rewrite ^<span class="o">(</span>.<span class="k">*</span><span class="o">)</span><span class="nv">$ </span> https://<span class="nv">$host$1</span> permanent<span class="p">;</span>
+<span class="o">}</span>
+
+server <span class="o">{</span>
+    listen 443 ssl<span class="p">;</span>
+    server_name harbor.quark.com<span class="p">;</span>
+    ssl_certificate /data/bkv2.0.1/common/nginx/ssl/harbor.quark.com.crt<span class="p">;</span>
+    ssl_certificate_key /data/bkv2.0.1/common/nginx/ssl/harbor.quark.com.key<span class="p">;</span>
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2<span class="p">;</span>
+    access_log logs/harbor_access.log <span class="p">;</span>
+    error_log logs/harbor_error.log <span class="p">;</span>
+    location / <span class="o">{</span>
+        proxy_pass   http://harbor-server<span class="p">;</span>
+        proxy_set_header   Host             <span class="nv">$host</span><span class="p">;</span>
+        proxy_set_header   X-Real-IP        <span class="nv">$remote_addr</span><span class="p">;</span>
+        proxy_set_header   X-Forwarded-For  <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+        proxy_set_header   X-Forwarded-Proto https<span class="p">;</span>
+        client_max_body_size 300M<span class="p">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>6.重新加载nginx</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>nginx reload
+</code></pre></div></div>
+
+<blockquote>
+  <p>7.访问试试效果</p>
+</blockquote>
+
+<p><img src="/images/posts/harbor-ui.png" alt="harbor-ui" /></p>
+
+<p>七.配置docker，让docker可以访问自签名证书的harbor</p>
+
+<blockquote>
+  <p>1.在每个docker主机上创建<code class="highlighter-rouge">/etc/docker/certs.d/harbor.quark.com</code>目录</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>mkdir <span class="nt">-p</span> /etc/docker/certs.d/harbor.quark.com
+</code></pre></div></div>
+
+<blockquote>
+  <p>2.将<code class="highlighter-rouge">harbor.quark.com.crt</code> 复制到每个docker主机上的 <code class="highlighter-rouge">/etc/docker/certs.d/harbor.quark.com/</code>目录下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="k">for </span>IP <span class="k">in </span>seq <span class="sb">`</span>39 31<span class="sb">`</span><span class="p">;</span><span class="k">do
+  </span>scp harbor.quark.com.crt root@172.30.33.<span class="nv">$IP</span>:/etc/docker/certs.d/habor.quark.com/
+<span class="k">done</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>3.我们login试试，然后push一个image</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker login harbor.quark.com
+Username: <span class="k">${</span><span class="nv">your_ldap_user</span><span class="k">}</span>
+Password:
+Login Succeeded
+
+<span class="nv">$ </span>docker tag vmware/harbor-adminserver:v1.2.2 harbor.quark.com/quark/harbor-adminserver:v1.2.2
+<span class="nv">$ </span>docker push harbor.quark.com/quark/harbor-adminserver:v1.2.2
+The push refers to a repository <span class="o">[</span>harbor.quark.com/quark/harbor-adminserver]
+4fe250d3c912: Pushed
+2202528221a2: Pushed
+abf0579c40fd: Pushed
+dd60b611baaa: Pushed
+v1.2.2: digest: sha256:80bfbc20a1ee2bc6b05dfe31f1e082c08961a0f62e94089ef952800e92a1fc4c size: 1157
+</code></pre></div></div>
+
+<p>看看harbor是否已经有了这个image呢</p>
+
+<p><img src="/images/posts/harbor-image.png" alt="harbor-image" /></p>
+
+<p>有了，至此，我们的harbor就算是搭建完成，因为我们是在内网使用，所以使用自签名证书无所谓，如果要上到公网，那么就必须使用可信任的证书机构颁发的证书了</p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+    </div>
+    <div class="comment">
+      
+
+  
+
+  
+      
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+        
+          <div id="disqus_thread"></div>
+          <script>
+            var disqus_config = function () {
+              this.page.url = 'https://kevinguo.me/2017/11/22/harbor-etcd-ceph/';
+              this.page.identifier = '/2017/11/22/harbor-etcd-ceph/';
+              this.page.title = 'Harbor+etcd+docker结合Ceph搭建高可用集群';
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+              var d = document, s = d.createElement('script');
+
+              s.type = 'text/javascript';
+              s.async = true;
+              var shortname = 'kevinguo';
+
+              s.src = '//' + shortname + '.disqus.com/embed.js';
+
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+      
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
+<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
+<script src="https://kevinguo.me/assets/js/search.js"></script>
+
+<script type="text/javascript">
+SimpleJekyllSearch({
+    searchInput: document.getElementById('search_box'),
+    resultsContainer: document.getElementById('search_results'),
+    json: 'https://kevinguo.me/assets/search_data.json',
+    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
+    noResultsText: 'No results found',
+    limit: ,
+    fuzzy: false,
+    exclude: ['Welcome']
+})
+</script>
+
+    
+
+    
+<h3 class="post-directory-title mobile-hidden">Table of Contents</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2015
+                    <span title="KevinGuo">KevinGuo</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
+    <script src="https://kevinguo.me/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

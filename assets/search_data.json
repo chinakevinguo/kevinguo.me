@@ -70,737 +70,426 @@
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
   
     {
-      "title"    : "使用 VBA 将 Excel 数据导入到 Word 表格中",
-      "category" : "Excel",
+      "title"    : "Docker基础-docker常用命令",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2011/05/25/export-data-from-excel-to-word-by-vba/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Command-Usage/"
     } ,
   
     {
-      "title"    : "用 VBA 将多个 Excel 文件里的数据汇总到一个 Excel 表",
-      "category" : "Excel",
+      "title"    : "Docker基础-docker在各个平台的基本配置",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2011/05/25/gather-multi-excel-to-one-by-vba/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Configure-run-docker-on-various-distributions/"
     } ,
   
     {
-      "title"    : "青蛙跳台阶的问题——Fibonacci",
-      "category" : "Algorithm",
+      "title"    : "Docker基础-docker 环境变量在compose文件中的使用",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2011/10/11/fibonacci/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Environment-variables-in-compose/"
     } ,
   
     {
-      "title"    : "C++ 语言基础",
-      "category" : "Basis",
+      "title"    : "Docker基础-当docker daemon停止时依然保持容器运行",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2011/11/04/basis/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Keep-containers-alive-during-daemon-downtime/"
     } ,
   
     {
-      "title"    : "操作系统和数据库基础",
-      "category" : "Basis",
+      "title"    : "Docker基础-docker limit资源限制",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2011/11/06/basis/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Limit-container-resources/"
     } ,
   
     {
-      "title"    : "简单的全排列算法实现",
-      "category" : "Algorithm",
+      "title"    : "Docker基础-docker 容器日志命名",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2011/11/20/permutation/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Log-tag-for-logging-driver/"
     } ,
   
     {
-      "title"    : "HGE 引擎学习笔记 1——如何模拟物理碰撞",
-      "category" : "HGE",
+      "title"    : "Docker基础-docker compose网络",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/02/12/hge/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Networking-in-compose/"
     } ,
   
     {
-      "title"    : "将 Mozilla 源码里的 winEmbed 工程移植到 VC",
-      "category" : "Gecko",
+      "title"    : "Docker基础-docker compose简介",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/02/24/gecko-embed/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Overview-of-Docker-Compose/"
     } ,
   
     {
-      "title"    : "Moziila 文件结构概览（译）",
-      "category" : "Gecko",
+      "title"    : "Docker基础-docker 简介",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/03/01/mozilla-file-tree/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Overview/"
     } ,
   
     {
-      "title"    : "Firefox 和内嵌 Gecko 程序的 Plugins",
-      "category" : "Gecko",
+      "title"    : "Docker基础-docker registry的几种方式",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/03/15/gecko-plugin/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Registry/"
     } ,
   
     {
-      "title"    : "VBA 在 Excel 中的常用操作",
-      "category" : "Excel",
+      "title"    : "Docker基础-docker stacks",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/03/22/vba-knowledge/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Stacks-and-Distributed-Application-Bundles/"
     } ,
   
     {
-      "title"    : "Python 核心编程中文第二版课后练习 2.21 答案",
-      "category" : "Python",
+      "title"    : "Docker基础-在swarm上使用docker compose",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/04/05/learn-python-practise/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Use-compose-with-swarm/"
     } ,
   
     {
-      "title"    : "Python 核心编程中文第二版课后练习 3.8 答案",
-      "category" : "Python",
+      "title"    : "Docker基础-docker compose应用在生产环境",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/04/08/learn-python-practise/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-Using-compose-in-production/"
     } ,
   
     {
-      "title"    : "Windows 实用技巧汇总",
-      "category" : "Windows",
+      "title"    : "Docker基础-docker容器日志处理方式",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/06/17/windows-skills/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-View-a-containers-logs/"
     } ,
   
     {
-      "title"    : "为基于 xulrunner 的内嵌 Gecko 程序启用 Profile",
-      "category" : "Gecko",
+      "title"    : "Docker基础-自动启动容器",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2012/06/19/gecko-use-profile/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-automatically-start-containers/"
     } ,
   
     {
-      "title"    : "Windows 界面相关小知识点",
-      "category" : "Windows",
+      "title"    : "Docker基础-bridge绑定容器端口",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2013/04/18/windows-ui-notes/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-bind/"
     } ,
   
     {
-      "title"    : "可执行文件名中包含 install 或 setup",
-      "category" : "Windows",
+      "title"    : "Docker基础-自定义docker bridge",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2013/05/19/when-your-exe-name-contains-install-or-setup/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-build-bridges/"
     } ,
   
     {
-      "title"    : "文件被多个中间文件输出目录相同的工程包含",
-      "category" : "CPlusPlus",
+      "title"    : "Docker基础-docker在自定义的网络上定义DNS",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2013/06/22/multi-included-source-file/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-config-dns/"
     } ,
   
     {
-      "title"    : "有 static 变量的 namespace 被多个 cpp 包含",
-      "category" : "CPlusPlus",
+      "title"    : "Docker基础-docker日志驱动配置",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2013/10/26/namespace-with-a-static-variable/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-configuring-logging-drivers/"
     } ,
   
     {
-      "title"    : "设计模式学习之策略模式",
-      "category" : "DesignPattern",
+      "title"    : "Docker基础-docker容器之间通信",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2013/11/23/HFDP-Notes1/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-container-communication/"
     } ,
   
     {
-      "title"    : "设计模式学习之观察者模式",
-      "category" : "DesignPattern",
+      "title"    : "Docker基础-docker网络",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2013/12/03/HFDP-Notes2/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-container-networking/"
     } ,
   
     {
-      "title"    : "设计模式学习之装饰者模式",
-      "category" : "DesignPattern",
+      "title"    : "Docker基础-自定义docker daemon",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2013/12/22/HFDP-Notes3/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-control-and-configure-docker-with-systemd/"
     } ,
   
     {
-      "title"    : "Excel 常用操作",
-      "category" : "Excel",
+      "title"    : "Docker基础-docker自定义bridge网络",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/02/19/excel-incommonuse/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-custom-docker0/"
     } ,
   
     {
-      "title"    : "Windows API 中的坑",
-      "category" : "Windows",
+      "title"    : "Docker基础-docker在文件中声明默认环境变量",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/03/07/pits-in-windows/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-environment-file/"
     } ,
   
     {
-      "title"    : "C++ 中的#，##，和&quot;",
-      "category" : "CPlusPlus",
+      "title"    : "Docker基础-docker compose配置共享",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/05/10/numbersign/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-extending-services-in-compose/"
     } ,
   
     {
-      "title"    : "对象内存结构及虚函数表分析",
-      "category" : "CPlusPlus",
+      "title"    : "Docker基础-docker 日志输出的格式化",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/05/24/virtualfunctions/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-format-command-and-log-output/"
     } ,
   
     {
-      "title"    : "设计模式学习之单件模式",
-      "category" : "DesignPattern",
+      "title"    : "Docker基础-docker compose基础知识",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/05/31/HFDP-Note4/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-getting-started-compose/"
     } ,
   
     {
-      "title"    : "COM 原理与应用学习笔记",
-      "category" : "COM",
+      "title"    : "Docker基础-docker compose安装",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/06/01/comsketch/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-install-docker-compose/"
     } ,
   
     {
-      "title"    : "ANSI Common Lisp 第二章习题解答",
-      "category" : "Lisp",
+      "title"    : "Docker基础-docker容器之间如何通过link进行通信",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/06/29/acl-chapter2/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-links/"
     } ,
   
     {
-      "title"    : "C++ 类成员变量初始化",
-      "category" : "CPlusPlus",
+      "title"    : "Docker基础-docker multi-host网络之overlay",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/07/13/cppinit/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-multi-host-networking-with-docker-machine/"
     } ,
   
     {
-      "title"    : "默认的 DLL 搜索路径优先级",
-      "category" : "Windows",
+      "title"    : "Docker基础-docker multi-host网络测试",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/07/13/dllsearch/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-multi-host-networking-with-vagrant/"
     } ,
   
     {
-      "title"    : "定制 Fiddler 之抓获 WinHTTP 请求",
-      "category" : "Fiddler",
+      "title"    : "Docker基础-docker network常用命令",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/07/19/fiddlerwithwinhttp/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-network-command/"
     } ,
   
     {
-      "title"    : "定制 Fiddler 之将请求发往另一服务器",
-      "category" : "Fiddler",
+      "title"    : "Docker基础-docker muti-host之macvlan",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/07/20/fiddlercontextmenu/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-network-with-Macvlan/"
     } ,
   
     {
-      "title"    : "TaobaoProtectSE.dll 注入引起的死锁分析",
-      "category" : "WinDbg",
+      "title"    : "Docker基础-docker muti-host之overlay在docker swarm安全模式下的使用",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/08/01/deadlock/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-overlay-security-model/"
     } ,
   
     {
-      "title"    : "摄影教训总结",
-      "category" : "Blog",
+      "title"    : "Docker基础-docker 存储驱动",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/08/26/takephotos/"
+      "url"      : "https://kevinguo.me/2017/07/06/Docker-storage-driver/"
     } ,
   
     {
-      "title"    : "我所理解的生活",
-      "category" : "Blog",
+      "title"    : "Docker基础-Dockerfile常用指令",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2014/08/30/aboutlife/"
+      "url"      : "https://kevinguo.me/2017/07/06/Dockerfile-reference/"
     } ,
   
     {
-      "title"    : "如何让你的 EXE/DLL 足够小",
-      "category" : "Windows",
+      "title"    : "Maven之setting.xml",
+      "category" : "maven",
       
-      "url"      : "https://kevinguo.me/2014/09/13/make-exe-small/"
+      "url"      : "https://kevinguo.me/2017/07/06/Maven-setting.xml/"
     } ,
   
     {
-      "title"    : "眼中的自己",
-      "category" : "Blog",
+      "title"    : "ansible客户端配置",
+      "category" : "ansible",
       
-      "url"      : "https://kevinguo.me/2014/09/27/myself/"
+      "url"      : "https://kevinguo.me/2017/07/06/ansible-client/"
     } ,
   
     {
-      "title"    : "获取运行过程中改名的文件的路径",
-      "category" : "Windows",
+      "title"    : "kubespray容器化部署kubernetes高可用集群(1)",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2014/10/09/path-after-rename/"
+      "url"      : "https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-1/"
     } ,
   
     {
-      "title"    : "CSDN 已下载资源自动批量评论脚本",
-      "category" : "Python",
+      "title"    : "kubespray容器化部署kubernetes高可用集群(2)",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2014/10/12/csdnresautocomment/"
+      "url"      : "https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-2/"
     } ,
   
     {
-      "title"    : "习惯成就高效能",
-      "category" : "Blog",
+      "title"    : "kubespray容器化部署kubernetes高可用集群(3)",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2014/10/28/sevenhabits/"
+      "url"      : "https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/"
     } ,
   
     {
-      "title"    : "Jestem",
-      "category" : "Blog",
+      "title"    : "saltstack之pillar",
+      "category" : "saltstack",
       
-      "url"      : "https://kevinguo.me/2014/11/25/jestem/"
+      "url"      : "https://kevinguo.me/2017/07/06/saltstack%E4%B9%8Bpillar/"
     } ,
   
     {
-      "title"    : "情绪管理的建议",
-      "category" : "Blog",
+      "title"    : "video",
+      "category" : "生活",
       
-      "url"      : "https://kevinguo.me/2014/12/06/emotion-manage/"
+      "url"      : "https://kevinguo.me/2017/07/06/video-test/"
     } ,
   
     {
-      "title"    : "好习惯 one by one 之一",
-      "category" : "Blog",
+      "title"    : "jekyll 搭建静态博客(1)",
+      "category" : "jekyll",
       
-      "url"      : "https://kevinguo.me/2014/12/07/habit-training-1/"
+      "url"      : "https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(1)/"
     } ,
   
     {
-      "title"    : "工科男难找对象的那点事儿",
-      "category" : "Blog",
+      "title"    : "jekyll 搭建静态博客(2)",
+      "category" : "jekyll",
       
-      "url"      : "https://kevinguo.me/2014/12/14/find-a-girl-friend/"
+      "url"      : "https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(2)/"
     } ,
   
     {
-      "title"    : "使用 gVim 的 Python 自动补全时遇到的问题",
-      "category" : "Vim",
+      "title"    : "jekyll 搭建静态博客之https番外篇",
+      "category" : "jekyll",
       
-      "url"      : "https://kevinguo.me/2014/12/21/vim-python-autocomplete/"
+      "url"      : "https://kevinguo.me/2017/07/13/jekyll-create-a-static-blog(3)/"
     } ,
   
     {
-      "title"    : "如何让 HelloWorld.apk 体积最小",
-      "category" : "Android",
+      "title"    : "High Availability Ranchers for docker hosts",
+      "category" : "rancher",
       
-      "url"      : "https://kevinguo.me/2014/12/31/simplify-apk/"
+      "url"      : "https://kevinguo.me/2017/08/22/Rancher-for-docker-hosts/"
     } ,
   
     {
-      "title"    : "一个 printf 引发的基础复习",
-      "category" : "CPlusPlus",
+      "title"    : "Docker基础-理解容器之间的通信",
+      "category" : "docker",
       
-      "url"      : "https://kevinguo.me/2015/01/19/printf/"
+      "url"      : "https://kevinguo.me/2017/08/23/Docker-container-communication/"
     } ,
   
     {
-      "title"    : "生活这件小事，烦请费思量",
-      "category" : "Blog",
+      "title"    : "docker+consul+consul-template+registrator+nginx 的容器服务注册发现",
+      "category" : "consul",
       
-      "url"      : "https://kevinguo.me/2015/02/01/some-impressions/"
+      "url"      : "https://kevinguo.me/2017/09/01/docker-consul-consul-template-registrator-nginx/"
     } ,
   
     {
-      "title"    : "乱弹一气人生",
-      "category" : "Blog",
+      "title"    : "kubernetes 入门",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2015/02/14/strum-life/"
+      "url"      : "https://kevinguo.me/2017/09/01/kubernetes-one-section/"
     } ,
   
     {
-      "title"    : "工作中得来的教训",
-      "category" : "Blog",
+      "title"    : "kubernetes ceph 笔记 1",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2015/03/30/work-lesson/"
+      "url"      : "https://kevinguo.me/2017/09/06/kubernetes-ceph-1/"
     } ,
   
     {
-      "title"    : "Windows 实现单实例进程的两种方法",
-      "category" : "Windows",
+      "title"    : "kubernetes ceph 笔记 2",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2015/03/31/singleton-process/"
+      "url"      : "https://kevinguo.me/2017/09/12/kubernetes-ceph-2/"
     } ,
   
     {
-      "title"    : "Java 日期类常用写法小结",
-      "category" : "Java",
+      "title"    : "kubernetes ceph 笔记 3",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2015/04/03/java-date/"
+      "url"      : "https://kevinguo.me/2017/09/20/kubernetes-ceph-3/"
     } ,
   
     {
-      "title"    : "Android UI 开发里的尺寸单位理解",
-      "category" : "Android",
+      "title"    : "手动搭建kubernetes HA集群(一)",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2015/04/06/dp-sp-px/"
+      "url"      : "https://kevinguo.me/2017/09/22/manual-deploy-kubernetes/"
     } ,
   
     {
-      "title"    : "Android Studio 遇到问题集锦",
-      "category" : "Android",
+      "title"    : "Harbor+etcd+docker结合Ceph搭建高可用集群",
+      "category" : "harbor",
       
-      "url"      : "https://kevinguo.me/2015/05/06/android-studio/"
+      "url"      : "https://kevinguo.me/2017/11/22/harbor-etcd-ceph/"
     } ,
   
     {
-      "title"    : "一些不必纠结的事情",
-      "category" : "Blog",
+      "title"    : "手动搭建kubernetes HA集群(二)",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2015/05/09/no-need-to-tangle/"
+      "url"      : "https://kevinguo.me/2017/11/28/manual-deploy-kubernetes-2/"
     } ,
   
     {
-      "title"    : "Emacs 折腾记",
-      "category" : "Emacs",
+      "title"    : "kubernetes RBAC 概念",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2015/05/10/emacs/"
+      "url"      : "https://kevinguo.me/2017/12/01/kubernetes-rbac-concept/"
     } ,
   
     {
-      "title"    : "Java 中的比较运算符",
-      "category" : "Java",
+      "title"    : "jenkins with pipeline on kubernetes",
+      "category" : "kubernetes",
       
-      "url"      : "https://kevinguo.me/2015/05/15/java-compare/"
+      "url"      : "https://kevinguo.me/2017/12/27/jenkins-on-kubernetes-with-pipeline/"
     } ,
   
     {
-      "title"    : "TortoiseSVN 从 GitHub 更新时发生异常",
-      "category" : "SVN",
+      "title"    : "python 多重继承之拓扑排序",
+      "category" : "python",
       
-      "url"      : "https://kevinguo.me/2015/05/27/svn-exception/"
+      "url"      : "https://kevinguo.me/2018/01/19/python-topological-sorting/"
     } ,
   
     {
-      "title"    : "领导与员工的艺术",
-      "category" : "Blog",
+      "title"    : "Linux Top",
+      "category" : "",
       
-      "url"      : "https://kevinguo.me/2015/05/28/leader-art/"
-    } ,
-  
-    {
-      "title"    : "黑客马拉松参赛总结",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2015/06/01/sogou-hackathon/"
-    } ,
-  
-    {
-      "title"    : "去看特立独行的猪",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2015/06/12/wangxiaobo/"
-    } ,
-  
-    {
-      "title"    : "Win7 下部署 Discuz!",
-      "category" : "PHP",
-      
-      "url"      : "https://kevinguo.me/2015/06/14/win-discuz/"
-    } ,
-  
-    {
-      "title"    : "为 Vim 添加 Smali 语法高亮和 Taglist 支持",
-      "category" : "Vim",
-      
-      "url"      : "https://kevinguo.me/2015/06/23/vim-taglist-smali/"
-    } ,
-  
-    {
-      "title"    : "定制 Fiddler 之按设备过滤请求",
-      "category" : "Fiddler",
-      
-      "url"      : "https://kevinguo.me/2015/07/08/fiddler-filter-by-device/"
-    } ,
-  
-    {
-      "title"    : "你忙得踏实吗？",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2015/07/23/busy-smart/"
-    } ,
-  
-    {
-      "title"    : "爱你就像爱生命",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2015/09/02/love/"
-    } ,
-  
-    {
-      "title"    : "Mac 遇到问题集锦",
-      "category" : "Mac",
-      
-      "url"      : "https://kevinguo.me/2015/10/25/mac/"
-    } ,
-  
-    {
-      "title"    : "断网之后",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2015/10/25/without-internet/"
-    } ,
-  
-    {
-      "title"    : "Vimscript 中的坑",
-      "category" : "Vim",
-      
-      "url"      : "https://kevinguo.me/2015/10/31/pits-in-vimscript/"
-    } ,
-  
-    {
-      "title"    : "Excel 保留行号的去重",
-      "category" : "Excel",
-      
-      "url"      : "https://kevinguo.me/2015/12/02/excel-sift/"
-    } ,
-  
-    {
-      "title"    : "GFM 与 Redcarpet 的不同点",
-      "category" : "Markdown",
-      
-      "url"      : "https://kevinguo.me/2015/12/05/diff-between-gfm-and-redcarpet/"
-    } ,
-  
-    {
-      "title"    : "Java 对象释放与 finalize 方法",
-      "category" : "Java",
-      
-      "url"      : "https://kevinguo.me/2015/12/15/java-object-finalize/"
-    } ,
-  
-    {
-      "title"    : "为 Markdown 生成 TOC 的 Vim 插件",
-      "category" : "Vim",
-      
-      "url"      : "https://kevinguo.me/2015/12/19/vim-markdown-toc/"
-    } ,
-  
-    {
-      "title"    : "Ubuntu 使用笔记",
-      "category" : "Linux",
-      
-      "url"      : "https://kevinguo.me/2016/01/12/use-ubuntu-notes/"
-    } ,
-  
-    {
-      "title"    : "Android 系统缓存扫描与清理方法分析",
-      "category" : "Android",
-      
-      "url"      : "https://kevinguo.me/2016/01/14/android-system-cache/"
-    } ,
-  
-    {
-      "title"    : "Build Zeal for Mac OS X",
-      "category" : "Mac",
-      
-      "url"      : "https://kevinguo.me/2016/01/16/build-zeal-for-mac-osx/"
-    } ,
-  
-    {
-      "title"    : "将 GitHub Pages 从 Redcarpet 切换到 kramdown",
-      "category" : "Markdown",
-      
-      "url"      : "https://kevinguo.me/2016/02/04/switch-to-kramdown-from-redcarpet/"
-    } ,
-  
-    {
-      "title"    : "从 am start 的 --user 参数说到 Android 多用户",
-      "category" : "Android",
-      
-      "url"      : "https://kevinguo.me/2016/02/10/am-start-user-parameter/"
-    } ,
-  
-    {
-      "title"    : "不藏拙的人生",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2016/03/14/show-chump/"
-    } ,
-  
-    {
-      "title"    : "如何有效使用 GitHub",
-      "category" : "GitHub",
-      
-      "url"      : "https://kevinguo.me/2016/04/07/how-to-use-github-effective/"
-    } ,
-  
-    {
-      "title"    : "配置 Node.js 开发环境——使用 Atom",
-      "category" : "Node.js",
-      
-      "url"      : "https://kevinguo.me/2016/04/18/develop-nodejs-with-atom/"
-    } ,
-  
-    {
-      "title"    : "判断前台 Activity 是否属于本进程",
-      "category" : "Android",
-      
-      "url"      : "https://kevinguo.me/2016/04/20/determine-if-my-activities-foreground/"
-    } ,
-  
-    {
-      "title"    : "为绑定域名的 GitHub Pages 启用 HTTPS",
-      "category" : "GitHub",
-      
-      "url"      : "https://kevinguo.me/2016/05/21/enable-https-for-github-pages/"
-    } ,
-  
-    {
-      "title"    : "简化 kramdown 列表嵌套内容缩进的 Vim 插件",
-      "category" : "Vim",
-      
-      "url"      : "https://kevinguo.me/2016/06/28/vim-kramdown-tab/"
-    } ,
-  
-    {
-      "title"    : "Kloudsec 挂了，GitHub Pages 去 HTTPS 化",
-      "category" : "GitHub",
-      
-      "url"      : "https://kevinguo.me/2016/07/11/remove-https/"
-    } ,
-  
-    {
-      "title"    : "在 Vim 里为 Markdown 文档展示导航窗格",
-      "category" : "Vim",
-      
-      "url"      : "https://kevinguo.me/2016/08/03/add-outline-for-markdown-in-vim/"
-    } ,
-  
-    {
-      "title"    : "C++ 程序员的 Java 指南",
-      "category" : "Java",
-      
-      "url"      : "https://kevinguo.me/2016/08/30/java-guide-to-cpp-programmers/"
-    } ,
-  
-    {
-      "title"    : "一道在知乎很火的 Java 题——如何输出 ab",
-      "category" : "Java",
-      
-      "url"      : "https://kevinguo.me/2016/09/20/java-output-ab/"
-    } ,
-  
-    {
-      "title"    : "vim-markdown-toc 发布 v1.0 版",
-      "category" : "Vim",
-      
-      "url"      : "https://kevinguo.me/2016/10/22/vim-markdown-toc-release/"
-    } ,
-  
-    {
-      "title"    : "搭建大型源码阅读环境——使用 OpenGrok",
-      "category" : "Tools",
-      
-      "url"      : "https://kevinguo.me/2016/12/14/rtfsc-with-opengrok/"
-    } ,
-  
-    {
-      "title"    : "我的 2016 盘点",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2017/01/01/my-2016/"
-    } ,
-  
-    {
-      "title"    : "读书：追风筝的人",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2017/02/19/the-kite-runner/"
-    } ,
-  
-    {
-      "title"    : "我做了一个有点艰难的决定",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2017/04/09/a-difficult-decision/"
-    } ,
-  
-    {
-      "title"    : "从一个 NullPointerException 探究 Java 的自动装箱拆箱机制",
-      "category" : "Java",
-      
-      "url"      : "https://kevinguo.me/2017/08/20/java-auto-boxing-unboxing/"
-    } ,
-  
-    {
-      "title"    : "关于 Markdown 的一些奇技淫巧",
-      "category" : "Markdown",
-      
-      "url"      : "https://kevinguo.me/2017/09/01/markdown-odd-skills/"
-    } ,
-  
-    {
-      "title"    : "图解 SQL 里的各种 JOIN",
-      "category" : "Database",
-      
-      "url"      : "https://kevinguo.me/2017/09/11/joins-in-sql/"
-    } ,
-  
-    {
-      "title"    : "Android 源码分析开篇",
-      "category" : "Android",
-      
-      "url"      : "https://kevinguo.me/2017/09/23/rtfsc-android-start/"
-    } ,
-  
-    {
-      "title"    : "阅读源码的意义与方法",
-      "category" : "Android",
-      
-      "url"      : "https://kevinguo.me/2017/10/05/rtfsc-methods-and-meaning/"
-    } ,
-  
-    {
-      "title"    : "发布一款光谷社区第三方 Android App",
-      "category" : "Android",
-      
-      "url"      : "https://kevinguo.me/2017/10/14/guanggoo-android-app/"
-    } ,
-  
-    {
-      "title"    : "程序员节的过节姿势大全",
-      "category" : "Blog",
-      
-      "url"      : "https://kevinguo.me/2017/10/24/1024-poses/"
-    } ,
-  
-    {
-      "title"    : "Android 源码分析 —— 从 Toast 出发",
-      "category" : "Android",
-      
-      "url"      : "https://kevinguo.me/2017/11/12/start-from-toast/"
-    } ,
-  
-    {
-      "title"    : "解决两个 Android 模拟器之间无法网络通信的问题",
-      "category" : "Android",
-      
-      "url"      : "https://kevinguo.me/2017/12/03/tcp-connect-between-android-emulators/"
+      "url"      : "https://kevinguo.me/2018/02/09/Linux-top/"
     } ,
   
     {
