@@ -5,21 +5,21 @@
   
     {
       "title"    : "页面没有找到",
-      "url"      : "https://mritd.me/404.html"
+      "url"      : "http://mazhuang.org/404.html"
     } ,
   
   
   
     {
       "title"    : "About",
-      "url"      : "https://mritd.me/about/"
+      "url"      : "http://mazhuang.org/about/"
     } ,
   
   
   
     {
       "title"    : "Categories",
-      "url"      : "https://mritd.me/categories/"
+      "url"      : "http://mazhuang.org/categories/"
     } ,
   
   
@@ -28,14 +28,14 @@
   
     {
       "title"    : "Links",
-      "url"      : "https://mritd.me/links/"
+      "url"      : "http://mazhuang.org/links/"
     } ,
   
   
   
     {
       "title"    : "Open Source Projects",
-      "url"      : "https://mritd.me/open-source/"
+      "url"      : "http://mazhuang.org/open-source/"
     } ,
   
   
@@ -44,7 +44,7 @@
   
     {
       "title"    : "Wiki",
-      "url"      : "https://mritd.me/wiki/"
+      "url"      : "http://mazhuang.org/wiki/"
     } ,
   
   
@@ -83,836 +83,899 @@
 
   
     {
-      "title"    : "apt-get 常用命令",
-      "category" : "apt-get",
+      "title"    : "使用 VBA 将 Excel 数据导入到 Word 表格中",
+      "category" : "Excel",
       
-      "url"      : "https://mritd.me/2015/12/06/apt-get%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/"
+      "url"      : "http://mazhuang.org/2011/05/25/export-data-from-excel-to-word-by-vba/"
     } ,
   
     {
-      "title"    : "Linux 下 MySQL 密码强制修改",
-      "category" : "Linux",
+      "title"    : "用 VBA 将多个 Excel 文件里的数据汇总到一个 Excel 表",
+      "category" : "Excel",
       
-      "url"      : "https://mritd.me/2015/12/28/Linux%E4%B8%8BMySQL%E5%AF%86%E7%A0%81%E5%BC%BA%E5%88%B6%E4%BF%AE%E6%94%B9/"
+      "url"      : "http://mazhuang.org/2011/05/25/gather-multi-excel-to-one-by-vba/"
     } ,
   
     {
-      "title"    : "MySQL 常用操作",
-      "category" : "Linux",
+      "title"    : "青蛙跳台阶的问题——Fibonacci",
+      "category" : "Algorithm",
       
-      "url"      : "https://mritd.me/2015/12/28/MySQL-%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/"
+      "url"      : "http://mazhuang.org/2011/10/11/fibonacci/"
     } ,
   
     {
-      "title"    : "Nexus 私服使用教程",
-      "category" : "Maven",
+      "title"    : "C++ 语言基础",
+      "category" : "Basis",
       
-      "url"      : "https://mritd.me/2015/12/28/Nexus-%E7%A7%81%E6%9C%8D%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/"
+      "url"      : "http://mazhuang.org/2011/11/04/basis/"
     } ,
   
     {
-      "title"    : "桃花依旧笑",
-      "category" : "随笔",
+      "title"    : "操作系统和数据库基础",
+      "category" : "Basis",
       
-      "url"      : "https://mritd.me/2015/12/28/%E6%A1%83%E8%8A%B1%E4%BE%9D%E6%97%A7%E7%AC%91/"
+      "url"      : "http://mazhuang.org/2011/11/06/basis/"
     } ,
   
     {
-      "title"    : "CentOS 6.7_x64 minimal 网络初始化配置",
-      "category" : "Linux",
+      "title"    : "简单的全排列算法实现",
+      "category" : "Algorithm",
       
-      "url"      : "https://mritd.me/2015/12/29/CentOS-6-7-x64-minimal-%E7%BD%91%E7%BB%9C%E5%88%9D%E5%A7%8B%E5%8C%96%E9%85%8D%E7%BD%AE/"
+      "url"      : "http://mazhuang.org/2011/11/20/permutation/"
     } ,
   
     {
-      "title"    : "Nexus 2.11 CentOS搭建教程",
-      "category" : "Maven",
+      "title"    : "HGE 引擎学习笔记 1——如何模拟物理碰撞",
+      "category" : "HGE",
       
-      "url"      : "https://mritd.me/2015/12/29/Nexus-2-11-CentOS%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/"
+      "url"      : "http://mazhuang.org/2012/02/12/hge/"
     } ,
   
     {
-      "title"    : "Github 搭建 Hexo 静态博客",
-      "category" : "Hexo",
+      "title"    : "将 Mozilla 源码里的 winEmbed 工程移植到 VC",
+      "category" : "Gecko",
       
-      "url"      : "https://mritd.me/2015/12/31/Github-%E6%90%AD%E5%BB%BA-Hexo-%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2/"
+      "url"      : "http://mazhuang.org/2012/02/24/gecko-embed/"
     } ,
   
     {
-      "title"    : "Maven 教程",
-      "category" : "Maven",
+      "title"    : "Moziila 文件结构概览（译）",
+      "category" : "Gecko",
       
-      "url"      : "https://mritd.me/2015/12/31/Maven-%E6%95%99%E7%A8%8B/"
+      "url"      : "http://mazhuang.org/2012/03/01/mozilla-file-tree/"
     } ,
   
     {
-      "title"    : "Raspberry Pi2 折腾",
-      "category" : "Linux",
+      "title"    : "Firefox 和内嵌 Gecko 程序的 Plugins",
+      "category" : "Gecko",
       
-      "url"      : "https://mritd.me/2015/12/31/Raspberry-Pi2-%E6%8A%98%E8%85%BE/"
+      "url"      : "http://mazhuang.org/2012/03/15/gecko-plugin/"
     } ,
   
     {
-      "title"    : "Git 中文乱码解决方案",
-      "category" : "Git",
+      "title"    : "VBA 在 Excel 中的常用操作",
+      "category" : "Excel",
       
-      "url"      : "https://mritd.me/2016/01/02/Git-%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"
+      "url"      : "http://mazhuang.org/2012/03/22/vba-knowledge/"
     } ,
   
     {
-      "title"    : "Spring4 学习笔记",
-      "category" : "Spring",
+      "title"    : "Python 核心编程中文第二版课后练习 2.21 答案",
+      "category" : "Python",
       
-      "url"      : "https://mritd.me/2016/01/02/Spring4-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"
+      "url"      : "http://mazhuang.org/2012/04/05/learn-python-practise/"
     } ,
   
     {
-      "title"    : "做自己尊重的人-2015北大最短毕业致辞",
-      "category" : "随笔",
+      "title"    : "Python 核心编程中文第二版课后练习 3.8 答案",
+      "category" : "Python",
       
-      "url"      : "https://mritd.me/2016/01/02/%E5%81%9A%E8%87%AA%E5%B7%B1%E5%B0%8A%E9%87%8D%E7%9A%84%E4%BA%BA-2015%E5%8C%97%E5%A4%A7%E6%9C%80%E7%9F%AD%E6%AF%95%E4%B8%9A%E8%87%B4%E8%BE%9E/"
+      "url"      : "http://mazhuang.org/2012/04/08/learn-python-practise/"
     } ,
   
     {
-      "title"    : "其实每个人都曾饱经沧桑",
-      "category" : "随笔",
+      "title"    : "Windows 实用技巧汇总",
+      "category" : "Windows",
       
-      "url"      : "https://mritd.me/2016/01/02/%E5%85%B6%E5%AE%9E%E6%AF%8F%E4%B8%AA%E4%BA%BA%E9%83%BD%E6%9B%BE%E9%A5%B1%E7%BB%8F%E6%B2%A7%E6%A1%91/"
+      "url"      : "http://mazhuang.org/2012/06/17/windows-skills/"
     } ,
   
     {
-      "title"    : "未来科技渲染视频",
-      "category" : "随笔",
+      "title"    : "为基于 xulrunner 的内嵌 Gecko 程序启用 Profile",
+      "category" : "Gecko",
       
-      "url"      : "https://mritd.me/2016/01/02/%E6%9C%AA%E6%9D%A5%E7%A7%91%E6%8A%80%E6%B8%B2%E6%9F%93%E8%A7%86%E9%A2%91/"
+      "url"      : "http://mazhuang.org/2012/06/19/gecko-use-profile/"
     } ,
   
     {
-      "title"    : "DBA视频笔记",
-      "category" : "ORACLE",
+      "title"    : "Windows 界面相关小知识点",
+      "category" : "Windows",
       
-      "url"      : "https://mritd.me/2016/01/08/DBA%E8%A7%86%E9%A2%91%E7%AC%94%E8%AE%B0/"
+      "url"      : "http://mazhuang.org/2013/04/18/windows-ui-notes/"
     } ,
   
     {
-      "title"    : "ShadowSocks 多用户版搭建教程",
-      "category" : "Shadowsocks",
+      "title"    : "可执行文件名中包含 install 或 setup",
+      "category" : "Windows",
       
-      "url"      : "https://mritd.me/2016/01/10/ShadowSocks-%E5%A4%9A%E7%94%A8%E6%88%B7%E7%89%88%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/"
+      "url"      : "http://mazhuang.org/2013/05/19/when-your-exe-name-contains-install-or-setup/"
     } ,
   
     {
-      "title"    : "Redis3.0.6编译安装",
-      "category" : "Redis",
+      "title"    : "文件被多个中间文件输出目录相同的工程包含",
+      "category" : "CPlusPlus",
       
-      "url"      : "https://mritd.me/2016/01/11/Redis3-0-6%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85/"
+      "url"      : "http://mazhuang.org/2013/06/22/multi-included-source-file/"
     } ,
   
     {
-      "title"    : "Redis学习笔记",
-      "category" : "Redis",
+      "title"    : "有 static 变量的 namespace 被多个 cpp 包含",
+      "category" : "CPlusPlus",
       
-      "url"      : "https://mritd.me/2016/01/11/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"
+      "url"      : "http://mazhuang.org/2013/10/26/namespace-with-a-static-variable/"
     } ,
   
     {
-      "title"    : "我和我的倔强",
-      "category" : "随笔",
+      "title"    : "设计模式学习之策略模式",
+      "category" : "DesignPattern",
       
-      "url"      : "https://mritd.me/2016/01/13/%E6%88%91%E5%92%8C%E6%88%91%E7%9A%84%E5%80%94%E5%BC%BA/"
+      "url"      : "http://mazhuang.org/2013/11/23/HFDP-Notes1/"
     } ,
   
     {
-      "title"    : "CentOS 上编译安装 Git",
-      "category" : "Git",
+      "title"    : "设计模式学习之观察者模式",
+      "category" : "DesignPattern",
       
-      "url"      : "https://mritd.me/2016/01/14/CentOS%E4%B8%8A%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85Git/"
+      "url"      : "http://mazhuang.org/2013/12/03/HFDP-Notes2/"
     } ,
   
     {
-      "title"    : "ShadowSocks FinalSpeed 加速教程",
-      "category" : "Shadowsocks",
+      "title"    : "设计模式学习之装饰者模式",
+      "category" : "DesignPattern",
       
-      "url"      : "https://mritd.me/2016/01/18/ShadowSocks-FinalSpeed-%E5%8A%A0%E9%80%9F%E6%95%99%E7%A8%8B/"
+      "url"      : "http://mazhuang.org/2013/12/22/HFDP-Notes3/"
     } ,
   
     {
-      "title"    : "Redis Key 常用命令",
-      "category" : "Redis",
+      "title"    : "Excel 常用操作",
+      "category" : "Excel",
       
-      "url"      : "https://mritd.me/2016/01/24/Redis-Key-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/"
+      "url"      : "http://mazhuang.org/2014/02/19/excel-incommonuse/"
     } ,
   
     {
-      "title"    : "浅谈 java中的 equals 和 hashcode",
-      "category" : "J2SE",
+      "title"    : "Windows API 中的坑",
+      "category" : "Windows",
       
-      "url"      : "https://mritd.me/2016/02/02/%E6%B5%85%E8%B0%88-java%E4%B8%AD%E7%9A%84-equals-%E5%92%8C-hashcode/"
+      "url"      : "http://mazhuang.org/2014/03/07/pits-in-windows/"
     } ,
   
     {
-      "title"    : "JAVA 异常处理",
-      "category" : "J2SE",
+      "title"    : "C++ 中的#，##，和&quot;",
+      "category" : "CPlusPlus",
       
-      "url"      : "https://mritd.me/2016/02/05/Java%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/"
+      "url"      : "http://mazhuang.org/2014/05/10/numbersign/"
     } ,
   
     {
-      "title"    : "Gradle 构建基础笔记",
-      "category" : "Gradle",
+      "title"    : "对象内存结构及虚函数表分析",
+      "category" : "CPlusPlus",
       
-      "url"      : "https://mritd.me/2016/02/18/Gradle-%E6%9E%84%E5%BB%BA%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/"
+      "url"      : "http://mazhuang.org/2014/05/24/virtualfunctions/"
     } ,
   
     {
-      "title"    : "Hexo 添加 Rss 订阅",
-      "category" : "Hexo",
+      "title"    : "设计模式学习之单件模式",
+      "category" : "DesignPattern",
       
-      "url"      : "https://mritd.me/2016/03/08/Hexo%E6%B7%BB%E5%8A%A0Rss%E8%AE%A2%E9%98%85/"
+      "url"      : "http://mazhuang.org/2014/05/31/HFDP-Note4/"
     } ,
   
     {
-      "title"    : "JetBrains 系列激活教程(离线 Server)",
-      "category" : "JetBrains",
+      "title"    : "COM 原理与应用学习笔记",
+      "category" : "COM",
       
-      "url"      : "https://mritd.me/2016/03/08/JetBrains-%E7%B3%BB%E5%88%97%E6%BF%80%E6%B4%BB%E6%95%99%E7%A8%8B-%E7%A6%BB%E7%BA%BF-Server/"
+      "url"      : "http://mazhuang.org/2014/06/01/comsketch/"
     } ,
   
     {
-      "title"    : "程序猿的自我修养",
-      "category" : "随笔",
+      "title"    : "ANSI Common Lisp 第二章习题解答",
+      "category" : "Lisp",
       
-      "url"      : "https://mritd.me/2016/03/08/%E7%A8%8B%E5%BA%8F%E7%8C%BF%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB/"
+      "url"      : "http://mazhuang.org/2014/06/29/acl-chapter2/"
     } ,
   
     {
-      "title"    : "Java 内置命令-jps",
-      "category" : "J2SE",
+      "title"    : "C++ 类成员变量初始化",
+      "category" : "CPlusPlus",
       
-      "url"      : "https://mritd.me/2016/03/14/Java-%E5%86%85%E7%BD%AE%E5%91%BD%E4%BB%A4-jps/"
+      "url"      : "http://mazhuang.org/2014/07/13/cppinit/"
     } ,
   
     {
-      "title"    : "SQL中 OR 关键字优先级问题",
-      "category" : "ORACLE",
+      "title"    : "默认的 DLL 搜索路径优先级",
+      "category" : "Windows",
       
-      "url"      : "https://mritd.me/2016/03/14/SQL%E4%B8%AD-OR-%E5%85%B3%E9%94%AE%E5%AD%97%E4%BC%98%E5%85%88%E7%BA%A7%E9%97%AE%E9%A2%98/"
+      "url"      : "http://mazhuang.org/2014/07/13/dllsearch/"
     } ,
   
     {
-      "title"    : "Java 多线程-可见性问题",
-      "category" : "J2SE",
+      "title"    : "定制 Fiddler 之抓获 WinHTTP 请求",
+      "category" : "Fiddler",
       
-      "url"      : "https://mritd.me/2016/03/20/Java-%E5%A4%9A%E7%BA%BF%E7%A8%8B-%E5%8F%AF%E8%A7%81%E6%80%A7%E9%97%AE%E9%A2%98/"
+      "url"      : "http://mazhuang.org/2014/07/19/fiddlerwithwinhttp/"
     } ,
   
     {
-      "title"    : "Java 内存之 Java 堆",
-      "category" : "JMM",
+      "title"    : "定制 Fiddler 之将请求发往另一服务器",
+      "category" : "Fiddler",
       
-      "url"      : "https://mritd.me/2016/03/21/Java-%E5%86%85%E5%AD%98%E4%B9%8B-Java-%E5%A0%86/"
+      "url"      : "http://mazhuang.org/2014/07/20/fiddlercontextmenu/"
     } ,
   
     {
-      "title"    : "Java 内存自动管理-虚拟机和内存区域概述",
-      "category" : "JMM",
+      "title"    : "TaobaoProtectSE.dll 注入引起的死锁分析",
+      "category" : "WinDbg",
       
-      "url"      : "https://mritd.me/2016/03/21/Java-%E5%86%85%E5%AD%98%E8%87%AA%E5%8A%A8%E7%AE%A1%E7%90%86-%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%92%8C%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E6%A6%82%E8%BF%B0/"
+      "url"      : "http://mazhuang.org/2014/08/01/deadlock/"
     } ,
   
     {
-      "title"    : "Java 内存之方法区和运行时常量池",
-      "category" : "JMM",
+      "title"    : "摄影教训总结",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/03/22/Java-%E5%86%85%E5%AD%98%E4%B9%8B%E6%96%B9%E6%B3%95%E5%8C%BA%E5%92%8C%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0/"
+      "url"      : "http://mazhuang.org/2014/08/26/takephotos/"
     } ,
   
     {
-      "title"    : "Java 内存之直接内存",
-      "category" : "JMM",
+      "title"    : "我所理解的生活",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/03/22/Java-%E5%86%85%E5%AD%98%E4%B9%8B%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98/"
+      "url"      : "http://mazhuang.org/2014/08/30/aboutlife/"
     } ,
   
     {
-      "title"    : "JVM 对象判定和可回收算法",
-      "category" : "JMM",
+      "title"    : "如何让你的 EXE/DLL 足够小",
+      "category" : "Windows",
       
-      "url"      : "https://mritd.me/2016/03/23/JVM-%E5%AF%B9%E8%B1%A1%E5%88%A4%E5%AE%9A%E5%92%8C%E5%8F%AF%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95/"
+      "url"      : "http://mazhuang.org/2014/09/13/make-exe-small/"
     } ,
   
     {
-      "title"    : "HotSpot 虚拟机的算法实现",
-      "category" : "JVM",
+      "title"    : "眼中的自己",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/03/24/HotSpot-%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%9A%84%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/"
+      "url"      : "http://mazhuang.org/2014/09/27/myself/"
     } ,
   
     {
-      "title"    : "JAXB 笔记",
-      "category" : "J2SE",
+      "title"    : "获取运行过程中改名的文件的路径",
+      "category" : "Windows",
       
-      "url"      : "https://mritd.me/2016/04/09/JAXB-%E7%AC%94%E8%AE%B0/"
+      "url"      : "http://mazhuang.org/2014/10/09/path-after-rename/"
     } ,
   
     {
-      "title"    : "JDK8 新特性",
-      "category" : "J2SE",
+      "title"    : "CSDN 已下载资源自动批量评论脚本",
+      "category" : "Python",
       
-      "url"      : "https://mritd.me/2016/04/11/JDK8-%E6%96%B0%E7%89%B9%E6%80%A7/"
+      "url"      : "http://mazhuang.org/2014/10/12/csdnresautocomment/"
     } ,
   
     {
-      "title"    : "List 的 UnsupportedOperationException 异常",
-      "category" : "J2SE",
+      "title"    : "习惯成就高效能",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/04/17/List-%E7%9A%84-UnsupportedOperationException-%E5%BC%82%E5%B8%B8/"
+      "url"      : "http://mazhuang.org/2014/10/28/sevenhabits/"
     } ,
   
     {
-      "title"    : "WebLogic request.getContextPath() 为 null 问题",
-      "category" : "WebLogic",
+      "title"    : "Jestem",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/04/22/WebLogic-request-getContextPath-%E4%B8%BA%E7%A9%BA%E9%97%AE%E9%A2%98/"
+      "url"      : "http://mazhuang.org/2014/11/25/jestem/"
     } ,
   
     {
-      "title"    : "Hexo+Upyun 实现整站全网 CDN",
-      "category" : "Hexo",
+      "title"    : "情绪管理的建议",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/05/22/Hexo-Upyun-%E5%AE%9E%E7%8E%B0%E6%95%B4%E7%AB%99%E5%85%A8%E7%BD%91-CDN/"
+      "url"      : "http://mazhuang.org/2014/12/06/emotion-manage/"
     } ,
   
     {
-      "title"    : "vim 笔记",
-      "category" : "Linux",
+      "title"    : "好习惯 one by one 之一",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/05/26/vim-%E7%AC%94%E8%AE%B0/"
+      "url"      : "http://mazhuang.org/2014/12/07/habit-training-1/"
     } ,
   
     {
-      "title"    : "Quartz 任务强制删除",
-      "category" : "Quartz",
+      "title"    : "工科男难找对象的那点事儿",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/06/07/Quartz-%E4%BB%BB%E5%8A%A1%E5%BC%BA%E5%88%B6%E5%88%A0%E9%99%A4/"
+      "url"      : "http://mazhuang.org/2014/12/14/find-a-girl-friend/"
     } ,
   
     {
-      "title"    : "Can&#39;t connect to MySQL server on &#39;xxxx&#39; (61)",
-      "category" : "MySQL",
+      "title"    : "使用 gVim 的 Python 自动补全时遇到的问题",
+      "category" : "Vim",
       
-      "url"      : "https://mritd.me/2016/06/08/Can-t-connect-to-MySQL-server-on-xxxx-61/"
+      "url"      : "http://mazhuang.org/2014/12/21/vim-python-autocomplete/"
     } ,
   
     {
-      "title"    : "Redundent Array of Inexpensive Disks",
-      "category" : "Linux",
+      "title"    : "如何让 HelloWorld.apk 体积最小",
+      "category" : "Android",
       
-      "url"      : "https://mritd.me/2016/06/13/Redundent-Array-of-Inexpensive-Disks/"
+      "url"      : "http://mazhuang.org/2014/12/31/simplify-apk/"
     } ,
   
     {
-      "title"    : "Linux 笔记",
-      "category" : "Linux",
+      "title"    : "一个 printf 引发的基础复习",
+      "category" : "CPlusPlus",
       
-      "url"      : "https://mritd.me/2016/06/14/Linux-%E7%AC%94%E8%AE%B0/"
+      "url"      : "http://mazhuang.org/2015/01/19/printf/"
     } ,
   
     {
-      "title"    : "AspectJ Hello World",
-      "category" : "AspectJ",
+      "title"    : "生活这件小事，烦请费思量",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/06/19/AspectJ-Hello-World/"
+      "url"      : "http://mazhuang.org/2015/02/01/some-impressions/"
     } ,
   
     {
-      "title"    : "Docker Contianer 挂掉强制修改文件",
-      "category" : "Docker",
+      "title"    : "乱弹一气人生",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/06/20/Docker-Contianer-%E6%8C%82%E6%8E%89%E5%BC%BA%E5%88%B6%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6/"
+      "url"      : "http://mazhuang.org/2015/02/14/strum-life/"
     } ,
   
     {
-      "title"    : "免费申请 StartSSL 证书",
-      "category" : "Linux",
+      "title"    : "工作中得来的教训",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2016/06/22/%E5%85%8D%E8%B4%B9%E7%94%B3%E8%AF%B7-StartSSL-%E8%AF%81%E4%B9%A6/"
+      "url"      : "http://mazhuang.org/2015/03/30/work-lesson/"
     } ,
   
     {
-      "title"    : "Harbor 企业级 Docker Registry 初试",
-      "category" : "Docker",
+      "title"    : "Windows 实现单实例进程的两种方法",
+      "category" : "Windows",
       
-      "url"      : "https://mritd.me/2016/06/27/Harbor-%E4%BC%81%E4%B8%9A%E7%BA%A7-Docker-Registry-%E5%88%9D%E8%AF%95/"
+      "url"      : "http://mazhuang.org/2015/03/31/singleton-process/"
     } ,
   
     {
-      "title"    : "互联网加密及OpenSSL介绍和简单使用",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/07/02/%E4%BA%92%E8%81%94%E7%BD%91%E5%8A%A0%E5%AF%86%E5%8F%8AOpenSSL%E4%BB%8B%E7%BB%8D%E5%92%8C%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/"
-    } ,
-  
-    {
-      "title"    : "Harbor 企业级 Docker Registry HTTPS配置",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/07/03/Harbor-%E4%BC%81%E4%B8%9A%E7%BA%A7-Docker-Registry-HTTPS%E9%85%8D%E7%BD%AE/"
-    } ,
-  
-    {
-      "title"    : "Linux 命令行下使用 Shadowsocks 代理",
-      "category" : "Shadowsocks",
-      
-      "url"      : "https://mritd.me/2016/07/22/Linux-%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%8B%E4%BD%BF%E7%94%A8-Shadowsocks-%E4%BB%A3%E7%90%86/"
-    } ,
-  
-    {
-      "title"    : "yum 笔记",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/08/02/yum-%E7%AC%94%E8%AE%B0/"
-    } ,
-  
-    {
-      "title"    : "10分钟 dnsmasq 搭建",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/09/01/10%E5%88%86%E9%92%9F-dnsmasq-%E6%90%AD%E5%BB%BA/"
-    } ,
-  
-    {
-      "title"    : "Etcd 集群搭建",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/09/01/Etcd-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/"
-    } ,
-  
-    {
-      "title"    : "Dokcer 使用 Flannel 跨主机通讯",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/09/03/Dokcer-%E4%BD%BF%E7%94%A8-Flannel-%E8%B7%A8%E4%B8%BB%E6%9C%BA%E9%80%9A%E8%AE%AF/"
-    } ,
-  
-    {
-      "title"    : "Kubernetes 集群搭建",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/09/07/Kubernetes-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/"
-    } ,
-  
-    {
-      "title"    : "kubernetes 双向 TLS 配置",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/09/11/kubernetes-%E5%8F%8C%E5%90%91-TLS-%E9%85%8D%E7%BD%AE/"
-    } ,
-  
-    {
-      "title"    : "基于官方 rpm 快速创建自定义 rpm",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/09/13/%E5%9F%BA%E4%BA%8E%E5%AE%98%E6%96%B9-rpm-%E5%BF%AB%E9%80%9F%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89-rpm/"
-    } ,
-  
-    {
-      "title"    : "Harbor 企业级 Docker Registry 第二弹",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/09/15/Harbor-%E4%BC%81%E4%B8%9A%E7%BA%A7-Docker-Registry-%E7%AC%AC%E4%BA%8C%E5%BC%B9/"
-    } ,
-  
-    {
-      "title"    : "GlusterFS 笔记",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/09/17/GlusterFS-%E7%AC%94%E8%AE%B0/"
-    } ,
-  
-    {
-      "title"    : "Minio - AWS S3 存储开源实现",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/09/17/Minio-AWS-S3-%E5%AD%98%E5%82%A8%E5%BC%80%E6%BA%90%E5%AE%9E%E7%8E%B0/"
-    } ,
-  
-    {
-      "title"    : "Docker mirror Registry",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/09/24/Docker-mirror-Registry/"
-    } ,
-  
-    {
-      "title"    : "Jekyll 搭建静态博客",
-      "category" : "jekyll",
-      
-      "url"      : "https://mritd.me/2016/10/09/jekyll-create-a-static-blog/"
-    } ,
-  
-    {
-      "title"    : "kubernetes 1.4 集群搭建",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/10/09/kubernetes-1.4-create-cluster/"
-    } ,
-  
-    {
-      "title"    : "樱花 Docker 免费高速翻墙教程",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/10/14/arukas-docker-fq/"
-    } ,
-  
-    {
-      "title"    : "StrongSwan 搭建 VPN",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/10/18/set-up-vpn-with-strongswan/"
-    } ,
-  
-    {
-      "title"    : "二十多岁的我们，为什么觉得谈恋爱好难",
-      "category" : "随笔",
-      
-      "url"      : "https://mritd.me/2016/10/25/twenty-love-so-hard/"
-    } ,
-  
-    {
-      "title"    : "人生就是会不断挥手说再见的啊",
-      "category" : "随笔",
-      
-      "url"      : "https://mritd.me/2016/10/25/waved-goodbye/"
-    } ,
-  
-    {
-      "title"    : "kubeadm 搭建 kubernetes 集群",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/10/29/set-up-kubernetes-cluster-by-kubeadm/"
-    } ,
-  
-    {
-      "title"    : "晚月",
-      "category" : "随笔",
-      
-      "url"      : "https://mritd.me/2016/11/02/wanyue/"
-    } ,
-  
-    {
-      "title"    : "CentOS 升级 kernel",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/11/08/update-centos-kernel/"
-    } ,
-  
-    {
-      "title"    : "kubeadm 续坑篇",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2016/11/21/kubeadm-other-problems/"
-    } ,
-  
-    {
-      "title"    : "Kubernetes 网络搭建-flannel",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2016/11/30/set-up-kubernetes-cluster-by-flannel/"
-    } ,
-  
-    {
-      "title"    : "Kubernetes 网络搭建-Calico",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2016/12/01/set-up-kubernetes-cluster-by-calico/"
-    } ,
-  
-    {
-      "title"    : "LVS 笔记",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/12/05/lvs-note/"
-    } ,
-  
-    {
-      "title"    : "Traefik-kubernetes 初试",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2016/12/06/try-traefik-on-kubernetes/"
-    } ,
-  
-    {
-      "title"    : "从 WWDC16 ATS 说起",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2016/12/30/configure-nginx-https-under-centos-to-support-ios-ats/"
-    } ,
-  
-    {
-      "title"    : "使用 Nexus 搭建 Docker 仓库",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2017/01/08/set-up-docker-registry-by-nexus/"
-    } ,
-  
-    {
-      "title"    : "Git 使用 socks5 代理",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2017/01/12/git-uses-the-socks5-proxy/"
-    } ,
-  
-    {
-      "title"    : "利用 frp 进行内网穿透",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2017/01/21/use-frp-for-internal-network-wear/"
-    } ,
-  
-    {
-      "title"    : "Logical Volume Manager 笔记",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2017/01/27/logical-volume-manager-note/"
-    } ,
-  
-    {
-      "title"    : "Java CAS 理解",
+      "title"    : "Java 日期类常用写法小结",
       "category" : "Java",
       
-      "url"      : "https://mritd.me/2017/02/06/java-cas/"
+      "url"      : "http://mazhuang.org/2015/04/03/java-date/"
     } ,
   
     {
-      "title"    : "gcr.io 仓库代理",
-      "category" : "Docker",
+      "title"    : "Android UI 开发里的尺寸单位理解",
+      "category" : "Android",
       
-      "url"      : "https://mritd.me/2017/02/09/gcr.io-registy-proxy/"
+      "url"      : "http://mazhuang.org/2015/04/06/dp-sp-px/"
     } ,
   
     {
-      "title"    : "Jekyll + Travis CI 自动化部署博客",
-      "category" : "Linux",
+      "title"    : "Android Studio 遇到问题集锦",
+      "category" : "Android",
       
-      "url"      : "https://mritd.me/2017/02/25/jekyll-blog-+-travis-ci-auto-deploy/"
+      "url"      : "http://mazhuang.org/2015/05/06/android-studio/"
     } ,
   
     {
-      "title"    : "如何下载 Kubernetes 镜像和 rpm",
-      "category" : "Kubernetes",
+      "title"    : "一些不必纠结的事情",
+      "category" : "Blog",
       
-      "url"      : "https://mritd.me/2017/02/27/how-to-download-kubernetes-images-and-rpm/"
+      "url"      : "http://mazhuang.org/2015/05/09/no-need-to-tangle/"
     } ,
   
     {
-      "title"    : "Vagrant 使用",
-      "category" : "Linux",
+      "title"    : "Emacs 折腾记",
+      "category" : "Emacs",
       
-      "url"      : "https://mritd.me/2017/03/01/how-to-use-vagrant/"
+      "url"      : "http://mazhuang.org/2015/05/10/emacs/"
     } ,
   
     {
-      "title"    : "快速部署 kubernetes 高可用集群",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2017/03/03/set-up-kubernetes-ha-cluster-by-kargo/"
-    } ,
-  
-    {
-      "title"    : "Kubernetes Nginx Ingress 教程",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2017/03/04/how-to-use-nginx-ingress/"
-    } ,
-  
-    {
-      "title"    : "kargo 集群扩展及细粒度配置",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2017/03/10/kargo-cluster-expansion-and-fine-grained-configuration/"
-    } ,
-  
-    {
-      "title"    : "CentOS 7 配置 VNC Server",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2017/03/18/set-up-vnc-server-on-centos-7/"
-    } ,
-  
-    {
-      "title"    : "Btrfs 笔记",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2017/03/20/btrfs-note/"
-    } ,
-  
-    {
-      "title"    : "vim E492 Not an editor command Plugin xxxx",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2017/03/21/vim-e492-not-an-editor-command-plugin-xxxx/"
-    } ,
-  
-    {
-      "title"    : "个人维护的 Docker 加速仓库",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2017/03/21/private-maintenance-docker-mirror-registry/"
-    } ,
-  
-    {
-      "title"    : "Java 配合 mitmproxy HTTPS 抓包调试",
+      "title"    : "Java 中的比较运算符",
       "category" : "Java",
       
-      "url"      : "https://mritd.me/2017/03/25/java-capturing-https-packets-use-mitmproxy/"
+      "url"      : "http://mazhuang.org/2015/05/15/java-compare/"
     } ,
   
     {
-      "title"    : "Docker 分配宿主机网段 IP",
-      "category" : "Docker",
+      "title"    : "TortoiseSVN 从 GitHub 更新时发生异常",
+      "category" : "SVN",
       
-      "url"      : "https://mritd.me/2017/05/12/docker-uses-the-host-network-segment-ip/"
+      "url"      : "http://mazhuang.org/2015/05/27/svn-exception/"
     } ,
   
     {
-      "title"    : "Ceph 笔记(一)",
+      "title"    : "领导与员工的艺术",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2015/05/28/leader-art/"
+    } ,
+  
+    {
+      "title"    : "黑客马拉松参赛总结",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2015/06/01/sogou-hackathon/"
+    } ,
+  
+    {
+      "title"    : "去看特立独行的猪",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2015/06/12/wangxiaobo/"
+    } ,
+  
+    {
+      "title"    : "Win7 下部署 Discuz!",
+      "category" : "PHP",
+      
+      "url"      : "http://mazhuang.org/2015/06/14/win-discuz/"
+    } ,
+  
+    {
+      "title"    : "为 Vim 添加 Smali 语法高亮和 Taglist 支持",
+      "category" : "Vim",
+      
+      "url"      : "http://mazhuang.org/2015/06/23/vim-taglist-smali/"
+    } ,
+  
+    {
+      "title"    : "定制 Fiddler 之按设备过滤请求",
+      "category" : "Fiddler",
+      
+      "url"      : "http://mazhuang.org/2015/07/08/fiddler-filter-by-device/"
+    } ,
+  
+    {
+      "title"    : "你忙得踏实吗？",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2015/07/23/busy-smart/"
+    } ,
+  
+    {
+      "title"    : "爱你就像爱生命",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2015/09/02/love/"
+    } ,
+  
+    {
+      "title"    : "Mac 遇到问题集锦",
+      "category" : "Mac",
+      
+      "url"      : "http://mazhuang.org/2015/10/25/mac/"
+    } ,
+  
+    {
+      "title"    : "断网之后",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2015/10/25/without-internet/"
+    } ,
+  
+    {
+      "title"    : "Vimscript 中的坑",
+      "category" : "Vim",
+      
+      "url"      : "http://mazhuang.org/2015/10/31/pits-in-vimscript/"
+    } ,
+  
+    {
+      "title"    : "Excel 保留行号的去重",
+      "category" : "Excel",
+      
+      "url"      : "http://mazhuang.org/2015/12/02/excel-sift/"
+    } ,
+  
+    {
+      "title"    : "GFM 与 Redcarpet 的不同点",
+      "category" : "Markdown",
+      
+      "url"      : "http://mazhuang.org/2015/12/05/diff-between-gfm-and-redcarpet/"
+    } ,
+  
+    {
+      "title"    : "Java 对象释放与 finalize 方法",
+      "category" : "Java",
+      
+      "url"      : "http://mazhuang.org/2015/12/15/java-object-finalize/"
+    } ,
+  
+    {
+      "title"    : "为 Markdown 生成 TOC 的 Vim 插件",
+      "category" : "Vim",
+      
+      "url"      : "http://mazhuang.org/2015/12/19/vim-markdown-toc/"
+    } ,
+  
+    {
+      "title"    : "Ubuntu 使用笔记",
       "category" : "Linux",
       
-      "url"      : "https://mritd.me/2017/05/27/ceph-note-1/"
+      "url"      : "http://mazhuang.org/2016/01/12/use-ubuntu-notes/"
     } ,
   
     {
-      "title"    : "Ceph 笔记(二)",
+      "title"    : "Android 系统缓存扫描与清理方法分析",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/2016/01/14/android-system-cache/"
+    } ,
+  
+    {
+      "title"    : "Build Zeal for Mac OS X",
+      "category" : "Mac",
+      
+      "url"      : "http://mazhuang.org/2016/01/16/build-zeal-for-mac-osx/"
+    } ,
+  
+    {
+      "title"    : "将 GitHub Pages 从 Redcarpet 切换到 kramdown",
+      "category" : "Markdown",
+      
+      "url"      : "http://mazhuang.org/2016/02/04/switch-to-kramdown-from-redcarpet/"
+    } ,
+  
+    {
+      "title"    : "从 am start 的 --user 参数说到 Android 多用户",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/2016/02/10/am-start-user-parameter/"
+    } ,
+  
+    {
+      "title"    : "不藏拙的人生",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2016/03/14/show-chump/"
+    } ,
+  
+    {
+      "title"    : "如何有效使用 GitHub",
+      "category" : "GitHub",
+      
+      "url"      : "http://mazhuang.org/2016/04/07/how-to-use-github-effective/"
+    } ,
+  
+    {
+      "title"    : "配置 Node.js 开发环境——使用 Atom",
+      "category" : "Node.js",
+      
+      "url"      : "http://mazhuang.org/2016/04/18/develop-nodejs-with-atom/"
+    } ,
+  
+    {
+      "title"    : "判断前台 Activity 是否属于本进程",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/2016/04/20/determine-if-my-activities-foreground/"
+    } ,
+  
+    {
+      "title"    : "为绑定域名的 GitHub Pages 启用 HTTPS",
+      "category" : "GitHub",
+      
+      "url"      : "http://mazhuang.org/2016/05/21/enable-https-for-github-pages/"
+    } ,
+  
+    {
+      "title"    : "简化 kramdown 列表嵌套内容缩进的 Vim 插件",
+      "category" : "Vim",
+      
+      "url"      : "http://mazhuang.org/2016/06/28/vim-kramdown-tab/"
+    } ,
+  
+    {
+      "title"    : "Kloudsec 挂了，GitHub Pages 去 HTTPS 化",
+      "category" : "GitHub",
+      
+      "url"      : "http://mazhuang.org/2016/07/11/remove-https/"
+    } ,
+  
+    {
+      "title"    : "在 Vim 里为 Markdown 文档展示导航窗格",
+      "category" : "Vim",
+      
+      "url"      : "http://mazhuang.org/2016/08/03/add-outline-for-markdown-in-vim/"
+    } ,
+  
+    {
+      "title"    : "C++ 程序员的 Java 指南",
+      "category" : "Java",
+      
+      "url"      : "http://mazhuang.org/2016/08/30/java-guide-to-cpp-programmers/"
+    } ,
+  
+    {
+      "title"    : "一道在知乎很火的 Java 题——如何输出 ab",
+      "category" : "Java",
+      
+      "url"      : "http://mazhuang.org/2016/09/20/java-output-ab/"
+    } ,
+  
+    {
+      "title"    : "vim-markdown-toc 发布 v1.0 版",
+      "category" : "Vim",
+      
+      "url"      : "http://mazhuang.org/2016/10/22/vim-markdown-toc-release/"
+    } ,
+  
+    {
+      "title"    : "搭建大型源码阅读环境——使用 OpenGrok",
+      "category" : "Tools",
+      
+      "url"      : "http://mazhuang.org/2016/12/14/rtfsc-with-opengrok/"
+    } ,
+  
+    {
+      "title"    : "我的 2016 盘点",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2017/01/01/my-2016/"
+    } ,
+  
+    {
+      "title"    : "读书：追风筝的人",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2017/02/19/the-kite-runner/"
+    } ,
+  
+    {
+      "title"    : "我做了一个有点艰难的决定",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2017/04/09/a-difficult-decision/"
+    } ,
+  
+    {
+      "title"    : "从一个 NullPointerException 探究 Java 的自动装箱拆箱机制",
+      "category" : "Java",
+      
+      "url"      : "http://mazhuang.org/2017/08/20/java-auto-boxing-unboxing/"
+    } ,
+  
+    {
+      "title"    : "关于 Markdown 的一些奇技淫巧",
+      "category" : "Markdown",
+      
+      "url"      : "http://mazhuang.org/2017/09/01/markdown-odd-skills/"
+    } ,
+  
+    {
+      "title"    : "图解 SQL 里的各种 JOIN",
+      "category" : "Database",
+      
+      "url"      : "http://mazhuang.org/2017/09/11/joins-in-sql/"
+    } ,
+  
+    {
+      "title"    : "Android 源码分析开篇",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/2017/09/23/rtfsc-android-start/"
+    } ,
+  
+    {
+      "title"    : "阅读源码的意义与方法",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/2017/10/05/rtfsc-methods-and-meaning/"
+    } ,
+  
+    {
+      "title"    : "发布一款光谷社区第三方 Android App",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/2017/10/14/guanggoo-android-app/"
+    } ,
+  
+    {
+      "title"    : "程序员节的过节姿势大全",
+      "category" : "Blog",
+      
+      "url"      : "http://mazhuang.org/2017/10/24/1024-poses/"
+    } ,
+  
+    {
+      "title"    : "Android 源码分析 —— 从 Toast 出发",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/2017/11/12/start-from-toast/"
+    } ,
+  
+    {
+      "title"    : "解决两个 Android 模拟器之间无法网络通信的问题",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/2017/12/03/tcp-connect-between-android-emulators/"
+    } ,
+  
+    {
+      "title"    : "Android Studio",
+      "category" : "Android",
+      
+      "url"      : "http://mazhuang.org/wiki/android-studio/"
+    } ,
+  
+    {
+      "title"    : "Axure",
+      "category" : "tools",
+      
+      "url"      : "http://mazhuang.org/wiki/axure/"
+    } ,
+  
+    {
+      "title"    : "Badminton",
+      "category" : "Hobbies",
+      
+      "url"      : "http://mazhuang.org/wiki/badminton/"
+    } ,
+  
+    {
+      "title"    : "中文文案排版指北（简体中文版）",
+      "category" : "Copywriting",
+      
+      "url"      : "http://mazhuang.org/wiki/chinese-copywriting-guidelines/"
+    } ,
+  
+    {
+      "title"    : "Eclipse",
+      "category" : "Eclipse",
+      
+      "url"      : "http://mazhuang.org/wiki/eclipse/"
+    } ,
+  
+    {
+      "title"    : "Emacs",
+      "category" : "Emacs",
+      
+      "url"      : "http://mazhuang.org/wiki/emacs/"
+    } ,
+  
+    {
+      "title"    : "Git",
+      "category" : "Git",
+      
+      "url"      : "http://mazhuang.org/wiki/git/"
+    } ,
+  
+    {
+      "title"    : "善用佳软",
+      "category" : "Recommends",
+      
+      "url"      : "http://mazhuang.org/wiki/good-soft/"
+    } ,
+  
+    {
+      "title"    : "IDA Pro",
+      "category" : "Debug",
+      
+      "url"      : "http://mazhuang.org/wiki/ida-pro/"
+    } ,
+  
+    {
+      "title"    : "IntelliJ IDEA",
+      "category" : "Tools",
+      
+      "url"      : "http://mazhuang.org/wiki/intellij-idea/"
+    } ,
+  
+    {
+      "title"    : "Linux/Unix",
       "category" : "Linux",
       
-      "url"      : "https://mritd.me/2017/05/30/ceph-note-2/"
+      "url"      : "http://mazhuang.org/wiki/linux/"
     } ,
   
     {
-      "title"    : "Kubernetes 使用 Ceph 存储",
-      "category" : "Kubernetes",
+      "title"    : "Mac OS X",
+      "category" : "Mac",
       
-      "url"      : "https://mritd.me/2017/06/03/use-ceph-storage-on-kubernetes/"
+      "url"      : "http://mazhuang.org/wiki/mac/"
     } ,
   
     {
-      "title"    : "How to build Kubernetes RPM",
-      "category" : "Kubernetes",
+      "title"    : "Markdown",
+      "category" : "Markdown",
       
-      "url"      : "https://mritd.me/2017/07/12/how-to-build-kubernetes-rpm/"
+      "url"      : "http://mazhuang.org/wiki/markdown/"
     } ,
   
     {
-      "title"    : "Kubernetes RBAC",
-      "category" : "Kubernetes",
+      "title"    : "MPV",
+      "category" : "Tools",
       
-      "url"      : "https://mritd.me/2017/07/17/kubernetes-rbac-chinese-translation/"
+      "url"      : "http://mazhuang.org/wiki/mpv/"
     } ,
   
     {
-      "title"    : "手动档搭建 Kubernetes HA 集群",
-      "category" : "Kubernetes",
+      "title"    : "OllyDbg",
+      "category" : "debug",
       
-      "url"      : "https://mritd.me/2017/07/21/set-up-kubernetes-ha-cluster-by-binary/"
+      "url"      : "http://mazhuang.org/wiki/ollydbg/"
     } ,
   
     {
-      "title"    : "Calico 部署踩坑记录",
-      "category" : "Kubernetes",
+      "title"    : "OneNote",
+      "category" : "Tools",
       
-      "url"      : "https://mritd.me/2017/07/31/calico-yml-bug/"
+      "url"      : "http://mazhuang.org/wiki/onenote/"
     } ,
   
     {
-      "title"    : "CI/CD Git Flow",
-      "category" : "CI/CD",
+      "title"    : "PHP",
+      "category" : "php",
       
-      "url"      : "https://mritd.me/2017/09/05/git-flow-note/"
+      "url"      : "http://mazhuang.org/wiki/php/"
     } ,
   
     {
-      "title"    : "阿里云部署 Kubernetes",
-      "category" : "Kubernetes",
+      "title"    : "Python",
+      "category" : "Python",
       
-      "url"      : "https://mritd.me/2017/09/20/set-up-ha-kubernetes-cluster-on-aliyun-ecs/"
+      "url"      : "http://mazhuang.org/wiki/python/"
     } ,
   
     {
-      "title"    : "Consul 集群搭建",
-      "category" : "Kubernetes",
+      "title"    : "Qt Creator",
+      "category" : "Qt",
       
-      "url"      : "https://mritd.me/2017/09/21/set-up-ha-consul-cluster/"
+      "url"      : "http://mazhuang.org/wiki/qt-creator/"
     } ,
   
     {
-      "title"    : "Alpine 3.6 OpenJDK 8 Bug",
-      "category" : "Docker",
+      "title"    : "Source Insight",
+      "category" : "Tools",
       
-      "url"      : "https://mritd.me/2017/09/27/alpine-3.6-openjdk-8-bug/"
+      "url"      : "http://mazhuang.org/wiki/source-insight/"
     } ,
   
     {
-      "title"    : "Kubernetes 1.8 集群搭建",
-      "category" : "Kubernetes",
+      "title"    : "Swimming",
+      "category" : "Hobbies",
       
-      "url"      : "https://mritd.me/2017/10/09/set-up-kubernetes-1.8-ha-cluster/"
-    } ,
-  
-    {
-      "title"    : "Kubernetes 1.8 kube-proxy 开启 ipvs",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2017/10/10/kube-proxy-use-ipvs-on-kubernetes-1.8/"
-    } ,
-  
-    {
-      "title"    : "Kubernetes 深度学习笔记",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2017/11/03/deep-learning-on-kubernetes/"
-    } ,
-  
-    {
-      "title"    : "Teleport 跳板机部署",
-      "category" : "Linux",
-      
-      "url"      : "https://mritd.me/2017/11/09/set-up-teleport/"
-    } ,
-  
-    {
-      "title"    : "CI/CD 之 Dockerfile",
-      "category" : "CI/CD",
-      
-      "url"      : "https://mritd.me/2017/11/12/ci-cd-dockerfile/"
-    } ,
-  
-    {
-      "title"    : "ohmydocker 镜像加速",
-      "category" : "Docker",
-      
-      "url"      : "https://mritd.me/2017/11/14/ohmydocker/"
-    } ,
-  
-    {
-      "title"    : "CI/CD 之 GitLab CI",
-      "category" : "CI/CD",
-      
-      "url"      : "https://mritd.me/2017/11/28/ci-cd-gitlab-ci/"
-    } ,
-  
-    {
-      "title"    : "Kubernetes TLS bootstrapping 那点事",
-      "category" : "Kubernetes",
-      
-      "url"      : "https://mritd.me/2018/01/07/kubernetes-tls-bootstrapping-note/"
+      "url"      : "http://mazhuang.org/wiki/swimming/"
     } ,
   
     {
       "title"    : "Wiki Template",
       "category" : "cate1",
       
-      "url"      : "https://mritd.me/wiki/template/"
+      "url"      : "http://mazhuang.org/wiki/template/"
+    } ,
+  
+    {
+      "title"    : "Vim",
+      "category" : "Vim",
+      
+      "url"      : "http://mazhuang.org/wiki/vim/"
+    } ,
+  
+    {
+      "title"    : "Visual Studio Code",
+      "category" : "Tools",
+      
+      "url"      : "http://mazhuang.org/wiki/visual-studio-code/"
+    } ,
+  
+    {
+      "title"    : "Visual Studio",
+      "category" : "Tools",
+      
+      "url"      : "http://mazhuang.org/wiki/visual-studio/"
     } 
   
 ]
