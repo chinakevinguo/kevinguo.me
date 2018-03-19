@@ -131,7 +131,6 @@ $ eval "$(docker-machine env --swarm &lt;name of swarm master machine&gt;)"
 $ docker-compose up
 
 
-
 限制
 
 构建images
@@ -148,7 +147,6 @@ $ docker-compose up -d
 $ docker-compose scale web=3
 
 
-
 多依赖
 
 如果service有需要同时调度的依赖，那么很有可能swarm调度的依赖在不同的节点上，是依赖服务无法调度，例如，下面的foo同时调度bar和baz：
@@ -162,7 +160,6 @@ services:
     image: bar
   baz:
     image: baz
-
 
 那么问题来了，swarm很有可能先在不同的节点上调度bar和baz（因为它们不依赖其他节点），使得不可能为foo选择一个合适的节点，那么应该怎么解决这个问题呢？
 要解决上面的问题，我们可以使用手动调度来确保三个service都在同一个节点上，如下：
@@ -184,12 +181,10 @@ services:
       - "constraint:node==node-1"
 
 
-
 主机端口和重建容器
 如果service映射host主机上的端口，如：80:8080，那么在第一次运行docker-compose up的时候，可能会报错：
 docker: Error response from daemon: unable to find a node that satisfies
 container==6ab2dfe36615ae786ef3fc35d641a260e3ea9663d6e69c5b70ce0ca6cb373c02.
-
 
 产生这个错误主要是因为容器有一个volume(在image或compose文件中定义的)没有映射，所以为了保留数据，compose指示swarm在调度新容器的时候会调度到和旧容器相同的节点，这就导致了端口冲突。
 
@@ -220,7 +215,6 @@ $ docker-compose rm -f web
 $ docker-compose up web
 
 
-
 容器调度
 
 自动调度
@@ -246,7 +240,6 @@ environment:
 # Schedule containers where the 'redis' image is already pulled
 environment:
   - "affinity:image==redis"
-
 
 
 更多有关swarm调度的内容，可参考swarm documentation
@@ -316,11 +309,9 @@ services:
      - 8080:8080
 
 
-
 2.拉取服务镜像
 $ docker-compose pull db
 $ docker-compose pull web
-
 
 
 3.生成捆绑包
@@ -328,7 +319,6 @@ $ docker-compose bundle
 WARNING: Unsupported key 'depends_on' in services.web - ignoring
 WARNING: Unsupported key 'container_name' in services.db - ignoring
 Wrote bundle to composetest.dab
-
 
 
 从bundle创建一个stack
@@ -350,7 +340,6 @@ $ docker version -f '{ { .Server.Experimental } }'
 true
 
 
-
 使用docker deploy命令来创建stack
 $ docker deploy --help
 
@@ -365,7 +354,6 @@ Options:
       --with-registry-auth    Send registry authentication details to Swarm agents
 
 
-
 依据前面生成的捆绑包来部署stack
 $ docker deploy --bundle-file composetest.dab composetest
 Loading bundle from composetest.dab
@@ -374,13 +362,11 @@ Creating service composetest_db
 Creating service composetest_web
 
 
-
 检查我们刚部署的服务
 $ docker service ls
 ID            NAME             MODE        REPLICAS  IMAGE
 1658d7kh5gs9  composetest_web  replicated  1/1       arungupta/oreilly-wildfly@sha256:d567ade7bb82ba8f15a85df0c6d692d85c15ec5a78d8826dfba92756babcb914
 pr6ympnpgv9g  composetest_db   replicated  1/1       arungupta/oreilly-couchbase@sha256:f150fcb9fca5392075c96f1baffc7f893858ba763f3c05cf0908ef2613cbf34c
-
 
 
 管理stacks
@@ -402,7 +388,6 @@ Commands:
   services    List the services in the stack
 
 Run 'docker stack COMMAND --help' for more information on a command.
-
 
 
 Bundle 文件格式
@@ -472,7 +457,6 @@ $ docker run -d -p 5000:5000 --restart=always --name registry \
     -v `pwd`/data:/var/lib/registry \
     registry:2
 
-
 修改Registry server以及所有要访问Registry server的client端，让其支持HTTP传输(默认是HTTPS传输)
 ##1.12版
 #Create or modify /etc/docker/daemon.json
@@ -480,20 +464,17 @@ $ { "insecure-registries":["youripordomain:5000"] }
 #Restart docker daemon
 $ systemctl restart docker
 
-
 ##1.10版
 #Modify /etc/default/docker or /etc/sysconfig/docker,add or edit
 $ INSECURE_REGISTRY='--insecure-registry youripordomain:5000'
 #Restart docker daemon
 $ systemctl restart docker
 
-
 pull or push IMAGE from your Private Registry
 $ docker pull ubuntu
 $ docker tag ubuntu oo3p.com:5000/ubuntu
 $ docker push oo3p.com:5000/ubuntu
 $ docker pull oo3p.com:5000/ubuntu
-
 
 
 自签名证书的Registry
@@ -503,15 +484,12 @@ $ openssl req \
     -newkey rsa:2048 -nodes -keyout certs/domain.key
     -x509 -days 365 -out certs/domain.crt
 
-
 将生成的domain.crt文件的内容，放入docker客户端系统的ca-bundle文件中，使操作系统信任我们的自签名证书，或者将domain.crt复制成docker客户端的/etc/docker/certs.d/www.oo3p.com:5000/ca.crt，两种方式皆可
 $ cat ~/certs/domain.crt &gt;&gt;/etc/pki/tls/certs/ca-bundle.crt
 $ systemctl restart docker
 
-
 $ cp ~/certs/domain.crt /etc/docker/certs.d/www.oo3p.com:5000/ca.crt
 $ systemctl restart docker
-
 
 
 Start your Registry with TLS enabled
@@ -521,13 +499,11 @@ $ docker run -d -p 5000:5000 --restart=always --name registry \
     -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
     registry:2
 
-
 Pull or Push IMAGE from your Private Registry on another docker client
 $ docker pull ubuntu
 $ docker tag ubuntu oo3p.com:5000/ubuntu
 $ docker push oo3p.com:5000/ubuntu
 $ docker pull oo3p.com:5000/ubuntu
-
 
 
 从Lets Encrypt获取证书的Registry
@@ -557,7 +533,6 @@ IMPORTANT NOTES:
    Donating to EFF:                    https://eff.org/donate-le
 
 
-
 查看证书，以及更新证书
 #查看证书
 $ ls /etc/letsencrypt/live/oo3p.com/
@@ -567,11 +542,9 @@ $ ls /etc/letsencrypt/live/oo3p.com/
 $ ./certbot-auto renew --dry-run
 
 
-
 将从letsencrypt获取到的证书，复制到Registry server上的/certs目录下，方便挂载到Registry 容器里
 cp /etc/letsencrypt/live/oo3p.com/fullchain.pem ~/certs/domain.crt
 cp /etc/letsencrypt/live/oo3p.com/privkey.pem   ~/certs/domain.key
-
 
 
 Start your Registry with TLS enabled
@@ -581,13 +554,11 @@ $ docker run -d -p 5000:5000 --restart=always --name registry \
     -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
     registry:2
 
-
 Pull or Push IMAGE from your Private Registry on another docker client
 $ docker pull ubuntu
 $ docker tag ubuntu oo3p.com:5000/ubuntu
 $ docker push oo3p.com:5000/ubuntu
 $ docker pull oo3p.com:5000/ubuntu
-
 
 
 Load Balancing 注意事项以及访问控制
@@ -618,7 +589,6 @@ $ docker run -d -p 5000:5000 --restart=always --name registry \
 # 然后登录
 $ docker login www.oo3p.com:5000
 
-
 通过代理进行认证
 
   using Apache as an authenticating proxy
@@ -637,7 +607,6 @@ $ docker login www.oo3p.com:5000
 
 从docker的Github上拉取有关docker-registry的代码
 $ git clone https://github.com/docker/distribution-library-image.git
-
 
 
 修改distribution-library-image下的Dockerfile文件
@@ -660,11 +629,9 @@ ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/etc/docker/registry/config.yml"]
 
 
-
 生成自签名证书
 $ mkdir -p ~/distribution-library-image/registry/certs
 $ openssl req -newkey rsa:2048 -nodes -keyout ~/distribution-library-image/registry/certs/docker_registry.key -x509 -days 365 -out ~/distribution-library-image/registry/certs/docker_registry.crt
-
 
 
 修改distribution-library-image/registry 下的config-example.yml
@@ -734,24 +701,20 @@ storagedriver:
 #  username: [username]
 #  password: [password]
 
-
 更多内容参考configuring a registry
 
 开始构建(该命令在Dockerfile文件所在的目录执行)
 $  docker build -t registry.quarkfinance.com:5000/docker_registry:latest .
 
 
-
 启动docker registry(我这里挂载了hosts目录，是因为我的registry是通过域名访问的，而我的域名实际上是不存在的，所以，我只能在/etc/hosts文件中添加了隐射，后期如果有实际存在的域名解析，就不需要挂载了)
 $ docker run -d -p 5000:5000 --name docker_registry --privileged -v /etc/hosts:/etc/hosts --restart always registry.quarkfinance.com:5000/docker_registry
-
 
 
 如何使用
 
 在所有要访问docker registry的主机上执行如下操作
 $ mkdir -p /etc/docker/certs.d/registry.quarkfinance.com:5000
-
 
 
 将registry主机上生成的证书docker_registry.crt复制到所有要访问docker registry的主机上
@@ -761,7 +724,6 @@ $ for i in ${ip[*]};
     \ scp ~/distribution-library-image/registry/certs/docker_registry.crt
     \ $i:/etc/docker/certs.d/registry.quarkfinance.com:5000/
     \ done
-
 
 
 试着push
@@ -774,7 +736,6 @@ e83e87cb73c3: Pushed
 1.11.4-alpine: digest: sha256:36b95728c0d9b6668bb8e4aa31476de27aeedbeba07dcddb6821b76fb72830b2 size: 1154
 
 
-
 发现push成功了,至此你的私有registry就算是成功了，下面我们来使用nginx来做认证
 
 nginx+registry认证登录
@@ -783,11 +744,9 @@ nginx+registry认证登录
 $ git clone https://github.com/docker/distribution-library-image.git
 
 
-
 生成自签名证书
 $ mkdir -p ~/distribution-library-image/registry/certs
 $ openssl req -newkey rsa:2048 -nodes -keyout ~/distribution-library-image/registry/certs/docker_registry.key -x509 -days 365 -out ~/distribution-library-image/registry/certs/docker_registry.crt
-
 
 
 修改distribution-library-image/registry 下的config-example.yml
@@ -857,17 +816,14 @@ storagedriver:
 #  username: [username]
 #  password: [password]
 
-
 更多内容参考configuring a registry
 
 开始构建(该命令在Dockerfile文件所在的目录执行)
 $  docker build -t registry.quarkfinance.com/docker_registry:latest .
 
 
-
 启动docker registry(我这里挂载了hosts目录，是因为我的registry是通过域名访问的，而我的域名实际上是不存在的，所以，我只能在/etc/hosts文件中添加了隐射，后期如果有实际存在的域名解析，就不需要挂载了),同时需要指定监听的ip，不让其它主机访问registry的5000端口，其它主机通过nginx代理访问
 $ docker run -d -p 127.0.0.1:5000:5000 --name docker_registry --privileged -v /etc/hosts:/etc/hosts --restart always registry.quarkfinance.com:5000/docker_registry
-
 
 配置nginx
 
@@ -884,14 +840,12 @@ enabled=1
 $ yum install nginx -y         
 
 
-
 配置nginx的配置文件/etc/nginx/conf.d/(不同版本的nginx配置文件有所不同)
 [root@k8s-registry conf.d]# ll
 total 12
 -rw-r--r-- 1 root root 1097 Apr 12 23:21 default.conf
 -rw-r--r-- 1 root root  933 Apr 13 18:24 registry.conf
 -rw-r--r-- 1 root root   46 Apr 13 15:11 registry-upstream.conf
-
 
 
 # registry.conf
@@ -925,13 +879,11 @@ server {
 
 
 
-
 # registry-upstream.conf
 
 upstream registry {
         server 127.0.0.1:5000;
 }                             
-
 
 
 生成认证文件.htpasswd
@@ -941,18 +893,15 @@ $ yum install httpd-tool -y
 $ htpasswd -cb /etc/nginx/conf.d/.htpasswd ${username} ${password}
 
 
-
 重启nginx，就算是完成了
 
 $ systemctl restart nginx
-
 
 
 如何使用
 
 在所有要访问docker registry的主机上执行如下操作，目的是为了让其他主机信任registry主机签发的证书
 $ mkdir -p /etc/docker/certs.d/registry.quarkfinance.com
-
 
 
 将registry主机上生成的证书docker_registry.crt复制到所有要访问docker registry的主机上
@@ -962,7 +911,6 @@ $ for i in ${ip[*]};
     \ scp ~/distribution-library-image/registry/certs/docker_registry.crt
     \ $i:/etc/docker/certs.d/registry.quarkfinance.com/
     \ done
-
 
 
 试着push，提示没有认证
@@ -976,13 +924,11 @@ cb8d3fea875c: Preparing
 no basic auth credentials
 
 
-
 我们先登录
 [root@k8s-master02 registry.quarkfinance.com]# docker login registry.quarkfinance.com
 Username: admin
 Password:
 Login Succeeded
-
 
 
 
@@ -1126,7 +1072,6 @@ volumes:
   logvolume01: {}
 
 
-
 更多关于compose文件的信息，可参考Compose file reference
 
 compose具有管理应用程序整个生命周期的命令：
@@ -1200,7 +1145,6 @@ $ ./run_tests
 $ docker-compose down
 
 
-
 单台主机的部署
 
 compose 在以前一直专注于开发和测试，但随着版本的更新，我们现在正在开发更多面向生产的功能。你可以使用compose来部署到远程的docker engine。docker engine可以是使用docker machine或docker swarm集群提供的单个实例。
@@ -1252,7 +1196,6 @@ services:
   db:
     image: postgres
 
-
 当执行docker-compose up时，网络部分设置如下：
 1.创建了称之为myapp_default的网络
 2.使用web的配置创建容器，然后这个容器加入到myapp_default网络
@@ -1279,7 +1222,6 @@ services:
       - "db:database"
   db:
     image: postgres
-
 
 
 多主机网络
@@ -1324,7 +1266,6 @@ networks:
       bar: "2"
 
 
-
 配置默认网络
 
 除了指定你自己的网络之外，还可以通过在名为default的网络下定义一个条目来更改应用范围内的默认网络设置：
@@ -1344,7 +1285,6 @@ networks:
     driver: custom-driver-1
 
 
-
 使用预先存在的网络
 
 如果你希望你的容器加入一个预先存在的网络，使用external选项：
@@ -1352,7 +1292,6 @@ networks:
   default:
     external:
       name: my-pre-existing-network
-
 
 compose检测到有external选项后，不会创建名为[PROJECTNAME]_default的网络，而是会查找一个名为my-pre-existing-network的网络，并将应用程序连接到它。
                     </p>
@@ -1377,7 +1316,6 @@ compose检测到有external选项后，不会创建名为[PROJECTNAME]_default�
                         tag 选项指定你该为容器的日志如何命名。默认是容器ID的前12个字符。要覆盖默认值，可指定一个tag选项:
 
 $ docker run --log-driver=fluentd --log-opt fluentd-address=myhost.local:24224 --log-opt tag="mailer"
-
 
 
 docker支持一些特殊的标记模板，你可以在指定的时候使用
@@ -1426,7 +1364,6 @@ docker支持一些特殊的标记模板，你可以在指定的时候使用
 Aug  7 18:33:19 HOSTNAME docker/hello-world/foobar/5790672ab6a0[9103]: Hello from Docker
 
 
-
 在启动时，系统会在tag中设置container_name 字段和{ { .name } }字段，如果你使用docker rename重命名容器，新名称不会反映在日志消息中，这些消息会继续使用原来的容器名。
 
 更高级的用法，可以去参考go templates和container’s logging context
@@ -1439,7 +1376,6 @@ $ docker run -it --rm \
     --log-opt env=SOME_ENV_VAR \
     -e SOME_ENV_VAR=logtester.1234 \
     flyinprogrammer/logtester
-
 
 
 Apr  1 15:22:17 ip-10-27-39-73 docker/logtester.1234[45499]: + exec app

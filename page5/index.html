@@ -129,17 +129,14 @@
 下面这个例子：
  $ curl -L "https://github.com/docker/compose/releases/download/1.9.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-
 如果你对使用curl安装有疑问，你可以看看备用的安装选项
 5.赋权
 chmod +x /usr/local/bin/docker-compose
-
 
 6.(可选)，为bash和zsh安装命令补全
 7.测试
 $ docker-compose --version
  docker-compose version: 1.9.0
-
 
 
 备用安装选项
@@ -150,14 +147,12 @@ pip安装
 $ pip install docker-compose
 
 
-
 直接作为容器运行
 
 既然docker-compose是一个python应用，那么当然可以作为一个容器来执行它
 
 $ curl -L https://github.com/docker/compose/releases/download/1.9.0/run.sh &gt; /usr/local/bin/docker-compose
 $ chmod +x /usr/local/bin/docker-compose
-
 
 
 主构建
@@ -172,10 +167,8 @@ $ chmod +x /usr/local/bin/docker-compose
 docker-compose migrate-to-labels
 
 
-
 或者，如果你不想保留它们，你可以删除，compose只会创建新的
 docker rm -f -v myapp_web_1 myapp_db_1 ..
-
 
 
 卸载
@@ -184,10 +177,8 @@ docker rm -f -v myapp_web_1 myapp_db_1 ..
 rm /usr/local/bin/docker-compose
 
 
-
 卸载使用pip安装的compose
 pip uninstall docker-compose
-
 
 
   如果你收到”Permission denied”的报错，说明你没有权限删除docker-compose，你可以使用sudo来强制删除，或者使用超级管理员用户来删除。
@@ -223,7 +214,6 @@ pip uninstall docker-compose
 $ mkdir composetest
 $ cd composetest
 
-
 2.建一个app.py文件在你的项目目录下，并copy下面的内容
 from flask import Flask
 from redis import Redis
@@ -239,11 +229,9 @@ def hello():
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
 
-
 3.在项目目录下建另一个名叫requirements.txt的文件
 Flask
 redis
-
 
 这些内容定义了应用的依赖
 
@@ -257,7 +245,6 @@ ADD . /code
 WORKDIR /code
 RUN pip install -r requirements.txt
 CMD ["python", "app.py"]
-
 
 
 该Dockerfile告诉docker：
@@ -282,7 +269,6 @@ services:
      - .:/code
   redis:
     image: "redis:alpine"
-
 
 
 该compose file定义了两个服务，web和redis:
@@ -311,7 +297,6 @@ $ docker-compose up
  web_1   |  * Running on http://0.0.0.0:5000/
  web_1   |  * Restarting with stat
 
-
 compose将会构建web镜像，拉取redis镜像，然后启动服务
 2.在浏览器中反问http://ip:5000，将会显示Hello World! I have been seen 1 times.,并且，每当你刷新一次页面，次数会加1.
 
@@ -320,7 +305,6 @@ compose将会构建web镜像，拉取redis镜像，然后启动服务
 因为我们是将代码挂载到容器的卷组里面的，所以，我们可以随意修改代码，而不需要重新构建image
 1.改变app.py的代码
 return 'Hello from Docker! I have been seen {} times.\n'.format(count)
-
 
 
 2.在浏览器中刷新试试看
@@ -340,17 +324,14 @@ composetest_redis_1   /usr/local/bin/run         Up
 composetest_web_1     /bin/sh -c python app.py   Up      5000-&gt;5000/tcp
 
 
-
 docker-compose run命令允许为服务运行一次性命令，这也是我们在前面提到过的compose的一个特性。例如，我们要查看web服务的环境变量：
 $ docker-compose run web env
-
 
 
 更多关于docker-compose的命令，可使用docker-compose --help来查看
 
 如果你使用docker-cmpose up -d来启动，那么你可能需要使用下面的方式来停止服务
 $ docker-compose stop
-
 
 
 我们还可以把一切都关掉，用down命令停止并删除容器，网络或images和volumes，传递 --volumes也可以删除redis容器使用的数据卷
@@ -393,11 +374,9 @@ Json
 $ docker inspect --format '{ { json .NetworkSettings.IPAddress } }'
 
 
-
 upper
 将字符串转换成大写
 docker inspect --format '{ { upper .NetworkSettings.MacAddress } }' webtest1
-
 
 
 lower
@@ -405,17 +384,14 @@ lower
 $ docker inspect --format "{ { lower .Name } }" container
 
 
-
 #Title
 第一个字母大写
 $ docker inspect --format "{ { title .Name } }" container
 
 
-
 split
 通过指定分隔符，将一个字符串拆分为多个字符串
 $ docker inspect --format '{ { split (join .Names "/") "/" } }' container
-
 
 
 Join
@@ -480,7 +456,6 @@ cache:
   image: redis:latest
 
 
-
 docker-compose.override.yml
 在下面这个示例中，开发配置内容向主机公开了一些端口，将代码安装为卷，并构建web镜像
 web:
@@ -501,7 +476,6 @@ cache:
   ports:
     - 6379:6379
 
-
 当执行docker-cmopose up命令时，它会自动读取这个override文件。
 
 现在我们创建另一个用于生产环境的override文件
@@ -516,10 +490,8 @@ cache:
   environment:
     TTL: '500'
 
-
 要使用这个生产compose文件部署，运行如下命令：
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-
 
 这将会使用docker-compose.yml和docker-compose.prod.yml来部署这三个服务
 
@@ -537,7 +509,6 @@ db:
   image: postgres:latest
 
 
-
 在docker-cmopose.admin.yml中添加一个新的服务来运行数据库导出或备份
 docker-compose.admin.yml
 dbadmin:
@@ -546,11 +517,9 @@ dbadmin:
     - db
 
 
-
 要启动一个正常的环境运行docker-compose up -d。要备份数据库，运行：
 docker-compose -f docker-compose.yml -f docker-compose.admin.yml \
     run dbadmin db-backup
-
 
 
 扩展服务
@@ -568,7 +537,6 @@ web:
     file: common-services.yml
     service: webapp
 
-
 这告诉compose重用定义在common-services.yml文件的webapp服务配置。假设common-services.yml的内容如下：
 webapp:
   build: .
@@ -576,7 +544,6 @@ webapp:
     - "8000:8000"
   volumes:
     - "/data"
-
 
 在这种情况下，docker-compose.yml中定义的web服务将与webapp配置一样。
 
@@ -594,7 +561,6 @@ important_web:
   cpu_shares: 10
 
 
-
 也可以定义其他服务并在web服务链接它们：
 web:
   extends:
@@ -609,7 +575,6 @@ db:
   image: postgres
 
 
-
 extends示例
 
 当多个服务有一个通用配置时，扩展单个服务非常有用。下面示例是有两个服务的compose app：一个web应用程序和一个queue worker。两个服务使用相同的代码和共享许多配置项
@@ -621,7 +586,6 @@ app:
     CONFIG_FILE_PATH: /code/config
     API_KEY: xxxyyy
   cpu_shares: 5
-
 
 
 在docker-compose.yml文件我们定义使用通用配置的具体服务：
@@ -645,7 +609,6 @@ queue_worker:
     - queue
 
 
-
 添加和覆盖配置
 
 compose从原始服务复制配置到本地服务。如果配置项同时定义在原始服务和本地服务中，则本地服务的值会替换或扩展原始服务的值。
@@ -658,7 +621,6 @@ command: python otherapp.py
 
 # result
 command: python otherapp.py
-
 
 
 
@@ -682,7 +644,6 @@ expose:
   - "3000"
   - "4000"
   - "5000"
-
 
 
 对于environment，labels，volumes和devices，compose以本地定义的值优先原则来合并它们：
@@ -789,7 +750,6 @@ bridge name	bridge id		STP enabled	interfaces
 bridge0		8000.86de2e92d296	no		veth79dcc4b
 							vethc054462
 
-
 如果你的机器上没有brctl这个命令， 你可以使用yum install bridge-utils -y(on centos)来进行安装。
 
 最后，当你每次创建新容器的时候，都会使用docker0进行设置。docker会从docker0网桥的ip范围内，选择一个空闲的ip，分配给新容器，并且，会将docker0网络的IP地址，作为容器的网关：
@@ -812,7 +772,6 @@ default via 172.17.42.1 dev eth0
 172.17.0.0/16 dev eth0  proto kernel  scope link  src 172.17.0.3
 
 root@f38c87f2a42d:/# exit
-
 
 
 
@@ -846,12 +805,10 @@ $ sudo systemctl start docker
 # 在老版本上
 $ sudo service docker start
 
-
 如果你想开机启动docker
 $ sudo systemctl enable docker
 # 老版本
 $ sudo chkconfig docker on
-
 
 
 自定义docker daemon 选项
@@ -870,12 +827,10 @@ ExecStart=/usr/bin/dockerd $OPTIONS \
           $INSECURE_REGISTRY
 
 
-
 检查docker.service
 $ systemctl show docker | grep EnvironmentFile
 
 EnvironmentFile=-/etc/sysconfig/docker (ignore_errors=yes)
-
 
 
 找出service 文件的位置
@@ -886,7 +841,6 @@ FragmentPath=/usr/lib/systemd/system/docker.service
 $ grep EnvironmentFile /usr/lib/systemd/system/docker.service
 
 EnvironmentFile=-/etc/sysconfig/docker
-
 
 /usr/lib/systemd/system 或/lib/systemd/system包含默认选项，建议不要修改。
 
@@ -923,12 +877,10 @@ KillMode=process
 [Install]
 WantedBy=multi-user.target
 
-
 这将允许我们通过放置文件(如上所述)，通过在/etc/systemd/system/docker.service.d目录中放置一个包含以下内容的文件来添加额外的标志：
 [Service]
 ExecStart=
 ExecStart=/usr/bin/dockerd --graph="/mnt/docker-data" --storage-driver=overlay
-
 
 你还可以在这个文件中设置其他环境变量，比如:HTTP_PROXY环境变量
 
@@ -938,10 +890,8 @@ ExecStart=
 ExecStart=/usr/bin/dockerd --bip=172.17.42.1/16
 
 
-
 如果你没有指定空配置，那么可能会报错：
 docker.service has more than one ExecStart= setting, which is only allowed for Type=oneshot services. Refusing.
-
 
 
 HTTP proxy
@@ -951,26 +901,21 @@ HTTP proxy
 $ mkdir -p /etc/systemd/system/docker.service.d
 
 
-
 2.创建一个/etc/systemd/system/docker.service.d/http-proxy.conf配置文件,并添加HTTP_PROXY环境变量
 [Service]
 Environment="HTTP_PROXY=http://proxy.example.com:80/"
-
 
 
 3.如果内部有不需要代理访问的docker Registry，那么你可以通过NO_PROXY来指定
 Environment="HTTP_PROXY=http://proxy.example.com:80/" "NO_PROXY=localhost,127.0.0.1,docker-registry.somecorporation.com"
 
 
-
 4.重新载入
 $ sudo systemctl daemon-reload
 
 
-
 5.检查配置是否加载
 $ sudo systemctl restart docker
-
 
 
 手动创建systemd 单元文件
@@ -1011,7 +956,6 @@ NETWORK ID          NAME                DRIVER
 cf03ee007fb4        host                host
 
 
-
 当运行容器的时候，可以使用--network来指定将容器运行在那个网络上
 
 bridge网络模式，表示Docker默认安装的docker0网络，除非你通过--network进行了指定，否则Docker daemon会将所有容器都连接到docker0网络，你可以使用ifconfig命令对docker0网络进行查看：
@@ -1025,7 +969,6 @@ docker0   Link encap:Ethernet  HWaddr 02:42:47:bc:3a:eb
           TX packets:8 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:0
           RX bytes:1100 (1.1 KB)  TX bytes:648 (648.0 B)
-
 
 
 none网络模式，这种模式下，docker容器拥有自己的Network Namespace，但是，并不为Docker容器进行任何网络配置，也就是说，这个Docker容器没有网卡，IP，路由等信息，需要我们自己为Docker容器添加网卡，配置IP等。
@@ -1047,7 +990,6 @@ lo        Link encap:Local Loopback
           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:0
           RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-
 
 
 host网络模式，在这种模式下，docker没有自己的Network Namespace，而是和主机公用一个Network Namespace，容器不会虚拟出自己的网络卡，配置自己的IP，而是直接使用宿主机的IP和端口
@@ -1102,7 +1044,6 @@ bridge网络的详细信息
 ]
 
 
-
 上面的docker network inspect命令列出了给定网络上的所有连接的容器和网络资源。
 容器之间默认是使用IP地址进行通信，bridge网络模式不支持服务自动发现，如果你想要在bridge网络模式下容器之间通过容器名进行通信，你需要使用docker run --link来连接容器。
 
@@ -1139,7 +1080,6 @@ A bridge network
         "Labels": {}
     }
 ]
-
 
 当你创建了网络后，你可以使用docker run  --network=&lt;NETWORK&gt;选项来启动容器
 [root@vultr ~]$ docker run --network=isolated_nw -tid --name=container1 busybox
@@ -1179,7 +1119,6 @@ A bridge network
 ]
 
 
-
 你在此网络启动的容器，必须是和该网络在同一台Docker主机上，虽然网络本身将容器与外部网络隔离开，但是在此网络中的容器，还是能立即与该网络中的其他容器进行通信，如下图：
 
 在用户自定义的网络中，不支持link。如果你想要使bridge的一部分网络可以访问外网，你可以在此网络中的容器上公开和发布容器端口。
@@ -1203,7 +1142,6 @@ $ docker network create --subnet 172.30.0.0/16 \
                         docker_gwbridge
 
 
-
 An overlay network with Docker Engine swarm mode without key-value store
 你可以在没有外部key-value存储的情况下，在swarm的管理节点上创建overlay网络，swarm集群使overlay网络仅对集群中需要服务的节点可用，当你创建了一个在overlay网络覆盖下的服务时，管理节点会自动扩展overlay到运行该服务的节点上。
 
@@ -1223,7 +1161,6 @@ $ docker network create \
 $ docker service create --replicas 2 --network my-multi-host-network --name my-web nginx
 
 716thylsndqma81j6kkkb5aus
-
 
 overlay网络不能应用于不属于swarm集群服务的容器，更多信息可参考Docker swarm mode overlay network security model
 
@@ -1295,12 +1232,10 @@ An overlay network with an external key-value store
 $ docker network create --driver overlay my-multi-host-network
 
 
-
 创建之后，overlay网络会覆盖多个主机，网络范围下的容器会与其他网络的主机完全隔离
 
 然后，在每个host上启动容器的时候记住都要制定network name
 $ docker run -tid --network=my-multi-host-network busybox
-
 
 
 一旦连接，overlay网络范围内的所有容器都可以互相访问，而不管该容器是在哪个主机上

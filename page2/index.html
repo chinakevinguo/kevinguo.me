@@ -210,7 +210,6 @@ ceph osd dump | grep 'replicated size'
 ceph osd pool delete k8s-pool k8s-pool --yes-i-really-really-mean-it
 
 
-
 2.object操作
 
 # 将对象放入到池内
@@ -226,7 +225,6 @@ ceph osd map cephfs_data test-object
 rados rm test-object -p cephfs_data
 
 
-
 3.PG和PGP操作
 
 预设Ceph集群中的PG数至关重要，公式如下:
@@ -234,11 +232,9 @@ rados rm test-object -p cephfs_data
 PG 总数 = (OSD 数 * 100) / 最大副本数
 
 
-
 集群中单个池的PG数计算公式如下：
 
 PG 总数 = (OSD 数 * 100) / 最大副本数 / 池数
-
 
 
 PGP是为了实现定位而设计的PG，PGP的值应该和PG数量保持一致；pgp_num 数值才是 CRUSH 算法采用的真实值。虽然 pg_num 的增加引起了PG的分割，但是只有当 pgp_num增加以后，数据才会被迁移到新PG中，这样才会重新开始平衡。
@@ -249,12 +245,10 @@ ceph osd pool get cephfs_data pg_num
 ceph osd pool get cephfs_data pgp_num
 
 
-
 调整方式如下：
 
 ceph osd pool set cephfs_data pgp_num 32
 ceph osd pool set cephfs_data pgp_num 32
-
 
 
 3.Cluster map 操作
@@ -294,7 +288,6 @@ ceph osd crush move rack02 root=default
 ceph osd crush move rack03 root=default
 
 
-
 最终集群整体布局如下，我们可以看到每个机器都被分配到了对应的机架下面，从逻辑上进行了分隔
 $ ceph osd tree
 ID  WEIGHT  TYPE NAME                 UP/DOWN REWEIGHT PRIMARY-AFFINITY
@@ -314,7 +307,6 @@ ID  WEIGHT  TYPE NAME                 UP/DOWN REWEIGHT PRIMARY-AFFINITY
 -10 0.04689     rack rack03                                             
  -4 0.04689         host k8s-master03                                   
   2 0.04689             osd.2              up  1.00000          1.00000
-
 
 
 Ceph硬件配置
@@ -491,11 +483,9 @@ gpgkey=https://download.ceph.com/keys/release.asc
 $ yum update -y &amp;&amp; yum install ceph-deploy -y
 
 
-
 2.更新并安装ceph-deploy
 
 $ sudo yum update &amp;&amp; sudo yum install ceph-deploy
-
 
 
 2.配置从部署机器到所有其他节点的免密钥登录，具体参考这里
@@ -508,13 +498,11 @@ $ yum install yum-plugin-priorities
 $ yum install epel-release -y
 
 
-
 2.校对时间，由于ceph使用Paxos算法保证数据一致性，所以安装前要先保证各个节点的时间同步
 
 $ sudo yum install ntp ntpdate ntp-doc
 
 $ ntpdate 0.cn.pool.ntp.org
-
 
 
 3.开放所需端口或关闭防火墙
@@ -523,11 +511,9 @@ $ system stop firewalld
 $ sudo firewall-cmd --zone=public --add-port=6789/tcp --permanent
 
 
-
 4.关闭selinux
 
 $ sudo setenforce 0
-
 
 
 1.2 创建集群
@@ -542,12 +528,10 @@ ceph-deploy new k8s-master01
 echo "osd pool default size = 3" &gt;&gt; ceph.conf
 
 
-
 2.创建集群使用 ceph-deploy工具在部署节点上执行即可
 
 # 安装ceph
 $ ceph-deploy install k8s-master01 k8s-master02 k8s-master03
-
 
 注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下
 # 添加ceph 源
@@ -582,11 +566,9 @@ priority=1
 $ yum install ceph ceph-radosgw -y
 
 
-
 3.初始化monitor node 和密钥文件
 
 $ ceph-deploy mon create-initial
-
 
 
 4.在osd节点上创建一个目录作为 osd 存储，并修改其权限,千万别创建在/usr/local目录下，否则，你的osd可能会无法挂载
@@ -607,11 +589,9 @@ $ chown -R ceph:ceph osd3
 $ exit
 
 
-
 5.然后，在管理节点上初始化 osd
 
 $ ceph-deploy osd prepare k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
-
 
 
 6.最后，在管理节点上激活 osd
@@ -619,17 +599,14 @@ $ ceph-deploy osd prepare k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-ma
 $ ceph-deploy osd activate k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
 
 
-
 7.在管理节点上部署 ceph cli 工具和密钥文件
 
 $ ceph-deploy admin k8s-master01 k8s-master02 k8s-master03
 
 
-
 8.确保你对 ceph.client.admin.keyring有正确的操作权限，在每个节点上执行
 
 $ sudo chmod +r /etc/ceph/ceph.client.admin.keyring
-
 
 
 9.最后，检查集群的健康状态
@@ -648,7 +625,6 @@ ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
  2 0.04689         osd.2              up  1.00000          1.00000
 
 
-
 我们看到状态是OK的，而且每个节点上的osd的状态都是up的
 
 如果在某些地方碰到麻烦，想从头再来，可以用下列命令来清楚配置：
@@ -657,11 +633,9 @@ $ ceph-deploy purgedata {ceph-node} [{ceph-node}]
 $ ceph-deploy forgetkeys
 
 
-
 用下列命令可以连Ceph安装包一起清除：
 
 $ ceph-deploy purge {ceph-node} [{ceph-node}]
-
 
 
 二.操作集群
@@ -680,7 +654,6 @@ $ ceph-deploy mon add {ceph-node}
 
 # 查看仲裁
 $ ceph quorum_status --format json-pretty
-
 
 
 2.2 对象存储测试
@@ -709,7 +682,6 @@ $ rados -p data rm test-object
 # 删除存储池
 $ rados rmpool test-pool test-pool --yes-i-really-really-mean-it
 
-
 随着集群的运行，对象的位置可能会动态改变。Ceph有动态均衡机制，无需手动干预即可完成。
 
 2.3 块存储测试
@@ -722,11 +694,9 @@ lab_release -a
 uname -a
 
 
-
 2.在管理节点上用 ceph-deploy安装ceph
 
 ceph-deploy install {rbd-client}
-
 
 
 3.在管理节点上部署ceph cli工具和密钥
@@ -734,17 +704,14 @@ ceph-deploy install {rbd-client}
 ceph-deploy admin {rbd-client}
 
 
-
 4.在rbd节点上创建块设备image
 
 rbd create test-block --size 4096
 
 
-
 5.映射image到块设备
 
 rbd map test-block --name client.admin
-
 
 
 在上面的map映射操作时，会出现如下报错
@@ -754,7 +721,6 @@ rbd: sysfs write failed
 RBD image feature set mismatch. You can disable features unsupported by the kernel with "rbd feature disable".
 In some cases useful info is found in syslog - try "dmesg | tail" or so.
 rbd: map failed: (6) No such device or address
-
 
 
 大致意思是说features不匹配，可以通过disable features关掉一些特性来让内核支持。这是因为在Ceph高本本进行 map image时，默认ceph在创建image(上文test-block)时，会增加很多features，这些features需要内核支持，centos7上的支持有限，所以，我们需要关掉一些
@@ -769,7 +735,6 @@ rbd image 'test-block':
 	format: 2
 	features: layering, exclusive-lock, object-map, fast-diff, deep-flatten
 	flags:
-
 
 
 在features中，我们可以看到默认开启了很多：
@@ -792,7 +757,6 @@ $ rbd feature disable test-block exclusive-lock, object-map, fast-diff, deep-fla
 # 重新map
 $ rbd map test-block --name client.admin
 /dev/rbd0
-
 
 
 7.格式化之后挂载到系统目录
@@ -823,7 +787,6 @@ $ ls test-block/
 test-file
 
 
-
 2.4 CephFS 测试
 
 1.创建MDS
@@ -831,13 +794,11 @@ test-file
 $ ceph-deploy mds create k8s-node01 k8s-node02 k8s-registry
 
 
-
 2.创建pool和fs，创建pool需要指定PG数量
 
 ceph osd pool create cephfs_data 32
 ceph osd pool create cephfs_metadata 32
 ceph fs new test-fs cephfs_metadata cephfs_data
-
 
 
 PG 概念：
@@ -863,11 +824,9 @@ $ cat /etc/ceph/ceph.client.admin.keyring
 	key = AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA==
 
 
-
 复制密钥到文件中保存，并确保其权限
 
 echo "AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA==" &gt; ceph-key
-
 
 
 创建目录挂载
@@ -880,7 +839,6 @@ $ dd if=/dev/zero of=test-fs/test-fs bs=1G count=1
 1+0 records in
 1+0 records out
 1073741824 bytes (1.1 GB) copied, 2.77355 s, 387 MB/s
-
 
 
 ceph-fuse用户空间挂载的方式也比较简单，需要先安装ceph-fuse，同时也需要key
@@ -924,14 +882,12 @@ total 2.0G
 -rw-r--r-- 1 root root 1.0G Sep 12 14:49 test-fs-fuse
 
 
-
 2.5 Ceph对象网关
 
 1.对象网关创建
 
 # 创建RGW
 $ ceph-deploy rgw create k8s-node02
-
 
 
 2.直接访问http://ceph-node-ip:7480返回结果如下
@@ -943,7 +899,6 @@ $ ceph-deploy rgw create k8s-node02
 &lt;/Owner&gt;
 &lt;Buckets/&gt;
 &lt;/ListAllMyBucketsResult&gt;
-
 
 
 这就说明网关OK了，但是因为没有读写环境，所以暂时测不了。
@@ -1111,7 +1066,6 @@ spec:
           mountPath: /mydata-data
 
 
-
 pod 资源限制
 
 每个pod都能对其能使用的服务器上的资源来进行配额限制，当前能限制的只有CPU和Memory。在kubernetes里面，计算资源的限制主要是设定两个参数
@@ -1173,7 +1127,6 @@ spec:
     command: ['sh','-c','echo The app is running! &amp;&amp; sleep 3600']
 
 
-
 ReplicationController(RC)
 我们将上面那个例子的yaml文件直接拿来解析
 # api版本，类型，全局唯一名称，这是所有kubernetes yaml文件都需要的
@@ -1213,14 +1166,12 @@ spec:
           mountPath: /mydata-data
 
 
-
 我们可以通过命令的形式来动态缩放POD的数量
 kubectl scale rc mysql --replicas=2
 
 # 删除pod
 kubectl delete -f mysql-rc.yml
 kubectl scale rc mysql --replicas=0
-
 
 
 ReplicaSet
@@ -1243,7 +1194,6 @@ $ kubectl get pods -l k8s-app=kube-dns -n kube-system
 NAME                        READY     STATUS    RESTARTS   AGE
 kube-dns-1446441763-0th37   3/3       Running   0          6d
 kube-dns-1446441763-1w5gx   3/3       Running   0          6d
-
 
 
 稍后，用实验来说明Deployment在滚动升级中的作用
@@ -1297,16 +1247,13 @@ spec:
           mountPath: /mydata-data
 
 
-
 啊哦，升级的时候报错了
 error: myweb-rc-update.yml must specify a matching key with non-equal value in Selector for myweb
 See 'kubectl rolling-update -h' for help and examples.
 
 
-
 没关系，既然用yaml文件无法升级，我们用命令的形式来试试
 kubectl rolling-update myweb --image=kubeguide/tomcat-app:v2
-
 
 
 OK，成了，开始升级了
@@ -1331,7 +1278,6 @@ myweb-k9tsj                                    1/1       Running   0          20
 
 
 
-
 成功了～
 
 # 成功后，将RC名称改为myweb，升级完成
@@ -1352,7 +1298,6 @@ Renaming myweb-c1dc64330c885b62eca9fb5aafbfecc6 to myweb
 replicationcontroller "myweb" rolling updated
 
 
-
 那么为什么，我们在上面用yaml文件无法升级呢？
 
 经过一段时间的折腾，我发现，我旧的RC文件只有一个label，app=myweb;而当我用命令升级成功后,新的RC有了两个label，app=myweb和deployment=xxxxx
@@ -1367,7 +1312,6 @@ $ kubectl get rc -o wide
 NAME       DESIRED   CURRENT   READY     AGE       CONTAINER(S)   IMAGE(S)                  SELECTOR
 mysql      1         1         1         43m       mysql          mysql                     app=mysql
 myweb      4         4         4         6m        myweb          kubeguide/tomcat-app:v2   app=myweb,deployment=c1dc64330c885b62eca9fb5aafbfecc6
-
 
 
 然后当我再次对这个新的RC进行升级的时候，我发现是可以用yaml文件升级的，这说明什么？是不是旧的RC文件至少需要两个label才能用yaml文件升级呢？我们试试再说
@@ -1411,7 +1355,6 @@ template:
       volumeMounts:
       - name: datavol
         mountPath: /mydata-data
-
     
   
   新建一个用来升级myweb的yaml文件
@@ -1454,7 +1397,6 @@ spec:
           mountPath: /mydata-data
 
 
-
 我发现，真的可以升级了!!!
 $ kubectl rolling-update myweb -f myweb-rc-update.yml
 Created myweb-v2
@@ -1466,7 +1408,6 @@ Scaling myweb down to 3
 Scaling myweb-v2 up to 3
 Scaling myweb down to 2
 Scaling myweb-v2 up to 4
-
 
 
 这说明什么？这说明，以后如果你要用ReplicationController的时候，至少要给他指定不少于2个的label，否则，你无法用yaml来进行升级，这真的是很蛋疼的一件事。
@@ -1517,7 +1458,6 @@ $ kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
 deployment "php-apache" autoscaled
 
 
-
 下面我们用实验来感受下HPA
 
 首先我们来新建一个php-apache的服务
@@ -1549,7 +1489,6 @@ spec:
             cpu: 200m
 
 
-
 php-apache-svc.yml
 apiVersion: v1
 kind: Service
@@ -1560,7 +1499,6 @@ spec:
   - port: 80
   selector:
     k8s-quark: php-apache
-
 
 
 kubectl create -f php-apache-deploy.yml
@@ -1576,7 +1514,6 @@ $ kubectl get pods |grep php-apache
 php-apache-3548797493-twq7k       1/1       Running   0          17m
 
 
-
 然后，我们用命令来创建一个HPA
 kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
 
@@ -1584,7 +1521,6 @@ kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
 $  kubectl get hpa
 NAME         REFERENCE               TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
 php-apache   Deployment/php-apache   0% / 50%   1         10        1          19m
-
 
 
 这条命令的意思是，我们为php-apache创建了一个HPA，指定了target metrics value是cpu利用率50%，而伸缩最小值为1，最大值为10
@@ -1596,7 +1532,6 @@ kubectl run -ti load-generator --image=busybox /bin/sh
 
 # 持续访问
 while true; do wget -q -O- http://php-apache.default.svc.cluster.local; done
-
 
 
 过了几分钟，我们看看结果咋样
@@ -1618,7 +1553,6 @@ php-apache   Deployment/php-apache   90% / 50%   1         10        8          
 
 
 
-
 我们发现，随着我们的持续访问增压，HPA会自动的为我们将php-apache进行扩容，随着php-apahce的扩容，CPU开始慢慢下降，直到最终符合我们指定的低于50%的标准，或者达到最大值10个POD。而当我们停止对php-apache的访问，最终，HPA会恢复到默认1个pod的状态。
 
 用yaml文件的方式，最终的效果和上面是一样的
@@ -1637,7 +1571,6 @@ spec:
   maxReplicas: 10
   # 用户定义的CPU利用率
   targetCPUUtilizationPercentage: 50
-
 
 
 至于其它的HPA metrica，改天再讲吧，毕竟现在还只是alpha版本，而且需要heapster目前也无法收集那么多metrics
@@ -1670,7 +1603,6 @@ spec:
   # 指定label selector 确认该服务和后端那些pod关联起来
   selector:
     app: mysql
-
 
 
 kubernetes服务发现机制
@@ -1721,7 +1653,6 @@ spec:
     app: myweb         
 
 
-
 myweb-service 代理了后端的一个pod，ip为10.233.88.53，看看iptables
 
 下面来逐条分析
@@ -1735,17 +1666,14 @@ $ iptables -S -t nat |grep 30001
 -A KUBE-NODEPORTS -p tcp -m comment --comment "default/myweb-service:" -m tcp --dport 30001 -j KUBE-SVC-KINM4OXG42E5QTAT
 
 
-
 然后进一步跳转到KUBE-SVC-KINM4OXG42E5QTAT的链
 
 -A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment "default/myweb-service:" -j KUBE-SEP-I4OJ7A6SXM5YG2QP
 
 
-
 然后会跳转到KUBE-SEP-I4OJ7A6SXM5YG2QP链，最终将请求转发到10.233.88.53的pod上
 
 -A KUBE-SEP-I4OJ7A6SXM5YG2QP -p tcp -m comment --comment "default/myweb-service:" -m tcp -j DNAT --to-destination 10.233.88.53:8080
-
 
 
 
@@ -1763,7 +1691,6 @@ $ iptables -S -t nat |grep 30001
 -A KUBE-NODEPORTS -p tcp -m comment --comment "default/myweb-service:" -m tcp --dport 30001 -j KUBE-SVC-KINM4OXG42E5QTAT
 
 
-
 然后进一步跳转到KUBE-SEP-5I5KUCBAI2CKFMN2、KUBE-SEP-I4OJ7A6SXM5YG2QP、KUBE-SEP-FDQHGZ7N6PHRDJRL的链
 
 # 有分为30%，50%，20%的几率
@@ -1772,7 +1699,6 @@ $ iptables -S -t nat |grep 30001
 -A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment "default/myweb-service:" -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-I4OJ7A6SXM5YG2QP
 
 -A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment "default/myweb-service:" -j KUBE-SEP-FDQHGZ7N6PHRDJRL
-
 
 
 然后会分别跳到上面每个链下对应的链，最终转发到对应的pod上
@@ -1785,7 +1711,6 @@ $ iptables -S -t nat |grep 30001
 
 # KUBE-SEP-FDQHGZ7N6PHRDJRL
 -A KUBE-SEP-FDQHGZ7N6PHRDJRL -p tcp -m comment --comment "default/myweb-service:" -m tcp -j DNAT --to-destination 10.233.96.254:8080
-
 
 
 好了，说完了NodePort，然后我们再说ClusterIP
@@ -1845,7 +1770,6 @@ spec:
   - name: cache-volume
     emptyDir:
       medium: Memory
-
 
 
 secret
@@ -1912,7 +1836,6 @@ spec:
               fieldPath: metadata.annotations
 
 
-
 projected
 
 projected volume 可以将几个volume内容隐射到同样的目录中，当前只支持secret、configmap、downwardAPI
@@ -1954,7 +1877,6 @@ spec:
               path: my-group/my-config
 
 
-
 local
 
 local volume在1.7中目前还是alpha版本，主要是用来将本地的disk，分区或者目录进行挂载。local volume只能以静态创建的PV使用。相对于HostPath，localhost可以直接以持久化的方式使用（它总是通过NodeAffinity调度在某个指定的节点上），而hostpath是无法直接以pv来使用的。
@@ -1994,7 +1916,6 @@ spec:
       path: /data
 
 
-
 其实hostPath也能算是持久存储的一种，只不过局限性太大了。这里我们详细的讲讲外部存储和分布式存储在kubernetes中的使用(aws和gce的就不讲了，没环境)。
 
 详细的例子大家可以参考官方的例子
@@ -2021,7 +1942,6 @@ spec:
     nfs:
       server: 163.xx.xx.xx
       path: "/"
-
 
 
 persistent volume
@@ -2074,7 +1994,6 @@ parameters:
   type: pd-standard
 
 
-
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -2082,7 +2001,6 @@ metadata:
 provisioner: kubernetes.io/gce-pd
 parameters:
   type: pd-ssd
-
 
 
 apiVersion: v1
@@ -2096,7 +2014,6 @@ spec:
   resources:
     requests:
       storage: 2Gi
-
 
 当用户请求资源的时候，如果是通过pvc-fast请求，这时候就会绑定到一个SSD，而不会绑定到普通硬盘。
 
@@ -2150,7 +2067,6 @@ spec:
       mountPath: /scrub
 
 
-
 写好模板了，还需要在kube-controller-manager中去配置模板，更多详细信息可参考官网
 
 # 指定nfs回收模板的位置
@@ -2166,7 +2082,6 @@ volumes:
 - name: recycler-nfs
   hostPath:
     path: "/etc/kubernetes/recycler-for-nfs.yaml"
-
 
 
 下面我们来新建PV和PVC来测试一下
@@ -2187,7 +2102,6 @@ spec:
     server: 163.44.165.142
 
 
-
 nfs-pvc.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -2199,7 +2113,6 @@ spec:
   resources:
     requests:
       storage: 5Gi
-
 
 
 nfs-nginx.yaml
@@ -2218,7 +2131,6 @@ spec:
   - name: test-volume
     persistentVolumeClaim:
       claimName: nfs
-
 
 
 
@@ -2244,7 +2156,6 @@ $ kubectl exec -ti test-pd /bin/bash
 $ touch recycle-file
 
 
-
 我们发现nfs的回收策略是Recycle，当前状态是Bound，那么假如我现在将PVC删除掉呢，下面我们来操作试试看
 
 kubectl delete -f nfs-nginx.yaml
@@ -2266,7 +2177,6 @@ kubectl create -f nfs-nginx.yaml
 
 # 进入pod中看看数据是否还存在
 $ kubectl exec -ti test-pd ls /test-pd
-
 
 
 我们发现当我们的回收策略是Recycle时，删除PVC之后，PV的状态先是Released，然后过一会儿之后，会变成Available状态，而且PV上的数据也已经被删除了，这时候就可以再次被其他的PVC使用了。
@@ -2376,14 +2286,12 @@ Consul
 docker run -d --net=host --name consul -h consul -e 'CONSUL_LOCAL_CONFIG={"skip_leave_on_interrupt": true}' consul agent -server -client $HOST_IP -ui -bootstrap
 
 
-
 Registrator
 
 将宿主机上的容器自动注册到consul中
 
 
 docker run -d --net=host -v /var/run/docker.sock:/tmp/docker.sock --name registrator -h registrator gliderlabs/registrator:latest -internal consul://$HOST_IP:8500
-
 
 
 Nginx with consul-template
@@ -2398,11 +2306,9 @@ chmod +x start.sh
 docker build -t docker-consul .
 
 
-
 启动nginx
 
 docker run -p 8080:80 -d --name nginx -e CONSUL_URL=$HOST_IP:8500 --volume ~/docker-consul/service.ctmpl:/templates/service.ctmpl  nginx-consul
-
 
 
 启动一些服务实例
@@ -2412,7 +2318,6 @@ docker run -p 8080:80 -d --name nginx -e CONSUL_URL=$HOST_IP:8500 --volume ~/doc
 docker run -d -P --name node1 -h node1 jlordiales/python-micro-service:latest
 docker run -d -P --name node2 -h node2 jlordiales/python-micro-service:latest
 docker run -d -P --name node3 -h node3 jlordiales/python-micro-service:latest
-
 
 
 启动完成后，我们来看看nginx中是否已经动态添加了这些后端呢
@@ -2442,7 +2347,6 @@ server {
 
 
 
-
 然后我们来看看我们的consul ui中展现了那些内容呢
 
 
@@ -2456,7 +2360,6 @@ Hello World from node2----
 Hello World from node3----
 
 
-
 这时候，如果我马上停掉其中一个呢,我们发现consul ui中的服务也相应的减少，而且用命令访问的时候，也已经变成了3个
 
 
@@ -2465,7 +2368,6 @@ $ while true; do curl $HOST_IP:8080; echo ----; sleep 1; done;
 Hello World from node1----
 Hello World from node2----
 Hello World from node3----
-
 
 
 Conclusion
@@ -2530,7 +2432,6 @@ PING www.a.shifen.com (103.235.46.39) 56(84) bytes of data.
 
 
 
-
 默认情况下，docker会在启动容器的时候，在iptables中添加规则，如果你设定--iptables=false，docker将不会修改你的防火墙规则。
 
 关于--iptables的实验
@@ -2556,11 +2457,9 @@ PING www.a.shifen.com (103.235.46.39) 56(84) bytes of data.
 64 bytes from 103.235.46.39: icmp_seq=2 ttl=54 time=56.3 ms
 
 
-
 默认情况下，容器可以和任何外部地址进行通信。除非你设定仅仅只有那些地址可以访问内部的容器。如下，设定只有8.8.8.8能访问内部容器
 
 iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
-
 
 
 容器之间通信
@@ -2586,7 +2485,6 @@ PING 172.17.0.3 (172.17.0.3) 56(84) bytes of data.
 64 bytes from 172.17.0.3: icmp_seq=1 ttl=64 time=0.128 ms
 64 bytes from 172.17.0.3: icmp_seq=2 ttl=64 time=0.110 ms
 64 bytes from 172.17.0.3: icmp_seq=3 ttl=64 time=0.096 ms
-
 
 
 
@@ -2719,7 +2617,6 @@ GRANT ALL ON cattle.* TO 'cattle'@'%' IDENTIFIED BY 'cattle';
 GRANT ALL ON cattle.* TO 'cattle'@'localhost' IDENTIFIED BY 'cattle';
 
 
-
 Rancher Server
 
 在每台Node上执行如下命令
@@ -2727,7 +2624,6 @@ Rancher Server
 docker run -d --restart=unless-stopped -p 8080:8080 -p 9345:9345 rancher/server \
      --db-host myhost.example.com --db-port 3306 --db-user username --db-pass password --db-name cattle \
      --advertise-address &lt;IP_of_the_Node&gt;
-
 
 
 
@@ -2750,7 +2646,6 @@ map $http_upgrade $connection_upgrade {
 }         
 
 
-
 rancher.conf
 
 server {
@@ -2771,7 +2666,6 @@ server {
         proxy_read_timeout 900s;
         }
     }       
-
 
 
 Rancher agent
@@ -2836,11 +2730,9 @@ yum update
 yum install nginx
 
 
-
 2.clone let’s encrypt 到服务器
 
 git clone https://github.com/certbot/certbot.git
-
 
 
 3.准备 docker 容器
@@ -2848,7 +2740,6 @@ git clone https://github.com/certbot/certbot.git
 一条命令即可
 
 docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart=always -p 127.0.0.1:1080:80 chinakevinguo_jekyll_kevinguo_me
-
 
 
 4.生成证书
@@ -2860,7 +2751,6 @@ systemctl stop firewalld
 # 将这里的域名，换成你自己的域名
 cd certbot
 ./certbot-auto certonly --nginx -d kevinguo.me -d www.kevinguo.me
-
 
 
 成功后，内容如下
@@ -2878,11 +2768,9 @@ IMPORTANT NOTES:
    Donating to EFF:                    https://eff.org/donate-le
 
 
-
 然后生成dhparam证书，可能会花费一段时间
 
 openssl dhparam -out /etc/letsencrypt/live/kevinguo.me/dhparam.pem 2048
-
 
 
 5.配置你的 nginx
@@ -2927,7 +2815,6 @@ http {
 
     include /etc/nginx/conf.d/*.conf;
     }
-
 
 
 
@@ -2987,7 +2874,6 @@ server {
 }
 
 
-
 最后，来访问试试看呢
                     </p>
                     <p class="repo-list-meta">
@@ -3039,7 +2925,6 @@ disqus 是一家第三方社会化评论系统，主要为网站主提供评论�
 comments_provider: disqus
 disqus:
     username: kevinguo
-
 
 
 5.修改完成后，push 到镜像站点，触发 Travis CI 重新发布博客，最终成功加载 disqus

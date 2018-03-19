@@ -153,20 +153,18 @@
 
 <p>提供服务注册和服务发现</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 注意这里我指定了-client是为了方便我通过外网访问consul ui</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 注意这里我指定了-client是为了方便我通过外网访问consul ui</span>
 
-docker run -d --net<span class="o">=</span>host --name consul -h consul -e <span class="s1">'CONSUL_LOCAL_CONFIG={"skip_leave_on_interrupt": true}'</span> consul agent -server -client <span class="nv">$HOST_IP</span> -ui -bootstrap
-</code></pre>
-</div>
+docker run <span class="nt">-d</span> <span class="nt">--net</span><span class="o">=</span>host <span class="nt">--name</span> consul <span class="nt">-h</span> consul <span class="nt">-e</span> <span class="s1">'CONSUL_LOCAL_CONFIG={"skip_leave_on_interrupt": true}'</span> consul agent <span class="nt">-server</span> <span class="nt">-client</span> <span class="nv">$HOST_IP</span> <span class="nt">-ui</span> <span class="nt">-bootstrap</span>
+</code></pre></div></div>
 
 <h3 id="registrator">Registrator</h3>
 
 <p>将宿主机上的容器自动注册到consul中</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
-docker run -d --net<span class="o">=</span>host -v /var/run/docker.sock:/tmp/docker.sock --name registrator -h registrator gliderlabs/registrator:latest -internal consul://<span class="nv">$HOST_IP</span>:8500
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+docker run <span class="nt">-d</span> <span class="nt">--net</span><span class="o">=</span>host <span class="nt">-v</span> /var/run/docker.sock:/tmp/docker.sock <span class="nt">--name</span> registrator <span class="nt">-h</span> registrator gliderlabs/registrator:latest <span class="nt">-internal</span> consul://<span class="nv">$HOST_IP</span>:8500
+</code></pre></div></div>
 
 <h3 id="nginx-with-consul-template">Nginx with consul-template</h3>
 
@@ -174,56 +172,52 @@ docker run -d --net<span class="o">=</span>host -v /var/run/docker.sock:/tmp/doc
 
 <p>将上面地址中的内容clone到本地,build nginx-consul镜像</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/chinakevinguo/docker-consul.git
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/chinakevinguo/docker-consul.git
 <span class="nb">cd </span>docker-consul
 chmod +x start.sh
-docker build -t docker-consul .
-</code></pre>
-</div>
+docker build <span class="nt">-t</span> docker-consul <span class="nb">.</span>
+</code></pre></div></div>
 
 <p>启动nginx</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker run -p 8080:80 -d --name nginx -e <span class="nv">CONSUL_URL</span><span class="o">=</span><span class="nv">$HOST_IP</span>:8500 --volume ~/docker-consul/service.ctmpl:/templates/service.ctmpl  nginx-consul
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-p</span> 8080:80 <span class="nt">-d</span> <span class="nt">--name</span> nginx <span class="nt">-e</span> <span class="nv">CONSUL_URL</span><span class="o">=</span><span class="nv">$HOST_IP</span>:8500 <span class="nt">--volume</span> ~/docker-consul/service.ctmpl:/templates/service.ctmpl  nginx-consul
+</code></pre></div></div>
 
 <h3 id="启动一些服务实例">启动一些服务实例</h3>
 
 <p>具体提供服务的实例</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker run -d -P --name node1 -h node1 jlordiales/python-micro-service:latest
-docker run -d -P --name node2 -h node2 jlordiales/python-micro-service:latest
-docker run -d -P --name node3 -h node3 jlordiales/python-micro-service:latest
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-d</span> <span class="nt">-P</span> <span class="nt">--name</span> node1 <span class="nt">-h</span> node1 jlordiales/python-micro-service:latest
+docker run <span class="nt">-d</span> <span class="nt">-P</span> <span class="nt">--name</span> node2 <span class="nt">-h</span> node2 jlordiales/python-micro-service:latest
+docker run <span class="nt">-d</span> <span class="nt">-P</span> <span class="nt">--name</span> node3 <span class="nt">-h</span> node3 jlordiales/python-micro-service:latest
+</code></pre></div></div>
 
 <p>启动完成后，我们来看看nginx中是否已经动态添加了这些后端呢</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker <span class="nb">exec</span> -ti nginx cat /etc/nginx/conf.d/service.conf
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker <span class="nb">exec</span> <span class="nt">-ti</span> nginx <span class="nb">cat</span> /etc/nginx/conf.d/service.conf
 upstream python-service <span class="o">{</span>
-  least_conn;
-  server 172.17.0.5:5000 <span class="nv">max_fails</span><span class="o">=</span>3 <span class="nv">fail_timeout</span><span class="o">=</span>60 <span class="nv">weight</span><span class="o">=</span>1;
-  server 172.17.0.6:5000 <span class="nv">max_fails</span><span class="o">=</span>3 <span class="nv">fail_timeout</span><span class="o">=</span>60 <span class="nv">weight</span><span class="o">=</span>1;
-  server 172.17.0.7:5000 <span class="nv">max_fails</span><span class="o">=</span>3 <span class="nv">fail_timeout</span><span class="o">=</span>60 <span class="nv">weight</span><span class="o">=</span>1;
-  server 172.17.0.8:5000 <span class="nv">max_fails</span><span class="o">=</span>3 <span class="nv">fail_timeout</span><span class="o">=</span>60 <span class="nv">weight</span><span class="o">=</span>1;
+  least_conn<span class="p">;</span>
+  server 172.17.0.5:5000 <span class="nv">max_fails</span><span class="o">=</span>3 <span class="nv">fail_timeout</span><span class="o">=</span>60 <span class="nv">weight</span><span class="o">=</span>1<span class="p">;</span>
+  server 172.17.0.6:5000 <span class="nv">max_fails</span><span class="o">=</span>3 <span class="nv">fail_timeout</span><span class="o">=</span>60 <span class="nv">weight</span><span class="o">=</span>1<span class="p">;</span>
+  server 172.17.0.7:5000 <span class="nv">max_fails</span><span class="o">=</span>3 <span class="nv">fail_timeout</span><span class="o">=</span>60 <span class="nv">weight</span><span class="o">=</span>1<span class="p">;</span>
+  server 172.17.0.8:5000 <span class="nv">max_fails</span><span class="o">=</span>3 <span class="nv">fail_timeout</span><span class="o">=</span>60 <span class="nv">weight</span><span class="o">=</span>1<span class="p">;</span>
 
 <span class="o">}</span>
 
 server <span class="o">{</span>
-  listen 80 default_server;
+  listen 80 default_server<span class="p">;</span>
 
-  charset utf-8;
+  charset utf-8<span class="p">;</span>
 
   location /<span class="o">{</span>
-    proxy_pass http://python-service;
-    proxy_set_header X-Forwarded-For <span class="nv">$proxy_add_x_forwarded_for</span>;
-    proxy_set_header Host <span class="nv">$host</span>;
-    proxy_set_header X-Real-IP <span class="nv">$remote_addr</span>;
+    proxy_pass http://python-service<span class="p">;</span>
+    proxy_set_header X-Forwarded-For <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+    proxy_set_header Host <span class="nv">$host</span><span class="p">;</span>
+    proxy_set_header X-Real-IP <span class="nv">$remote_addr</span><span class="p">;</span>
   <span class="o">}</span>
 <span class="o">}</span>
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>然后我们来看看我们的consul ui中展现了那些内容呢</p>
 
@@ -231,24 +225,22 @@ server <span class="o">{</span>
 
 <p>我们发现我们的python-micro-service 服务目前有4个，而且当我们通过如下命令访问的时候，也是4个轮询着被访问</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">while </span><span class="nb">true</span>; <span class="k">do </span>curl <span class="nv">$HOST_IP</span>:8080; <span class="nb">echo</span> ----; sleep 1; <span class="k">done</span>;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="k">while </span><span class="nb">true</span><span class="p">;</span> <span class="k">do </span>curl <span class="nv">$HOST_IP</span>:8080<span class="p">;</span> <span class="nb">echo</span> <span class="nt">----</span><span class="p">;</span> sleep 1<span class="p">;</span> <span class="k">done</span><span class="p">;</span>
 Hello World from node4----
 Hello World from node1----
 Hello World from node2----
 Hello World from node3----
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>这时候，如果我马上停掉其中一个呢,我们发现consul ui中的服务也相应的减少，而且用命令访问的时候，也已经变成了3个</p>
 
 <p><img src="/images/posts/consul-ui-service.png" alt="" /></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">while </span><span class="nb">true</span>; <span class="k">do </span>curl <span class="nv">$HOST_IP</span>:8080; <span class="nb">echo</span> ----; sleep 1; <span class="k">done</span>;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="k">while </span><span class="nb">true</span><span class="p">;</span> <span class="k">do </span>curl <span class="nv">$HOST_IP</span>:8080<span class="p">;</span> <span class="nb">echo</span> <span class="nt">----</span><span class="p">;</span> sleep 1<span class="p">;</span> <span class="k">done</span><span class="p">;</span>
 Hello World from node1----
 Hello World from node2----
 Hello World from node3----
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="conclusion">Conclusion</h3>
 

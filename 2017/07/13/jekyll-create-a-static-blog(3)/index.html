@@ -142,41 +142,37 @@
 
 <p>1.准备 nginx</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>yum update
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum update
 
 yum install nginx
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>2.clone let’s encrypt 到服务器</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/certbot/certbot.git
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/certbot/certbot.git
+</code></pre></div></div>
 
 <p>3.准备 docker 容器</p>
 
 <p>一条命令即可</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart<span class="o">=</span>always -p 127.0.0.1:1080:80 chinakevinguo_jekyll_kevinguo_me
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-d</span> <span class="nt">--name</span> chinakevinguo_jekyll_kevinguo_me <span class="nt">--restart</span><span class="o">=</span>always <span class="nt">-p</span> 127.0.0.1:1080:80 chinakevinguo_jekyll_kevinguo_me
+</code></pre></div></div>
 
 <p>4.生成证书</p>
 
 <p><strong>注意：如果你开了防火墙，记得一定要将防火墙关闭，否则生成证书的时候可能会报错</strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>systemctl stop firewalld
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl stop firewalld
 
 <span class="c"># 将这里的域名，换成你自己的域名</span>
 <span class="nb">cd </span>certbot
-./certbot-auto certonly --nginx -d kevinguo.me -d www.kevinguo.me
-</code></pre>
-</div>
+./certbot-auto certonly <span class="nt">--nginx</span> <span class="nt">-d</span> kevinguo.me <span class="nt">-d</span> www.kevinguo.me
+</code></pre></div></div>
 
 <p>成功后，内容如下</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>IMPORTANT NOTES:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>IMPORTANT NOTES:
  - Congratulations! Your certificate and chain have been saved at
    /etc/letsencrypt/live/kevinguo.me/fullchain.pem. Your cert will
    expire on 2017-10-11. To obtain a new or tweaked version of this
@@ -187,117 +183,113 @@ yum install nginx
 
    Donating to ISRG / Lets Encrypt:   https://letsencrypt.org/donate
    Donating to EFF:                    https://eff.org/donate-le
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>然后生成<code class="highlighter-rouge">dhparam</code>证书，可能会花费一段时间</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>openssl dhparam -out /etc/letsencrypt/live/kevinguo.me/dhparam.pem 2048
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>openssl dhparam <span class="nt">-out</span> /etc/letsencrypt/live/kevinguo.me/dhparam.pem 2048
+</code></pre></div></div>
 
 <p>5.配置你的 nginx</p>
 
 <p>nginx 的配置尽量模块化，这里通过 nginx 作为代理，访问后端的 docker 容器</p>
 
 <p><strong>nginx.conf</strong> 内容如下</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user nginx;
-worker_processes auto;
-pid /run/nginx.pid;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>user nginx<span class="p">;</span>
+worker_processes auto<span class="p">;</span>
+pid /run/nginx.pid<span class="p">;</span>
 
 <span class="c"># Load dynamic modules. See /usr/share/nginx/README.dynamic.</span>
-include /usr/share/nginx/modules/<span class="k">*</span>.conf;
+include /usr/share/nginx/modules/<span class="k">*</span>.conf<span class="p">;</span>
 
 events <span class="o">{</span>
-    use epoll;
-    worker_connections 1024;
+    use epoll<span class="p">;</span>
+    worker_connections 1024<span class="p">;</span>
 <span class="o">}</span>
 
 http <span class="o">{</span>
-    server_tokens off;
+    server_tokens off<span class="p">;</span>
     log_format  main  <span class="s1">'$remote_addr||$time_local||"$request"||'</span>
                       <span class="s1">'$status||$body_bytes_sent||"$http_referer"'</span>
                       <span class="s1">'||$http_x_forwarded_for||'</span>
-                      <span class="s1">'||$upstream_status||$upstream_addr||$request_time||$upstream_response_time||'</span> ;
+                      <span class="s1">'||$upstream_status||$upstream_addr||$request_time||$upstream_response_time||'</span> <span class="p">;</span>
 
-    sendfile            on;
-    tcp_nopush          on;
-    tcp_nodelay         on;
-    keepalive_timeout   65;
-    types_hash_max_size 2048;
+    sendfile            on<span class="p">;</span>
+    tcp_nopush          on<span class="p">;</span>
+    tcp_nodelay         on<span class="p">;</span>
+    keepalive_timeout   65<span class="p">;</span>
+    types_hash_max_size 2048<span class="p">;</span>
 
-    include             /etc/nginx/mime.types;
-    default_type        application/octet-stream;
+    include             /etc/nginx/mime.types<span class="p">;</span>
+    default_type        application/octet-stream<span class="p">;</span>
 
-    gzip on;
-    gzip_disable <span class="s2">"msie6"</span>;
-    gzip_proxied any;
-    gzip_min_length 1000;
-    gzip_comp_level 6;
-    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip on<span class="p">;</span>
+    gzip_disable <span class="s2">"msie6"</span><span class="p">;</span>
+    gzip_proxied any<span class="p">;</span>
+    gzip_min_length 1000<span class="p">;</span>
+    gzip_comp_level 6<span class="p">;</span>
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript<span class="p">;</span>
 
-    include /etc/nginx/conf.d/<span class="k">*</span>.conf;
+    include /etc/nginx/conf.d/<span class="k">*</span>.conf<span class="p">;</span>
     <span class="o">}</span>
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><strong>对应站点.conf</strong> 内容如下</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>upstream chinakevinguo_jekyll_kevinguo_me <span class="o">{</span>
-    server 127.0.0.1:1080;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upstream chinakevinguo_jekyll_kevinguo_me <span class="o">{</span>
+    server 127.0.0.1:1080<span class="p">;</span>
 <span class="o">}</span>
 server <span class="o">{</span>
-    listen 80 default_server;
-    listen <span class="o">[</span>::]:80 default_server;
-    server_name kevinguo.me www.kevinguo.me;
+    listen 80 default_server<span class="p">;</span>
+    listen <span class="o">[</span>::]:80 default_server<span class="p">;</span>
+    server_name kevinguo.me www.kevinguo.me<span class="p">;</span>
 
     <span class="c"># Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.</span>
-    <span class="k">return </span>301 https://<span class="nv">$server_name$request_uri</span>;
+    <span class="k">return </span>301 https://<span class="nv">$server_name$request_uri</span><span class="p">;</span>
     <span class="c">#return 404;</span>
 <span class="o">}</span>
 
 server <span class="o">{</span>
-    listen 443 ssl http2 default_server;
-    listen <span class="o">[</span>::]:443 ssl http2 default_server;
-    server_name kevinguo.me www.kevinguo.me;
+    listen 443 ssl http2 default_server<span class="p">;</span>
+    listen <span class="o">[</span>::]:443 ssl http2 default_server<span class="p">;</span>
+    server_name kevinguo.me www.kevinguo.me<span class="p">;</span>
 
     <span class="c"># certs sent to the client in SERVER HELLO are concatenated in ssl_certificate</span>
-    ssl_certificate /etc/letsencrypt/live/kevinguo.me/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/kevinguo.me/privkey.pem;
-    ssl_dhparam /etc/letsencrypt/live/kevinguo.me/dhparam.pem;
-    ssl_session_timeout 1d;
-    ssl_session_cache shared:SSL:50m;
-    ssl_session_tickets off;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_ciphers <span class="s1">'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS'</span>;
-    ssl_prefer_server_ciphers on;
-    ssl_stapling on;
-    ssl_stapling_verify on;
+    ssl_certificate /etc/letsencrypt/live/kevinguo.me/fullchain.pem<span class="p">;</span>
+    ssl_certificate_key /etc/letsencrypt/live/kevinguo.me/privkey.pem<span class="p">;</span>
+    ssl_dhparam /etc/letsencrypt/live/kevinguo.me/dhparam.pem<span class="p">;</span>
+    ssl_session_timeout 1d<span class="p">;</span>
+    ssl_session_cache shared:SSL:50m<span class="p">;</span>
+    ssl_session_tickets off<span class="p">;</span>
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2<span class="p">;</span>
+    ssl_ciphers <span class="s1">'ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS'</span><span class="p">;</span>
+    ssl_prefer_server_ciphers on<span class="p">;</span>
+    ssl_stapling on<span class="p">;</span>
+    ssl_stapling_verify on<span class="p">;</span>
     <span class="c"># HSTS (ngx_http_headers_module is required) (15768000 seconds = 6 months)</span>
-    add_header Strict-Transport-Security max-age<span class="o">=</span>15768000;
+    add_header Strict-Transport-Security max-age<span class="o">=</span>15768000<span class="p">;</span>
 
 
-    add_header X-Frame-Options DENY;
-    add_header  X-Content-Type-Options  nosniff;
-    add_header X-XSS-Protection <span class="s2">"1"</span>;
-    access_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_access.log ;
-    error_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_error.log ;
+    add_header X-Frame-Options DENY<span class="p">;</span>
+    add_header  X-Content-Type-Options  nosniff<span class="p">;</span>
+    add_header X-XSS-Protection <span class="s2">"1"</span><span class="p">;</span>
+    access_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_access.log <span class="p">;</span>
+    error_log /var/log/nginx/chinakevinguo_jekyll_kevinguo_me_error.log <span class="p">;</span>
 
     location / <span class="o">{</span>
-       root html;
-       index index.html;
-       proxy_pass         http://chinakevinguo_jekyll_kevinguo_me;
-       proxy_set_header   Host             <span class="nv">$host</span>:443;
-       proxy_set_header   X-Real-IP        <span class="nv">$remote_addr</span>;
-       proxy_set_header   X-Forwarded-For  <span class="nv">$proxy_add_x_forwarded_for</span>;
-       proxy_connect_timeout   10s;
-       proxy_send_timeout      100s;
-       proxy_read_timeout      300s;
-       proxy_next_upstream error timeout http_404;
+       root html<span class="p">;</span>
+       index index.html<span class="p">;</span>
+       proxy_pass         http://chinakevinguo_jekyll_kevinguo_me<span class="p">;</span>
+       proxy_set_header   Host             <span class="nv">$host</span>:443<span class="p">;</span>
+       proxy_set_header   X-Real-IP        <span class="nv">$remote_addr</span><span class="p">;</span>
+       proxy_set_header   X-Forwarded-For  <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+       proxy_connect_timeout   10s<span class="p">;</span>
+       proxy_send_timeout      100s<span class="p">;</span>
+       proxy_read_timeout      300s<span class="p">;</span>
+       proxy_next_upstream error timeout http_404<span class="p">;</span>
     <span class="o">}</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>最后，来访问试试看呢</p>
 

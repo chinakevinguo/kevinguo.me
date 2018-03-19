@@ -137,7 +137,7 @@ PING www.baidu.com (61.135.169.125): 56 data bytes
 <p>$  sysctl net.ipv4.conf.all.forwarding=0
 $ docker exec -ti nostalgic_agnesi ping www.baidu.com
 ^C</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>&gt; **Note:** 注意，上面的设置不会影响到使用host网络的容器
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&gt; **Note:** 注意，上面的设置不会影响到使用host网络的容器
 
 大多数使用docker的人都希望`ip_forward`卡其，至少让容器和外网通信成为可能。但是如果你在一个多网桥中，也可能需要在容器中设置`ip_forward`哟。
 除非你设置了`--iptables=false`，否则，docker会在启动的时候修改你的iptables规则，会添加`DOCKER`规则链。
@@ -145,8 +145,7 @@ docker是不会删除或修改任何之前的防火墙规则，这就允许了�
 默认情况下，docker是允许所有的外部IP，如果只想允许一个特定的ip或网段访问容器的话，可以在`DOCKER`规则链上添加新的规则。比如，限制是有源ip 8.8.8.8可以访问容器：
 ```bash
 $ iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="容器间通信">容器间通信</h1>
 <p>容器间是否可以通信，由系统层的两个因素来控制：</p>
@@ -164,31 +163,30 @@ $ iptables -I DOCKER -i ext_if ! -s 8.8.8.8 -j DROP
 </blockquote>
 
 <p>我们可以在docker主机上运行<code class="highlighter-rouge">iptables</code>命令来看看，FORWARD规则链是否有默认的<code class="highlighter-rouge">ACCEPT</code>或<code class="highlighter-rouge">DROP</code>策略。</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 当设置--icc=false时</span>
-<span class="gp">$ </span>sudo iptables -L -n
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 当设置--icc=false时</span>
+<span class="nv">$ </span><span class="nb">sudo </span>iptables <span class="nt">-L</span> <span class="nt">-n</span>
 
 ...
 Chain FORWARD <span class="o">(</span>policy ACCEPT<span class="o">)</span>
 target     prot opt <span class="nb">source               </span>destination
-DOCKER     all  --  0.0.0.0/0            0.0.0.0/0
-DROP       all  --  0.0.0.0/0            0.0.0.0/0
+DOCKER     all  <span class="nt">--</span>  0.0.0.0/0            0.0.0.0/0
+DROP       all  <span class="nt">--</span>  0.0.0.0/0            0.0.0.0/0
 ...
 
 <span class="c"># 当在--icc=false模式下，使用--link时</span>
-<span class="gp">$ </span>sudo iptables -L -n
+<span class="nv">$ </span><span class="nb">sudo </span>iptables <span class="nt">-L</span> <span class="nt">-n</span>
 
 ...
 Chain FORWARD <span class="o">(</span>policy ACCEPT<span class="o">)</span>
 target     prot opt <span class="nb">source               </span>destination
-DOCKER     all  --  0.0.0.0/0            0.0.0.0/0
-DROP       all  --  0.0.0.0/0            0.0.0.0/0
+DOCKER     all  <span class="nt">--</span>  0.0.0.0/0            0.0.0.0/0
+DROP       all  <span class="nt">--</span>  0.0.0.0/0            0.0.0.0/0
 
 Chain DOCKER <span class="o">(</span>1 references<span class="o">)</span>
 target     prot opt <span class="nb">source               </span>destination
-ACCEPT     tcp  --  172.17.0.2           172.17.0.3           tcp spt:80
-ACCEPT     tcp  --  172.17.0.3           172.17.0.2           tcp dpt:80
-</code></pre>
-</div>
+ACCEPT     tcp  <span class="nt">--</span>  172.17.0.2           172.17.0.3           tcp spt:80
+ACCEPT     tcp  <span class="nt">--</span>  172.17.0.3           172.17.0.2           tcp dpt:80
+</code></pre></div></div>
 
     </article>
     <div class="share">

@@ -124,33 +124,29 @@
 <!--more-->
 
 <p>1.ansible-client 免密钥登录所有要部署的节点</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ssh-keygen -t rsa -P <span class="s1">''</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh-keygen <span class="nt">-t</span> rsa <span class="nt">-P</span> <span class="s1">''</span>
+</code></pre></div></div>
 <p>2.将ansible-client上的id_rsa.pub复制到其他所有节点</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">IP</span><span class="o">=(</span>172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94<span class="o">)</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ IP</span><span class="o">=(</span>172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94<span class="o">)</span>
 
-<span class="gp">$ </span><span class="k">for </span>x <span class="k">in</span> <span class="k">${</span><span class="nv">IP</span><span class="p">[*]</span><span class="k">}</span>; <span class="k">do </span>ssh-copy-id -i ~/.ssh/id_rsa.pub <span class="nv">$x</span>; <span class="k">done</span>
-</code></pre>
-</div>
+<span class="nv">$ </span><span class="k">for </span>x <span class="k">in</span> <span class="k">${</span><span class="nv">IP</span><span class="p">[*]</span><span class="k">}</span><span class="p">;</span> <span class="k">do </span>ssh-copy-id <span class="nt">-i</span> ~/.ssh/id_rsa.pub <span class="nv">$x</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
 
 <p>2.ansible-client 上安装pip,python,setuptools,最好能先<code class="highlighter-rouge">yum update</code>一下</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># setuptools安装</span>
-<span class="gp">$ </span>wget https://bootstrap.pypa.io/get-pip.py
-<span class="gp">$ </span>python get-pip.py
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># setuptools安装</span>
+<span class="nv">$ </span>wget https://bootstrap.pypa.io/get-pip.py
+<span class="nv">$ </span>python get-pip.py
 
 <span class="c"># pip安装</span>
-<span class="gp">$ </span>wget https://pypi.python.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz#md5<span class="o">=</span>35f01da33009719497f01a4ba69d63c9
-<span class="gp">$ </span>tar zxvf pip-9.0.1.tar.gz
-<span class="gp">$ </span>python setup.py install
-</code></pre>
-</div>
+<span class="nv">$ </span>wget https://pypi.python.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz#md5<span class="o">=</span>35f01da33009719497f01a4ba69d63c9
+<span class="nv">$ </span><span class="nb">tar </span>zxvf pip-9.0.1.tar.gz
+<span class="nv">$ </span>python setup.py install
+</code></pre></div></div>
 
 <p>3.ansible安装</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>yum install pycrypto python2-cryptography python-netaddr epel-release python-pip python34 python34-pip -y
-<span class="gp">$ </span>pip install ansible
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>yum install pycrypto python2-cryptography python-netaddr epel-release python-pip python34 python34-pip <span class="nt">-y</span>
+<span class="nv">$ </span>pip install ansible
+</code></pre></div></div>
 
     </article>
     <div class="share">

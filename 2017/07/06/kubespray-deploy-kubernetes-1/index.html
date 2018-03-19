@@ -288,26 +288,24 @@
 </table>
 
 <h2 id="4load所有下载的镜像">4.load所有下载的镜像</h2>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 在ansible-client上操作</span>
-<span class="gp">$ </span><span class="nv">IP</span><span class="o">=(</span>172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94<span class="o">)</span>
-<span class="gp">$ </span><span class="k">for </span>i <span class="k">in</span> <span class="k">${</span><span class="nv">IP</span><span class="p">[*]</span><span class="k">}</span>; <span class="k">do </span>scp -r kubespray_images_v1.6.7 <span class="nv">$i</span>:~/; <span class="k">done</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 在ansible-client上操作</span>
+<span class="nv">$ IP</span><span class="o">=(</span>172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94<span class="o">)</span>
+<span class="nv">$ </span><span class="k">for </span>i <span class="k">in</span> <span class="k">${</span><span class="nv">IP</span><span class="p">[*]</span><span class="k">}</span><span class="p">;</span> <span class="k">do </span>scp <span class="nt">-r</span> kubespray_images_v1.6.7 <span class="nv">$i</span>:~/<span class="p">;</span> <span class="k">done</span>
 <span class="c"># 对所有要部署的节点操作</span>
-<span class="gp">$ </span><span class="nv">IMAGES</span><span class="o">=</span><span class="k">$(</span>ls -l ~/kubespray_images_v1.6.7|awk -F<span class="s1">' '</span> <span class="s1">'{ print $9 }'</span><span class="k">)</span>
-<span class="gp">$ </span><span class="k">for </span>x <span class="k">in</span> <span class="k">${</span><span class="nv">images</span><span class="p">[*]</span><span class="k">}</span>; <span class="k">do </span>docker load -i kubespray_images_v1.6.7/<span class="nv">$x</span>; <span class="k">done</span>
-</code></pre>
-</div>
+<span class="nv">$ IMAGES</span><span class="o">=</span><span class="k">$(</span><span class="nb">ls</span> <span class="nt">-l</span> ~/kubespray_images_v1.6.7|awk <span class="nt">-F</span><span class="s1">' '</span> <span class="s1">'{ print $9 }'</span><span class="k">)</span>
+<span class="nv">$ </span><span class="k">for </span>x <span class="k">in</span> <span class="k">${</span><span class="nv">images</span><span class="p">[*]</span><span class="k">}</span><span class="p">;</span> <span class="k">do </span>docker load <span class="nt">-i</span> kubespray_images_v1.6.7/<span class="nv">$x</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
 <h1 id="二搭建集群">二、搭建集群</h1>
 
 <h2 id="1获取kubespray源码">1.获取kubespray源码</h2>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>git clone https://github.com/kubernetes-incubator/kubespray.git
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git clone https://github.com/kubernetes-incubator/kubespray.git
+</code></pre></div></div>
 
 <h2 id="2编辑配置文件">2.编辑配置文件</h2>
 
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>vim ~/kubespray/inventory/group_vars/k8s-cluster.yml
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>vim ~/kubespray/inventory/group_vars/k8s-cluster.yml
 
----
+<span class="nt">---</span>
 <span class="c"># 启动集群的基础系统,支持ubuntu, coreos, centos, none</span>
 bootstrap_os: centos
 
@@ -444,22 +442,20 @@ efk_enabled: <span class="nb">true</span>
 
 <span class="c"># Helm deployment</span>
 helm_enabled: <span class="nb">false</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="3生成集群配置">3.生成集群配置</h2>
 <p>配置完基本集群参数后，还需要生成一个集群配置文件，用于指定需要在哪几台服务器安装，和指定 master、node 节点分布，以及 etcd 集群等安装在那几台机器上。</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 定义集群IP</span>
-<span class="gp">$ </span><span class="nv">IP</span><span class="o">=(</span>172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94<span class="o">)</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 定义集群IP</span>
+<span class="nv">$ IP</span><span class="o">=(</span>172.30.33.89 172.30.33.90 172.30.33.91 172.30.33.92 172.30.33.93 172.30.33.94<span class="o">)</span>
 <span class="c"># 利用kubespray自带的python脚本生成配置</span>
-<span class="gp">$ </span><span class="nv">CONFIG_FILE</span><span class="o">=</span>~/kubespray/inventory/inventory.cfg python3 ~/kubespray/contrib/inventory_builder/inventory.py <span class="k">${</span><span class="p"> IP[*] </span><span class="k">}</span>
+<span class="nv">$ CONFIG_FILE</span><span class="o">=</span>~/kubespray/inventory/inventory.cfg python3 ~/kubespray/contrib/inventory_builder/inventory.py <span class="k">${</span><span class="p"> IP[*] </span><span class="k">}</span>
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>生成的配置如下，最好是在配置上加上<code class="highlighter-rouge">ansible_user=root</code>,我最开始在搭建的时候没有指定，报错了</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>node1    <span class="nv">ansible_user</span><span class="o">=</span>root <span class="nv">ansible_host</span><span class="o">=</span>172.30.33.90 <span class="nv">ip</span><span class="o">=</span>172.30.33.90
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node1    <span class="nv">ansible_user</span><span class="o">=</span>root <span class="nv">ansible_host</span><span class="o">=</span>172.30.33.90 <span class="nv">ip</span><span class="o">=</span>172.30.33.90
 node2    <span class="nv">ansible_user</span><span class="o">=</span>root <span class="nv">ansible_host</span><span class="o">=</span>172.30.33.91 <span class="nv">ip</span><span class="o">=</span>172.30.33.91
 node3    <span class="nv">ansible_user</span><span class="o">=</span>root <span class="nv">ansible_host</span><span class="o">=</span>172.30.33.92 <span class="nv">ip</span><span class="o">=</span>172.30.33.92
 node4    <span class="nv">ansible_user</span><span class="o">=</span>root <span class="nv">ansible_host</span><span class="o">=</span>172.30.33.93 <span class="nv">ip</span><span class="o">=</span>172.30.33.93
@@ -487,15 +483,14 @@ kube-node
 kube-master
 
 <span class="o">[</span>calico-rr]
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="5dockerefketcd配置修改">5.docker,efk,etcd配置修改</h2>
 
 <p>提前修改ansbile中有关docker,efk,etcd的配置，因为后面在部署的过程中，ansible会检测docker的版本并下载最新的版本，但是由于墙的原因，导致无法下载，会一直卡在下载的地方，所以这里，我们要提前修改，同时需要升级etcd的版本，默认的3.0.6的版本，存在不稳定因素。</p>
 
 <p>修改docker配置,将下面关于docker安装的部分全部注释掉</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>vim ~/kubespray/roles/docker/tasks/main.yml
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim ~/kubespray/roles/docker/tasks/main.yml
 
 <span class="c"># - name: ensure docker repository public key is installed</span>
 <span class="c">#  action: "{ { docker_repo_key_info.pkg_key } }"</span>
@@ -541,44 +536,39 @@ kube-master
 <span class="c"># 如果你是自己安装的docker,记得将这段注释掉,除非你觉得template中的docker.service你能用</span>
 <span class="c">#- name: Set docker systemd config</span>
 <span class="c">#  include: systemd.yml</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>修改efk配置，注释掉<code class="highlighter-rouge">KIBANA_BASE_URL</code>这段，否则后面你搭建efk之后，无法访问kibana</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>vim ~/kubespray/roles/kubernetes-apps/efk/kibana/templates/kibana-deployment.yml.j2
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim ~/kubespray/roles/kubernetes-apps/efk/kibana/templates/kibana-deployment.yml.j2
 
 <span class="c">#          - name: "KIBANA_BASE_URL"</span>
 <span class="c">#            value: "{ { kibana_base_url } }"</span>
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>修改download配置，更改etcd和kubedns版本</p>
 
 <p><strong>1.6.7版本中,为了使用更高版本的calico node,我自己多添加了一个变量<code class="highlighter-rouge">calico_node_version</code></strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>vim ~/kubespray/roles/download/defaults/main.yml
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim ~/kubespray/roles/download/defaults/main.yml
 etcd_version: v3.1.10
 calico_node_version: <span class="s2">"v2.4.1"</span>
 kubedns_version: 1.14.4
 calico_policy_version: <span class="s2">"v0.7.0"</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><strong>注意: 如果你修改了kubedns_version版本，那么也需要修改/root/kubespray/roles/kubernetes-apps/ansible/defaults/main.yml文件中的kubedns_version版本</strong></p>
 
 <h2 id="可选6修改dockerservice">(可选)6.修改docker.service</h2>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 如果你的docker.service中没有MountFlags则不需要这一步</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 如果你的docker.service中没有MountFlags则不需要这一步</span>
 <span class="c"># 注释掉/usr/lib/systemd/system/docker.service 中的MountFlags=slave</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="7在ansible-client上一键部署">7.在ansible-client上一键部署</h2>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ansible-playbook -i ~/kubespray/inventory/inventory.cfg cluster.yml -b -v --private-key<span class="o">=</span>~/.ssh/id_rsa
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ansible-playbook <span class="nt">-i</span> ~/kubespray/inventory/inventory.cfg cluster.yml <span class="nt">-b</span> <span class="nt">-v</span> <span class="nt">--private-key</span><span class="o">=</span>~/.ssh/id_rsa
+</code></pre></div></div>
 
 <p>部署成功后如下
 <img src="/images/posts/ansible-run.png" alt="" />

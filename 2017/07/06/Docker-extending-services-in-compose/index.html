@@ -141,7 +141,7 @@
 从定义服务的规范配置的基本文件开始。
 <strong>docker-compose.yml</strong></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
   image: example/my_web_app:latest
   links:
     - db
@@ -152,13 +152,12 @@ db:
 
 cache:
   image: redis:latest
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><strong>docker-compose.override.yml</strong>
 在下面这个示例中，开发配置内容向主机公开了一些端口，将代码安装为卷，并构建web镜像</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
-  build: .
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
+  build: <span class="nb">.</span>
   volumes:
     - <span class="s1">'.:/code'</span>
   ports:
@@ -174,13 +173,12 @@ db:
 cache:
   ports:
     - 6379:6379
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>当执行<code class="highlighter-rouge">docker-cmopose up</code>命令时，它会自动读取这个override文件。</p>
 
 <p>现在我们创建另一个用于生产环境的override文件
 <strong>docker-compose.prod.yml</strong></p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
   ports:
     - 80:80
   environment:
@@ -189,12 +187,10 @@ cache:
 cache:
   environment:
     TTL: <span class="s1">'500'</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>要使用这个生产compose文件部署，运行如下命令：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-compose <span class="nt">-f</span> docker-compose.yml <span class="nt">-f</span> docker-compose.prod.yml up <span class="nt">-d</span>
+</code></pre></div></div>
 <p>这将会使用<code class="highlighter-rouge">docker-compose.yml</code>和<code class="highlighter-rouge">docker-compose.prod.yml</code>来部署这三个服务</p>
 
 <h2 id="管理任务">管理任务</h2>
@@ -202,30 +198,27 @@ cache:
 <p>另一个常见的用力是正对在<code class="highlighter-rouge">compose app</code>中的一个或多个服务运行adhoc或管理任务。这个示例演示备份运行中的数据库。</p>
 
 <p><strong>docker-compose.yml</strong></p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
   image: example/my_web_app:latest
   links:
     - db
 
 db:
   image: postgres:latest
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>在<code class="highlighter-rouge">docker-cmopose.admin.yml</code>中添加一个新的服务来运行数据库导出或备份
 <strong>docker-compose.admin.yml</strong></p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>dbadmin:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dbadmin:
   build: database_admin/
   links:
     - db
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>要启动一个正常的环境运行<code class="highlighter-rouge">docker-compose up -d</code>。要备份数据库，运行：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker-compose -f docker-compose.yml -f docker-compose.admin.yml <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-compose <span class="nt">-f</span> docker-compose.yml <span class="nt">-f</span> docker-compose.admin.yml <span class="se">\</span>
     run dbadmin db-backup
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h1 id="扩展服务">扩展服务</h1>
 
@@ -237,25 +230,23 @@ db:
 <h2 id="理解extends配置">理解extends配置</h2>
 
 <p>当在<code class="highlighter-rouge">docker-compose.yml</code>定义服务时，我们可以像这样声明扩展另一个服务：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
   extends:
     file: common-services.yml
     service: webapp
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>这告诉compose重用定义在common-services.yml文件的webapp服务配置。假设common-services.yml的内容如下：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>webapp:
-  build: .
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>webapp:
+  build: <span class="nb">.</span>
   ports:
     - <span class="s2">"8000:8000"</span>
   volumes:
     - <span class="s2">"/data"</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>在这种情况下，docker-compose.yml中定义的web服务将与webapp配置一样。</p>
 
 <p>然后，我们可以进一步在本地定义(或重新定义)docker-compose.yml：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
   extends:
     file: common-services.yml
     service: webapp
@@ -266,11 +257,10 @@ db:
 important_web:
   extends: web
   cpu_shares: 10
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>也可以定义其他服务并在web服务链接它们：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
   extends:
     file: common-services.yml
     service: webapp
@@ -281,25 +271,23 @@ important_web:
     - db
 db:
   image: postgres
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="extends示例">extends示例</h2>
 
 <p>当多个服务有一个通用配置时，扩展单个服务非常有用。下面示例是有两个服务的compose app：一个web应用程序和一个queue worker。两个服务使用相同的代码和共享许多配置项</p>
 
 <p>在<code class="highlighter-rouge">common.yml</code>我们定义通用的配置：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>app:
-  build: .
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>app:
+  build: <span class="nb">.</span>
   environment:
     CONFIG_FILE_PATH: /code/config
     API_KEY: xxxyyy
   cpu_shares: 5
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>在<code class="highlighter-rouge">docker-compose.yml</code>文件我们定义使用通用配置的具体服务：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>webapp:
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>webapp:
   extends:
     file: common.yml
     service: app
@@ -317,14 +305,13 @@ queue_worker:
   <span class="nb">command</span>: /code/run_worker
   links:
     - queue
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="添加和覆盖配置">添加和覆盖配置</h2>
 
 <p>compose从原始服务复制配置到本地服务。如果配置项同时定义在原始服务和本地服务中，则本地服务的值会替换或扩展原始服务的值。
 对于单值选项如image，command或mem_limit，新值替换旧值</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># original service</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># original service</span>
 <span class="nb">command</span>: python app.py
 
 <span class="c"># local service</span>
@@ -332,8 +319,7 @@ queue_worker:
 
 <span class="c"># result</span>
 <span class="nb">command</span>: python otherapp.py
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <blockquote>
   <p><strong>注意：</strong> 当使用的是version 1的compose文件格式时，build和image两个选项，在本地服务使用一个选项会导致compose忽略另一个定义在原始服务的选项
@@ -342,7 +328,7 @@ queue_worker:
 </blockquote>
 
 <p>对于多值选项，ports，expose，extenal_link，dns，dns_search 和tmpfs，compos合并两组值</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># original service</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># original service</span>
 expose:
   - <span class="s2">"3000"</span>
 
@@ -356,11 +342,10 @@ expose:
   - <span class="s2">"3000"</span>
   - <span class="s2">"4000"</span>
   - <span class="s2">"5000"</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>对于environment，labels，volumes和devices，compose以本地定义的值优先原则来合并它们：</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># original service</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># original service</span>
 environment:
   - <span class="nv">FOO</span><span class="o">=</span>original
   - <span class="nv">BAR</span><span class="o">=</span>original
@@ -375,8 +360,7 @@ environment:
   - <span class="nv">FOO</span><span class="o">=</span>original
   - <span class="nv">BAR</span><span class="o">=</span><span class="nb">local</span>
   - <span class="nv">BAZ</span><span class="o">=</span><span class="nb">local</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
     </article>
     <div class="share">

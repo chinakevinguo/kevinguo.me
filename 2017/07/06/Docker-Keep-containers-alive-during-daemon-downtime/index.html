@@ -126,17 +126,15 @@
 <p>有两种方式开启<code class="highlighter-rouge">live restore</code>:</p>
 <ul>
   <li>如果docker daemon正在运行并且你不想停止它，你可以添加配置到docker daemon的配置文件。例如：在linux系统上默认的配置文件是/etc/docker/daemon.json
-    <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">{</span>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">{</span>
 <span class="s2">"live-restore"</span>: <span class="nb">true</span>
 <span class="o">}</span>
-</code></pre>
-    </div>
+</code></pre></div>    </div>
     <p>你必须传递一个<code class="highlighter-rouge">SIGHUP</code>信号给daemon进程来重载配置。更多有关使用config.json来配置docker daemon的信息，可以参考<a href="https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file">daemon configuration file</a></p>
   </li>
   <li>在使用dockerd启动时指定<code class="highlighter-rouge">--live-restore</code>选项
-    <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo dockerd --live-restore
-</code></pre>
-    </div>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>dockerd <span class="nt">--live-restore</span>
+</code></pre></div>    </div>
     <h1 id="升级docker-daemon-时的live-restore">升级docker daemon 时的Live restore</h1>
     <p>live restore支持当升级docker daemon后，还原容器到docker</p>
   </li>
