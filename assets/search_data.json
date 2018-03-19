@@ -1,9 +1,9 @@
 {
   
   "2018-02-09-linux-top": {
-    "title": "Linux Top",
+    "title": "Linux top 详解",
     "url": " /2018/02/09/Linux-top/",
-    "category": ""
+    "category": "linux"
   },
   
   "2018-01-19-python-topological-sorting": {
@@ -785,9 +785,9 @@
   },
   
   "2018-02-09-linux-top": {
-    "title": "Linux Top",
+    "title": "Linux top 详解",
     "url": "/2018/02/09/Linux-top/",
-    "category": "[]"
+    "category": "[&quot;linux&quot;, &quot;top&quot;]"
   }
   
 }
