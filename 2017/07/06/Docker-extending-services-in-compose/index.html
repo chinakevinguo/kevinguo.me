@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>Docker基础-docker compose配置共享 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/07/06/Docker-extending-services-in-compose/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="Docker基础-docker compose配置共享">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-07-06">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,7 +100,7 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+            <a href="/categories/#docker" title="docker">docker</a>
           </span>
           
         </div>
@@ -141,7 +141,7 @@
 从定义服务的规范配置的基本文件开始。
 <strong>docker-compose.yml</strong></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
   image: example/my_web_app:latest
   links:
     - db
@@ -152,12 +152,13 @@ db:
 
 cache:
   image: redis:latest
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p><strong>docker-compose.override.yml</strong>
 在下面这个示例中，开发配置内容向主机公开了一些端口，将代码安装为卷，并构建web镜像</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
-  build: <span class="nb">.</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
+  build: .
   volumes:
     - <span class="s1">'.:/code'</span>
   ports:
@@ -173,12 +174,13 @@ db:
 cache:
   ports:
     - 6379:6379
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>当执行<code class="highlighter-rouge">docker-cmopose up</code>命令时，它会自动读取这个override文件。</p>
 
 <p>现在我们创建另一个用于生产环境的override文件
 <strong>docker-compose.prod.yml</strong></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
   ports:
     - 80:80
   environment:
@@ -187,10 +189,12 @@ cache:
 cache:
   environment:
     TTL: <span class="s1">'500'</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>要使用这个生产compose文件部署，运行如下命令：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-compose <span class="nt">-f</span> docker-compose.yml <span class="nt">-f</span> docker-compose.prod.yml up <span class="nt">-d</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+</code></pre>
+</div>
 <p>这将会使用<code class="highlighter-rouge">docker-compose.yml</code>和<code class="highlighter-rouge">docker-compose.prod.yml</code>来部署这三个服务</p>
 
 <h2 id="管理任务">管理任务</h2>
@@ -198,27 +202,30 @@ cache:
 <p>另一个常见的用力是正对在<code class="highlighter-rouge">compose app</code>中的一个或多个服务运行adhoc或管理任务。这个示例演示备份运行中的数据库。</p>
 
 <p><strong>docker-compose.yml</strong></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
   image: example/my_web_app:latest
   links:
     - db
 
 db:
   image: postgres:latest
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>在<code class="highlighter-rouge">docker-cmopose.admin.yml</code>中添加一个新的服务来运行数据库导出或备份
 <strong>docker-compose.admin.yml</strong></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dbadmin:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>dbadmin:
   build: database_admin/
   links:
     - db
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>要启动一个正常的环境运行<code class="highlighter-rouge">docker-compose up -d</code>。要备份数据库，运行：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-compose <span class="nt">-f</span> docker-compose.yml <span class="nt">-f</span> docker-compose.admin.yml <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker-compose -f docker-compose.yml -f docker-compose.admin.yml <span class="se">\</span>
     run dbadmin db-backup
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h1 id="扩展服务">扩展服务</h1>
 
@@ -230,23 +237,25 @@ db:
 <h2 id="理解extends配置">理解extends配置</h2>
 
 <p>当在<code class="highlighter-rouge">docker-compose.yml</code>定义服务时，我们可以像这样声明扩展另一个服务：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
   extends:
     file: common-services.yml
     service: webapp
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>这告诉compose重用定义在common-services.yml文件的webapp服务配置。假设common-services.yml的内容如下：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>webapp:
-  build: <span class="nb">.</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>webapp:
+  build: .
   ports:
     - <span class="s2">"8000:8000"</span>
   volumes:
     - <span class="s2">"/data"</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>在这种情况下，docker-compose.yml中定义的web服务将与webapp配置一样。</p>
 
 <p>然后，我们可以进一步在本地定义(或重新定义)docker-compose.yml：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
   extends:
     file: common-services.yml
     service: webapp
@@ -257,10 +266,11 @@ db:
 important_web:
   extends: web
   cpu_shares: 10
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>也可以定义其他服务并在web服务链接它们：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>web:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>web:
   extends:
     file: common-services.yml
     service: webapp
@@ -271,23 +281,25 @@ important_web:
     - db
 db:
   image: postgres
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h2 id="extends示例">extends示例</h2>
 
 <p>当多个服务有一个通用配置时，扩展单个服务非常有用。下面示例是有两个服务的compose app：一个web应用程序和一个queue worker。两个服务使用相同的代码和共享许多配置项</p>
 
 <p>在<code class="highlighter-rouge">common.yml</code>我们定义通用的配置：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>app:
-  build: <span class="nb">.</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>app:
+  build: .
   environment:
     CONFIG_FILE_PATH: /code/config
     API_KEY: xxxyyy
   cpu_shares: 5
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>在<code class="highlighter-rouge">docker-compose.yml</code>文件我们定义使用通用配置的具体服务：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>webapp:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>webapp:
   extends:
     file: common.yml
     service: app
@@ -305,13 +317,14 @@ queue_worker:
   <span class="nb">command</span>: /code/run_worker
   links:
     - queue
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h2 id="添加和覆盖配置">添加和覆盖配置</h2>
 
 <p>compose从原始服务复制配置到本地服务。如果配置项同时定义在原始服务和本地服务中，则本地服务的值会替换或扩展原始服务的值。
 对于单值选项如image，command或mem_limit，新值替换旧值</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># original service</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># original service</span>
 <span class="nb">command</span>: python app.py
 
 <span class="c"># local service</span>
@@ -319,7 +332,8 @@ queue_worker:
 
 <span class="c"># result</span>
 <span class="nb">command</span>: python otherapp.py
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <blockquote>
   <p><strong>注意：</strong> 当使用的是version 1的compose文件格式时，build和image两个选项，在本地服务使用一个选项会导致compose忽略另一个定义在原始服务的选项
@@ -328,7 +342,7 @@ queue_worker:
 </blockquote>
 
 <p>对于多值选项，ports，expose，extenal_link，dns，dns_search 和tmpfs，compos合并两组值</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># original service</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># original service</span>
 expose:
   - <span class="s2">"3000"</span>
 
@@ -342,10 +356,11 @@ expose:
   - <span class="s2">"3000"</span>
   - <span class="s2">"4000"</span>
   - <span class="s2">"5000"</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>对于environment，labels，volumes和devices，compose以本地定义的值优先原则来合并它们：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># original service</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># original service</span>
 environment:
   - <span class="nv">FOO</span><span class="o">=</span>original
   - <span class="nv">BAR</span><span class="o">=</span>original
@@ -360,7 +375,8 @@ environment:
   - <span class="nv">FOO</span><span class="o">=</span>original
   - <span class="nv">BAR</span><span class="o">=</span><span class="nb">local</span>
   - <span class="nv">BAZ</span><span class="o">=</span><span class="nb">local</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
     </article>
     <div class="share">
@@ -410,26 +426,15 @@ environment:
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -443,7 +448,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -469,39 +474,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -511,15 +516,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

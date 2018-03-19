@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>Docker基础-Dockerfile常用指令 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/07/06/Dockerfile-reference/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="Docker基础-Dockerfile常用指令">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-07-06">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,7 +100,7 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+            <a href="/categories/#docker" title="docker">docker</a>
           </span>
           
         </div>
@@ -119,20 +119,23 @@
 <h2 id="format">Format</h2>
 <p>Dockerfile的指令是不区分大小写的，然而，通常我们约定俗成的都使用大写，为了与Dockerfile中的参数区分开。
 <!--more--></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#Comment</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#Comment</span>
 INSTRUCTION arguments
 指令        参数
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>Dockerfile的指令在Dockerfile中按照顺序执行，第一条必须是<code class="highlighter-rouge">FROM</code>，指定你要构建的image的base image。
 在Dockerfile中以#开头的为注释行，而在其他位置的#通常作为一个参数，比如</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#Comment</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#Comment</span>
 RUN <span class="nb">echo</span> <span class="s2">"we are running some # of cool things"</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h4 id="parser-directives">Parser directives</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#指定转义字符是什么，默认情况下的转义字符是反斜杠，但是，有时候，我们需要用转义字符来表示windows里面的文件路径分隔符，那么这个时候，我就需要用别的方式来表示转义字符了</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#指定转义字符是什么，默认情况下的转义字符是反斜杠，但是，有时候，我们需要用转义字符来表示windows里面的文件路径分隔符，那么这个时候，我就需要用别的方式来表示转义字符了</span>
 <span class="c"># escape=`</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>Parser directives，指令解释器，解释某个指令在这个dockerfile中表示什么意思，默认情况下，反斜杠在windows中表示路径分隔符，然而如果在dockerfile中使用反斜杠，则会认为是转义符，那么这个时候，就需要重新指定一个转义符，将某个字符串转换成反斜杠，而默认的反斜杠就可以用来作为路径分隔符</p>
 
 <p><strong>注意</strong>
@@ -147,44 +150,51 @@ escape</p>
 <p>Dockerfile中的如下指令内容支持以变量的形式呈现，同样也可以在变量前面加转义符进行转义，Dockerfile中的变量由ENV定义</p>
 <h4 id="dockerignore-file">.dockerignore file</h4>
 <p><code class="highlighter-rouge">.dockerignore</code>用来忽略上下文目录中包含的一些image用不到的文件，它们不会传送到docker daemon。规则使用go语言的匹配语法。如：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat</span> .dockerignore
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat .dockerignore
 .git
 tmp<span class="k">*</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <h4 id="from">FROM</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM &lt;image&gt;
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM &lt;image&gt;
 or
 <span class="c">#tag和digest是可选项</span>
 FROM &lt;image&gt;:&lt;tag&gt;
 FROM &lt;image&gt;@&lt;digest&gt;
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>在Dockerfile中第一条非注释INSTRUCTION一定是<code class="highlighter-rouge">FROM</code>，它决定了以哪一个镜像作为基准，<image>首选本地是否存在，如果不存在则会从公共仓库下载（当然也可以使用私有仓库的格式）</image></p>
 <h4 id="maintainer">MAINTAINER</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MAINTAINER &lt;name&gt;
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>MAINTAINER &lt;name&gt;
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">MAINTAINER</code> 设定构建该镜像的作者的个人信息，包括姓名，邮箱等</p>
 <h4 id="run">RUN</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>RUN &lt;<span class="nb">command</span><span class="o">&gt;</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>RUN &lt;<span class="nb">command</span>&gt;
 or
 RUN <span class="o">[</span><span class="s2">"executable"</span>,<span class="s2">"param1"</span>,<span class="s2">"param2"</span><span class="o">]</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">RUN</code>指令会在当前镜像的每个新层的顶部执行命令，每个<code class="highlighter-rouge">RUN</code>指令运行之后都会生成一个新的层，生成的新层会被提交到image,然后在Dockerfile中定义的下一步所用到
 上面写的<code class="highlighter-rouge">RUN</code>有两种格式</p>
 
 <p>shell格式，相当于执行/bin/sh -c “<command />”</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>RUN apt-get install vim <span class="nt">-y</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>RUN apt-get install vim -y
+</code></pre>
+</div>
 <p>exec格式，不会触发shell，主要是为了方便在没有bash的镜像中执行，而且可以避免错误的解析命令字符串：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>RUN <span class="o">[</span><span class="s2">"apt-get"</span>,<span class="s2">"install"</span>,<span class="s2">"vim"</span>,<span class="s2">"-y"</span><span class="o">]</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>RUN <span class="o">[</span><span class="s2">"apt-get"</span>,<span class="s2">"install"</span>,<span class="s2">"vim"</span>,<span class="s2">"-y"</span><span class="o">]</span>
 or
 RUN <span class="o">[</span><span class="s2">"/bin/bash"</span>,<span class="s2">"-c"</span>,<span class="s2">"apt-get install vim -y"</span><span class="o">]</span> 与shell风格相同
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h4 id="cmd">CMD</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CMD <span class="o">[</span><span class="s2">"executable"</span>,<span class="s2">"param1"</span>,<span class="s2">"param2"</span><span class="o">]</span> exec格式
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>CMD <span class="o">[</span><span class="s2">"executable"</span>,<span class="s2">"param1"</span>,<span class="s2">"param2"</span><span class="o">]</span> exec格式
 CMD <span class="o">[</span><span class="s2">"param1"</span>,<span class="s2">"param2"</span><span class="o">]</span> 作为ENTRYPOINT的默认参数
 CMD <span class="nb">command </span>param1 param2 shell格式
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>一个Dockerfile中只能有一个<code class="highlighter-rouge">CMD</code>，如果有多个，只有最后一个生效。<code class="highlighter-rouge">CMD</code>指令的主要功能是在build完成后，为了给<code class="highlighter-rouge">docker run</code>启动到容器的时候提供默认命令或者参数，这些默认值可以包含任何可执行的命令，也可只是参数(<strong>只是参数的时候可执行的命令就必须提前在<code class="highlighter-rouge">ENTRYPOINT</code>中指定</strong>)</p>
 
 <p>它与<code class="highlighter-rouge">ENTRYPOINT</code>的功能极为相似，区别在于如果使用<code class="highlighter-rouge">docker run</code>启动容器的时候指定了命令或者，那么Dockerfile中指定的<code class="highlighter-rouge">CMD</code>命令会被覆盖，而<code class="highlighter-rouge">ENTRYPOINT</code>则不会覆盖，只会把容器名后面的所有内容都当成参数传递给<code class="highlighter-rouge">ENTRYPOINT</code>指定的命令。另外<code class="highlighter-rouge">CMD</code>还可以单独作为<code class="highlighter-rouge">ENTRYPOINT</code>的所接命令的可选参数</p>
@@ -194,7 +204,7 @@ CMD <span class="nb">command </span>param1 param2 shell格式
 <p>同样exec格式，不会触发shell，所以<code class="highlighter-rouge">$HOME</code>这样的变量无法使用</p>
 
 <p>举例1：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Dockerfile:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Dockerfile:
     CMD <span class="o">[</span><span class="s2">"echo"</span>,<span class="s2">"CMD_args"</span><span class="o">]</span>
 运行
     docker run &lt;image&gt;
@@ -204,11 +214,12 @@ CMD <span class="nb">command </span>param1 param2 shell格式
     docker run &lt;image&gt; <span class="nb">echo </span>run_args
 结果
     输出 run_args
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>默认会输出<code class="highlighter-rouge">CMD_args</code>，而在运行是输入<code class="highlighter-rouge">echo run_args</code>，则会输出<code class="highlighter-rouge">run_args</code>，因为新输入的命令覆盖了<code class="highlighter-rouge">CMD</code></p>
 
 <p>举例2：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Dockerfile:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Dockerfile:
     ENTRYPOINT <span class="o">[</span><span class="s2">"echo"</span>,<span class="s2">"ENTRYPOINT_args"</span><span class="o">]</span>
 运行
     docker run &lt;image&gt;
@@ -218,11 +229,12 @@ CMD <span class="nb">command </span>param1 param2 shell格式
     docker run &lt;image&gt; <span class="nb">echo </span>run_args
 结果
     输出 ENTRYPOINT_args <span class="nb">echo </span>run_args
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>默认会输出<code class="highlighter-rouge">ENTRYPOINT_args</code>,如果输入<code class="highlighter-rouge">echo run_args</code>,，则会输出<code class="highlighter-rouge">ENTRYPOINT_args echo run_args</code>，因为使用的<code class="highlighter-rouge">ENTRYPOINT</code>,所有<code class="highlighter-rouge">docker run</code>后面的内容都是<code class="highlighter-rouge">ENTRYPOINT</code>的参数</p>
 
 <p>举例3：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Dockerfile:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Dockerfile:
     ENTRYPOINT <span class="o">[</span><span class="s2">"echo"</span><span class="o">]</span>
     CMD <span class="o">[</span><span class="s2">"echo"</span>,<span class="s2">"CMD_args"</span><span class="o">]</span>
 运行
@@ -233,13 +245,15 @@ CMD <span class="nb">command </span>param1 param2 shell格式
     docker run &lt;image&gt; hello world
 结果
     输出 hello world
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>默认会输出<code class="highlighter-rouge">echo CMD_args</code>,如果输入<code class="highlighter-rouge">hello world</code>，则会输出<code class="highlighter-rouge">hello world</code>，因为输入的<code class="highlighter-rouge">hello world</code>覆盖了<code class="highlighter-rouge">CMD</code>,当<code class="highlighter-rouge">CMD</code>和<code class="highlighter-rouge">ENTRYPOINT</code>同时出现的时候，<code class="highlighter-rouge">CMD</code>的内容只能作为<code class="highlighter-rouge">ENTRYPOINT</code>的参数</p>
 
 <h4 id="entrypoint">ENTRYPOINT</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ENTRYPOINT <span class="o">[</span><span class="s2">"executable"</span>,<span class="s2">"param1"</span>,<span class="s2">"param2"</span><span class="o">]</span> exec格式，首选
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ENTRYPOINT <span class="o">[</span><span class="s2">"executable"</span>,<span class="s2">"param1"</span>,<span class="s2">"param2"</span><span class="o">]</span> exec格式，首选
 ENTRYPOINT <span class="nb">command </span>param1 param2 shell格式
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>ENTRYPOINT 有两种写法，第二种(shell form)会屏蔽掉docker run时后面加的命令和CMD里的参数。
 一个Dockerfile中只能有一个<code class="highlighter-rouge">ENTRYPOINT</code>，如果有多个，只有最后一个生效。<code class="highlighter-rouge">ENTRYPOINT</code>命令设置在容器启动时执行的命令
 使用exec格式，在<code class="highlighter-rouge">docker run &lt;image&gt;</code>后的所有参数，都会追加到<code class="highlighter-rouge">ENTRYPOINT</code>之后，并且会覆盖所有<code class="highlighter-rouge">CMD</code>指定的参数。当然可以在<code class="highlighter-rouge">run</code>时使用<code class="highlighter-rouge">--entrypoint</code>来覆盖<code class="highlighter-rouge">ENTRYPOINT</code>指令
@@ -248,27 +262,29 @@ ENTRYPOINT <span class="nb">command </span>param1 param2 shell格式
 <p>同样exec格式，不会触发shell，所以像<code class="highlighter-rouge">$HOME</code>这样的环境变量是无法使用的</p>
 
 <p>举例1：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Dockerfile:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Dockerfile:
     FROM ubuntu
     ENTRYPOINT <span class="o">[</span><span class="s2">"top"</span>,<span class="s2">"-b"</span><span class="o">]</span>
     CMD <span class="o">[</span><span class="s2">"-c"</span><span class="o">]</span>
 运行
-    docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="nt">--name</span> <span class="nb">test </span>chinakevinguo/sinatra:v5
+    docker run -ti --rm --name <span class="nb">test </span>chinakevinguo/sinatra:v5
 结果
-    top <span class="nt">-b</span> <span class="nt">-c</span>
+    top -b -c
 运行
-    docker run <span class="nt">-ti</span> <span class="nt">--rm</span> <span class="nt">--name</span> <span class="nb">test </span>chinakevinguo/sinatra:v5 <span class="nt">-H</span>
+    docker run -ti --rm --name <span class="nb">test </span>chinakevinguo/sinatra:v5 -H
 结果
-    top <span class="nt">-b</span> <span class="nt">-H</span>
-</code></pre></div></div>
+    top -b -H
+</code></pre>
+</div>
 <p>可以看到<code class="highlighter-rouge">CMD</code>指定的参数<code class="highlighter-rouge">-c</code>已经被覆盖，变成了<code class="highlighter-rouge">docker run &lt;image&gt;</code>所指定的<code class="highlighter-rouge">-H</code>，而<code class="highlighter-rouge">ENTRYPOINT</code>，所指定的<code class="highlighter-rouge">-b</code>参数依然存在</p>
 
 <h4 id="label">LABEL</h4>
 <p><code class="highlighter-rouge">LABEL</code>主要是给image添加元数据，加上一个标签,通常以<code class="highlighter-rouge">KEY=VALUE</code>的形式添加，要在VALUE中要包含空格， 可使用引号和反斜杠</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LABEL com.example.vendor<span class="o">=</span><span class="s2">"Kevin Guo"</span> <span class="nv">version</span><span class="o">=</span><span class="s2">"1.0"</span> <span class="nv">description</span><span class="o">=</span><span class="s2">"一个image可能有不止一个label,docker建议将所有的label都组合在一个LABEL中"</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>LABEL com.example.vendor<span class="o">=</span><span class="s2">"Kevin Guo"</span> <span class="nv">version</span><span class="o">=</span><span class="s2">"1.0"</span> <span class="nv">description</span><span class="o">=</span><span class="s2">"一个image可能有不止一个label,docker建议将所有的label都组合在一个LABEL中"</span>
+</code></pre>
+</div>
 <p>当在Dockerfile中使用<code class="highlighter-rouge">LABEL</code>后,基于该镜像运行容器，使用<code class="highlighter-rouge">docker inspect</code>可看到所有你打好的标签label</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Labels: <span class="o">{</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Labels: <span class="o">{</span>
                 <span class="s2">"build-date"</span>: <span class="s2">"20161102"</span>,
                 <span class="s2">"description"</span>: <span class="s2">"this text illustrates that label-values can span multiple lines."</span>,
                 <span class="s2">"license"</span>: <span class="s2">"GPLv2"</span>,
@@ -277,123 +293,142 @@ ENTRYPOINT <span class="nb">command </span>param1 param2 shell格式
                 <span class="s2">"version"</span>: <span class="s2">"1.0"</span>
             <span class="o">}</span>
 
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h4 id="expose">EXPOSE</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>EXPOSE &lt;port&gt; <span class="o">[</span>&lt;port&gt;...]
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>EXPOSE &lt;port&gt; <span class="o">[</span>&lt;port&gt;...]
+</code></pre>
+</div>
 <p>EXPOSE指令告诉容器在运行时要监听的端口，但是这个端口只是用于多个容器之间通行用的(links),外面的host是无法访问的。要把容器端口暴露给外面的主机，在启动容器时使用-p/-P选项。
 示例：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Dockerfile:
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>Dockerfile:
 EXPOSE 8000 80 90
 运行：
-  docker run <span class="nt">-d</span> <span class="nt">-P</span> <span class="nt">--name</span> web chinakevinguo/httpd
+  docker run -d -P --name web chinakevinguo/httpd
 结果：
   0.0.0.0:32775-&gt;80/tcp, 0.0.0.0:32774-&gt;90/tcp, 0.0.0.0:32773-&gt;8000/tcp
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>可以看到我在Dockerfile中指定要监听的端口都监听了，而且我使用<code class="highlighter-rouge">-P</code>选项，将这些被监听的端口都暴露出来了</p>
 
 <h4 id="env">ENV</h4>
 <p>使用ENV设置环境变量，保持环境一致，另外在Dockerfile同一行中EVN环境变量是保持不替换的，环境变量替换会在下一行中实现</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ENV &lt;key&gt; &lt;value&gt;
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ENV &lt;key&gt; &lt;value&gt;
 ENV <span class="nv">abc</span><span class="o">=</span>hello
 ENV <span class="nv">abc</span><span class="o">=</span>bye <span class="nv">def</span><span class="o">=</span><span class="nv">$abc</span>
 ENV <span class="nv">ghi</span><span class="o">=</span><span class="nv">$abc</span>
 <span class="c">#这个时候def=hello，而ghi=bye</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>设置了后，后续的RUN命令都可以使用，当运行生成的镜像时这些环境变量依然有效，如果需要在运行时更改这些环境变量可以在运行docker run时添加-env <key>=<value>参数来修改</value></key></p>
 
 <h4 id="add">ADD</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ADD &lt;src&gt;... &lt;dest&gt;
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ADD &lt;src&gt;... &lt;dest&gt;
 or
 ADD <span class="o">[</span><span class="s2">"&lt;src&gt;"</span>,... <span class="s2">"dest"</span><span class="o">]</span> 路径包含空格的话，就需要这种格式
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>将文件<code class="highlighter-rouge">&lt;src&gt;</code>拷贝到container的文件系统对应的路径<code class="highlighter-rouge">&lt;dest&gt;</code>下。
 <code class="highlighter-rouge">&lt;src&gt;</code>可以是文件、文件夹、URL,对于文件和文件夹<code class="highlighter-rouge">&lt;src&gt;</code>必须是在Dockerfile的相对路径下，即只能是Dockerfile的相对路径且不能使用类似<code class="highlighter-rouge">../path/</code>的方式
 <code class="highlighter-rouge">&lt;dest&gt;</code>只能是容器中的绝对路径，如果路径不存在则会自动级联创建，根据你的需要决定<code class="highlighter-rouge">&lt;dest&gt;</code>是否需要反斜杠<code class="highlighter-rouge">/</code>，使用<code class="highlighter-rouge">/</code>结尾则是目录，否则就是文件</p>
 
 <p>示例：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>支持模糊匹配
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>支持模糊匹配
 ADD home<span class="k">*</span> /mydir/   <span class="c"># adds all files starting with "hom"</span>
 ADD home?.txt /mydir/ <span class="c"># ? is replaced with any aingle character</span>
 
 ADD requirements.txt /tmp/
 RUN pip install /tmp/requirements.txt
-ADD <span class="nb">.</span> /tmp/
-</code></pre></div></div>
+ADD . /tmp/
+</code></pre>
+</div>
 
 <p>另外<code class="highlighter-rouge">ADD</code>还支持从远程URL获取文件，但是官方强烈反对这样做，建议使用<code class="highlighter-rouge">wget</code>或<code class="highlighter-rouge">curl</code>代替
 <code class="highlighter-rouge">ADD</code> 还支持自动解压tar文件，这是<code class="highlighter-rouge">ADD</code>和<code class="highlighter-rouge">COPY</code>最大的区别</p>
 
 <h4 id="copy">COPY</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ADD &lt;src&gt;... &lt;dest&gt;
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ADD &lt;src&gt;... &lt;dest&gt;
 or
 ADD <span class="o">[</span><span class="s2">"&lt;src&gt;"</span>,... <span class="s2">"dest"</span><span class="o">]</span> 路径包含空格的话，就需要这种格式
-</code></pre></div></div>
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">COPY</code>的语法与功能与<code class="highlighter-rouge">ADD</code>相同，只是不支持上面讲到的<code class="highlighter-rouge">&lt;src&gt;</code>
 是远程URL、自动解压这两个特性，但是<a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/">Best Practices for Writing Dockerfiles</a>建议<strong>尽量使用</strong><code class="highlighter-rouge">COPY</code>,并使用 <code class="highlighter-rouge">RUN</code>与<code class="highlighter-rouge">COPY</code>组合来代替<code class="highlighter-rouge">ADD</code>,建议只有在复制tar文件的时候使用<code class="highlighter-rouge">ADD</code></p>
 
 <h4 id="volume">VOLUME</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>VOLUME <span class="o">[</span><span class="s2">"/data1"</span>,<span class="s2">"/data2"</span><span class="o">]</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>VOLUME <span class="o">[</span><span class="s2">"/data1"</span>,<span class="s2">"/data2"</span><span class="o">]</span>
+</code></pre>
+</div>
 <p>VOLUME指令用来在容器中设置一个挂载点，可以用来让其他容器挂载以实现数据共享或对容器数据的备份、恢复或迁移,请参考文章<a href="https://docs.docker.com/engine/tutorials/dockervolumes/#mount-a-host-directory-as-a-data-volume">Manage data in containers</a>
 示例：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM ubuntu
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM ubuntu
 RUN mkdir /myvol
-RUN <span class="nb">echo</span> <span class="s2">"hello world"</span> <span class="o">&gt;</span> /myvol/greeting
+RUN <span class="nb">echo</span> <span class="s2">"hello world"</span> &gt; /myvol/greeting
 VOLUME /myvol
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>这个Dockerfile会导致这个image创建一个挂载点<code class="highlighter-rouge">/myvol</code>，然后将<code class="highlighter-rouge">greeting</code>文件copy到新建的卷组中</p>
 
 <h4 id="workdir">WORKDIR</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WORKDIR /path/to/workdir
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>WORKDIR /path/to/workdir
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">WORKDIR</code>指令用于设置<code class="highlighter-rouge">Dockerfile</code>中<code class="highlighter-rouge">RUN</code>、<code class="highlighter-rouge">CMD</code>、<code class="highlighter-rouge">COPY</code>、<code class="highlighter-rouge">ADD</code>和<code class="highlighter-rouge">ENTRYPOINT</code>指令执行命令的工作目录(默认为/目录)，该指令在<code class="highlighter-rouge">Dockerfile</code>文件中可以出现多次，如果使用相对路径则为相对于<code class="highlighter-rouge">WORKDIR</code>上一次的值，例如：<code class="highlighter-rouge">WORKDDIR /a</code>,<code class="highlighter-rouge">WORKDIR b/</code>,<code class="highlighter-rouge">RUN pwd</code> 最终输出的当前目录是<code class="highlighter-rouge">/a/b</code>
 <code class="highlighter-rouge">WORKDIR</code>还能够解析通过ENV指定的环境变量</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ENV DIRPATH /path
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ENV DIRPATH /path
 WORKDIR <span class="nv">$DIRPATH</span>/<span class="nv">$DIRNAME</span>
 RUN <span class="nb">pwd</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h4 id="user">USER</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>USER daemon
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>USER daemon
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">USER</code>为运行镜像时或者任何接下来的<code class="highlighter-rouge">RUN</code>，<code class="highlighter-rouge">CMD</code>,<code class="highlighter-rouge">ENTRYPOINT</code>等指令指定运行用户名或UID</p>
 
 <h4 id="arg">ARG</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ARG &lt;name&gt;[<span class="o">=</span>&lt;default value&gt;]
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ARG &lt;name&gt;[<span class="o">=</span>&lt;default value&gt;]
+</code></pre>
+</div>
 <p>ARG 指令定义一个变量，用户可以在构建的时候使用<code class="highlighter-rouge">docker build</code>命令，并使用–build-arg <varname>=<value>标志传递给构建器，并且`ARG`定义的变量只有在构建image的时候有效，构建完成后就会消失，而`ENV`指定的环境变量则会持续存在
 示例：</value></varname></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM busybox
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM busybox
 ARG user1
 ARG buildno
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>如果<code class="highlighter-rouge">ARG</code>没有默认值，在构建是就必须指定值，否则会报错</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM busybox
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM busybox
 ARG <span class="nv">user1</span><span class="o">=</span>someuser
 ARG <span class="nv">buildno</span><span class="o">=</span>1
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>如果<code class="highlighter-rouge">ARG</code>有默认值，在构建时没有指定值则使用默认值，在构建时指定了值，则使用指定的值</p>
 
 <p><code class="highlighter-rouge">ARG</code>变量从在Dockerfile中定义的时候就开始生效，比如，看如下的Dockerfile：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM busybox
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM busybox
 USER <span class="k">${</span><span class="nv">user</span><span class="k">:-</span><span class="nv">some_user</span><span class="k">}</span>
 ARG user
 USER <span class="nv">$user</span>
-</code></pre></div></div>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker build <span class="nt">--build-arg</span> <span class="nv">user</span><span class="o">=</span>what_user <span class="nt">-t</span> chinakevinguo/web <span class="nb">.</span>
-</code></pre></div></div>
+</code></pre>
+</div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker build --build-arg <span class="nv">user</span><span class="o">=</span>what_user -t chinakevinguo/web .
+</code></pre>
+</div>
 <p>通过<code class="highlighter-rouge">docker inspect image</code>查看</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"User"</span>: <span class="s2">"what_user"</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="s2">"User"</span>: <span class="s2">"what_user"</span>
+</code></pre>
+</div>
 <p>第2行的user并没有变量值，所以是默认指定的some_user,而第4行的USER的值则是从ARG传递进来的what_user</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM ubuntu
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM ubuntu
 ARG CONT_IMG_VER
 ENV CONT_IMG_VER v1.0.0
 RUN <span class="nb">echo</span> <span class="nv">$CONT_IMG_VER</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>使用<code class="highlighter-rouge">ENV</code>的环境变量总是会覆盖<code class="highlighter-rouge">ARG</code>的环境变量，所以我们可以使用<code class="highlighter-rouge">ARG</code>来传递可变参数，然后通过<code class="highlighter-rouge">ENV</code>来永久保存到IMAGE中
 docker中有一组与定义的<code class="highlighter-rouge">ARG</code>变量，你可以在Dockerfile中使用相应的<code class="highlighter-rouge">ARG</code>指令</p>
 <ul>
@@ -418,28 +453,32 @@ docker中有一组与定义的<code class="highlighter-rouge">ARG</code>变量�
   6.ONBUILD指令不会触发<code class="highlighter-rouge">FROM</code>或<code class="highlighter-rouge">MAINTAINER</code>指令</p>
 
 <p>例如，Dockerfile使用如下内容创建了镜像image-A：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>...]
-ONBUILD ADD <span class="nb">.</span> /app/src
-ONBUILD RUN /usr/local/bin/python-build <span class="nt">--dir</span> /app/src
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>...]
+ONBUILD ADD . /app/src
+ONBUILD RUN /usr/local/bin/python-build --dir /app/src
 <span class="o">[</span>...]
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>如果基于image-A创建新镜像时，新的Dockerfile中使用<code class="highlighter-rouge">FROM image-A</code>指定基础镜像时，会自动执行<code class="highlighter-rouge">ONBUILD</code>指令内容，等价于在后面添加了两条指令</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM image-A
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM image-A
 <span class="c">#Automatically run the following</span>
-ADD <span class="nb">.</span> /app/src
-RUN /usr/local/bin/python-build <span class="nt">--dir</span> /app/src
-</code></pre></div></div>
+ADD . /app/src
+RUN /usr/local/bin/python-build --dir /app/src
+</code></pre>
+</div>
 
 <h4 id="stopsignal">STOPSIGNAL</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>STOPSIGNAL signal
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>STOPSIGNAL signal
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">STOPSIGNAL</code>指令用来设置停止容器时发送什么系统调用信号给容器，这个信号必须是内核系统调用表中合法的数，例如9，或者是<code class="highlighter-rouge">SIGNAME</code>格式的信号名称，例如<code class="highlighter-rouge">SIGKILL</code></p>
 
 <h4 id="healthcheck">HEALTHCHECK</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HEALTHCHECK <span class="o">[</span>OPTIONS] CMD <span class="nb">command</span> <span class="o">(</span>通过在容器内运行命令来对容器进行健康检查<span class="o">)</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>HEALTHCHECK <span class="o">[</span>OPTIONS] CMD <span class="nb">command</span> <span class="o">(</span>通过在容器内运行命令来对容器进行健康检查<span class="o">)</span>
 or
 HEALTHCHECK NONE <span class="o">(</span>禁用所有从基础镜像继承的健康检查<span class="o">)</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">HEALTHCHECK</code>指令用来告诉Docker怎样去测试一个容器是否还在工作，这可以检测诸如，web服务器卡住了无法处理新的连接，但是服务的进程仍然在运行等情况
 当容器指定了<code class="highlighter-rouge">HEALTHCHECK</code>时，其除了正常的状态外，还具有健康状态，这个指定的healthckeck状态是初始状态，每当健康检查通过，就认定这个容器是健康的（无论之前的状态如何），当发生故障后，它就变得不健康了</p>
 
@@ -458,23 +497,25 @@ HEALTHCHECK NONE <span class="o">(</span>禁用所有从基础镜像继承的健
 2：reserved - do not use this exit code</p>
 
 <p>示例：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 每隔5分钟检测一次web服务器，如果超过3秒无响应，则视为不健康</span>
-HEALTHCHECK <span class="nt">--interval</span><span class="o">=</span>5m <span class="nt">--timeout</span><span class="o">=</span>3s CMD curl <span class="nt">-f</span> http://localhost/ <span class="o">||</span> <span class="nb">exit </span>1
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 每隔5分钟检测一次web服务器，如果超过3秒无响应，则视为不健康</span>
+HEALTHCHECK --interval<span class="o">=</span>5m --timeout<span class="o">=</span>3s CMD curl -f http://localhost/ <span class="o">||</span> <span class="nb">exit </span>1
+</code></pre>
+</div>
 
 <h4 id="shell">SHELL</h4>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SHELL <span class="o">[</span><span class="s2">"executable"</span>,<span class="s2">"parameters"</span><span class="o">]</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>SHELL <span class="o">[</span><span class="s2">"executable"</span>,<span class="s2">"parameters"</span><span class="o">]</span>
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">SHELL</code>指令用于覆盖使用默认shell格式的shell命令，在linux上默认的shell是[“/bin/sh”,”-c”]，在windows上是[“cmd”,”/S”,”/C”]，<code class="highlighter-rouge">SHELL</code>指令在dockerfile中必须以JSON的格式来写
 <code class="highlighter-rouge">SHELL</code>指令在windows上尤其有用，因为windows上的<code class="highlighter-rouge">powershell</code>和<code class="highlighter-rouge">cmd</code>这两种shell
 <code class="highlighter-rouge">SHELL</code>指令可以添加多次，买个<code class="highlighter-rouge">SHELL</code>指令都会覆盖前面的<code class="highlighter-rouge">SHELL</code>指令，并影响后面的所有指令，例如：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM windowsservercore
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM windowsservercore
 
 <span class="c"># 默认执行使用cmd /S /C echo</span>
 RUN <span class="nb">echo </span>default
 
 <span class="c"># 默认执行使用cmd /S /C powershell -command Write-Host</span>
-RUN powershell <span class="nt">-command</span> Write-Host default
+RUN powershell -command Write-Host default
 
 <span class="c"># 使用SHELL 指定使用的shell是powershell</span>
 SHELL <span class="o">[</span><span class="s2">"powershell"</span>, <span class="s2">"-command"</span><span class="o">]</span>
@@ -483,27 +524,30 @@ RUN Write-Host hello
 <span class="c"># 使用SHELL 指定使用的shell是cmd /S /C</span>
 SHELL <span class="o">[</span><span class="s2">"cmd"</span>, <span class="s2">"/S"</span>, <span class="s2">"/C"</span><span class="o">]</span>
 RUN <span class="nb">echo </span>hello
-</code></pre></div></div>
+</code></pre>
+</div>
 <p><strong>注意</strong>
 当使用的<code class="highlighter-rouge">SHELL</code>格式发生变化，那么诸如:<code class="highlighter-rouge">RUN</code>,<code class="highlighter-rouge">CMD</code>,<code class="highlighter-rouge">ENTRYPOINT</code>等指令调用命令的方式也会发生变化，比如：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>...
 <span class="c"># Dockerfile 中定义：</span>
-RUN powershell <span class="nt">-command</span> Execute-MyCmdlet <span class="nt">-param1</span> <span class="s2">"c:</span><span class="se">\f</span><span class="s2">oo.txt"</span>
+RUN powershell -command Execute-MyCmdlet -param1 <span class="s2">"c:</span><span class="se">\f</span><span class="s2">oo.txt"</span>
 <span class="c"># Docker实际调用的命令是`cmd /S /C powershell -command Execute-MyCmdlet -param1 "c:\foo.txt"`</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>然而上述方法效率很低，因为首先，有一个不必要的<code class="highlighter-rouge">cmd.exe</code>被调用，其次，shell中的每个RUN都需要指定一个额外的<code class="highlighter-rouge">powershell -command</code>
 更高效的做法是使用<code class="highlighter-rouge">SHELL</code>指令和shell格式来提供更自然的语法：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># escape=` #这是指令解释器，将`解释成转义符</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># escape=` #这是指令解释器，将`解释成转义符</span>
 FROM windowsservercore
 SHELL <span class="o">[</span><span class="s2">"powershell"</span>,<span class="s2">"-command"</span><span class="o">]</span>
-RUN New-Item <span class="nt">-ItemType</span> Directory C:<span class="se">\E</span>xample
+RUN New-Item -ItemType Directory C:<span class="se">\E</span>xample
 ADD Execute-MyCmdlet.ps1 c:<span class="se">\e</span>xample<span class="se">\</span>
-RUN C:<span class="se">\e</span>xample<span class="se">\E</span>xecute-MyCmdlet <span class="nt">-sample</span> <span class="s1">'hello world'</span>
-</code></pre></div></div>
+RUN C:<span class="se">\e</span>xample<span class="se">\E</span>xecute-MyCmdlet -sample <span class="s1">'hello world'</span>
+</code></pre>
+</div>
 
 <h4 id="dockerfile-examples">Dockerfile examples</h4>
 <p>下面是一些Dockerfile的例子，更多内容请参考<a href="https://docs.docker.com/engine/examples/">Dockerization examples</a></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Nginx</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># Nginx</span>
 <span class="c">#</span>
 <span class="c"># VERSION               0.0.1</span>
 
@@ -511,42 +555,45 @@ FROM      ubuntu
 MAINTAINER Victor Vieux &lt;victor@docker.com&gt;
 
 LABEL <span class="nv">Description</span><span class="o">=</span><span class="s2">"This image is used to start the foobar executable"</span> <span class="nv">Vendor</span><span class="o">=</span><span class="s2">"ACME Products"</span> <span class="nv">Version</span><span class="o">=</span><span class="s2">"1.0"</span>
-RUN apt-get update <span class="o">&amp;&amp;</span> apt-get install <span class="nt">-y</span> inotify-tools nginx apache2 openssh-server
-</code></pre></div></div>
+RUN apt-get update <span class="o">&amp;&amp;</span> apt-get install -y inotify-tools nginx apache2 openssh-server
+</code></pre>
+</div>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Firefox over VNC</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># Firefox over VNC</span>
 <span class="c">#</span>
 <span class="c"># VERSION               0.3</span>
 
 FROM ubuntu
 
 <span class="c"># Install vnc, xvfb in order to create a 'fake' display and firefox</span>
-RUN apt-get update <span class="o">&amp;&amp;</span> apt-get install <span class="nt">-y</span> x11vnc xvfb firefox
+RUN apt-get update <span class="o">&amp;&amp;</span> apt-get install -y x11vnc xvfb firefox
 RUN mkdir ~/.vnc
 <span class="c"># Setup a password</span>
-RUN x11vnc <span class="nt">-storepasswd</span> 1234 ~/.vnc/passwd
+RUN x11vnc -storepasswd 1234 ~/.vnc/passwd
 <span class="c"># Autostart firefox (might not be the best way, but it does the trick)</span>
-RUN bash <span class="nt">-c</span> <span class="s1">'echo "firefox" &gt;&gt; /.bashrc'</span>
+RUN bash -c <span class="s1">'echo "firefox" &gt;&gt; /.bashrc'</span>
 
 EXPOSE 5900
 CMD    <span class="o">[</span><span class="s2">"x11vnc"</span>, <span class="s2">"-forever"</span>, <span class="s2">"-usepw"</span>, <span class="s2">"-create"</span><span class="o">]</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Multiple images example</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># Multiple images example</span>
 <span class="c">#</span>
 <span class="c"># VERSION               0.1</span>
 
 FROM ubuntu
-RUN <span class="nb">echo </span>foo <span class="o">&gt;</span> bar
+RUN <span class="nb">echo </span>foo &gt; bar
 <span class="c"># Will output something like ===&gt; 907ad6c2736f</span>
 
 FROM ubuntu
-RUN <span class="nb">echo </span>moo <span class="o">&gt;</span> oink
+RUN <span class="nb">echo </span>moo &gt; oink
 <span class="c"># Will output something like ===&gt; 695d7793cbe4</span>
 
 <span class="c"># You᾿ll now have two images, 907ad6c2736f with /bar, and 695d7793cbe4 with</span>
 <span class="c"># /oink.</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
     </article>
     <div class="share">
@@ -596,26 +643,15 @@ RUN <span class="nb">echo </span>moo <span class="o">&gt;</span> oink
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -629,7 +665,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -655,39 +691,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -697,15 +733,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>kubernetes ceph 笔记 3 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/09/20/kubernetes-ceph-3/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="kubernetes ceph 笔记 3">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-09-20">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,12 +100,12 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+            <a href="/categories/#kubernetes" title="kubernetes">kubernetes</a>
           </span>
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#ceph" title="ceph">ceph</a>
+            <a href="/categories/#ceph" title="ceph">ceph</a>
           </span>
           
         </div>
@@ -133,8 +133,8 @@
 
 <p>为每台机器添加一个sdc的硬盘，我这里用目录代替硬盘</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 在每台osd节点上执行</span>
-<span class="nb">sudo </span>mkdir <span class="nt">-p</span> /data/sdc
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 在每台osd节点上执行</span>
+sudo mkdir -p /data/sdc
 chown ceph.ceph /data/sdc
 
 <span class="c">#在管理节点上执行`ceph-deploy`来准备OSD</span>
@@ -145,25 +145,27 @@ ceph-deploy osd activate k8s-master01:/data/sdc k8s-master02:/data/sdc k8s-maste
 
 <span class="c"># 检测集群状态</span>
 ceph halth
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h5 id="创建rbd">创建RBD</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建存储池</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建存储池</span>
 rados mkpool data
 
 <span class="c"># 创建image</span>
-rbd create data <span class="nt">--size</span> 10G <span class="nt">-p</span> data
+rbd create data --size 10G -p data
 
 <span class="c"># 关闭不支持特性</span>
-rbd feature disable data exclusive-lock, object-map, fast-diff, deep-flatten <span class="nt">-p</span> data
+rbd feature disable data exclusive-lock, object-map, fast-diff, deep-flatten -p data
 
 <span class="c"># 映射image到块设备(每个节点都需要隐射)</span>
-rbd map data <span class="nt">--name</span> client.admin <span class="nt">-p</span> data
+rbd map data --name client.admin -p data
 
 <span class="c"># 格式化块设备</span>
 mkfs.xfs /dev/rbd0
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h3 id="kubernetes-使用ceph">Kubernetes 使用Ceph</h3>
 
@@ -173,7 +175,7 @@ mkfs.xfs /dev/rbd0
 
 <h5 id="创建secret">创建secret</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 获取管理 key 并进行 base64 编码</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 获取管理 key 并进行 base64 编码</span>
 ceph auth get-key client.admin | base64
 
 <span class="c"># 创建一个secret 配置(key 为上一条命令生成)</span>
@@ -187,12 +189,13 @@ data:
   key: <span class="nv">QVFCZmVyWlpFS1hGTHhBQWhsekVscG0yTWhoYkJHQjRUbk5Wa0E9PQ</span><span class="o">==</span>
 
 <span class="c"># 创建secret</span>
-kubectl create <span class="nt">-f</span> ceph-secret.yml
-</code></pre></div></div>
+kubectl create -f ceph-secret.yml
+</code></pre>
+</div>
 
 <h5 id="创建pv">创建PV</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#创建ceph-pv文件</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#创建ceph-pv文件</span>
 vim ceph-pv.yml
 
 apiVersion: v1
@@ -219,12 +222,13 @@ spec:
   </span>persistentVolumeReclaimPolicy: Recycle
 
 <span class="c"># 创建PV</span>
-kubectl create <span class="nt">-f</span> ceph-pv.yml
-</code></pre></div></div>
+kubectl create -f ceph-pv.yml
+</code></pre>
+</div>
 
 <h5 id="创建pvc">创建PVC</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 新建ceph-pvc.yml文件</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 新建ceph-pvc.yml文件</span>
 vim ceph-pvc.yml
 
 apiVersion: v1
@@ -239,12 +243,13 @@ spec:
       storage: 2Gi
 
 <span class="c"># 创建PVC</span>
-kubectl create <span class="nt">-f</span> ceph-pvc.yml
-</code></pre></div></div>
+kubectl create -f ceph-pvc.yml
+</code></pre>
+</div>
 
 <h5 id="创建一个测试的deployment来挂载">创建一个测试的deployment来挂载</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 新建nginx.yml</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 新建nginx.yml</span>
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -270,24 +275,25 @@ spec:
             claimName: ceph-pvc
 
 <span class="c"># 创建nginx deployment</span>
-kubectl create <span class="nt">-f</span> ceph-nginx.yml
-</code></pre></div></div>
+kubectl create -f ceph-nginx.yml
+</code></pre>
+</div>
 
 <h5 id="配置k8s-node">配置k8s node</h5>
 
 <p>我们创建好PV 和 PVC之后，进行查看时可能会出现<code class="highlighter-rouge">with: rbd: failed to modprobe rbd error:exit status 1</code>的报错，所以这时候我们需要对所有k8s-node进行如下配置</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 在所有k8s node上安装ceph-common</span>
-yum install <span class="nt">-y</span> ceph-common
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 在所有k8s node上安装ceph-common</span>
+yum install -y ceph-common
 
 <span class="c"># 拷贝ceph.conf和ceph.client.admin.keyring到/etc/ceph/目录下</span>
 
 <span class="c"># 配置kubelet有关ceph的参数，增加如下内容</span>
 vim /usr/local/bin/kubelet
 
-<span class="nt">-v</span> /sbin/modprobe:/sbin/modprobe:ro <span class="se">\</span>
-<span class="nt">-v</span> /lib/modules:/lib/modules:ro <span class="se">\</span>
-<span class="nt">-v</span> /etc/ceph:/etc/ceph:ro <span class="se">\</span>
+-v /sbin/modprobe:/sbin/modprobe:ro <span class="se">\</span>
+-v /lib/modules:/lib/modules:ro <span class="se">\</span>
+-v /etc/ceph:/etc/ceph:ro <span class="se">\</span>
 
 <span class="c"># 重启kubelet</span>
 systemctl restart kubelet
@@ -300,9 +306,9 @@ ceph-nginx-2497831062-589j9   1/1       Running   0          59m
 ceph-nginx-2497831062-5t01s   1/1       Running   0          12m
 
 <span class="c"># 然后进入其中一个pod，写入一个1G的文件</span>
-kubectl <span class="nb">exec</span> <span class="nt">-ti</span> ceph-nginx-2497831062-569lw  /bin/bash
+kubectl <span class="nb">exec</span> -ti ceph-nginx-2497831062-569lw  /bin/bash
 
-dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>test-file <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
+dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span><span class="nb">test</span>-file <span class="nv">bs</span><span class="o">=</span>1G <span class="nv">count</span><span class="o">=</span>1
 
 <span class="c"># 然后查看是否已经占用了rbd中的空间呢</span>
 ceph df
@@ -317,9 +323,10 @@ POOLS:
 kubectl delete pods ceph-nginx-2497831062-569lw
 
 <span class="c"># 查看新的pod,发现文件依旧在</span>
-kubectl <span class="nb">exec</span> <span class="nt">-ti</span> ceph-nginx-2497831062-rgkcl <span class="nb">ls</span> /data
-test-file
-</code></pre></div></div>
+kubectl <span class="nb">exec</span> -ti ceph-nginx-2497831062-rgkcl ls /data
+<span class="nb">test</span>-file
+</code></pre>
+</div>
 
 <h4 id="storageclass方式之statefulset">StorageClass方式之StatefulSet</h4>
 
@@ -327,7 +334,7 @@ test-file
 
 <h5 id="创建secret-1">创建secret</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 获取管理 key 并进行 base64 编码</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 获取管理 key 并进行 base64 编码</span>
 ceph auth get-key client.admin | base64
 
 <span class="c"># 创建一个secret 配置(key 为上一条命令生成)</span>
@@ -353,13 +360,14 @@ data:
 <span class="nb">type</span>: kubernetes.io/rbd
 
 <span class="c"># 创建secret</span>
-kubectl create <span class="nt">-f</span> ceph-storageclass-secret.yml
-kubectl create <span class="nt">-f</span> ceph-storageclass-secret-system.yml
-</code></pre></div></div>
+kubectl create -f ceph-storageclass-secret.yml
+kubectl create -f ceph-storageclass-secret-system.yml
+</code></pre>
+</div>
 
 <h5 id="创建一个storageclass">创建一个storageclass</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 新建ceph-storageclass.yml文件</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 新建ceph-storageclass.yml文件</span>
 vim ceph-storageclass.yml
 
 apiVersion: storage.k8s.io/v1
@@ -377,14 +385,15 @@ parameters:
   userSecretName: ceph-storageclass-secret
 
 <span class="c"># 新建storageclass</span>
-kubectl create <span class="nt">-f</span> ceph-storageclass.yml
-</code></pre></div></div>
+kubectl create -f ceph-storageclass.yml
+</code></pre>
+</div>
 
 <h5 id="创建statefulset">创建statefulset</h5>
 
 <p>我们在使用StorageClass的时候，可以自己手动创建PVC，然后所有pods共享一个pvc；也可以定义<code class="highlighter-rouge">volumeClaimTemplates</code>来为自动为每个pod创建一个单独的pvc，如下所示</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 新建ceph-storageclass-nginx.yml</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 新建ceph-storageclass-nginx.yml</span>
 vim ceph-storageclass-nginx.yml
 
 apiVersion: apps/v1beta1
@@ -436,8 +445,8 @@ spec:
     app: ceph-storageclass-nginx
 
 <span class="c"># 创建statefulSet</span>
-kubectl create <span class="nt">-f</span> ceph-storageclass-nginx.yml
-kubectl create <span class="nt">-f</span> ceph-storageclass-nginx-service.yml
+kubectl create -f ceph-storageclass-nginx.yml
+kubectl create -f ceph-storageclass-nginx-service.yml
 
 <span class="c"># 查看pods</span>
 kubectl get pods
@@ -461,10 +470,11 @@ data-ceph-storageclass-nginx-1   Bound     pvc-934ed5ad-9dca-11e7-84a9-00155d201
 data-ceph-storageclass-nginx-2   Bound     pvc-9ff7359d-9dca-11e7-84a9-00155d201312   5Gi        RWO           ceph-storageclass   11m
 
 <span class="c"># 进入pod查看使用情况，发现/data使用大小5G</span>
-<span class="o">[</span>root@k8s-master01 k8s-quark]# kubectl <span class="nb">exec</span> <span class="nt">-ti</span> ceph-storageclass-nginx-1 <span class="nt">--</span> df <span class="nt">-Th</span>
+<span class="o">[</span>root@k8s-master01 k8s-quark]# kubectl <span class="nb">exec</span> -ti ceph-storageclass-nginx-1 -- df -Th
 Filesystem                                                                                      Type   Size  Used Avail Use% Mounted on
 /dev/rbd1                                                                                       ext4   4.8G   10M  4.6G   1% /data
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h4 id="storageclass方式之deployment">StorageClass方式之Deployment</h4>
 
@@ -472,13 +482,13 @@ Filesystem                                                                      
 
 <h5 id="创建pvc-1">创建PVC</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 新建ceph-storageclass-pvc.yml</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 新建ceph-storageclass-pvc.yml</span>
 vim ceph-storageclass-pvc.yml
 
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: test-pvc
+  name: <span class="nb">test</span>-pvc
   annotations:
     volume.beta.kubernetes.io/storage-class: ceph-storageclass
 spec:
@@ -489,12 +499,13 @@ spec:
       storage: 50Gi
 
 <span class="c"># 创建PVC</span>
-kubectl create <span class="nt">-f</span> ceph-storageclass-pvc.yml
-</code></pre></div></div>
+kubectl create -f ceph-storageclass-pvc.yml
+</code></pre>
+</div>
 
 <h5 id="创建deployment">创建deployment</h5>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 新建ceph-storageclass-nginx-deployment.yml</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 新建ceph-storageclass-nginx-deployment.yml</span>
 vim ceph-storageclass-nginx-deployment.yml
 
 apiVersion: apps/v1beta1
@@ -519,10 +530,10 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: test-pvc
+            claimName: <span class="nb">test</span>-pvc
 
 <span class="c"># 创建deployment</span>
-kubectl create <span class="nt">-f</span> ceph-storageclass-nginx-deployment.yml
+kubectl create -f ceph-storageclass-nginx-deployment.yml
 
 <span class="c"># 查看pods</span>
 kubectl get pods
@@ -534,17 +545,18 @@ ceph-nginx-3206996150-xvkzh   1/1       Running   0          7m
 <span class="c"># 查看PV和PVC</span>
 kubectl get pvc
 NAME                             STATUS    VOLUME                                     CAPACITY   ACCESSMODES   STORAGECLASS        AGE
-test-pvc                         Bound     pvc-76a48238-9dcf-11e7-84a9-00155d201312   50Gi       RWX           ceph-storageclass   9m
+<span class="nb">test</span>-pvc                         Bound     pvc-76a48238-9dcf-11e7-84a9-00155d201312   50Gi       RWX           ceph-storageclass   9m
 
 kubectl get pv
 NAME                                       CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS    CLAIM                                    STORAGECLASS        REASON    AGE
 pvc-76a48238-9dcf-11e7-84a9-00155d201312   50Gi       RWX           Delete          Bound     default/test-pvc                         ceph-storageclass             10m
 
 <span class="c"># 进入pod 查看使用情况，看到/data总共50G</span>
-kubectl <span class="nb">exec</span> <span class="nt">-ti</span> ceph-nginx-3206996150-29q7j <span class="nt">--</span> df <span class="nt">-Th</span>
+kubectl <span class="nb">exec</span> -ti ceph-nginx-3206996150-29q7j -- df -Th
 Filesystem                                                                                      Type   Size  Used Avail Use% Mounted on
 /dev/rbd0                                                                                       ext4    50G   52M   47G   1% /data
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>至此kubernetes结合ceph RBD的实验基本上已经完成，我们发现，storageclass确实是个好东西，省去了创建PV的步骤，并且，可以根据PVC中定义的class来选择创建不同的PVC</p>
 
@@ -596,26 +608,15 @@ Filesystem                                                                      
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -629,7 +630,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -655,39 +656,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -697,15 +698,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

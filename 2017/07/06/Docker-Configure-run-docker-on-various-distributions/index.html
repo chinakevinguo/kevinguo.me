@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>Docker基础-docker在各个平台的基本配置 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/07/06/Docker-Configure-run-docker-on-various-distributions/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="Docker基础-docker在各个平台的基本配置">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-07-06">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,7 +100,7 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+            <a href="/categories/#docker" title="docker">docker</a>
           </span>
           
         </div>
@@ -122,14 +122,15 @@
 
 <p>我们可以直接用<code class="highlighter-rouge">dockerd</code>命令来直接运行docker daemon.默认是监听在<code class="highlighter-rouge">unix socket</code>
 <code class="highlighter-rouge">unix:///var/run/docker.sock</code></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>dockerd
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>dockerd
 
 INFO[0000] +job init_networkdriver<span class="o">()</span>
 INFO[0000] +job serveapi<span class="o">(</span>unix:///var/run/docker.sock<span class="o">)</span>
 INFO[0000] Listening <span class="k">for </span>HTTP on unix <span class="o">(</span>/var/run/docker.sock<span class="o">)</span>
 ...
 ...
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h1 id="直接配置docker-daemon">直接配置docker daemon</h1>
 
@@ -142,12 +143,13 @@ INFO[0000] Listening <span class="k">for </span>HTTP on unix <span class="o">(</
 | -H,–host=[] | Daemon socket[s] 连接到哪 |
 | –tls=false | 开启或关闭TLS，默认是关闭的 |
 这里有一个使用配置选项运行docker daemon的例子：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>dockerd <span class="nt">-D</span> <span class="se">\</span>
-<span class="nt">--tls</span><span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
-<span class="nt">--tlscert</span><span class="o">=</span>/var/docker/server.pem <span class="se">\</span>
-<span class="nt">--tlskey</span><span class="o">=</span>/var/docker/serverkey.pem <span class="se">\</span>
-<span class="nt">-H</span> tcp://192.168.59.3:2376
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>dockerd -D <span class="se">\</span>
+--tls<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+--tlscert<span class="o">=</span>/var/docker/server.pem <span class="se">\</span>
+--tlskey<span class="o">=</span>/var/docker/serverkey.pem <span class="se">\</span>
+-H tcp://192.168.59.3:2376
+</code></pre>
+</div>
 <p>这些选项是：</p>
 <ul>
   <li>开启debug模式 <code class="highlighter-rouge">-D</code></li>
@@ -173,34 +175,41 @@ INFO[0000] Listening <span class="k">for </span>HTTP on unix <span class="o">(</
 
 <p>1.登录到你的系统，使用root账户，或者使用sudo
 2.创建<code class="highlighter-rouge">/etc/systemd/system/docker.service.d</code>目录</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>mkdir /etc/systemd/system/docker.service.d
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo mkdir /etc/systemd/system/docker.service.d
+</code></pre>
+</div>
 <p>3.创建<code class="highlighter-rouge">/etc/systemd/system/docker.service.d/docker.conf</code>文件</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>mkdir /etc/systemd/system/docker.service.d/docker.conf
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo mkdir /etc/systemd/system/docker.service.d/docker.conf
+</code></pre>
+</div>
 <p>4.打开这个docker.conf文件</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>vi /etc/systemd/system/docker.service.d/docker.conf
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo vi /etc/systemd/system/docker.service.d/docker.conf
+</code></pre>
+</div>
 <p>5.覆盖从<code class="highlighter-rouge">docker.service</code>文件复制过来的<code class="highlighter-rouge">ExecStart</code>，用以自定义<code class="highlighter-rouge">docker daemon</code>。要修改<code class="highlighter-rouge">ExecStart</code>配置，必须先指定一个空配置，然后再知道你该一个新配置，如下所示：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>Service]
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>Service]
 <span class="nv">ExecStart</span><span class="o">=</span>
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nt">-H</span> fd:// <span class="nt">-D</span> <span class="nt">--tls</span><span class="o">=</span><span class="nb">true</span> <span class="nt">--tlscert</span><span class="o">=</span>/var/docker/server.pem <span class="nt">--tlskey</span><span class="o">=</span>/var/docker/serverkey.pem <span class="nt">-H</span> tcp://192.168.59.3:2376
-</code></pre></div></div>
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd -H fd:// -D --tls<span class="o">=</span><span class="nb">true</span> --tlscert<span class="o">=</span>/var/docker/server.pem --tlskey<span class="o">=</span>/var/docker/serverkey.pem -H tcp://192.168.59.3:2376
+</code></pre>
+</div>
 <p>6.保存关闭文件
 7.重新载入改变</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>systemctl daemon-reload
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo systemctl daemon-reload
+</code></pre>
+</div>
 <p>8.重启docker daemon</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>systemctl restart docker
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sudo systemctl restart docker
+</code></pre>
+</div>
 <p>9.检查docker daemon是否运行</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ps aux | <span class="nb">grep </span>docker | <span class="nb">grep</span> <span class="nt">-v</span> <span class="nb">grep</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ps aux | grep docker | grep -v grep
+</code></pre>
+</div>
 
 <h1 id="logs">logs</h1>
 <p>docker 在centos7.x上是将日志保存在<code class="highlighter-rouge">/var/log/messages</code> 中的，我们也可以使用<code class="highlighter-rouge">journalctl -u docker</code>来查看docker的日志</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@node01 log]# journalctl <span class="nt">-u</span> docker
-<span class="nt">--</span> Logs begin at Tue 2017-01-17 01:11:58 UTC, end at Tue 2017-01-17 02:52:15 UTC. <span class="nt">--</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>root@node01 log]# journalctl -u docker
+-- Logs begin at Tue 2017-01-17 01:11:58 UTC, end at Tue 2017-01-17 02:52:15 UTC. --
 Jan 17 01:22:56 node01 systemd[1]: Starting Docker Application Container Engine...
 Jan 17 01:22:57 node01 dockerd[2141]: <span class="nb">time</span><span class="o">=</span><span class="s2">"2017-01-17T01:22:57.477500482Z"</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">"libcontainerd: new containerd process, pid: 2145"</span>
 Jan 17 01:22:59 node01 dockerd[2141]: <span class="nb">time</span><span class="o">=</span><span class="s2">"2017-01-17T01:22:59.035780325Z"</span> <span class="nv">level</span><span class="o">=</span>warning <span class="nv">msg</span><span class="o">=</span><span class="s2">"devmapper: Usage of loopback devices is strongly
@@ -210,7 +219,8 @@ Jan 17 01:22:59 node01 dockerd[2141]: time="</span>2017-01-17T01:22:59.442654952
 Jan 17 01:22:59 node01 dockerd[2141]: <span class="nb">time</span><span class="o">=</span><span class="s2">"2017-01-17T01:22:59.443436730Z"</span> <span class="nv">level</span><span class="o">=</span>warning <span class="nv">msg</span><span class="o">=</span><span class="s2">"mountpoint for pids not found"</span>
 Jan 17 01:22:59 node01 dockerd[2141]: <span class="nb">time</span><span class="o">=</span><span class="s2">"2017-01-17T01:22:59.443929680Z"</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">"Loading containers: start."</span>
 
-</code></pre></div></div>
+</code></pre>
+</div>
 
     </article>
     <div class="share">
@@ -260,26 +270,15 @@ Jan 17 01:22:59 node01 dockerd[2141]: <span class="nb">time</span><span class="o
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -293,7 +292,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -319,39 +318,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -361,15 +360,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

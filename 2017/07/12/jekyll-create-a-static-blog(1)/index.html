@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>jekyll 搭建静态博客(1) &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/07/12/jekyll-create-a-static-blog(1)/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="jekyll 搭建静态博客(1)">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-07-12">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,12 +100,12 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#jekyll" title="jekyll">jekyll</a>
+            <a href="/categories/#jekyll" title="jekyll">jekyll</a>
           </span>
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#travis" title="travis">travis</a>
+            <a href="/categories/#travis" title="travis">travis</a>
           </span>
           
         </div>
@@ -152,44 +152,48 @@
 
 <p>既然博客是通过 docker 化部署，采用<code class="highlighter-rouge">nginx</code> + <code class="highlighter-rouge">静态文件</code> 的方式发布，那么我们第一步就是要构建我们博客所需的镜像，<code class="highlighter-rouge">Dockerfile</code> 内容如下</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM nginx:1.11.10-alpine
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>FROM nginx:1.11.10-alpine
 
 MAINTAINER KevinGuo <span class="s2">"chinakevinguo@live.com"</span>
 
 ENV TZ <span class="s1">'Asia/Shanghai'</span>
 
-RUN apk upgrade <span class="nt">--no-cache</span> <span class="se">\</span>
-    <span class="o">&amp;&amp;</span> apk add <span class="nt">--no-cache</span> bash git <span class="se">\</span>
-    <span class="o">&amp;&amp;</span> rm <span class="nt">-rf</span> /usr/share/nginx/html <span class="se">\</span>
+RUN apk upgrade --no-cache <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> apk add --no-cache bash git <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> rm -rf /usr/share/nginx/html <span class="se">\</span>
     <span class="o">&amp;&amp;</span> git clone https://github.com/chinakevinguo/kevinguo.me.git /usr/share/nginx/html <span class="se">\</span>
-    <span class="o">&amp;&amp;</span> ln <span class="nt">-sf</span> /usr/share/zoneinfo/Asia/Shanghai /etc/localtime <span class="se">\</span>
-    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">"Asia/Shanghai"</span> <span class="o">&gt;</span> /etc/timezone <span class="se">\</span>
-    <span class="o">&amp;&amp;</span> rm <span class="nt">-rf</span> /var/cache/apk/<span class="k">*</span>
+    <span class="o">&amp;&amp;</span> ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">"Asia/Shanghai"</span> &gt; /etc/timezone <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> rm -rf /var/cache/apk/<span class="k">*</span>
 
 ADD entrypoint.sh /entrypoint.sh
 
 WORKDIR /usr/share/nginx/html
 
 CMD <span class="o">[</span><span class="s2">"/entrypoint.sh"</span><span class="o">]</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>容器每次重启的时候都会去主站点Github上拉取最新的静态文件，并且启动 nginx，<code class="highlighter-rouge">entrypoint.sh</code>内容如下</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
 
 git pull
-nginx <span class="nt">-g</span> <span class="s2">"daemon off;"</span>
-</code></pre></div></div>
+nginx -g <span class="s2">"daemon off;"</span>
+</code></pre>
+</div>
 
 <p>最后执行<code class="highlighter-rouge">docker build</code>，生成我们所需的镜像</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">-t</span> chinakevinguo_jekyll_kevinguo_me <span class="nb">.</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker build -t chinakevinguo_jekyll_kevinguo_me .
+</code></pre>
+</div>
 
 <p>博客所需镜像制作完成后，启动容器</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-d</span> <span class="nt">--name</span> chinakevinguo_jekyll_kevinguo_me <span class="nt">--restart</span><span class="o">=</span>always <span class="nt">-p</span> 80:80 <span class="nt">-p</span> 443:443 chinakevinguo_jekyll_kevinguo_me
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker run -d --name chinakevinguo_jekyll_kevinguo_me --restart<span class="o">=</span>always -p 80:80 -p 443:443 chinakevinguo_jekyll_kevinguo_me
+</code></pre>
+</div>
 <p>下一步就是 <code class="highlighter-rouge">静态文件</code> 了</p>
 
 <h4 id="静态文件的自动更新">静态文件的自动更新</h4>
@@ -220,7 +224,7 @@ nginx <span class="nt">-g</span> <span class="s2">"daemon off;"</span>
 
 <p>5.Travis CI 和服务器之间通过密钥认证，并且对密钥进行了加密，所以我们需要在服务器上进行一些加密操作，并将密钥传到Travis上</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># clone 镜像站点</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># clone 镜像站点</span>
 git clone git@github.com:chinakevinguo/chinakevinguo.github.io.git
 
 <span class="c"># 在镜像站点(chinakevinguo.github.io)下，新建`.travis.yml`文件</span>
@@ -233,14 +237,15 @@ ssh-keygen
 gem install travis
 
 <span class="c"># --auto自动登录github账户</span>
-travis login <span class="nt">--auto</span>
+travis login --auto
 
 <span class="c"># 在.travis.yml同级目录下执行，此处的--add参数表示自动添加脚本到.travis.yml文件中</span>
-travis encrypt-file ~/.ssh/id_rsa <span class="nt">--add</span>
+travis encrypt-file ~/.ssh/id_rsa --add
 
 <span class="c"># 在服务器上执行ssh-copy-id操作，实现ssh连接的时候免密钥登陆</span>
 ssh-copy-id root@kevinguo.me
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>执行完成后会发现<code class="highlighter-rouge">travis</code>网站项目里的环境变量多了两个参数</p>
 
@@ -248,21 +253,22 @@ ssh-copy-id root@kevinguo.me
 
 <p>并且在<code class="highlighter-rouge">.travis.yml</code>里的 <code class="highlighter-rouge">before_install</code>周期中多了下面2行</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- openssl aes-256-cbc <span class="nt">-K</span> <span class="nv">$encrypted_3870315c7a22_key</span> <span class="nt">-iv</span> <span class="nv">$encrypted_3870315c7a22_iv</span>
-  <span class="nt">-in</span> id_rsa.enc <span class="nt">-out</span> ~<span class="se">\/</span>.ssh/id_rsa <span class="nt">-d</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>- openssl aes-256-cbc -K <span class="nv">$encrypted_3870315c7a22_key</span> -iv <span class="nv">$encrypted_3870315c7a22_iv</span>
+  -in id_rsa.enc -out ~<span class="se">\/</span>.ssh/id_rsa -d
+</code></pre>
+</div>
 
 <p>默认生成的命令会在<code class="highlighter-rouge">/</code>前面带转义符<code class="highlighter-rouge">\</code>，我们不需要，手动删除即可</p>
 
 <p>6.进一步修改 <code class="highlighter-rouge">.travis.yml</code> 文件，内容如下</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>language: ruby
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>language: ruby
 rvm:
 - 2.3.3
 before_install:
-- openssl aes-256-cbc <span class="nt">-K</span> <span class="nv">$encrypted_3870315c7a22_key</span> <span class="nt">-iv</span> <span class="nv">$encrypted_3870315c7a22_iv</span> <span class="nt">-in</span> id_rsa.enc <span class="nt">-out</span> ~/.ssh/id_rsa <span class="nt">-d</span>
+- openssl aes-256-cbc -K <span class="nv">$encrypted_3870315c7a22_key</span> -iv <span class="nv">$encrypted_3870315c7a22_iv</span> -in id_rsa.enc -out ~/.ssh/id_rsa -d
 - chmod 600 ~/.ssh/id_rsa
-- <span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"Host 主机IP地址</span><span class="se">\n\t</span><span class="s2">StrictHostKeyChecking no</span><span class="se">\n</span><span class="s2">"</span> <span class="o">&gt;&gt;</span> ~/.ssh/config
+- <span class="nb">echo</span> -e <span class="s2">"Host 主机IP地址</span><span class="se">\n\t</span><span class="s2">StrictHostKeyChecking no</span><span class="se">\n</span><span class="s2">"</span> &gt;&gt; ~/.ssh/config
 install:
   - gem install jekyll
   - gem install html-proofer
@@ -271,12 +277,12 @@ script:
 - bundle <span class="nb">exec </span>jekyll build
 after_success:
 - git clone https://github.com/chinakevinguo/kevinguo.me.git
-- <span class="nb">cd </span>kevinguo.me <span class="o">&amp;&amp;</span> rm <span class="nt">-rf</span> <span class="k">*</span> <span class="o">&amp;&amp;</span> cp <span class="nt">-r</span> ../_site/<span class="k">*</span> <span class="nb">.</span>
+- <span class="nb">cd </span>kevinguo.me <span class="o">&amp;&amp;</span> rm -rf <span class="k">*</span> <span class="o">&amp;&amp;</span> cp -r ../_site/<span class="k">*</span> .
 - git config user.name <span class="s2">"chinakevinguo"</span>
 - git config user.email <span class="s2">"chinakevinguo@live.com"</span>
-- git add <span class="nt">--all</span> <span class="nb">.</span>
-- git commit <span class="nt">-m</span> <span class="s2">"Travis CI Auto Builder"</span>
-- git push <span class="nt">--force</span> https://<span class="k">${</span><span class="nv">JEKYLL_GITHUB_TOKEN</span><span class="k">}</span>@github.com/chinakevinguo/kevinguo.me.git master
+- git add --all .
+- git commit -m <span class="s2">"Travis CI Auto Builder"</span>
+- git push --force https://<span class="k">${</span><span class="nv">JEKYLL_GITHUB_TOKEN</span><span class="k">}</span>@github.com/chinakevinguo/kevinguo.me.git master
 - ssh root@host.kevinguo.me <span class="s2">"docker restart chinakevinguo_jekyll_kevinguo_me"</span>
 branches:
   only:
@@ -286,7 +292,8 @@ env:
   - <span class="nv">NOKOGIRI_USE_SYSTEM_LIBRARIES</span><span class="o">=</span><span class="nb">true
 </span>addons:
   ssh_known_hosts: host.kevinguo.me
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>7.修改镜像站点下的其他内容，比如<code class="highlighter-rouge">_config.yml</code>，将一些内容替换成你自己的,下一篇，我将会介绍 <code class="highlighter-rouge">disqus</code> 和 <code class="highlighter-rouge">cloudflare</code></p>
 
@@ -346,26 +353,15 @@ env:
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -379,7 +375,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -405,39 +401,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -447,15 +443,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

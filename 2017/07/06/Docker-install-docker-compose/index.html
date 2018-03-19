@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>Docker基础-docker compose安装 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/07/06/Docker-install-docker-compose/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="Docker基础-docker compose安装">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-07-06">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,7 +100,7 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+            <a href="/categories/#docker" title="docker">docker</a>
           </span>
           
         </div>
@@ -128,33 +128,38 @@
 </blockquote>
 
 <p>下面这个例子：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nv">$ </span>curl <span class="nt">-L</span> <span class="s2">"https://github.com/docker/compose/releases/download/1.9.0/docker-compose-</span><span class="k">$(</span>uname <span class="nt">-s</span><span class="k">)</span><span class="s2">-</span><span class="k">$(</span>uname <span class="nt">-m</span><span class="k">)</span><span class="s2">"</span> <span class="nt">-o</span> /usr/local/bin/docker-compose
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code> <span class="nv">$ </span>curl -L <span class="s2">"https://github.com/docker/compose/releases/download/1.9.0/docker-compose-</span><span class="k">$(</span>uname -s<span class="k">)</span><span class="s2">-</span><span class="k">$(</span>uname -m<span class="k">)</span><span class="s2">"</span> -o /usr/local/bin/docker-compose
+</code></pre>
+</div>
 <p>如果你对使用<code class="highlighter-rouge">curl</code>安装有疑问，你可以看看<a href="https://docs.docker.com/compose/install/#alternative-install-options">备用的安装选项</a>
 5.赋权</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod +x /usr/local/bin/docker-compose
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>chmod +x /usr/local/bin/docker-compose
+</code></pre>
+</div>
 <p>6.(可选)，为<code class="highlighter-rouge">bash</code>和<code class="highlighter-rouge">zsh</code>安装<a href="https://docs.docker.com/compose/completion/">命令补全</a>
 7.测试</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker-compose <span class="nt">--version</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker-compose --version
  docker-compose version: 1.9.0
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h1 id="备用安装选项">备用安装选项</h1>
 
 <h2 id="pip安装">pip安装</h2>
 
 <p>这种方式是将compose当作一个python应用来从pip源中安装,建议使用<a href="https://virtualenv.pypa.io/en/latest/">virtualenv</a>避免python冲突</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>pip install docker-compose
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>pip install docker-compose
+</code></pre>
+</div>
 
 <h2 id="直接作为容器运行">直接作为容器运行</h2>
 
 <p>既然docker-compose是一个python应用，那么当然可以作为一个容器来执行它</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl <span class="nt">-L</span> https://github.com/docker/compose/releases/download/1.9.0/run.sh <span class="o">&gt;</span> /usr/local/bin/docker-compose
-<span class="nv">$ </span>chmod +x /usr/local/bin/docker-compose
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl -L https://github.com/docker/compose/releases/download/1.9.0/run.sh &gt; /usr/local/bin/docker-compose
+<span class="gp">$ </span>chmod +x /usr/local/bin/docker-compose
+</code></pre>
+</div>
 
 <h1 id="主构建">主构建</h1>
 
@@ -165,22 +170,26 @@
 <p>如果要把compose从1.2或更早的版本升级，你需要在升级compose后删除或迁移现有的容器，因为从1.3开始，compose使用docker labels来跟踪容器，因此需要使用添加的标签来重新创建它们。</p>
 
 <p>如果compose检测到没有label的容器，那么它将拒绝运行，因此最终你不会有两套的容器。如果你要继续使用现有的容器(例如，因为他们有要保留的数据volume)，可以使用compose 1.5.x来迁移它们：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-compose migrate-to-labels
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker-compose migrate-to-labels
+</code></pre>
+</div>
 
 <p>或者，如果你不想保留它们，你可以删除，compose只会创建新的</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker rm <span class="nt">-f</span> <span class="nt">-v</span> myapp_web_1 myapp_db_1 ..
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>docker rm -f -v myapp_web_1 myapp_db_1 ..
+</code></pre>
+</div>
 
 <h1 id="卸载">卸载</h1>
 
 <p>卸载使用<code class="highlighter-rouge">curl</code>安装的compose</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rm /usr/local/bin/docker-compose
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>rm /usr/local/bin/docker-compose
+</code></pre>
+</div>
 
 <p>卸载使用<code class="highlighter-rouge">pip</code>安装的compose</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip uninstall docker-compose
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>pip uninstall docker-compose
+</code></pre>
+</div>
 <blockquote>
   <p>如果你收到”Permission denied”的报错，说明你没有权限删除<code class="highlighter-rouge">docker-compose</code>，你可以使用sudo来强制删除，或者使用超级管理员用户来删除。</p>
 </blockquote>
@@ -233,26 +242,15 @@
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -266,7 +264,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -292,39 +290,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -334,15 +332,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

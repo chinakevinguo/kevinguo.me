@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>kubernetes RBAC 概念 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/12/01/kubernetes-rbac-concept/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="kubernetes RBAC 概念">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-12-01">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,12 +100,12 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+            <a href="/categories/#kubernetes" title="kubernetes">kubernetes</a>
           </span>
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#RBAC" title="RBAC">RBAC</a>
+            <a href="/categories/#RBAC" title="RBAC">RBAC</a>
           </span>
           
         </div>
@@ -143,16 +143,17 @@
 
 <p>一个<code class="highlighter-rouge">Role</code>对象只能用于授予对某一单一命名空间中资源的访问权限。 以下示例描述了”default”命名空间中的一个<code class="highlighter-rouge">Role</code>对象的定义，用于授予对pod的读访问权限：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">kind</span><span class="pi">:</span> <span class="s">Role</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">default</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">pod-reader</span>
-<span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span> <span class="c1"># 空字符串""表明使用core API group</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">pods"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">]</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">kind</span><span class="pi">:</span> <span class="s">Role</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">default</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">pod-reader</span>
+<span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span> <span class="c1"># 空字符串""表明使用core API group</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">pods"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <p><code class="highlighter-rouge">ClusterRole</code>对象可以授予与<code class="highlighter-rouge">Role</code>对象相同的权限，但由于它们属于集群范围对象， 也可以使用它们授予对以下几种资源的访问权限：</p>
 
@@ -201,73 +202,78 @@ roleRef:
 
 <p>例如，尽管下面示例中的<code class="highlighter-rouge">RoleBinding</code>引用的是一个<code class="highlighter-rouge">ClusterRole</code>对象，但是用户”dave”（即角色绑定主体）还是只能读取”development” 命名空间中的secret（即<code class="highlighter-rouge">RoleBinding</code>所在的命名空间）。</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 以下角色绑定允许用户"dave"读取"development"命名空间中的secret。</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">RoleBinding</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">read-secrets</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">development</span> <span class="c1"># 这里表明仅授权读取"development"命名空间中的资源。</span>
-<span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">User</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">dave</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-<span class="na">roleRef</span><span class="pi">:</span>
-  <span class="na">kind</span><span class="pi">:</span> <span class="s">ClusterRole</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">secret-reader</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="c1"># 以下角色绑定允许用户"dave"读取"development"命名空间中的secret。</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">RoleBinding</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">read-secrets</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">development</span> <span class="c1"># 这里表明仅授权读取"development"命名空间中的资源。</span>
+<span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">User</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">dave</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+<span class="s">roleRef</span><span class="pi">:</span>
+  <span class="s">kind</span><span class="pi">:</span> <span class="s">ClusterRole</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">secret-reader</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <p>最后，可以使用<code class="highlighter-rouge">ClusterRoleBinding</code>在集群级别和所有命名空间中授予权限。下面示例中所定义的<code class="highlighter-rouge">ClusterRoleBinding</code> 允许在用户组”manager”中的任何用户都可以读取集群中任何命名空间中的secret。</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 以下`ClusterRoleBinding`对象允许在用户组"manager"中的任何用户都可以读取集群中任何命名空间中的secret。</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ClusterRoleBinding</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">read-secrets-global</span>
-<span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">Group</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">manager</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-<span class="na">roleRef</span><span class="pi">:</span>
-  <span class="na">kind</span><span class="pi">:</span> <span class="s">ClusterRole</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">secret-reader</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="c1"># 以下`ClusterRoleBinding`对象允许在用户组"manager"中的任何用户都可以读取集群中任何命名空间中的secret。</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">ClusterRoleBinding</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">read-secrets-global</span>
+<span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">Group</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">manager</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+<span class="s">roleRef</span><span class="pi">:</span>
+  <span class="s">kind</span><span class="pi">:</span> <span class="s">ClusterRole</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">secret-reader</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <h3 id="对资源的引用">对资源的引用</h3>
 
 <p>大多数资源由代表其名字的字符串表示，例如”pods”，就像它们出现在相关API endpoint的URL中一样。然而，有一些Kubernetes API还 包含了”子资源”，比如pod的logs。在Kubernetes中，pod logs endpoint的URL格式为：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/v1/namespaces/{namespace}/pods/{name}/log
+<div class="highlighter-rouge"><pre class="highlight"><code>GET /api/v1/namespaces/{namespace}/pods/{name}/log
 
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>在这种情况下，”pods”是命名空间资源，而”log”是pods的子资源。为了在RBAC角色中表示出这一点，我们需要使用斜线来划分资源 与子资源。如果需要角色绑定主体读取pods以及pod log，您需要定义以下角色：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">kind</span><span class="pi">:</span> <span class="s">Role</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">default</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">pod-and-pod-logs-reader</span>
-<span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">pods"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">pods/log"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">]</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">kind</span><span class="pi">:</span> <span class="s">Role</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">default</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">pod-and-pod-logs-reader</span>
+<span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">pods"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">pods/log"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <p>通过<code class="highlighter-rouge">resourceNames</code>列表，角色可以针对不同种类的请求根据资源名引用资源实例。当指定了<code class="highlighter-rouge">resourceNames</code>列表时，不同动作 种类的请求的权限，如使用”get”、”delete”、”update”以及”patch”等动词的请求，将被限定到资源列表中所包含的资源实例上。 例如，如果需要限定一个角色绑定主体只能”get”或者”update”一个configmap时，您可以定义以下角色：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">kind</span><span class="pi">:</span> <span class="s">Role</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">default</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">configmap-updater</span>
-<span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">configmap"</span><span class="pi">]</span>
-  <span class="na">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">my-configmap"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">get"</span><span class="pi">]</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">kind</span><span class="pi">:</span> <span class="s">Role</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">default</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">configmap-updater</span>
+<span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">configmap"</span><span class="pi">]</span>
+  <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">my-configmap"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">get"</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <p>值得注意的是，如果设置了<code class="highlighter-rouge">resourceNames</code>，则请求所使用的动词不能是list、watch、create或者deletecollection。 由于资源名不会出现在create、list、watch和deletecollection等API请求的URL中，所以这些请求动词不会被设置了<code class="highlighter-rouge">resourceNames</code> 的规则所允许，因为规则中的<code class="highlighter-rouge">resourceNames</code>部分不会匹配这些请求。</p>
 
@@ -285,46 +291,51 @@ roleRef:
 
 <p>允许读写在”extensions”和”apps” API Group中定义的”deployments”：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">extensions"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">apps"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">deployments"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">create"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">patch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">delete"</span><span class="pi">]</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">extensions"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">apps"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">deployments"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">create"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">patch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">delete"</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <p>允许读取”pods”以及读写”jobs”：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">pods"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">]</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">batch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">extensions"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">jobs"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">create"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">patch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">delete"</span><span class="pi">]</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">pods"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">]</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">batch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">extensions"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">jobs"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">create"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">update"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">patch"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">delete"</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <p>允许读取一个名为”my-config”的<code class="highlighter-rouge">ConfigMap</code>实例（需要将其通过<code class="highlighter-rouge">RoleBinding</code>绑定从而限制针对某一个命名空间中定义的一个<code class="highlighter-rouge">ConfigMap</code>实例的访问）：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">configmaps"</span><span class="pi">]</span>
-  <span class="na">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">my-config"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">]</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">configmaps"</span><span class="pi">]</span>
+  <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">my-config"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <p>允许读取core API Group中的”nodes”资源（由于<code class="highlighter-rouge">Node</code>是集群级别资源，所以此<code class="highlighter-rouge">ClusterRole</code>定义需要与一个<code class="highlighter-rouge">ClusterRoleBinding</code>绑定才能有效）：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">nodes"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">]</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">nodes"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">list"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">watch"</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <p>允许对非资源endpoint “/healthz”及其所有子路径的”GET”和”POST”请求（此<code class="highlighter-rouge">ClusterRole</code>定义需要与一个<code class="highlighter-rouge">ClusterRoleBinding</code>绑定才能有效）：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">nonResourceURLs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">/healthz"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">/healthz/*"</span><span class="pi">]</span> <span class="c1"># 在非资源URL中，'*'代表后缀通配符</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">post"</span><span class="pi">]</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">nonResourceURLs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">/healthz"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">/healthz/*"</span><span class="pi">]</span> <span class="c1"># 在非资源URL中，'*'代表后缀通配符</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">get"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">post"</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <h3 id="对角色绑定主体subject的引用">对角色绑定主体（Subject）的引用</h3>
 
@@ -342,70 +353,78 @@ roleRef:
 
 <p>一个名为”alice@example.com”的用户：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">User</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">alice@example.com"</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">User</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">alice@example.com"</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <p>一个名为”frontend-admins”的用户组：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">Group</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">frontend-admins"</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">Group</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">frontend-admins"</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <p>kube-system命名空间中的默认服务账户：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">default</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">ServiceAccount</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">default</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+</code></pre>
+</div>
 
 <p>名为”qa”命名空间中的所有服务账户：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">Group</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">system:serviceaccounts:qa</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">Group</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">system:serviceaccounts:qa</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <p>在集群中的所有服务账户：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">Group</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">system:serviceaccounts</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">Group</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">system:serviceaccounts</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <p>所有认证过的用户（version 1.5+）：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">Group</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">system:authenticated</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">Group</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">system:authenticated</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <p>所有未认证的用户（version 1.5+）：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">Group</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">system:unauthenticated</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">Group</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">system:unauthenticated</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <p>所有用户（version 1.5+）：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">Group</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">system:authenticated</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-<span class="pi">-</span> <span class="na">kind</span><span class="pi">:</span> <span class="s">Group</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">system:unauthenticated</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">Group</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">system:authenticated</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+<span class="pi">-</span> <span class="s">kind</span><span class="pi">:</span> <span class="s">Group</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">system:unauthenticated</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+</code></pre>
+</div>
 
 <h2 id="默认角色与默认角色绑定">默认角色与默认角色绑定</h2>
 
@@ -620,33 +639,34 @@ roleRef:
 
 <p>例如，下面例子中的ClusterRole和RoleBinding将允许用户”user-1”授予其它用户”user-1-namespace”命名空间内的<code class="highlighter-rouge">admin</code>、<code class="highlighter-rouge">edit</code>和<code class="highlighter-rouge">view</code>等角色和角色绑定。</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ClusterRole</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">role-grantor</span>
-<span class="na">rules</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">rbac.authorization.k8s.io"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">rolebindings"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">create"</span><span class="pi">]</span>
-<span class="pi">-</span> <span class="na">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">rbac.authorization.k8s.io"</span><span class="pi">]</span>
-  <span class="na">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">clusterroles"</span><span class="pi">]</span>
-  <span class="na">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">bind"</span><span class="pi">]</span>
-  <span class="na">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">admin"</span><span class="pi">,</span><span class="s2">"</span><span class="s">edit"</span><span class="pi">,</span><span class="s2">"</span><span class="s">view"</span><span class="pi">]</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">ClusterRole</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">role-grantor</span>
+<span class="s">rules</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">rbac.authorization.k8s.io"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">rolebindings"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">create"</span><span class="pi">]</span>
+<span class="pi">-</span> <span class="s">apiGroups</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">rbac.authorization.k8s.io"</span><span class="pi">]</span>
+  <span class="s">resources</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">clusterroles"</span><span class="pi">]</span>
+  <span class="s">verbs</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">bind"</span><span class="pi">]</span>
+  <span class="s">resourceNames</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">admin"</span><span class="pi">,</span><span class="s2">"</span><span class="s">edit"</span><span class="pi">,</span><span class="s2">"</span><span class="s">view"</span><span class="pi">]</span>
 <span class="nn">---</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">RoleBinding</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">role-grantor-binding</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">user-1-namespace</span>
-<span class="na">roleRef</span><span class="pi">:</span>
-  <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-  <span class="na">kind</span><span class="pi">:</span> <span class="s">ClusterRole</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">role-grantor</span>
-<span class="na">subjects</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
-  <span class="na">kind</span><span class="pi">:</span> <span class="s">User</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">user-1</span>
-</code></pre></div></div>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io/v1beta1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">RoleBinding</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">role-grantor-binding</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">user-1-namespace</span>
+<span class="s">roleRef</span><span class="pi">:</span>
+  <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+  <span class="s">kind</span><span class="pi">:</span> <span class="s">ClusterRole</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">role-grantor</span>
+<span class="s">subjects</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">apiGroup</span><span class="pi">:</span> <span class="s">rbac.authorization.k8s.io</span>
+  <span class="s">kind</span><span class="pi">:</span> <span class="s">User</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">user-1</span>
+</code></pre>
+</div>
 
 <p>当初始化第一个角色和角色绑定时，初始用户需要能够授予他们尚未拥有的权限。 初始化初始角色和角色绑定时需要：</p>
 
@@ -716,11 +736,12 @@ roleRef:
 
     <p>例如，在”my-namespace”命名空间中授予服务账户”my-sa”只读权限：</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create rolebinding my-sa-view <span class="se">\</span>
-  <span class="nt">--clusterrole</span><span class="o">=</span>view <span class="se">\</span>
-  <span class="nt">--serviceaccount</span><span class="o">=</span>my-namespace:my-sa <span class="se">\</span>
-  <span class="nt">--namespace</span><span class="o">=</span>my-namespace
-</code></pre></div>    </div>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create rolebinding my-sa-view <span class="se">\</span>
+  --clusterrole<span class="o">=</span>view <span class="se">\</span>
+  --serviceaccount<span class="o">=</span>my-namespace:my-sa <span class="se">\</span>
+  --namespace<span class="o">=</span>my-namespace
+</code></pre>
+    </div>
   </li>
   <li>
     <p>在某一命名空间中授予”default”服务账号一个角色</p>
@@ -731,18 +752,20 @@ roleRef:
 
     <p>下面的例子将在”my-namespace”命名空间内授予”default”服务账号只读权限：</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create rolebinding default-view <span class="se">\</span>
-  <span class="nt">--clusterrole</span><span class="o">=</span>view <span class="se">\</span>
-  <span class="nt">--serviceaccount</span><span class="o">=</span>my-namespace:default <span class="se">\</span>
-  <span class="nt">--namespace</span><span class="o">=</span>my-namespace
-</code></pre></div>    </div>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create rolebinding default-view <span class="se">\</span>
+  --clusterrole<span class="o">=</span>view <span class="se">\</span>
+  --serviceaccount<span class="o">=</span>my-namespace:default <span class="se">\</span>
+  --namespace<span class="o">=</span>my-namespace
+</code></pre>
+    </div>
 
     <p>目前，许多[加载项（addon）]（/ docs / concepts / cluster-administration / addons /）作为”kube-system”命名空间中的”default”服务帐户运行。 要允许这些加载项使用超级用户访问权限，请将cluster-admin权限授予”kube-system”命名空间中的”default”服务帐户。 注意：启用上述操作意味着”kube-system”命名空间将包含允许超级用户访问API的秘钥。</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create clusterrolebinding add-on-cluster-admin <span class="se">\</span>
-  <span class="nt">--clusterrole</span><span class="o">=</span>cluster-admin <span class="se">\</span>
-  <span class="nt">--serviceaccount</span><span class="o">=</span>kube-system:default
-</code></pre></div>    </div>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create clusterrolebinding add-on-cluster-admin <span class="se">\</span>
+  --clusterrole<span class="o">=</span>cluster-admin <span class="se">\</span>
+  --serviceaccount<span class="o">=</span>kube-system:default
+</code></pre>
+    </div>
   </li>
   <li>
     <p>为命名空间中所有的服务账号授予角色</p>
@@ -751,11 +774,12 @@ roleRef:
 
     <p>下面的例子将授予”my-namespace”命名空间中的所有服务账户只读权限：</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create rolebinding serviceaccounts-view <span class="se">\</span>
-  <span class="nt">--clusterrole</span><span class="o">=</span>view <span class="se">\</span>
-  <span class="nt">--group</span><span class="o">=</span>system:serviceaccounts:my-namespace <span class="se">\</span>
-  <span class="nt">--namespace</span><span class="o">=</span>my-namespace
-</code></pre></div>    </div>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create rolebinding serviceaccounts-view <span class="se">\</span>
+  --clusterrole<span class="o">=</span>view <span class="se">\</span>
+  --group<span class="o">=</span>system:serviceaccounts:my-namespace <span class="se">\</span>
+  --namespace<span class="o">=</span>my-namespace
+</code></pre>
+    </div>
   </li>
   <li>
     <p>对集群范围内的所有服务账户授予一个受限角色（不鼓励）</p>
@@ -764,10 +788,11 @@ roleRef:
 
     <p>下面的例子将所有命名空间中的只读权限授予集群中的所有服务账户：</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create clusterrolebinding serviceaccounts-view <span class="se">\</span>
-  <span class="nt">--clusterrole</span><span class="o">=</span>view <span class="se">\</span>
-  <span class="nt">--group</span><span class="o">=</span>system:serviceaccounts
-</code></pre></div>    </div>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create clusterrolebinding serviceaccounts-view <span class="se">\</span>
+  --clusterrole<span class="o">=</span>view <span class="se">\</span>
+  --group<span class="o">=</span>system:serviceaccounts
+</code></pre>
+    </div>
   </li>
   <li>
     <p>授予超级用户访问权限给集群范围内的所有服务帐户（强烈不鼓励）</p>
@@ -776,10 +801,11 @@ roleRef:
 
     <p>警告：这种做法将允许任何具有读取权限的用户访问secret或者通过创建一个容器的方式来访问超级用户的凭据。</p>
 
-    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create clusterrolebinding serviceaccounts-cluster-admin <span class="se">\</span>
-  <span class="nt">--clusterrole</span><span class="o">=</span>cluster-admin <span class="se">\</span>
-  <span class="nt">--group</span><span class="o">=</span>system:serviceaccounts
-</code></pre></div>    </div>
+    <div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create clusterrolebinding serviceaccounts-cluster-admin <span class="se">\</span>
+  --clusterrole<span class="o">=</span>cluster-admin <span class="se">\</span>
+  --group<span class="o">=</span>system:serviceaccounts
+</code></pre>
+    </div>
   </li>
 </ol>
 
@@ -795,9 +821,10 @@ roleRef:
 
 <p>同时运行RBAC和ABAC授权器，并包括旧版ABAC策略：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>--authorization-mode=RBAC,ABAC --authorization-policy-file=mypolicy.jsonl
+<div class="highlighter-rouge"><pre class="highlight"><code>--authorization-mode=RBAC,ABAC --authorization-policy-file=mypolicy.jsonl
 
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>RBAC授权器将尝试首先授权请求。如果RBAC授权器拒绝API请求，则ABAC授权器将被运行。这意味着RBAC策略<em>或者</em>ABAC策略所允许的任何请求都是可通过的。</p>
 
@@ -809,12 +836,13 @@ roleRef:
 
 <p><strong>警告：以下政策略允许所有服务帐户作为集群管理员。 运行在容器中的任何应用程序都会自动接收服务帐户凭据，并且可以对API执行任何操作，包括查看secret和修改权限。 因此，并不推荐使用这种策略。</strong></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create clusterrolebinding permissive-binding <span class="se">\</span>
-  <span class="nt">--clusterrole</span><span class="o">=</span>cluster-admin <span class="se">\</span>
-  <span class="nt">--user</span><span class="o">=</span>admin <span class="se">\</span>
-  <span class="nt">--user</span><span class="o">=</span>kubelet <span class="se">\</span>
-  <span class="nt">--group</span><span class="o">=</span>system:serviceaccounts
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create clusterrolebinding permissive-binding <span class="se">\</span>
+  --clusterrole<span class="o">=</span>cluster-admin <span class="se">\</span>
+  --user<span class="o">=</span>admin <span class="se">\</span>
+  --user<span class="o">=</span>kubelet <span class="se">\</span>
+  --group<span class="o">=</span>system:serviceaccounts
+</code></pre>
+</div>
 
     </article>
     <div class="share">
@@ -864,26 +892,15 @@ roleRef:
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -897,7 +914,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -923,39 +940,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -965,15 +982,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

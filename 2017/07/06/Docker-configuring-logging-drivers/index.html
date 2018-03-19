@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>Docker基础-docker日志驱动配置 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/07/06/Docker-configuring-logging-drivers/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="Docker基础-docker日志驱动配置">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-07-06">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,7 +100,7 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+            <a href="/categories/#docker" title="docker">docker</a>
           </span>
           
         </div>
@@ -124,18 +124,20 @@
 如果你没有指定日志驱动，那么默认是<code class="highlighter-rouge">json-file</code>。因此诸如<code class="highlighter-rouge">docker inspect</code>等命令输出的内容都是json格式的。</p>
 
 <p>下面我们看看当前默认的日志驱动是啥</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker info |grep <span class="s1">'Logging Driver'</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker info |grep <span class="s1">'Logging Driver'</span>
 
 Logging Driver: json-file
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h1 id="为容器配置日志驱动">为容器配置日志驱动</h1>
 <p>当启动容器时，我们可以为容器配置和docker daemon不一样的日志驱动。如果驱动程序有可配置的选项，则可以使用一个或多个<code class="highlighter-rouge">--log-opt&lt;NAME&gt;=&lt;VALUE&gt;</code>来进行设置。即使容器使用默认的日志驱动，也可以使用不同的配置选项。</p>
 
 <p>看看当前容器的日志驱动是啥</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker inspect <span class="nt">-f</span> <span class="o">{</span> <span class="o">{</span> .HostConfig.LogConfig.Type <span class="o">}</span> <span class="o">}</span> webtest1
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker inspect -f <span class="o">{</span> <span class="o">{</span> .HostConfig.LogConfig.Type <span class="o">}</span> <span class="o">}</span> webtest1
 json-file
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h1 id="所支持的日志驱动如下">所支持的日志驱动如下</h1>
 
@@ -206,29 +208,34 @@ json-file
 <p>如果你的容器在Dockerfile里或者在运行时，指定了标签或者环境变量。一些日志驱动就可以使用这些标签或环境变量来控制日志行为。如果标签和环境变量冲突，环境变量优先。</p>
 
 <p>在启动Docker daemon时指定属性和选项。例如，手动启动daemon，指定使用json-file驱动，并且设定一个标签和两个环境变量，如下：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>dockerd <span class="se">\</span>
-          <span class="nt">--log-driver</span><span class="o">=</span>json-file <span class="se">\</span>
-          <span class="nt">--log-opt</span> <span class="nv">labels</span><span class="o">=</span>production_status <span class="se">\</span>
-          <span class="nt">--log-opt</span> <span class="nv">env</span><span class="o">=</span>os,customer
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>dockerd <span class="se">\</span>
+          --log-driver<span class="o">=</span>json-file <span class="se">\</span>
+          --log-opt <span class="nv">labels</span><span class="o">=</span>production_status <span class="se">\</span>
+          --log-opt <span class="nv">env</span><span class="o">=</span>os,customer
+</code></pre>
+</div>
 
 <p>下一步，运行一个容器，并指定labels和env的值，如下：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-tid</span> <span class="nt">--label</span> <span class="nv">production_status</span><span class="o">=</span>testing <span class="nt">-e</span> <span class="nv">os</span><span class="o">=</span>ubuntu alpine sh
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -tid --label <span class="nv">production_status</span><span class="o">=</span>testing -e <span class="nv">os</span><span class="o">=</span>ubuntu alpine sh
+</code></pre>
+</div>
 
 <p>最后，我们来查看记录到本地json-file中的日志内容</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat</span> /var/lib/docker/containers/02bb794219c31704629bd0c84d39d56228b8163bc8d4925002c5164b678c521a/02bb794219c31704629bd0c84d39d56228b8163bc8d4925002c5164b678c521a-json.log
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat /var/lib/docker/containers/02bb794219c31704629bd0c84d39d56228b8163bc8d4925002c5164b678c521a/02bb794219c31704629bd0c84d39d56228b8163bc8d4925002c5164b678c521a-json.log
 <span class="s2">"os"</span>:<span class="s2">"ubuntu"</span>,<span class="s2">"production_status"</span>:<span class="s2">"test123"</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>如果日志驱动支持，则会想日志记录输出添加的附加字段，一下输出用于json文件：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"attrs"</span>:<span class="o">{</span><span class="s2">"production_status"</span>:<span class="s2">"testing"</span>,<span class="s2">"os"</span>:<span class="s2">"ubuntu"</span><span class="o">}</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="s2">"attrs"</span>:<span class="o">{</span><span class="s2">"production_status"</span>:<span class="s2">"testing"</span>,<span class="s2">"os"</span>:<span class="s2">"ubuntu"</span><span class="o">}</span>
+</code></pre>
+</div>
 
 <h2 id="none">none</h2>
 <p>none 驱动，禁用了docker daemon的日志记录或在运行时禁用了单个容器的日志记录</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-ti</span> <span class="nt">--log-driver</span> none alpine sh
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -ti --log-driver none alpine sh
+</code></pre>
+</div>
 
 <h2 id="json-file">json-file</h2>
 <p>json-file 是默认的日志驱动，而且返回的是json格式的输出</p>
@@ -267,8 +274,9 @@ json-file
   </tbody>
 </table>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-ti</span> <span class="nt">--log-opt</span> max-size<span class="o">=</span>10m <span class="nt">--log-opt</span> max-file<span class="o">=</span>3 alpine sh
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -ti --log-opt max-size<span class="o">=</span>10m --log-opt max-file<span class="o">=</span>3 alpine sh
+</code></pre>
+</div>
 
 <h2 id="syslog">syslog</h2>
 
@@ -336,21 +344,23 @@ json-file
   </tbody>
 </table>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="se">\</span>
-         <span class="nt">--log-driver</span><span class="o">=</span>syslog <span class="se">\</span>
-         <span class="nt">--log-opt</span> syslog-address<span class="o">=</span>tcp://192.168.0.42:123 <span class="se">\</span>
-         <span class="nt">--log-opt</span> syslog-facility<span class="o">=</span>daemon <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run <span class="se">\</span>
+         --log-driver<span class="o">=</span>syslog <span class="se">\</span>
+         --log-opt syslog-address<span class="o">=</span>tcp://192.168.0.42:123 <span class="se">\</span>
+         --log-opt syslog-facility<span class="o">=</span>daemon <span class="se">\</span>
          alpine ash
-</code></pre></div></div>
+</code></pre>
+</div>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="se">\</span>
-         <span class="nt">--log-driver</span><span class="o">=</span>syslog <span class="se">\</span>
-         <span class="nt">--log-opt</span> syslog-address<span class="o">=</span>tcp+tls://192.168.0.42:123 <span class="se">\</span>
-         <span class="nt">--log-opt</span> syslog-tls-ca-cert<span class="o">=</span>syslog-tls-ca-cert<span class="o">=</span>/etc/ca-certificates/custom/ca.pem <span class="se">\</span>
-         <span class="nt">--log-opt</span> syslog-tls-cert<span class="o">=</span>syslog-tls-ca-cert<span class="o">=</span>/etc/ca-certificates/custom/cert.pem <span class="se">\</span>
-         <span class="nt">--log-opt</span> syslog-tls-key<span class="o">=</span>syslog-tls-ca-cert<span class="o">=</span>/etc/ca-certificates/custom/key.pem <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run <span class="se">\</span>
+         --log-driver<span class="o">=</span>syslog <span class="se">\</span>
+         --log-opt syslog-address<span class="o">=</span>tcp+tls://192.168.0.42:123 <span class="se">\</span>
+         --log-opt syslog-tls-ca-cert<span class="o">=</span>syslog-tls-ca-cert<span class="o">=</span>/etc/ca-certificates/custom/ca.pem <span class="se">\</span>
+         --log-opt syslog-tls-cert<span class="o">=</span>syslog-tls-ca-cert<span class="o">=</span>/etc/ca-certificates/custom/cert.pem <span class="se">\</span>
+         --log-opt syslog-tls-key<span class="o">=</span>syslog-tls-ca-cert<span class="o">=</span>/etc/ca-certificates/custom/key.pem <span class="se">\</span>
          alpine ash
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h2 id="journald">journald</h2>
 
@@ -383,10 +393,11 @@ json-file
   </tbody>
 </table>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="se">\</span>
-         <span class="nt">--log-driver</span><span class="o">=</span>journald <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run <span class="se">\</span>
+         --log-driver<span class="o">=</span>journald <span class="se">\</span>
          alpine ash
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>这里我就列几个常用的，还有很多，可以参考<a href="https://docs.docker.com/engine/admin/logging/overview/">docker 官网</a></p>
 
@@ -438,26 +449,15 @@ json-file
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -471,7 +471,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -497,39 +497,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -539,15 +539,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

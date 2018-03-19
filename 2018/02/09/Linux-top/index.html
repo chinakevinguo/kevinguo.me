@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>Linux Top &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2018/02/09/Linux-top/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="Linux Top">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2018-02-09">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -127,14 +127,15 @@ keywords: linux,top
   <p><strong>先来一份top命令的结果，后面会详细解读</strong></p>
 </blockquote>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>top - 18:02:01 up  1:06,  1 user,  load average: 0.22, 0.12, 0.10
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>top - 18:02:01 up  1:06,  1 user,  load average: 0.22, 0.12, 0.10
 Tasks: 200 total,   2 running, 198 sleeping,   0 stopped,   0 zombie
 %Cpu<span class="o">(</span>s<span class="o">)</span>:  3.0 us,  1.0 sy,  0.0 ni, 96.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
 KiB Mem :  4039816 total,  1270872 free,  1432504 used,  1336440 buff/cache
 KiB Swap:   385836 total,   385836 free,        0 used.  2321064 avail Mem
 
 PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND   
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p><strong>第一行：</strong></p>
 
@@ -220,7 +221,7 @@ CPU总时间1=user1+system1+nice1+idle1+iowait1+irq1+softirq1
 内核cpu利用率 = system_pass * 100% / (CPU总时间2 - CPU总时间1)
 总的cpu利用率= 用户cpu利用率 + 内核cpu利用率</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
     <span class="n">cs1</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">cpu_times</span><span class="p">())</span>
     <span class="n">cu1</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_times</span><span class="p">()</span><span class="o">.</span><span class="n">user</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
@@ -228,7 +229,8 @@ CPU总时间1=user1+system1+nice1+idle1+iowait1+irq1+softirq1
     <span class="n">cu2</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_times</span><span class="p">()</span><span class="o">.</span><span class="n">user</span>
     <span class="n">ss</span> <span class="o">=</span> <span class="n">cs2</span> <span class="o">-</span> <span class="n">cs1</span>
     <span class="k">print</span><span class="p">(((</span><span class="n">cu2</span> <span class="o">-</span> <span class="n">cu1</span><span class="p">)</span> <span class="o">/</span> <span class="n">ss</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>=======
 —
 layout: post
@@ -248,28 +250,30 @@ keywords: linux,top
   <p><strong>先来一份top命令的结果，后面会详细解读</strong></p>
 </blockquote>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>top - 18:02:01 up  1:06,  1 user,  load average: 0.22, 0.12, 0.10
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>top - 18:02:01 up  1:06,  1 user,  load average: 0.22, 0.12, 0.10
 Tasks: 200 total,   2 running, 198 sleeping,   0 stopped,   0 zombie
 %Cpu<span class="o">(</span>s<span class="o">)</span>:  3.0 us,  1.0 sy,  0.0 ni, 96.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
 KiB Mem :  4039816 total,  1270872 free,  1432504 used,  1336440 buff/cache
 KiB Swap:   385836 total,   385836 free,        0 used.  2321064 avail Mem
 
 PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND   
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p><strong>第一行：</strong></p>
 
 <p><code class="highlighter-rouge">top - 18:02:01 up  1:06,  1 user,  load average: 0.22, 0.12, 0.10</code></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-18:02:01 <span class="nt">--</span> 当前系统时间
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
+18:02:01 -- 当前系统时间
 
-1:06 <span class="nt">--</span> 系统已经运行了多长时间
+1:06 -- 系统已经运行了多长时间
 
-1 user <span class="nt">--</span> 当前有一个用户登录系统
+1 user -- 当前有一个用户登录系统
 
-load average: 0.22, 0.12, 0.10 <span class="nt">--</span> load average后面的三个数分别是1分钟、5分钟、15分钟的负载情况
-</code></pre></div></div>
+load average: 0.22, 0.12, 0.10 -- load average后面的三个数分别是1分钟、5分钟、15分钟的负载情况
+</code></pre>
+</div>
 
 <p>load average数据是每隔5秒钟检查一次活跃的进程数，然后按特定算法计算出的数值。如果这个数除以逻辑CPU的数量，结果高于5就表明系统在超负荷运转了</p>
 
@@ -277,97 +281,102 @@ load average: 0.22, 0.12, 0.10 <span class="nt">--</span> load average后面的�
 
 <p><code class="highlighter-rouge">Tasks: 200 total,   2 running, 198 sleeping,   0 stopped,   0 zombie</code></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-200 total <span class="nt">--</span> 系统现在一共有多少个进程
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
+200 total -- 系统现在一共有多少个进程
 
-2 running <span class="nt">--</span> 其中处于运行中的有几个
+2 running -- 其中处于运行中的有几个
 
-198 sleeping <span class="nt">--</span> 处于休眠状态的有多少个
+198 sleeping -- 处于休眠状态的有多少个
 
-0 stopped <span class="nt">--</span> 处于停止状态的有多少个
+0 stopped -- 处于停止状态的有多少个
 
-0 zombie <span class="nt">--</span> 僵尸进程有多少个
-</code></pre></div></div>
+0 zombie -- 僵尸进程有多少个
+</code></pre>
+</div>
 
 <p><strong>第三行：</strong></p>
 
 <p><code class="highlighter-rouge">%Cpu(s):  3.0 us,  1.0 sy,  0.0 ni, 96.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st</code></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-3.0 us <span class="nt">--</span> 用户空间占用CPU的百分比
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
+3.0 us -- 用户空间占用CPU的百分比
 
-1.0 sy <span class="nt">--</span> 内核空间占用CPU的百分比
+1.0 sy -- 内核空间占用CPU的百分比
 
-0.0 ni <span class="nt">--</span> 用户进程空间内改变过优先级的进程占用CPU的百分比
+0.0 ni -- 用户进程空间内改变过优先级的进程占用CPU的百分比
 
-96.0 id <span class="nt">--</span> 空闲CPU百分比
+96.0 id -- 空闲CPU百分比
 
-0.0 wa <span class="nt">--</span> IO等待占用CPU百分比
+0.0 wa -- IO等待占用CPU百分比
 
-0.0 hi <span class="nt">--</span> 硬中断<span class="o">(</span>Hardware IRQ<span class="o">)</span>占用CPU百分比
+0.0 hi -- 硬中断<span class="o">(</span>Hardware IRQ<span class="o">)</span>占用CPU百分比
 
-0.0 si <span class="nt">--</span> 软中断<span class="o">(</span>Software Interrupts<span class="o">)</span>占用CPU百分比
+0.0 si -- 软中断<span class="o">(</span>Software Interrupts<span class="o">)</span>占用CPU百分比
 
-0.0 st <span class="nt">--</span> 虚拟机被hypervisor偷去的CPU时间
-</code></pre></div></div>
+0.0 st -- 虚拟机被hypervisor偷去的CPU时间
+</code></pre>
+</div>
 
 <p><strong>第四行：</strong></p>
 
 <p><code class="highlighter-rouge">KiB Mem :  4039816 total,  1270872 free,  1432504 used,  1336440 buff/cache</code></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-4039816 total <span class="nt">--</span> 物理总内存
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
+4039816 total -- 物理总内存
 
-1270872 free <span class="nt">--</span> 空闲内存总量
+1270872 free -- 空闲内存总量
 
-1432504 used <span class="nt">--</span> 使用内存量
+1432504 used -- 使用内存量
 
-1336440 buff/cache <span class="nt">--</span> 用作内核缓存的内存量
-</code></pre></div></div>
+1336440 buff/cache -- 用作内核缓存的内存量
+</code></pre>
+</div>
 
 <p><strong>第五行：</strong></p>
 
 <p><code class="highlighter-rouge">KiB Swap:   385836 total,   385836 free,        0 used.  2321064 avail Mem</code></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-385836 total <span class="nt">--</span> 交换区总量
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
+385836 total -- 交换区总量
 
-385836 free <span class="nt">--</span> 空闲的交换区总量
+385836 free -- 空闲的交换区总量
 
-0 used <span class="nt">--</span> 使用的交换区量
+0 used -- 使用的交换区量
 
-2321064 avail Mem <span class="nt">--</span> 可用于进程下一次分配的物理内存数量
-</code></pre></div></div>
+2321064 avail Mem -- 可用于进程下一次分配的物理内存数量
+</code></pre>
+</div>
 
 <p><strong>第七行：</strong></p>
 
 <p><code class="highlighter-rouge">PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND</code></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-PID <span class="nt">--</span> 进程ID
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
+PID -- 进程ID
 
-USER <span class="nt">--</span> 进程所有者
+USER -- 进程所有者
 
-PR <span class="nt">--</span> 进程优先级
+PR -- 进程优先级
 
-NI <span class="nt">--</span> nice值。负值表示高优先级，正值表示低优先级
+NI -- nice值。负值表示高优先级，正值表示低优先级
 
-VIRT <span class="nt">--</span> 进程使用的虚拟内存总量 VIRT <span class="o">=</span> SWAP+RES
+VIRT -- 进程使用的虚拟内存总量 VIRT <span class="o">=</span> SWAP+RES
 
-RES <span class="nt">--</span> 进程使用的，未被换出的物理内存大小
+RES -- 进程使用的，未被换出的物理内存大小
 
-SHR <span class="nt">--</span> 共享内存大小
+SHR -- 共享内存大小
 
-S <span class="nt">--</span> 进程状态 <span class="nv">R</span><span class="o">=</span>运行，S<span class="o">=</span>睡眠，T<span class="o">=</span>跟踪/停止，Z<span class="o">=</span>僵尸经常，D<span class="o">=</span>不可中断的睡眠状态
+S -- 进程状态 <span class="nv">R</span><span class="o">=</span>运行，S<span class="o">=</span>睡眠，T<span class="o">=</span>跟踪/停止，Z<span class="o">=</span>僵尸经常，D<span class="o">=</span>不可中断的睡眠状态
 
-%CPU <span class="nt">--</span> 上次更新到现在的CPU时间占用百分比
+%CPU -- 上次更新到现在的CPU时间占用百分比
 
-%MEM <span class="nt">--</span> 进程使用的物理内存百分比
+%MEM -- 进程使用的物理内存百分比
 
 TIME+ 进程使用的CPU时间总计
 
 COMMAND - 进程名称<span class="o">(</span>命令名/命令行<span class="o">)</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <blockquote>
   <p>交互的时候，使用P，以CPU百分比大小进行排序，使用M，以内存大小进行排序，使用T，以时间进行排序</p>
@@ -377,7 +386,7 @@ COMMAND - 进程名称<span class="o">(</span>命令名/命令行<span class="o"
   <p>最后记录下如何用python来计算top里面的各个利用率</p>
 </blockquote>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>
 top上的cpu利用率，大致算法如下
 
 CPU总时间2<span class="o">=</span>user2+system2+nice2+idle2+iowait2+irq2+softirq2
@@ -389,9 +398,10 @@ CPU总时间1<span class="o">=</span>user1+system1+nice1+idle1+iowait1+irq1+soft
 内核cpu利用率 <span class="o">=</span> system_pass <span class="k">*</span> 100% / <span class="o">(</span>CPU总时间2 - CPU总时间1<span class="o">)</span>
 
 总的cpu利用率<span class="o">=</span> 用户cpu利用率 + 内核cpu利用率
-</code></pre></div></div>
+</code></pre>
+</div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
     <span class="n">cs1</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">cpu_times</span><span class="p">())</span>
     <span class="n">cu1</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_times</span><span class="p">()</span><span class="o">.</span><span class="n">user</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
@@ -399,7 +409,8 @@ CPU总时间1<span class="o">=</span>user1+system1+nice1+idle1+iowait1+irq1+soft
     <span class="n">cu2</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_times</span><span class="p">()</span><span class="o">.</span><span class="n">user</span>
     <span class="n">ss</span> <span class="o">=</span> <span class="n">cs2</span> <span class="o">-</span> <span class="n">cs1</span>
     <span class="k">print</span><span class="p">(((</span><span class="n">cu2</span> <span class="o">-</span> <span class="n">cu1</span><span class="p">)</span> <span class="o">/</span> <span class="n">ss</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <blockquote>
   <blockquote>
     <blockquote>
@@ -464,26 +475,15 @@ CPU总时间1<span class="o">=</span>user1+system1+nice1+idle1+iowait1+irq1+soft
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -497,7 +497,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -523,39 +523,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -565,15 +565,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

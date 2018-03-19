@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>Docker基础-docker网络 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/07/06/Docker-container-networking/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="Docker基础-docker网络">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-07-06">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,7 +100,7 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+            <a href="/categories/#docker" title="docker">docker</a>
           </span>
           
         </div>
@@ -123,18 +123,19 @@
 <h2 id="默认的网络模式">默认的网络模式</h2>
 <p>这部分主要介绍了Docker Engine本机提供的默认网络特性，描述了默认创建的网络类型，以及如何创建用户自定义网络，同时还描述了在单个主机或集群上创建网络需要哪些资源。
 当你安装Docker的时候，Docker默认安装了三种网络，你可以使用<code class="highlighter-rouge">docker network ls</code>命令进行查看：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker network <span class="nb">ls
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker network ls
 
-</span>NETWORK ID          NAME                DRIVER
+NETWORK ID          NAME                DRIVER
 7fca4eb8c647        bridge              bridge
 9f904ee27bf5        none                null
 cf03ee007fb4        host                host
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>当运行容器的时候，可以使用<code class="highlighter-rouge">--network</code>来指定将容器运行在那个网络上</p>
 
 <p><strong>bridge</strong>网络模式，表示Docker默认安装的docker0网络，除非你通过<code class="highlighter-rouge">--network</code>进行了指定，否则Docker daemon会将所有容器都连接到docker0网络，你可以使用<code class="highlighter-rouge">ifconfig</code>命令对docker0网络进行查看：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ifconfig
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ifconfig
 
 docker0   Link encap:Ethernet  HWaddr 02:42:47:bc:3a:eb
           inet addr:172.17.0.1  Bcast:0.0.0.0  Mask:255.255.0.0
@@ -144,19 +145,20 @@ docker0   Link encap:Ethernet  HWaddr 02:42:47:bc:3a:eb
           TX packets:8 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:0
           RX bytes:1100 <span class="o">(</span>1.1 KB<span class="o">)</span>  TX bytes:648 <span class="o">(</span>648.0 B<span class="o">)</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p><strong>none</strong>网络模式，这种模式下，docker容器拥有自己的Network Namespace，但是，并不为Docker容器进行任何网络配置，也就是说，这个Docker容器没有网卡，IP，路由等信息，需要我们自己为Docker容器添加网卡，配置IP等。</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker attach nonenetcontainer
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker attach nonenetcontainer
 
-root@0cb243cd1293:/# <span class="nb">cat</span> /etc/hosts
+<span class="gp">root@0cb243cd1293:/# </span>cat /etc/hosts
 127.0.0.1	localhost
 ::1	localhost ip6-localhost ip6-loopback
 fe00::0	ip6-localnet
 ff00::0	ip6-mcastprefix
 ff02::1	ip6-allnodes
 ff02::2	ip6-allrouters
-root@0cb243cd1293:/# ifconfig
+<span class="gp">root@0cb243cd1293:/# </span>ifconfig
 lo        Link encap:Local Loopback
           inet addr:127.0.0.1  Mask:255.0.0.0
           inet6 addr: ::1/128 Scope:Host
@@ -165,13 +167,14 @@ lo        Link encap:Local Loopback
           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:0
           RX bytes:0 <span class="o">(</span>0.0 B<span class="o">)</span>  TX bytes:0 <span class="o">(</span>0.0 B<span class="o">)</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p><strong>host</strong>网络模式，在这种模式下，docker没有自己的Network Namespace，而是和主机公用一个Network Namespace，容器不会虚拟出自己的网络卡，配置自己的IP，而是直接使用宿主机的IP和端口</p>
 
 <h2 id="bridge网络的详细信息">bridge网络的详细信息</h2>
 <p>除了默认的<code class="highlighter-rouge">bridge</code>网络外，我们一般不需要和其他的网络进行任何交互，这些默认的网络模式，你不能删除，但是你可以使用<code class="highlighter-rouge">docker network inspect</code>来进行查看。</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@vultr ~]# docker network inspect bridge
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>root@vultr ~]# docker network inspect bridge
 <span class="o">[</span>
     <span class="o">{</span>
         <span class="s2">"Name"</span>: <span class="s2">"bridge"</span>,
@@ -218,7 +221,8 @@ lo        Link encap:Local Loopback
     <span class="o">}</span>
 <span class="o">]</span>
 
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>上面的<code class="highlighter-rouge">docker network inspect</code>命令列出了给定网络上的所有连接的容器和网络资源。
 容器之间默认是使用IP地址进行通信，bridge网络模式不支持服务自动发现，如果你想要在bridge网络模式下容器之间通过容器名进行通信，你需要使用<code class="highlighter-rouge">docker run --link</code>来连接容器。</p>
 
@@ -228,7 +232,7 @@ lo        Link encap:Local Loopback
 <p>用户可以创建多个网络，也可以将容器添加到多个网络，连接两个网络的容器可以与任意一个网络中的成员容器进行通信，但是，两个网络中的容器是不能进行通信的，所以说，容器只能在网络中通信，而不能在网络间通信（也就是说，容器只能在同一网络中通信）。</p>
 <h3 id="a-bridge-network">A bridge network</h3>
 <p>创建自定义网络最简单的是创建bridge网络</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@vultr ~]<span class="nv">$ </span>docker network create <span class="nt">--driver</span> bridge isolated_nw
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>root@vultr ~]<span class="nv">$ </span>docker network create --driver bridge isolated_nw
 8a1c90ca9772d4b9be680f503a1aa9c8cabb660a28f947bb3e37519bc6cf5f45
 
 <span class="o">[</span>root@vultr ~]<span class="nv">$ </span>docker network inspect isolated_nw
@@ -255,9 +259,10 @@ lo        Link encap:Local Loopback
         <span class="s2">"Labels"</span>: <span class="o">{}</span>
     <span class="o">}</span>
 <span class="o">]</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>当你创建了网络后，你可以使用<code class="highlighter-rouge">docker run  --network=&lt;NETWORK&gt;</code>选项来启动容器</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@vultr ~]<span class="nv">$ </span>docker run <span class="nt">--network</span><span class="o">=</span>isolated_nw <span class="nt">-tid</span> <span class="nt">--name</span><span class="o">=</span>container1 busybox
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>root@vultr ~]<span class="nv">$ </span>docker run --network<span class="o">=</span>isolated_nw -tid --name<span class="o">=</span>container1 busybox
 4d84de8318d4131fcb6d86a29a916d5354111667806fa15f6c5e3f9589766416
 
 <span class="o">[</span>root@vultr ~]<span class="nv">$ </span>docker network inspect isolated_nw
@@ -293,7 +298,8 @@ lo        Link encap:Local Loopback
     <span class="o">}</span>
 <span class="o">]</span>
 
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>你在此网络启动的容器，必须是和该网络在同一台Docker主机上，虽然网络本身将容器与外部网络隔离开，但是在此网络中的容器，还是能立即与该网络中的其他容器进行通信，如下图：
 <img src="/images/posts/bridge_network.png" alt="bridge_network" />
 在用户自定义的网络中，不支持link。如果你想要使bridge的一部分网络可以访问外网，你可以在此网络中的容器上公开和发布容器端口。
@@ -311,11 +317,12 @@ lo        Link encap:Local Loopback
 </blockquote>
 
 <p>如果你需要自定义配置，你可以提前创建<code class="highlighter-rouge">docker_gwbridge</code>网络，否则Docker会按需创建，下面的例子介绍了，如何创建一个带有自定义选项的<code class="highlighter-rouge">docker_gwbridge</code>网络：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker network create <span class="nt">--subnet</span> 172.30.0.0/16 <span class="se">\</span>
-                        <span class="nt">--opt</span> com.docker.network.bridge.name<span class="o">=</span>docker_gwbridge <span class="se">\</span>
-                        <span class="nt">--opt</span> com.docker.network.bridge.enable_icc<span class="o">=</span><span class="nb">false</span> <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker network create --subnet 172.30.0.0/16 <span class="se">\</span>
+                        --opt com.docker.network.bridge.name<span class="o">=</span>docker_gwbridge <span class="se">\</span>
+                        --opt com.docker.network.bridge.enable_icc<span class="o">=</span><span class="nb">false</span> <span class="se">\</span>
                         docker_gwbridge
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h3 id="an-overlay-network-with-docker-engine-swarm-mode-without-key-value-store">An overlay network with Docker Engine swarm mode without key-value store</h3>
 <p>你可以在没有外部key-value存储的情况下，在swarm的管理节点上创建<code class="highlighter-rouge">overlay</code>网络，swarm集群使<code class="highlighter-rouge">overlay</code>网络仅对集群中需要服务的节点可用，当你创建了一个在<code class="highlighter-rouge">overlay</code>网络覆盖下的服务时，管理节点会自动扩展<code class="highlighter-rouge">overlay</code>到运行该服务的节点上。</p>
@@ -323,20 +330,21 @@ lo        Link encap:Local Loopback
 <p>想了解更多有关<code class="highlighter-rouge">Docker swarm</code>的信息，可参考<a href="https://docs.docker.com/engine/swarm/">Swarm mode overview</a></p>
 
 <p>下面的例子介绍了如何创建<code class="highlighter-rouge">overlay</code>网络，并将其用于swarm集群中的服务节点：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create an overlay network `my-multi-host-network`.</span>
-<span class="nv">$ </span>docker network create <span class="se">\</span>
-  <span class="nt">--driver</span> overlay <span class="se">\</span>
-  <span class="nt">--subnet</span> 10.0.9.0/24 <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># Create an overlay network `my-multi-host-network`.</span>
+<span class="gp">$ </span>docker network create <span class="se">\</span>
+  --driver overlay <span class="se">\</span>
+  --subnet 10.0.9.0/24 <span class="se">\</span>
   my-multi-host-network
 
 400g6bwzd68jizzdx5pgyoe95
 
 <span class="c"># Create an nginx service and extend the my-multi-host-network to nodes where</span>
 <span class="c"># the service's tasks run.</span>
-<span class="nv">$ </span>docker service create <span class="nt">--replicas</span> 2 <span class="nt">--network</span> my-multi-host-network <span class="nt">--name</span> my-web nginx
+<span class="gp">$ </span>docker service create --replicas 2 --network my-multi-host-network --name my-web nginx
 
 716thylsndqma81j6kkkb5aus
-</code></pre></div></div>
+</code></pre>
+</div>
 <p><code class="highlighter-rouge">overlay</code>网络不能应用于不属于swarm集群服务的容器，更多信息可参考<a href="https://docs.docker.com/engine/userguide/networking/overlay-security-model/">Docker swarm mode overlay network security model</a></p>
 
 <h3 id="an-overlay-network-with-an-external-key-value-store">An overlay network with an external key-value store</h3>
@@ -404,14 +412,16 @@ lo        Link encap:Local Loopback
 </table>
 
 <p>在docker swarm中的某一台机器上创建<code class="highlighter-rouge">overlay</code>网络：</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker network create <span class="nt">--driver</span> overlay my-multi-host-network
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker network create --driver overlay my-multi-host-network
+</code></pre>
+</div>
 
 <p>创建之后，<code class="highlighter-rouge">overlay</code>网络会覆盖多个主机，网络范围下的容器会与其他网络的主机完全隔离
 <img src="/images/posts/overlay_network.png" alt="overlay_network" />
 然后，在每个host上启动容器的时候记住都要制定network name</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker run <span class="nt">-tid</span> <span class="nt">--network</span><span class="o">=</span>my-multi-host-network busybox
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>docker run -tid --network<span class="o">=</span>my-multi-host-network busybox
+</code></pre>
+</div>
 
 <p>一旦连接，<code class="highlighter-rouge">overlay</code>网络范围内的所有容器都可以互相访问，而不管该容器是在哪个主机上
 <img src="/images/posts/overlay-network-final.png" alt="overlay-network-final" /></p>
@@ -475,26 +485,15 @@ lo        Link encap:Local Loopback
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -508,7 +507,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -534,39 +533,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -576,15 +575,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>kubernetes 入门 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/09/01/kubernetes-one-section/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="kubernetes 入门">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-09-01">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,12 +100,12 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+            <a href="/categories/#kubernetes" title="kubernetes">kubernetes</a>
           </span>
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+            <a href="/categories/#docker" title="docker">docker</a>
           </span>
           
         </div>
@@ -223,39 +223,40 @@ kubernetes里所有资源的调度中心</p>
   <li>Persistent Volume(GCE Persistent Disks、NFS、RBD、ISCSCI、AWS ElasticBlockStore、GlusterFS)，这就设计到分布式存储和外部存储的一些操作了，后续再讲吧</li>
 </ul>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">myweb</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">replicas</span><span class="pi">:</span> <span class="s">5</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">myweb</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">replicas</span><span class="pi">:</span> <span class="s">5</span>
   <span class="c1"># selector 如果不指定，默认和.spec.template.labels的值相同</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-  <span class="na">template</span><span class="pi">:</span>
-    <span class="na">metadata</span><span class="pi">:</span>
-      <span class="na">labels</span><span class="pi">:</span>
-        <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-    <span class="na">spec</span><span class="pi">:</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+  <span class="s">template</span><span class="pi">:</span>
+    <span class="s">metadata</span><span class="pi">:</span>
+      <span class="s">labels</span><span class="pi">:</span>
+        <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+    <span class="s">spec</span><span class="pi">:</span>
       <span class="c1"># 该处声明一个volume</span>
-      <span class="na">volumes</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-        <span class="na">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
-      <span class="na">containers</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">myweb</span>
-        <span class="na">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v1</span>
-        <span class="na">ports</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
-        <span class="na">env</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
-          <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
-          <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3306'</span>
+      <span class="s">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+        <span class="s">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
+      <span class="s">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">myweb</span>
+        <span class="s">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v1</span>
+        <span class="s">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
+        <span class="s">env</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
+          <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
+          <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3306'</span>
         <span class="c1"># 该处进行引用并挂在到容器内部</span>
-        <span class="na">volumeMounts</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-          <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
-</code></pre></div></div>
+        <span class="s">volumeMounts</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+          <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
+</code></pre>
+</div>
 
 <h4 id="pod-资源限制">pod 资源限制</h4>
 
@@ -299,71 +300,74 @@ kubernetes里所有资源的调度中心</p>
 
 <p>1.6之后的写法如下：</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">myapp-pod</span>
-  <span class="na">labels</span><span class="pi">:</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">myapp</span>
-<span class="na">spec</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">myapp-pod</span>
+  <span class="s">labels</span><span class="pi">:</span>
+    <span class="s">app</span><span class="pi">:</span> <span class="s">myapp</span>
+<span class="s">spec</span><span class="pi">:</span>
   <span class="c1"># init 容器</span>
-  <span class="na">initContainers</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">init-myservice</span>
-      <span class="na">image</span><span class="pi">:</span> <span class="s">busybox</span>
-      <span class="na">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s1">'</span><span class="s">sh'</span><span class="pi">,</span><span class="s1">'</span><span class="s">-c'</span><span class="pi">,</span><span class="s1">'</span><span class="s">until</span><span class="nv"> </span><span class="s">nslookup</span><span class="nv"> </span><span class="s">myservice;do</span><span class="nv"> </span><span class="s">echo</span><span class="nv"> </span><span class="s">waiting</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">myservice;</span><span class="nv"> </span><span class="s">sleep</span><span class="nv"> </span><span class="s">2;done;'</span><span class="pi">]</span>
+  <span class="s">initContainers</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">init-myservice</span>
+      <span class="s">image</span><span class="pi">:</span> <span class="s">busybox</span>
+      <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s1">'</span><span class="s">sh'</span><span class="pi">,</span><span class="s1">'</span><span class="s">-c'</span><span class="pi">,</span><span class="s1">'</span><span class="s">until</span><span class="nv"> </span><span class="s">nslookup</span><span class="nv"> </span><span class="s">myservice;do</span><span class="nv"> </span><span class="s">echo</span><span class="nv"> </span><span class="s">waiting</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">myservice;</span><span class="nv"> </span><span class="s">sleep</span><span class="nv"> </span><span class="s">2;done;'</span><span class="pi">]</span>
   <span class="c1"># 业务容器</span>
-  <span class="na">containers</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">myapp-container</span>
-    <span class="na">image</span><span class="pi">:</span> <span class="s">busybox</span>
-    <span class="na">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s1">'</span><span class="s">sh'</span><span class="pi">,</span><span class="s1">'</span><span class="s">-c'</span><span class="pi">,</span><span class="s1">'</span><span class="s">echo</span><span class="nv"> </span><span class="s">The</span><span class="nv"> </span><span class="s">app</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">running!</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">sleep</span><span class="nv"> </span><span class="s">3600'</span><span class="pi">]</span>
-</code></pre></div></div>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">myapp-container</span>
+    <span class="s">image</span><span class="pi">:</span> <span class="s">busybox</span>
+    <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s1">'</span><span class="s">sh'</span><span class="pi">,</span><span class="s1">'</span><span class="s">-c'</span><span class="pi">,</span><span class="s1">'</span><span class="s">echo</span><span class="nv"> </span><span class="s">The</span><span class="nv"> </span><span class="s">app</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">running!</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">sleep</span><span class="nv"> </span><span class="s">3600'</span><span class="pi">]</span>
+</code></pre>
+</div>
 
 <h3 id="replicationcontrollerrc">ReplicationController(RC)</h3>
 <p>我们将上面那个例子的yaml文件直接拿来解析</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># api版本，类型，全局唯一名称，这是所有kubernetes yaml文件都需要的</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">myweb</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="c1"># api版本，类型，全局唯一名称，这是所有kubernetes yaml文件都需要的</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">myweb</span>
 <span class="c1"># 定义pod期望数量</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">replicas</span><span class="pi">:</span> <span class="s">5</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">replicas</span><span class="pi">:</span> <span class="s">5</span>
   <span class="c1"># 用于筛选目标的selector 如果不指定，默认和.spec.template.labels的值相同</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
   <span class="c1"># 当Pod副本数和期望数不一致时，用于创建新pod的模板</span>
-  <span class="na">template</span><span class="pi">:</span>
-    <span class="na">metadata</span><span class="pi">:</span>
-      <span class="na">labels</span><span class="pi">:</span>
-        <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-    <span class="na">spec</span><span class="pi">:</span>
+  <span class="s">template</span><span class="pi">:</span>
+    <span class="s">metadata</span><span class="pi">:</span>
+      <span class="s">labels</span><span class="pi">:</span>
+        <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+    <span class="s">spec</span><span class="pi">:</span>
       <span class="c1"># 该处声明一个volume</span>
-      <span class="na">volumes</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-        <span class="na">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
-      <span class="na">containers</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">myweb</span>
-        <span class="na">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v1</span>
-        <span class="na">ports</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
-        <span class="na">env</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
-          <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
-          <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3306'</span>
+      <span class="s">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+        <span class="s">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
+      <span class="s">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">myweb</span>
+        <span class="s">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v1</span>
+        <span class="s">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
+        <span class="s">env</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
+          <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
+          <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3306'</span>
         <span class="c1"># 该处进行引用并挂在到容器内部</span>
-        <span class="na">volumeMounts</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-          <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
-</code></pre></div></div>
+        <span class="s">volumeMounts</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+          <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
+</code></pre>
+</div>
 
 <p>我们可以通过命令的形式来动态缩放POD的数量</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl scale rc mysql <span class="nt">--replicas</span><span class="o">=</span>2
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl scale rc mysql --replicas<span class="o">=</span>2
 
 <span class="c"># 删除pod</span>
-kubectl delete <span class="nt">-f</span> mysql-rc.yml
-kubectl scale rc mysql <span class="nt">--replicas</span><span class="o">=</span>0
-</code></pre></div></div>
+kubectl delete -f mysql-rc.yml
+kubectl scale rc mysql --replicas<span class="o">=</span>0
+</code></pre>
+</div>
 
 <h3 id="replicaset">ReplicaSet</h3>
 
@@ -373,19 +377,20 @@ kubectl scale rc mysql <span class="nt">--replicas</span><span class="o">=</span
 <p>Deployment在内部使用<code class="highlighter-rouge">Replica Set</code>来实现目的，它管理着<code class="highlighter-rouge">Replica Set</code>，而它管理<code class="highlighter-rouge">Replica Set</code>的主要目的是为了支持版本回滚<code class="highlighter-rouge">Rollback</code></p>
 
 <p>从下面命令所展示出来的命名规则我们不难发现，<code class="highlighter-rouge">Deployment</code>创建的时候创建了<code class="highlighter-rouge">Replica Set</code>，而<code class="highlighter-rouge">Replica Set</code>创建了<code class="highlighter-rouge">Pod</code></p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl get deployment <span class="nt">-l</span> k8s-app<span class="o">=</span>kube-dns <span class="nt">-n</span> kube-system
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl get deployment -l k8s-app<span class="o">=</span>kube-dns -n kube-system
 NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 kube-dns   2         2         2            2           6d
 
-<span class="nv">$ </span>kubectl get replicaset <span class="nt">-l</span> k8s-app<span class="o">=</span>kube-dns <span class="nt">-n</span> kube-system
+<span class="gp">$ </span>kubectl get replicaset -l k8s-app<span class="o">=</span>kube-dns -n kube-system
 NAME                  DESIRED   CURRENT   READY     AGE
 kube-dns-1446441763   2         2         2         6d
 
-<span class="nv">$ </span>kubectl get pods <span class="nt">-l</span> k8s-app<span class="o">=</span>kube-dns <span class="nt">-n</span> kube-system
+<span class="gp">$ </span>kubectl get pods -l k8s-app<span class="o">=</span>kube-dns -n kube-system
 NAME                        READY     STATUS    RESTARTS   AGE
 kube-dns-1446441763-0th37   3/3       Running   0          6d
 kube-dns-1446441763-1w5gx   3/3       Running   0          6d
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>稍后，用实验来说明<code class="highlighter-rouge">Deployment</code>在滚动升级中的作用</p>
 
@@ -401,63 +406,66 @@ kube-dns-1446441763-1w5gx   3/3       Running   0          6d
 </ul>
 
 <p>下面我们将上面的<code class="highlighter-rouge">myweb</code>进行一下升级，内容如下</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">myweb-v2</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">replicas</span><span class="pi">:</span> <span class="s">5</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">version</span><span class="pi">:</span> <span class="s">v2</span>
-    <span class="na">deployment</span><span class="pi">:</span> <span class="s">v2</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-  <span class="na">template</span><span class="pi">:</span>
-    <span class="na">metadata</span><span class="pi">:</span>
-      <span class="na">labels</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s">v2</span>
-        <span class="na">deployment</span><span class="pi">:</span> <span class="s">v2</span>
-        <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-    <span class="na">spec</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">myweb-v2</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">replicas</span><span class="pi">:</span> <span class="s">5</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">version</span><span class="pi">:</span> <span class="s">v2</span>
+    <span class="s">deployment</span><span class="pi">:</span> <span class="s">v2</span>
+    <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+  <span class="s">template</span><span class="pi">:</span>
+    <span class="s">metadata</span><span class="pi">:</span>
+      <span class="s">labels</span><span class="pi">:</span>
+        <span class="s">version</span><span class="pi">:</span> <span class="s">v2</span>
+        <span class="s">deployment</span><span class="pi">:</span> <span class="s">v2</span>
+        <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+    <span class="s">spec</span><span class="pi">:</span>
       <span class="c1"># 该处声明一个volume</span>
-      <span class="na">volumes</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-        <span class="na">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
-      <span class="na">containers</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">myweb</span>
-        <span class="na">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v2</span>
-        <span class="na">ports</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
-        <span class="na">env</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
-          <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
-          <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">13306'</span>
+      <span class="s">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+        <span class="s">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
+      <span class="s">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">myweb</span>
+        <span class="s">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v2</span>
+        <span class="s">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
+        <span class="s">env</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
+          <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
+          <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">13306'</span>
         <span class="c1"># 该处进行引用并挂在到容器内部</span>
-        <span class="na">volumeMounts</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-          <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
-</code></pre></div></div>
+        <span class="s">volumeMounts</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+          <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
+</code></pre>
+</div>
 
 <p>啊哦，升级的时候报错了</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>error: myweb-rc-update.yml must specify a matching key with non-equal value <span class="k">in </span>Selector <span class="k">for </span>myweb
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>error: myweb-rc-update.yml must specify a matching key with non-equal value <span class="k">in </span>Selector <span class="k">for </span>myweb
 See <span class="s1">'kubectl rolling-update -h'</span> <span class="k">for </span><span class="nb">help </span>and examples.
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>没关系，既然用yaml文件无法升级，我们用命令的形式来试试</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl rolling-update myweb <span class="nt">--image</span><span class="o">=</span>kubeguide/tomcat-app:v2
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl rolling-update myweb --image<span class="o">=</span>kubeguide/tomcat-app:v2
+</code></pre>
+</div>
 
 <p>OK，成了，开始升级了</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 我们发现旧的rc正在逐步减少，新的rc正在增多</span>
-<span class="nv">$ </span>kubectl get rc
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 我们发现旧的rc正在逐步减少，新的rc正在增多</span>
+<span class="gp">$ </span>kubectl get rc
 NAME                                     DESIRED   CURRENT   READY     AGE
 mysql                                    1         1         1         34m
 myweb                                    2         2         2         19m
 myweb-c1dc64330c885b62eca9fb5aafbfecc6   4         4         4         3m
 
 <span class="c"># 旧的pods也正在一个个的被新的pod替换</span>
-<span class="nv">$ </span>kubectl get pods
+<span class="gp">$ </span>kubectl get pods
 NAME                                           READY     STATUS    RESTARTS   AGE
 mysql-65lw6                                    1/1       Running   0          35m
 myweb-c1dc64330c885b62eca9fb5aafbfecc6-88f8v   1/1       Running   0          4m
@@ -467,11 +475,12 @@ myweb-c1dc64330c885b62eca9fb5aafbfecc6-wd6kj   1/1       Running   0          3m
 myweb-c1dc64330c885b62eca9fb5aafbfecc6-zr57k   1/1       Running   0          1m
 myweb-k9tsj                                    1/1       Running   0          20m
 
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>成功了～</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 成功后，将RC名称改为myweb，升级完成</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 成功后，将RC名称改为myweb，升级完成</span>
 Created myweb-c1dc64330c885b62eca9fb5aafbfecc6
 Scaling up myweb-c1dc64330c885b62eca9fb5aafbfecc6 from 0 to 5, scaling down myweb from 5 to 0
 Scaling myweb-c1dc64330c885b62eca9fb5aafbfecc6 up to 1
@@ -487,109 +496,113 @@ Scaling myweb down to 0
 Update succeeded. Deleting old controller: myweb
 Renaming myweb-c1dc64330c885b62eca9fb5aafbfecc6 to myweb
 replicationcontroller <span class="s2">"myweb"</span> rolling updated
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>那么为什么，我们在上面用yaml文件无法升级呢？</p>
 
 <p>经过一段时间的折腾，我发现，我旧的RC文件只有一个label，app=myweb;而当我用命令升级成功后,新的RC有了两个label，app=myweb和deployment=xxxxx</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 未升级之前的RC</span>
-<span class="nv">$ </span>kubectl get rc <span class="nt">-o</span> wide
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 未升级之前的RC</span>
+<span class="gp">$ </span>kubectl get rc -o wide
 NAME      DESIRED   CURRENT   READY     AGE       CONTAINER<span class="o">(</span>S<span class="o">)</span>   IMAGE<span class="o">(</span>S<span class="o">)</span>                  SELECTOR
 mysql     1         1         1         48m       mysql          mysql                     <span class="nv">app</span><span class="o">=</span>mysql
 myweb     5         5         5         8s        myweb          kubeguide/tomcat-app:v1   <span class="nv">app</span><span class="o">=</span>myweb
 
 <span class="c"># 升级后的RC</span>
-<span class="nv">$ </span>kubectl get rc <span class="nt">-o</span> wide
+<span class="gp">$ </span>kubectl get rc -o wide
 NAME       DESIRED   CURRENT   READY     AGE       CONTAINER<span class="o">(</span>S<span class="o">)</span>   IMAGE<span class="o">(</span>S<span class="o">)</span>                  SELECTOR
 mysql      1         1         1         43m       mysql          mysql                     <span class="nv">app</span><span class="o">=</span>mysql
 myweb      4         4         4         6m        myweb          kubeguide/tomcat-app:v2   <span class="nv">app</span><span class="o">=</span>myweb,deployment<span class="o">=</span>c1dc64330c885b62eca9fb5aafbfecc6
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>然后当我再次对这个新的RC进行升级的时候，我发现是可以用yaml文件升级的，这说明什么？是不是旧的RC文件至少需要两个label才能用yaml文件升级呢？我们试试再说</p>
 
 <ul>
   <li>为myweb添加不少于一个的label
-    <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># api版本，类型，全局唯一名称，这是所有kubernetes yaml文件都需要的</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
-<span class="na">metadata</span><span class="pi">:</span>
-<span class="na">name</span><span class="pi">:</span> <span class="s">myweb</span>
+    <div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="c1"># api版本，类型，全局唯一名称，这是所有kubernetes yaml文件都需要的</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
+<span class="s">metadata</span><span class="pi">:</span>
+<span class="s">name</span><span class="pi">:</span> <span class="s">myweb</span>
 <span class="c1"># 定义pod期望数量</span>
-<span class="na">spec</span><span class="pi">:</span>
-<span class="na">replicas</span><span class="pi">:</span> <span class="s">5</span>
+<span class="s">spec</span><span class="pi">:</span>
+<span class="s">replicas</span><span class="pi">:</span> <span class="s">5</span>
 <span class="c1"># 用于筛选目标的selector 如果不指定，默认和.spec.template.labels的值相同</span>
-<span class="na">selector</span><span class="pi">:</span>
-  <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-  <span class="na">version</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">selector</span><span class="pi">:</span>
+  <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+  <span class="s">version</span><span class="pi">:</span> <span class="s">v1</span>
 <span class="c1"># 当Pod副本数和期望数不一致时，用于创建新pod的模板</span>
-<span class="na">template</span><span class="pi">:</span>
-  <span class="na">metadata</span><span class="pi">:</span>
-    <span class="na">labels</span><span class="pi">:</span>
-      <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-      <span class="na">version</span><span class="pi">:</span> <span class="s">v1</span>
-  <span class="na">spec</span><span class="pi">:</span>
+<span class="s">template</span><span class="pi">:</span>
+  <span class="s">metadata</span><span class="pi">:</span>
+    <span class="s">labels</span><span class="pi">:</span>
+      <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+      <span class="s">version</span><span class="pi">:</span> <span class="s">v1</span>
+  <span class="s">spec</span><span class="pi">:</span>
     <span class="c1"># 该处声明一个volume</span>
-    <span class="na">volumes</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-      <span class="na">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
-    <span class="na">containers</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">myweb</span>
-      <span class="na">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v1</span>
-      <span class="na">ports</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
-      <span class="na">env</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
-        <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
-        <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3306'</span>
+    <span class="s">volumes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+      <span class="s">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
+    <span class="s">containers</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">myweb</span>
+      <span class="s">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v1</span>
+      <span class="s">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
+      <span class="s">env</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
+        <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
+        <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3306'</span>
       <span class="c1"># 该处进行引用并挂在到容器内部</span>
-      <span class="na">volumeMounts</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-        <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
-</code></pre></div>    </div>
+      <span class="s">volumeMounts</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+        <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
+</code></pre>
+    </div>
   </li>
   <li>新建一个用来升级myweb的yaml文件</li>
 </ul>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">myweb-v2</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">replicas</span><span class="pi">:</span> <span class="s">5</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">version</span><span class="pi">:</span> <span class="s">v2</span>
-    <span class="na">deployment</span><span class="pi">:</span> <span class="s">v2</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-  <span class="na">template</span><span class="pi">:</span>
-    <span class="na">metadata</span><span class="pi">:</span>
-      <span class="na">labels</span><span class="pi">:</span>
-        <span class="na">version</span><span class="pi">:</span> <span class="s">v2</span>
-        <span class="na">deployment</span><span class="pi">:</span> <span class="s">v2</span>
-        <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>
-    <span class="na">spec</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">ReplicationController</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">myweb-v2</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">replicas</span><span class="pi">:</span> <span class="s">5</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">version</span><span class="pi">:</span> <span class="s">v2</span>
+    <span class="s">deployment</span><span class="pi">:</span> <span class="s">v2</span>
+    <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+  <span class="s">template</span><span class="pi">:</span>
+    <span class="s">metadata</span><span class="pi">:</span>
+      <span class="s">labels</span><span class="pi">:</span>
+        <span class="s">version</span><span class="pi">:</span> <span class="s">v2</span>
+        <span class="s">deployment</span><span class="pi">:</span> <span class="s">v2</span>
+        <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>
+    <span class="s">spec</span><span class="pi">:</span>
       <span class="c1"># 该处声明一个volume</span>
-      <span class="na">volumes</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-        <span class="na">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
-      <span class="na">containers</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">myweb</span>
-        <span class="na">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v2</span>
-        <span class="na">ports</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
-        <span class="na">env</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
-          <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
-          <span class="na">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">13306'</span>
+      <span class="s">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+        <span class="s">emptyDir</span><span class="pi">:</span> <span class="pi">{}</span>
+      <span class="s">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">myweb</span>
+        <span class="s">image</span><span class="pi">:</span> <span class="s">kubeguide/tomcat-app:v2</span>
+        <span class="s">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">8080</span>
+        <span class="s">env</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_HOST</span>
+          <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">mysql-service'</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">MYSQL_SERVICE_PORT</span>
+          <span class="s">value</span><span class="pi">:</span> <span class="s1">'</span><span class="s">13306'</span>
         <span class="c1"># 该处进行引用并挂在到容器内部</span>
-        <span class="na">volumeMounts</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">datavol</span>
-          <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
-</code></pre></div></div>
+        <span class="s">volumeMounts</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">datavol</span>
+          <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/mydata-data</span>
+</code></pre>
+</div>
 
 <p>我发现，真的可以升级了!!!</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl rolling-update myweb <span class="nt">-f</span> myweb-rc-update.yml
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl rolling-update myweb -f myweb-rc-update.yml
 Created myweb-v2
 Scaling up myweb-v2 from 0 to 5, scaling down myweb from 5 to 0
 Scaling myweb-v2 up to 1
@@ -599,7 +612,8 @@ Scaling myweb down to 3
 Scaling myweb-v2 up to 3
 Scaling myweb down to 2
 Scaling myweb-v2 up to 4
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p><strong>这说明什么？这说明，以后如果你要用<code class="highlighter-rouge">ReplicationController</code>的时候，至少要给他指定不少于2个的label，否则，你无法用yaml来进行升级，这真的是很蛋疼的一件事。</strong></p>
 
@@ -645,124 +659,132 @@ Scaling myweb-v2 up to 4
 
 <p>HPA可以通过命令来实现，也可以通过配置文件的方式来实现。</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl autoscale deployment php-apache <span class="nt">--cpu-percent</span><span class="o">=</span>50 <span class="nt">--min</span><span class="o">=</span>1 <span class="nt">--max</span><span class="o">=</span>10
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>kubectl autoscale deployment php-apache --cpu-percent<span class="o">=</span>50 --min<span class="o">=</span>1 --max<span class="o">=</span>10
 deployment <span class="s2">"php-apache"</span> autoscaled
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>下面我们用实验来感受下HPA</p>
 
 <p>首先我们来新建一个<code class="highlighter-rouge">php-apache</code>的服务</p>
 
 <p>php-apache-deploy.yml</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">php-apache</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">default</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">replicas</span><span class="pi">:</span> <span class="s">1</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">matchLabels</span><span class="pi">:</span>
-      <span class="na">k8s-quark</span><span class="pi">:</span> <span class="s">php-apache</span>
-  <span class="na">template</span><span class="pi">:</span>
-    <span class="na">metadata</span><span class="pi">:</span>
-      <span class="na">labels</span><span class="pi">:</span>
-        <span class="na">k8s-quark</span><span class="pi">:</span> <span class="s">php-apache</span>
-    <span class="na">spec</span><span class="pi">:</span>
-      <span class="na">containers</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">php-apache</span>
-        <span class="na">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/hpa-example:latest</span>
-        <span class="na">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
-        <span class="na">ports</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="s">80</span>
-        <span class="na">resources</span><span class="pi">:</span>
-          <span class="na">requests</span><span class="pi">:</span>
-            <span class="na">cpu</span><span class="pi">:</span> <span class="s">200m</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">php-apache</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">default</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">replicas</span><span class="pi">:</span> <span class="s">1</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">matchLabels</span><span class="pi">:</span>
+      <span class="s">k8s-quark</span><span class="pi">:</span> <span class="s">php-apache</span>
+  <span class="s">template</span><span class="pi">:</span>
+    <span class="s">metadata</span><span class="pi">:</span>
+      <span class="s">labels</span><span class="pi">:</span>
+        <span class="s">k8s-quark</span><span class="pi">:</span> <span class="s">php-apache</span>
+    <span class="s">spec</span><span class="pi">:</span>
+      <span class="s">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">php-apache</span>
+        <span class="s">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/hpa-example:latest</span>
+        <span class="s">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
+        <span class="s">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">containerPort</span><span class="pi">:</span> <span class="s">80</span>
+        <span class="s">resources</span><span class="pi">:</span>
+          <span class="s">requests</span><span class="pi">:</span>
+            <span class="s">cpu</span><span class="pi">:</span> <span class="s">200m</span>
+</code></pre>
+</div>
 
 <p>php-apache-svc.yml</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">php-apache</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">ports</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="s">80</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">k8s-quark</span><span class="pi">:</span> <span class="s">php-apache</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">php-apache</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">ports</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">port</span><span class="pi">:</span> <span class="s">80</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">k8s-quark</span><span class="pi">:</span> <span class="s">php-apache</span>
+</code></pre>
+</div>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create <span class="nt">-f</span> php-apache-deploy.yml
-kubectl create <span class="nt">-f</span> php-apache-svc.yml
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create -f php-apache-deploy.yml
+kubectl create -f php-apache-svc.yml
 
 <span class="c"># 查看当前的deployment</span>
-<span class="nv">$ </span>kubectl get deployment php-apache
+<span class="gp">$ </span>kubectl get deployment php-apache
 NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 php-apache   1         1         1            1           10m
 
 <span class="c"># 查看php-apache的pods</span>
-<span class="nv">$ </span>kubectl get pods |grep php-apache
+<span class="gp">$ </span>kubectl get pods |grep php-apache
 php-apache-3548797493-twq7k       1/1       Running   0          17m
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>然后，我们用命令来创建一个HPA</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl autoscale deployment php-apache <span class="nt">--cpu-percent</span><span class="o">=</span>50 <span class="nt">--min</span><span class="o">=</span>1 <span class="nt">--max</span><span class="o">=</span>10
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl autoscale deployment php-apache --cpu-percent<span class="o">=</span>50 --min<span class="o">=</span>1 --max<span class="o">=</span>10
 
 <span class="c"># 看看我们创建好的hpa</span>
-<span class="nv">$ </span> kubectl get hpa
+<span class="gp">$  </span>kubectl get hpa
 NAME         REFERENCE               TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
 php-apache   Deployment/php-apache   0% / 50%   1         10        1          19m
 
-</code></pre></div></div>
+</code></pre>
+</div>
 <p>这条命令的意思是，我们为<code class="highlighter-rouge">php-apache</code>创建了一个HPA，指定了target metrics value是cpu利用率50%，而伸缩最小值为1，最大值为10</p>
 
 <p>最后，我们来持续访问<code class="highlighter-rouge">php-apache</code>来给它压力，看看HPA会不会自动为我们扩容呢？</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 进入一个容器</span>
-kubectl run <span class="nt">-ti</span> load-generator <span class="nt">--image</span><span class="o">=</span>busybox /bin/sh
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 进入一个容器</span>
+kubectl run -ti load-generator --image<span class="o">=</span>busybox /bin/sh
 
 <span class="c"># 持续访问</span>
-<span class="k">while </span><span class="nb">true</span><span class="p">;</span> <span class="k">do </span>wget <span class="nt">-q</span> <span class="nt">-O-</span> http://php-apache.default.svc.cluster.local<span class="p">;</span> <span class="k">done</span>
-</code></pre></div></div>
+<span class="k">while </span><span class="nb">true</span>; <span class="k">do </span>wget -q -O- http://php-apache.default.svc.cluster.local; <span class="k">done</span>
+</code></pre>
+</div>
 
 <p>过了几分钟，我们看看结果咋样</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># HPA状态</span>
-<span class="nv">$ </span> kubectl get hpa
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># HPA状态</span>
+<span class="gp">$  </span>kubectl get hpa
 NAME         REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
 php-apache   Deployment/php-apache   313% / 50%   1         10        4          22m
 
 <span class="c"># deployment状态</span>
-<span class="nv">$ </span> kubectl get deployment php-apache
+<span class="gp">$  </span>kubectl get deployment php-apache
 NAME         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 php-apache   4         4         4            4           25m
 
 <span class="c"># HPA状态</span>
-<span class="nv">$ </span> kubectl get hpa
+<span class="gp">$  </span>kubectl get hpa
 NAME         REFERENCE               TARGETS     MINPODS   MAXPODS   REPLICAS   AGE
 php-apache   Deployment/php-apache   90% / 50%   1         10        8          26m
 
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>我们发现，随着我们的持续访问增压，HPA会自动的为我们将<code class="highlighter-rouge">php-apache</code>进行扩容，随着<code class="highlighter-rouge">php-apahce</code>的扩容，CPU开始慢慢下降，直到最终符合我们指定的低于50%的标准，或者达到最大值10个POD。而当我们停止对<code class="highlighter-rouge">php-apache</code>的访问，最终，HPA会恢复到默认1个pod的状态。</p>
 
 <p>用yaml文件的方式，最终的效果和上面是一样的</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">autoscaling/v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">HorizontalPodAutoscaler</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">php-apache</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">default</span>
-<span class="na">spec</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">autoscaling/v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">HorizontalPodAutoscaler</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">php-apache</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">default</span>
+<span class="s">spec</span><span class="pi">:</span>
   <span class="c1"># 指定针对谁来使用HPA</span>
-  <span class="na">scaleTargetRef</span><span class="pi">:</span>
-    <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-    <span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
-    <span class="na">name</span><span class="pi">:</span> <span class="s">php-apache</span>
-  <span class="na">minReplicas</span><span class="pi">:</span> <span class="s">1</span>
-  <span class="na">maxReplicas</span><span class="pi">:</span> <span class="s">10</span>
+  <span class="s">scaleTargetRef</span><span class="pi">:</span>
+    <span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+    <span class="s">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">php-apache</span>
+  <span class="s">minReplicas</span><span class="pi">:</span> <span class="s">1</span>
+  <span class="s">maxReplicas</span><span class="pi">:</span> <span class="s">10</span>
   <span class="c1"># 用户定义的CPU利用率</span>
-  <span class="na">targetCPUUtilizationPercentage</span><span class="pi">:</span> <span class="s">50</span>
-</code></pre></div></div>
+  <span class="s">targetCPUUtilizationPercentage</span><span class="pi">:</span> <span class="s">50</span>
+</code></pre>
+</div>
 
 <p>至于其它的HPA metrica，改天再讲吧，毕竟现在还只是alpha版本，而且需要heapster目前也无法收集那么多metrics</p>
 
@@ -776,25 +798,26 @@ php-apache   Deployment/php-apache   90% / 50%   1         10        8          
 在上图中，frontal pod 访问 service 时，kubernetes其实是通过其内部的 kube-proxy 来进行负载均衡，然后将请求转发到后端的某个pod上。但kubernetes不是使用的一个实际的负载均衡IP地址，而是为每个service分配了一个全局唯一的虚拟IP地址，这个虚拟IP被称为Cluster IP，只能在kubernetes 集群内部被访问(意思就是只能在集群内的pod中才能访问)，而且一旦创建，在service的整个生命周期内，都不会发生变动。</p>
 
 <p>下面我们来创建一个service看看</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
-<span class="na">metadata</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="s">metadata</span><span class="pi">:</span>
   <span class="c1"># service全局唯一名称，后面在cluster中可以直接使用的名称</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">tomcat-service</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">ports</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">tomcat-service</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">ports</span><span class="pi">:</span>
     <span class="c1"># service提供服务的端口</span>
-  <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="s">8080</span>
-    <span class="na">name</span><span class="pi">:</span> <span class="s">service-port</span>
+  <span class="pi">-</span> <span class="s">port</span><span class="pi">:</span> <span class="s">8080</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">service-port</span>
   <span class="c1"># 后端容器提供服务暴露的端口，如果不指定，默认暴露service提供服务的端口</span>
-    <span class="na">targetPort</span><span class="pi">:</span> <span class="s">8080</span>
-  <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="s">8005</span>
-    <span class="na">name</span><span class="pi">:</span> <span class="s">shutown-port</span>
-    <span class="na">targetPort</span><span class="pi">:</span> <span class="s">8005</span>
+    <span class="s">targetPort</span><span class="pi">:</span> <span class="s">8080</span>
+  <span class="pi">-</span> <span class="s">port</span><span class="pi">:</span> <span class="s">8005</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">shutown-port</span>
+    <span class="s">targetPort</span><span class="pi">:</span> <span class="s">8005</span>
   <span class="c1"># 指定label selector 确认该服务和后端那些pod关联起来</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">mysql</span>
-</code></pre></div></div>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">app</span><span class="pi">:</span> <span class="s">mysql</span>
+</code></pre>
+</div>
 
 <h4 id="kubernetes服务发现机制">kubernetes服务发现机制</h4>
 
@@ -831,18 +854,19 @@ etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后
 
 <p>首先，我们来新建一个NodePort类型的服务</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">myweb-service</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">type</span><span class="pi">:</span> <span class="s">NodePort</span>
-  <span class="na">ports</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="s">8080</span>
-    <span class="na">nodePort</span><span class="pi">:</span> <span class="s">30001</span>
-  <span class="na">selector</span><span class="pi">:</span>
-    <span class="na">app</span><span class="pi">:</span> <span class="s">myweb</span>         
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">myweb-service</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">type</span><span class="pi">:</span> <span class="s">NodePort</span>
+  <span class="s">ports</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">port</span><span class="pi">:</span> <span class="s">8080</span>
+    <span class="s">nodePort</span><span class="pi">:</span> <span class="s">30001</span>
+  <span class="s">selector</span><span class="pi">:</span>
+    <span class="s">app</span><span class="pi">:</span> <span class="s">myweb</span>         
+</code></pre>
+</div>
 
 <p>myweb-service 代理了后端的一个pod，ip为10.233.88.53，看看iptables</p>
 
@@ -850,22 +874,25 @@ etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后
 
 <p>如果是通过node的30001来访问，则会进入如下的链</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 看看和NodePort  30001有关的iptables</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 看看和NodePort  30001有关的iptables</span>
 
-<span class="nv">$ </span>iptables <span class="nt">-S</span> <span class="nt">-t</span> nat |grep 30001
-<span class="nt">-A</span> KUBE-NODEPORTS <span class="nt">-p</span> tcp <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> tcp <span class="nt">--dport</span> 30001 <span class="nt">-j</span> KUBE-MARK-MASQ
-<span class="nt">-A</span> KUBE-NODEPORTS <span class="nt">-p</span> tcp <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> tcp <span class="nt">--dport</span> 30001 <span class="nt">-j</span> KUBE-SVC-KINM4OXG42E5QTAT
-</code></pre></div></div>
+<span class="gp">$ </span>iptables -S -t nat |grep 30001
+-A KUBE-NODEPORTS -p tcp -m comment --comment <span class="s2">"default/myweb-service:"</span> -m tcp --dport 30001 -j KUBE-MARK-MASQ
+-A KUBE-NODEPORTS -p tcp -m comment --comment <span class="s2">"default/myweb-service:"</span> -m tcp --dport 30001 -j KUBE-SVC-KINM4OXG42E5QTAT
+</code></pre>
+</div>
 
 <p>然后进一步跳转到<code class="highlighter-rouge">KUBE-SVC-KINM4OXG42E5QTAT</code>的链</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-A</span> KUBE-SVC-KINM4OXG42E5QTAT <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-j</span> KUBE-SEP-I4OJ7A6SXM5YG2QP
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>-A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment <span class="s2">"default/myweb-service:"</span> -j KUBE-SEP-I4OJ7A6SXM5YG2QP
+</code></pre>
+</div>
 
 <p>然后会跳转到<code class="highlighter-rouge">KUBE-SEP-I4OJ7A6SXM5YG2QP</code>链，最终将请求转发到10.233.88.53的pod上</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-A</span> KUBE-SEP-I4OJ7A6SXM5YG2QP <span class="nt">-p</span> tcp <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> tcp <span class="nt">-j</span> DNAT <span class="nt">--to-destination</span> 10.233.88.53:8080
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>-A KUBE-SEP-I4OJ7A6SXM5YG2QP -p tcp -m comment --comment <span class="s2">"default/myweb-service:"</span> -m tcp -j DNAT --to-destination 10.233.88.53:8080
+</code></pre>
+</div>
 
 <blockquote>
   <p><strong>注意：如果service代理了多个pod的话，会利用iptables的–probability特性，按一定的比例转发，如下</strong></p>
@@ -875,34 +902,37 @@ etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后
 
 <p>如果是通过node的30001来访问，则会进入如下的链</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 看看和NodePort  30001有关的iptables</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 看看和NodePort  30001有关的iptables</span>
 
-<span class="nv">$ </span>iptables <span class="nt">-S</span> <span class="nt">-t</span> nat |grep 30001
-<span class="nt">-A</span> KUBE-NODEPORTS <span class="nt">-p</span> tcp <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> tcp <span class="nt">--dport</span> 30001 <span class="nt">-j</span> KUBE-MARK-MASQ
-<span class="nt">-A</span> KUBE-NODEPORTS <span class="nt">-p</span> tcp <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> tcp <span class="nt">--dport</span> 30001 <span class="nt">-j</span> KUBE-SVC-KINM4OXG42E5QTAT
-</code></pre></div></div>
+<span class="gp">$ </span>iptables -S -t nat |grep 30001
+-A KUBE-NODEPORTS -p tcp -m comment --comment <span class="s2">"default/myweb-service:"</span> -m tcp --dport 30001 -j KUBE-MARK-MASQ
+-A KUBE-NODEPORTS -p tcp -m comment --comment <span class="s2">"default/myweb-service:"</span> -m tcp --dport 30001 -j KUBE-SVC-KINM4OXG42E5QTAT
+</code></pre>
+</div>
 
 <p>然后进一步跳转到<code class="highlighter-rouge">KUBE-SEP-5I5KUCBAI2CKFMN2</code>、<code class="highlighter-rouge">KUBE-SEP-I4OJ7A6SXM5YG2QP</code>、<code class="highlighter-rouge">KUBE-SEP-FDQHGZ7N6PHRDJRL</code>的链</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 有分为30%，50%，20%的几率</span>
-<span class="nt">-A</span> KUBE-SVC-KINM4OXG42E5QTAT <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> statistic <span class="nt">--mode</span> random <span class="nt">--probability</span> 0.33332999982 <span class="nt">-j</span> KUBE-SEP-5I5KUCBAI2CKFMN2
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 有分为30%，50%，20%的几率</span>
+-A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment <span class="s2">"default/myweb-service:"</span> -m statistic --mode random --probability 0.33332999982 -j KUBE-SEP-5I5KUCBAI2CKFMN2
 
-<span class="nt">-A</span> KUBE-SVC-KINM4OXG42E5QTAT <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> statistic <span class="nt">--mode</span> random <span class="nt">--probability</span> 0.50000000000 <span class="nt">-j</span> KUBE-SEP-I4OJ7A6SXM5YG2QP
+-A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment <span class="s2">"default/myweb-service:"</span> -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-I4OJ7A6SXM5YG2QP
 
-<span class="nt">-A</span> KUBE-SVC-KINM4OXG42E5QTAT <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-j</span> KUBE-SEP-FDQHGZ7N6PHRDJRL
-</code></pre></div></div>
+-A KUBE-SVC-KINM4OXG42E5QTAT -m comment --comment <span class="s2">"default/myweb-service:"</span> -j KUBE-SEP-FDQHGZ7N6PHRDJRL
+</code></pre>
+</div>
 
 <p>然后会分别跳到上面每个链下对应的链，最终转发到对应的pod上</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># KUBE-SEP-5I5KUCBAI2CKFMN2</span>
-<span class="nt">-A</span> KUBE-SEP-5I5KUCBAI2CKFMN2 <span class="nt">-p</span> tcp <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> tcp <span class="nt">-j</span> DNAT <span class="nt">--to-destination</span> 10.233.87.108:8080
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># KUBE-SEP-5I5KUCBAI2CKFMN2</span>
+-A KUBE-SEP-5I5KUCBAI2CKFMN2 -p tcp -m comment --comment <span class="s2">"default/myweb-service:"</span> -m tcp -j DNAT --to-destination 10.233.87.108:8080
 
 <span class="c"># KUBE-SEP-I4OJ7A6SXM5YG2QP</span>
-<span class="nt">-A</span> KUBE-SEP-I4OJ7A6SXM5YG2QP <span class="nt">-p</span> tcp <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> tcp <span class="nt">-j</span> DNAT <span class="nt">--to-destination</span> 10.233.88.53:8080
+-A KUBE-SEP-I4OJ7A6SXM5YG2QP -p tcp -m comment --comment <span class="s2">"default/myweb-service:"</span> -m tcp -j DNAT --to-destination 10.233.88.53:8080
 
 <span class="c"># KUBE-SEP-FDQHGZ7N6PHRDJRL</span>
-<span class="nt">-A</span> KUBE-SEP-FDQHGZ7N6PHRDJRL <span class="nt">-p</span> tcp <span class="nt">-m</span> comment <span class="nt">--comment</span> <span class="s2">"default/myweb-service:"</span> <span class="nt">-m</span> tcp <span class="nt">-j</span> DNAT <span class="nt">--to-destination</span> 10.233.96.254:8080
-</code></pre></div></div>
+-A KUBE-SEP-FDQHGZ7N6PHRDJRL -p tcp -m comment --comment <span class="s2">"default/myweb-service:"</span> -m tcp -j DNAT --to-destination 10.233.96.254:8080
+</code></pre>
+</div>
 
 <p>好了，说完了NodePort，然后我们再说ClusterIP</p>
 
@@ -946,22 +976,23 @@ etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后
 
 <p>默认情况下，<code class="highlighter-rouge">emptyDir</code> 数据存储在SSD或者网络存储上。但是，你也可以设置<code class="highlighter-rouge">emptyDir.medium</code>为<code class="highlighter-rouge">Memory</code>来启用<code class="highlighter-rouge">tmpfs</code>,tmpfs会将数据写入到内存中，因此，当机器重启之后，数据也会永久删除，并且，因为是存放在内存中，这些数据会占用你容器内存的limit指标。</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">test-pd</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">containers</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">image</span><span class="pi">:</span> <span class="s">nginx</span>
-    <span class="na">name</span><span class="pi">:</span> <span class="s">test-container</span>
-    <span class="na">volumeMounts</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/cache</span>
-      <span class="na">name</span><span class="pi">:</span> <span class="s">cache-volume</span>
-  <span class="na">volumes</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">cache-volume</span>
-    <span class="na">emptyDir</span><span class="pi">:</span>
-      <span class="na">medium</span><span class="pi">:</span> <span class="s">Memory</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">test-pd</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">image</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">test-container</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/cache</span>
+      <span class="s">name</span><span class="pi">:</span> <span class="s">cache-volume</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">cache-volume</span>
+    <span class="s">emptyDir</span><span class="pi">:</span>
+      <span class="s">medium</span><span class="pi">:</span> <span class="s">Memory</span>
+</code></pre>
+</div>
 
 <h4 id="secret">secret</h4>
 
@@ -987,86 +1018,88 @@ etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后
   <li>容器 memory request</li>
 </ul>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">kubernetes-downwardapi-volume-example</span>
-  <span class="na">labels</span><span class="pi">:</span>
-    <span class="na">zone</span><span class="pi">:</span> <span class="s">us-est-coast</span>
-    <span class="na">cluster</span><span class="pi">:</span> <span class="s">test-cluster1</span>
-    <span class="na">rack</span><span class="pi">:</span> <span class="s">rack-22</span>
-  <span class="na">annotations</span><span class="pi">:</span>
-    <span class="na">build</span><span class="pi">:</span> <span class="s">two</span>
-    <span class="na">builder</span><span class="pi">:</span> <span class="s">john-doe</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">containers</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">client-container</span>
-      <span class="na">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/busybox</span>
-      <span class="na">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">sh"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">-c"</span><span class="pi">]</span>
-      <span class="na">args</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="s">while </span><span class="no">true</span><span class="s">; do</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">kubernetes-downwardapi-volume-example</span>
+  <span class="s">labels</span><span class="pi">:</span>
+    <span class="s">zone</span><span class="pi">:</span> <span class="s">us-est-coast</span>
+    <span class="s">cluster</span><span class="pi">:</span> <span class="s">test-cluster1</span>
+    <span class="s">rack</span><span class="pi">:</span> <span class="s">rack-22</span>
+  <span class="s">annotations</span><span class="pi">:</span>
+    <span class="s">build</span><span class="pi">:</span> <span class="s">two</span>
+    <span class="s">builder</span><span class="pi">:</span> <span class="s">john-doe</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">client-container</span>
+      <span class="s">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/busybox</span>
+      <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">sh"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">-c"</span><span class="pi">]</span>
+      <span class="s">args</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">while true; do</span>
           <span class="s">if [[ -e /etc/labels ]]; then</span>
             <span class="s">echo -en '\n\n'; cat /etc/labels; fi;</span>
           <span class="s">if [[ -e /etc/annotations ]]; then</span>
             <span class="s">echo -en '\n\n'; cat /etc/annotations; fi;</span>
           <span class="s">sleep 5;</span>
         <span class="s">done;</span>
-      <span class="na">volumeMounts</span><span class="pi">:</span>
-        <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">podinfo</span>
-          <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/etc</span>
-          <span class="na">readOnly</span><span class="pi">:</span> <span class="no">false</span>
-  <span class="na">volumes</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">podinfo</span>
-      <span class="na">downwardAPI</span><span class="pi">:</span>
-        <span class="na">items</span><span class="pi">:</span>
-          <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">labels"</span>
-            <span class="na">fieldRef</span><span class="pi">:</span>
-              <span class="na">fieldPath</span><span class="pi">:</span> <span class="s">metadata.labels</span>
-          <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">annotations"</span>
-            <span class="na">fieldRef</span><span class="pi">:</span>
-              <span class="na">fieldPath</span><span class="pi">:</span> <span class="s">metadata.annotations</span>
-</code></pre></div></div>
+      <span class="s">volumeMounts</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">podinfo</span>
+          <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/etc</span>
+          <span class="s">readOnly</span><span class="pi">:</span> <span class="s">false</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">podinfo</span>
+      <span class="s">downwardAPI</span><span class="pi">:</span>
+        <span class="s">items</span><span class="pi">:</span>
+          <span class="pi">-</span> <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">labels"</span>
+            <span class="s">fieldRef</span><span class="pi">:</span>
+              <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">metadata.labels</span>
+          <span class="pi">-</span> <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">annotations"</span>
+            <span class="s">fieldRef</span><span class="pi">:</span>
+              <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">metadata.annotations</span>
+</code></pre>
+</div>
 
 <h4 id="projected">projected</h4>
 
 <p>projected volume 可以将几个volume内容隐射到同样的目录中，当前只支持secret、configmap、downwardAPI</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">volume-test</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">containers</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">container-test</span>
-    <span class="na">image</span><span class="pi">:</span> <span class="s">busybox</span>
-    <span class="na">volumeMounts</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">all-in-one</span>
-      <span class="na">mountPath</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/projected-volume"</span>
-      <span class="na">readOnly</span><span class="pi">:</span> <span class="no">true</span>
-  <span class="na">volumes</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">all-in-one</span>
-    <span class="na">projected</span><span class="pi">:</span>
-      <span class="na">sources</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">secret</span><span class="pi">:</span>
-          <span class="na">name</span><span class="pi">:</span> <span class="s">mysecret</span>
-          <span class="na">items</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">username</span>
-              <span class="na">path</span><span class="pi">:</span> <span class="s">my-group/my-username</span>
-      <span class="pi">-</span> <span class="na">downwardAPI</span><span class="pi">:</span>
-          <span class="na">items</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">labels"</span>
-              <span class="na">fieldRef</span><span class="pi">:</span>
-                <span class="na">fieldPath</span><span class="pi">:</span> <span class="s">metadata.labels</span>
-            <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">cpu_limit"</span>
-              <span class="na">resourceFieldRef</span><span class="pi">:</span>
-                <span class="na">containerName</span><span class="pi">:</span> <span class="s">container-test</span>
-                <span class="na">resource</span><span class="pi">:</span> <span class="s">limits.cpu</span>
-      <span class="pi">-</span> <span class="na">configMap</span><span class="pi">:</span>
-          <span class="na">name</span><span class="pi">:</span> <span class="s">myconfigmap</span>
-          <span class="na">items</span><span class="pi">:</span>
-            <span class="pi">-</span> <span class="na">key</span><span class="pi">:</span> <span class="s">config</span>
-              <span class="na">path</span><span class="pi">:</span> <span class="s">my-group/my-config</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">volume-test</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">container-test</span>
+    <span class="s">image</span><span class="pi">:</span> <span class="s">busybox</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">all-in-one</span>
+      <span class="s">mountPath</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/projected-volume"</span>
+      <span class="s">readOnly</span><span class="pi">:</span> <span class="s">true</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">all-in-one</span>
+    <span class="s">projected</span><span class="pi">:</span>
+      <span class="s">sources</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">secret</span><span class="pi">:</span>
+          <span class="s">name</span><span class="pi">:</span> <span class="s">mysecret</span>
+          <span class="s">items</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">key</span><span class="pi">:</span> <span class="s">username</span>
+              <span class="s">path</span><span class="pi">:</span> <span class="s">my-group/my-username</span>
+      <span class="pi">-</span> <span class="s">downwardAPI</span><span class="pi">:</span>
+          <span class="s">items</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">labels"</span>
+              <span class="s">fieldRef</span><span class="pi">:</span>
+                <span class="s">fieldPath</span><span class="pi">:</span> <span class="s">metadata.labels</span>
+            <span class="pi">-</span> <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">cpu_limit"</span>
+              <span class="s">resourceFieldRef</span><span class="pi">:</span>
+                <span class="s">containerName</span><span class="pi">:</span> <span class="s">container-test</span>
+                <span class="s">resource</span><span class="pi">:</span> <span class="s">limits.cpu</span>
+      <span class="pi">-</span> <span class="s">configMap</span><span class="pi">:</span>
+          <span class="s">name</span><span class="pi">:</span> <span class="s">myconfigmap</span>
+          <span class="s">items</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">key</span><span class="pi">:</span> <span class="s">config</span>
+              <span class="s">path</span><span class="pi">:</span> <span class="s">my-group/my-config</span>
+</code></pre>
+</div>
 
 <h4 id="local">local</h4>
 
@@ -1090,22 +1123,23 @@ etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后
   <li>如果宿主机上的目录是root权限，那么你也必须以root身份来运行你的进程，或者，修改你的目录权限以便于能让hostPath卷有写权限</li>
 </ul>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">test-pd</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">containers</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">image</span><span class="pi">:</span> <span class="s">nginx</span>
-    <span class="na">name</span><span class="pi">:</span> <span class="s">test-container</span>
-    <span class="na">volumeMounts</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
-      <span class="na">name</span><span class="pi">:</span> <span class="s">test-volume</span>
-  <span class="na">volumes</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">test-volume</span>
-    <span class="na">hostPath</span><span class="pi">:</span>
-      <span class="na">path</span><span class="pi">:</span> <span class="s">/data</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">test-pd</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">image</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">test-container</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
+      <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+    <span class="s">hostPath</span><span class="pi">:</span>
+      <span class="s">path</span><span class="pi">:</span> <span class="s">/data</span>
+</code></pre>
+</div>
 
 <p>其实hostPath也能算是持久存储的一种，只不过局限性太大了。这里我们详细的讲讲外部存储和分布式存储在kubernetes中的使用(aws和gce的就不讲了，没环境)。</p>
 
@@ -1117,23 +1151,24 @@ etcd：大体实现方式，就是写脚本通过etcd的api注册服务，然后
 
 <p>首先，你得有个已经搭建好的NFS服务</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">test-pd</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">containers</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">image</span><span class="pi">:</span> <span class="s">nginx</span>
-    <span class="na">name</span><span class="pi">:</span> <span class="s">test-container</span>
-    <span class="na">volumeMounts</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
-      <span class="na">name</span><span class="pi">:</span> <span class="s">test-volume</span>
-  <span class="na">volumes</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">test-volume</span>
-    <span class="na">nfs</span><span class="pi">:</span>
-      <span class="na">server</span><span class="pi">:</span> <span class="s">163.xx.xx.xx</span>
-      <span class="na">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">test-pd</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">image</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">test-container</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
+      <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+    <span class="s">nfs</span><span class="pi">:</span>
+      <span class="s">server</span><span class="pi">:</span> <span class="s">163.xx.xx.xx</span>
+      <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
+</code></pre>
+</div>
 
 <h4 id="persistent-volume">persistent volume</h4>
 
@@ -1176,36 +1211,39 @@ PersistentVolumeClaim(PVC)是对PV的请求。PVC有点类似于Pod，pod消耗n
 
 <p>每个<code class="highlighter-rouge">StorageClass</code>都包含<code class="highlighter-rouge">provisioner</code>和<code class="highlighter-rouge">parameters</code>这个两个字段，具体怎么配置这些storageclass，有哪些存储支持storageclass,请参考<a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">官网</a></p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">kind</span><span class="pi">:</span> <span class="s">StorageClass</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">storage.k8s.io/v1</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">slow</span>
-<span class="na">provisioner</span><span class="pi">:</span> <span class="s">kubernetes.io/gce-pd</span>
-<span class="na">parameters</span><span class="pi">:</span>
-  <span class="na">type</span><span class="pi">:</span> <span class="s">pd-standard</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">kind</span><span class="pi">:</span> <span class="s">StorageClass</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">storage.k8s.io/v1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">slow</span>
+<span class="s">provisioner</span><span class="pi">:</span> <span class="s">kubernetes.io/gce-pd</span>
+<span class="s">parameters</span><span class="pi">:</span>
+  <span class="s">type</span><span class="pi">:</span> <span class="s">pd-standard</span>
+</code></pre>
+</div>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">kind</span><span class="pi">:</span> <span class="s">StorageClass</span>
-<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">storage.k8s.io/v1</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">fast</span>
-<span class="na">provisioner</span><span class="pi">:</span> <span class="s">kubernetes.io/gce-pd</span>
-<span class="na">parameters</span><span class="pi">:</span>
-  <span class="na">type</span><span class="pi">:</span> <span class="s">pd-ssd</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">kind</span><span class="pi">:</span> <span class="s">StorageClass</span>
+<span class="s">apiVersion</span><span class="pi">:</span> <span class="s">storage.k8s.io/v1</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">fast</span>
+<span class="s">provisioner</span><span class="pi">:</span> <span class="s">kubernetes.io/gce-pd</span>
+<span class="s">parameters</span><span class="pi">:</span>
+  <span class="s">type</span><span class="pi">:</span> <span class="s">pd-ssd</span>
+</code></pre>
+</div>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">PersistentVolumeClaim</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">pvc-fast</span>
-  <span class="na">storageClassName</span><span class="pi">:</span> <span class="s">fast</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">accessModes</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">PersistentVolumeClaim</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">pvc-fast</span>
+  <span class="s">storageClassName</span><span class="pi">:</span> <span class="s">fast</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">accessModes</span><span class="pi">:</span>
     <span class="pi">-</span> <span class="s">ReadOnlyMany</span>
-  <span class="na">resources</span><span class="pi">:</span>
-    <span class="na">requests</span><span class="pi">:</span>
-      <span class="na">storage</span><span class="pi">:</span> <span class="s">2Gi</span>
-</code></pre></div></div>
+  <span class="s">resources</span><span class="pi">:</span>
+    <span class="s">requests</span><span class="pi">:</span>
+      <span class="s">storage</span><span class="pi">:</span> <span class="s">2Gi</span>
+</code></pre>
+</div>
 <p>当用户请求资源的时候，如果是通过pvc-fast请求，这时候就会绑定到一个SSD，而不会绑定到普通硬盘。</p>
 
 <h6 id="绑定">绑定</h6>
@@ -1236,139 +1274,146 @@ PersistentVolumeClaim(PVC)是对PV的请求。PVC有点类似于Pod，pod消耗n
 <p>这个原理实际上是：在删除PVC之后，会运行一个POD来执行一个(<code class="highlighter-rouge">rm -rf /thevolume/*</code>)的操作，删除pv下的所有数据</p>
 
 <p><strong>默认回收运行的POD用的image是gcr上的busybox，而且image策略是always，因为这个原因，你可能始终无法回收PV，这时候，就需要去重新配置回收POD的模板了，模板内容如下</strong></p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">recycler-for-nfs</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">default</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">restartPolicy</span><span class="pi">:</span> <span class="s">Never</span>
-  <span class="na">volumes</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">vol</span>
-    <span class="na">nfs</span><span class="pi">:</span>
-      <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
-      <span class="na">server</span><span class="pi">:</span> <span class="s">163.xx.xx.xx</span>
-  <span class="na">containers</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">pv-recycler</span>
-    <span class="na">image</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gcr.io/google_containers/busybox"</span>
-    <span class="na">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
-    <span class="na">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">/bin/sh"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">-c"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">test</span><span class="nv"> </span><span class="s">-e</span><span class="nv"> </span><span class="s">/scrub</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">rm</span><span class="nv"> </span><span class="s">-rf</span><span class="nv"> </span><span class="s">/scrub/..?*</span><span class="nv"> </span><span class="s">/scrub/.[!.]*</span><span class="nv"> </span><span class="s">/scrub/*</span><span class="nv">  </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">-z</span><span class="nv"> </span><span class="se">\"</span><span class="s">$(ls</span><span class="nv"> </span><span class="s">-A</span><span class="nv"> </span><span class="s">/scrub)</span><span class="se">\"</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1"</span><span class="pi">]</span>
-    <span class="na">volumeMounts</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">vol</span>
-      <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/scrub</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">recycler-for-nfs</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">default</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">restartPolicy</span><span class="pi">:</span> <span class="s">Never</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">vol</span>
+    <span class="s">nfs</span><span class="pi">:</span>
+      <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
+      <span class="s">server</span><span class="pi">:</span> <span class="s">163.xx.xx.xx</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">pv-recycler</span>
+    <span class="s">image</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gcr.io/google_containers/busybox"</span>
+    <span class="s">imagePullPolicy</span><span class="pi">:</span> <span class="s">IfNotPresent</span>
+    <span class="s">command</span><span class="pi">:</span> <span class="pi">[</span><span class="s2">"</span><span class="s">/bin/sh"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">-c"</span><span class="pi">,</span> <span class="s2">"</span><span class="s">test</span><span class="nv"> </span><span class="s">-e</span><span class="nv"> </span><span class="s">/scrub</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">rm</span><span class="nv"> </span><span class="s">-rf</span><span class="nv"> </span><span class="s">/scrub/..?*</span><span class="nv"> </span><span class="s">/scrub/.[!.]*</span><span class="nv"> </span><span class="s">/scrub/*</span><span class="nv">  </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">-z</span><span class="nv"> </span><span class="se">\"</span><span class="s">$(ls</span><span class="nv"> </span><span class="s">-A</span><span class="nv"> </span><span class="s">/scrub)</span><span class="se">\"</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1"</span><span class="pi">]</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">vol</span>
+      <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/scrub</span>
+</code></pre>
+</div>
 
 <p>写好模板了，还需要在<code class="highlighter-rouge">kube-controller-manager</code>中去配置模板，<a href="https://kubernetes.io/docs/admin/kube-controller-manager/">更多详细信息</a>可参考官网</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 指定nfs回收模板的位置</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="c1"># 指定nfs回收模板的位置</span>
 <span class="pi">-</span> <span class="s">--pv-recycler-pod-template-filepath-nfs=/etc/kubernetes/recycler-for-nfs.yaml</span>
 
 <span class="c1"># 在容器下挂载模板文件</span>
-<span class="na">volumeMounts</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">mountPath</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/etc/kubernetes/recycler-for-nfs.yaml"</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">recycler-nfs</span>
+<span class="s">volumeMounts</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/etc/kubernetes/recycler-for-nfs.yaml"</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">recycler-nfs</span>
 
 <span class="c1"># 将宿主机上的模板文件挂载到pod</span>
-<span class="na">volumes</span><span class="pi">:</span>
-<span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">recycler-nfs</span>
-  <span class="na">hostPath</span><span class="pi">:</span>
-    <span class="na">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/etc/kubernetes/recycler-for-nfs.yaml"</span>
-</code></pre></div></div>
+<span class="s">volumes</span><span class="pi">:</span>
+<span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">recycler-nfs</span>
+  <span class="s">hostPath</span><span class="pi">:</span>
+    <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/etc/kubernetes/recycler-for-nfs.yaml"</span>
+</code></pre>
+</div>
 
 <p>下面我们来新建PV和PVC来测试一下</p>
 
 <p>nfs-pv.yaml</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">PersistentVolume</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">nfs</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">capacity</span><span class="pi">:</span>
-    <span class="na">storage</span><span class="pi">:</span> <span class="s">5Gi</span>
-  <span class="na">accessModes</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">PersistentVolume</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">nfs</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">capacity</span><span class="pi">:</span>
+    <span class="s">storage</span><span class="pi">:</span> <span class="s">5Gi</span>
+  <span class="s">accessModes</span><span class="pi">:</span>
     <span class="pi">-</span> <span class="s">ReadWriteOnce</span>
-  <span class="na">persistentVolumeReclaimPolicy</span><span class="pi">:</span> <span class="s">Recycle</span>
-  <span class="na">nfs</span><span class="pi">:</span>
-    <span class="na">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
-    <span class="na">server</span><span class="pi">:</span> <span class="s">163.44.165.142</span>
-</code></pre></div></div>
+  <span class="s">persistentVolumeReclaimPolicy</span><span class="pi">:</span> <span class="s">Recycle</span>
+  <span class="s">nfs</span><span class="pi">:</span>
+    <span class="s">path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/"</span>
+    <span class="s">server</span><span class="pi">:</span> <span class="s">163.44.165.142</span>
+</code></pre>
+</div>
 
 <p>nfs-pvc.yaml</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">PersistentVolumeClaim</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">nfs</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">accessModes</span><span class="pi">:</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">PersistentVolumeClaim</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">nfs</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">accessModes</span><span class="pi">:</span>
     <span class="pi">-</span> <span class="s">ReadWriteOnce</span>
-  <span class="na">resources</span><span class="pi">:</span>
-    <span class="na">requests</span><span class="pi">:</span>
-      <span class="na">storage</span><span class="pi">:</span> <span class="s">5Gi</span>
-</code></pre></div></div>
+  <span class="s">resources</span><span class="pi">:</span>
+    <span class="s">requests</span><span class="pi">:</span>
+      <span class="s">storage</span><span class="pi">:</span> <span class="s">5Gi</span>
+</code></pre>
+</div>
 
 <p>nfs-nginx.yaml</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">test-pd</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">containers</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">image</span><span class="pi">:</span> <span class="s">nginx</span>
-    <span class="na">name</span><span class="pi">:</span> <span class="s">test-container</span>
-    <span class="na">volumeMounts</span><span class="pi">:</span>
-    <span class="pi">-</span> <span class="na">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
-      <span class="na">name</span><span class="pi">:</span> <span class="s">test-volume</span>
-  <span class="na">volumes</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">test-volume</span>
-    <span class="na">persistentVolumeClaim</span><span class="pi">:</span>
-      <span class="na">claimName</span><span class="pi">:</span> <span class="s">nfs</span>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">test-pd</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">image</span><span class="pi">:</span> <span class="s">nginx</span>
+    <span class="s">name</span><span class="pi">:</span> <span class="s">test-container</span>
+    <span class="s">volumeMounts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">mountPath</span><span class="pi">:</span> <span class="s">/test-pd</span>
+      <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+  <span class="s">volumes</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">name</span><span class="pi">:</span> <span class="s">test-volume</span>
+    <span class="s">persistentVolumeClaim</span><span class="pi">:</span>
+      <span class="s">claimName</span><span class="pi">:</span> <span class="s">nfs</span>
 
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>命令如下：</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建PV,PVC以及关联的POD</span>
-kubectl create <span class="nt">-f</span> nfs-pv.yaml
-kubectl create <span class="nt">-f</span> nfs-pvc.yaml
-kubectl create <span class="nt">-f</span> nfs-nginx.yaml
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 创建PV,PVC以及关联的POD</span>
+kubectl create -f nfs-pv.yaml
+kubectl create -f nfs-pvc.yaml
+kubectl create -f nfs-nginx.yaml
 
 <span class="c"># 查看创建的PV</span>
-<span class="nv">$ </span>kubectl get pv
+<span class="gp">$ </span>kubectl get pv
 NAME      CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS    CLAIM         STORAGECLASS   REASON    AGE
 nfs       5Gi        RWO           Recycle         Bound     default/nfs                            1h
 
 <span class="c"># 查看创建的PVC</span>
-<span class="nv">$ </span>kubectl get pvc
+<span class="gp">$ </span>kubectl get pvc
 NAME      STATUS    VOLUME    CAPACITY   ACCESSMODES   STORAGECLASS   AGE
 nfs       Bound     nfs       5Gi        RWO                          8m
 
 <span class="c"># 然后我们进入pod中新建一个文件recycle-file</span>
-<span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">-ti</span> test-pd /bin/bash
-<span class="nv">$ </span>touch recycle-file
-</code></pre></div></div>
+<span class="gp">$ </span>kubectl <span class="nb">exec</span> -ti <span class="nb">test</span>-pd /bin/bash
+<span class="gp">$ </span>touch recycle-file
+</code></pre>
+</div>
 
 <p>我们发现nfs的回收策略是<code class="highlighter-rouge">Recycle</code>，当前状态是<code class="highlighter-rouge">Bound</code>，那么假如我现在将PVC删除掉呢，下面我们来操作试试看</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl delete <span class="nt">-f</span> nfs-nginx.yaml
-kubectl delete <span class="nt">-f</span> nfs-pvc.yaml
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl delete -f nfs-nginx.yaml
+kubectl delete -f nfs-pvc.yaml
 
 <span class="c"># 查看现在的pv</span>
-<span class="nv">$ </span>kubectl get pv
+<span class="gp">$ </span>kubectl get pv
 NAME      CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS     CLAIM         STORAGECLASS   REASON    AGE
 nfs       5Gi        RWO           Recycle         Released   default/nfs                            1h
 
 <span class="c"># 过了一会儿，再看pv</span>
-<span class="nv">$ </span>kubectl get pv
+<span class="gp">$ </span>kubectl get pv
 NAME      CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS      CLAIM     STORAGECLASS   REASON    AGE
 nfs       5Gi        RWO           Recycle         Available                                      1h
 
 <span class="c"># 再重新使用PVC关联POD</span>
-kubectl create <span class="nt">-f</span> nfs-pvc.yaml
-kubectl create <span class="nt">-f</span> nfs-nginx.yaml
+kubectl create -f nfs-pvc.yaml
+kubectl create -f nfs-nginx.yaml
 
 <span class="c"># 进入pod中看看数据是否还存在</span>
-<span class="nv">$ </span>kubectl <span class="nb">exec</span> <span class="nt">-ti</span> test-pd <span class="nb">ls</span> /test-pd
-</code></pre></div></div>
+<span class="gp">$ </span>kubectl <span class="nb">exec</span> -ti <span class="nb">test</span>-pd ls /test-pd
+</code></pre>
+</div>
 
 <p>我们发现当我们的回收策略是<code class="highlighter-rouge">Recycle</code>时，删除PVC之后，PV的状态先是<code class="highlighter-rouge">Released</code>，然后过一会儿之后，会变成<code class="highlighter-rouge">Available</code>状态，而且PV上的数据也已经被删除了，这时候就可以再次被其他的PVC使用了。</p>
 
@@ -1468,26 +1513,15 @@ kubectl create <span class="nt">-f</span> nfs-nginx.yaml
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -1501,7 +1535,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -1527,39 +1561,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -1569,15 +1603,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

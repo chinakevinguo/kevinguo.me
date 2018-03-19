@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>kubespray容器化部署kubernetes高可用集群(3) &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/07/06/kubespray-deploy-kubernetes-3/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="kubespray容器化部署kubernetes高可用集群(3)">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-07-06">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,12 +100,12 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+            <a href="/categories/#kubernetes" title="kubernetes">kubernetes</a>
           </span>
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#docker" title="docker">docker</a>
+            <a href="/categories/#docker" title="docker">docker</a>
           </span>
           
         </div>
@@ -140,32 +140,35 @@
 
 <p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/kubernetes.git">最新源码</a></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
+</code></pre>
+</div>
 
 <p>2.进入dashboard所在的目录，执行yml文件</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/dashboard
-kubectl create <span class="nt">-f</span> <span class="nb">.</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/dashboard
+kubectl create -f .
+</code></pre>
+</div>
 
 <p>3.确认dashboard是否成功创建</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认deployment</span>
-kubectl get deployment <span class="nt">-n</span> kube-system |grep dashboard
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 确认deployment</span>
+kubectl get deployment -n kube-system |grep dashboard
 
 <span class="c"># 确认svc</span>
-kubectl get svc <span class="nt">-n</span> kube-system |grep dashboard
+kubectl get svc -n kube-system |grep dashboard
 
 <span class="c"># 确认ep</span>
-kubectl get ep <span class="nt">-n</span> kube-system |grep dashboard
+kubectl get ep -n kube-system |grep dashboard
 
 <span class="c"># 确认pods</span>
-kubectl get pods <span class="nt">-n</span> kube-system |grep dashboard
+kubectl get pods -n kube-system |grep dashboard
 
 <span class="c"># 查看日志是否有报错</span>
-kubectl logs kubernetes-dashboard-1041558748-sppxt <span class="nt">-n</span> kube-system
-</code></pre></div></div>
+kubectl logs kubernetes-dashboard-1041558748-sppxt -n kube-system
+</code></pre>
+</div>
 
 <p>初步确认dashboard启动成功，最终确认，需要等ingress创建后访问再看</p>
 
@@ -173,54 +176,59 @@ kubectl logs kubernetes-dashboard-1041558748-sppxt <span class="nt">-n</span> ku
 
 <p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/kubernetes.git">最新源码</a></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/kubernetes/kubernetes.git
+</code></pre>
+</div>
 
 <p>2.为你要运行fluentd的节点添加label，因为<code class="highlighter-rouge">fluentd-es-ds.yml</code>文件中有<code class="highlighter-rouge">beta.kubernetes.io/fluentd-ds-ready: "true"</code>标签</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl label node k8s-node01 beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true
 </span>kubectl label node k8s-node02 beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true
 </span>kubectl label node k8s-registry beta.kubernetes.io/fluentd-ds-ready<span class="o">=</span><span class="nb">true</span>
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>3.确认标签添加是否成功</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@k8s-master01 ~]# kubectl get nodes <span class="nt">-l</span> beta.kubernetes.io/fluentd-ds-ready
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>root@k8s-master01 ~]# kubectl get nodes -l beta.kubernetes.io/fluentd-ds-ready
 NAME           STATUS    AGE       VERSION
 k8s-node01     Ready     19h       v1.6.7+coreos.0
 k8s-node02     Ready     19h       v1.6.7+coreos.0
 k8s-registry   Ready     19h       v1.6.7+coreos.0
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>4.进入fluentd-elasticsearch所在的目录，执行yml文件</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/fluentd-elasticsearch
-kubectl create <span class="nt">-f</span> <span class="nb">.</span>
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/kubernetes/cluster/addons/fluentd-elasticsearch
+kubectl create -f .
+</code></pre>
+</div>
 
 <p>5.确认EFK是否创建成功</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认elasticsearch是否创建成功</span>
-kubectl get statefulset <span class="nt">-n</span> kube-system |grep elasticsearch
-kubectl get svc <span class="nt">-n</span> kube-system|grep elasticsearch
-kubectl get ep <span class="nt">-n</span> kube-system |grep elasticsearch
-kubectl get pods <span class="nt">-n</span> kube-system |grep elasticsearch
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 确认elasticsearch是否创建成功</span>
+kubectl get statefulset -n kube-system |grep elasticsearch
+kubectl get svc -n kube-system|grep elasticsearch
+kubectl get ep -n kube-system |grep elasticsearch
+kubectl get pods -n kube-system |grep elasticsearch
 
 <span class="c"># 确认fluentd是否创建成功</span>
-kubectl get ds <span class="nt">-n</span> kube-system |grep fluentd
-kubectl get pods <span class="nt">-n</span> kube-system <span class="nt">-o</span> wide |grep fluentd
+kubectl get ds -n kube-system |grep fluentd
+kubectl get pods -n kube-system -o wide |grep fluentd
 
 <span class="c"># 确认kibana是否创建成功</span>
-kubectl get deployment <span class="nt">-n</span> kube-system |grep kibana
-kubectl get svc <span class="nt">-n</span> kube-system|grep kibana
-kubectl get ep <span class="nt">-n</span> kube-system |grep kibana
-kubectl get pods <span class="nt">-n</span> kube-system |grep kibana
+kubectl get deployment -n kube-system |grep kibana
+kubectl get svc -n kube-system|grep kibana
+kubectl get ep -n kube-system |grep kibana
+kubectl get pods -n kube-system |grep kibana
 
 <span class="c"># 查看日志是否有报错</span>
 kubectl logs elasticsearch-logging-0
-kubectl logs fluentd-es-v2.0.1-kn2h2 <span class="nt">-n</span> kube-system
-kubectl logs kibana-logging-3636197754-tnwjh <span class="nt">-n</span> kube-system
-</code></pre></div></div>
+kubectl logs fluentd-es-v2.0.1-kn2h2 -n kube-system
+kubectl logs kibana-logging-3636197754-tnwjh -n kube-system
+</code></pre>
+</div>
 
 <p>初步确认EFK启动成功，最终确认，需要等ingress创建后访问再看</p>
 
@@ -230,40 +238,43 @@ kubectl logs kibana-logging-3636197754-tnwjh <span class="nt">-n</span> kube-sys
 
 <p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/heapster.git">最新源码</a></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/heapster.git
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/kubernetes/heapster.git
+</code></pre>
+</div>
 
 <p>2.进入heapster的deploy目录，执行kube.sh</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/heapster/deploy
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/heapster/deploy
 sh kube.sh start
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>3.确认heapster是否创建成功</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认heapster是否创建成功</span>
-kubectl get deployment <span class="nt">-n</span> kube-system |grep heapster
-kubectl get svc <span class="nt">-n</span> kube-system |grep heapster
-kubectl get ep <span class="nt">-n</span> kube-system |grep heapster
-kubectl get pods <span class="nt">-n</span> kube-system |grep heapster
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 确认heapster是否创建成功</span>
+kubectl get deployment -n kube-system |grep heapster
+kubectl get svc -n kube-system |grep heapster
+kubectl get ep -n kube-system |grep heapster
+kubectl get pods -n kube-system |grep heapster
 
 <span class="c"># 确认influxdb是否创建成功</span>
-kubectl get deployment <span class="nt">-n</span> kube-system |grep influxdb
-kubectl get svc <span class="nt">-n</span> kube-system |grep influxdb
-kubectl get ep <span class="nt">-n</span> kube-system |grep influxdb
-kubectl get pods <span class="nt">-n</span> kube-system |grep influxdb
+kubectl get deployment -n kube-system |grep influxdb
+kubectl get svc -n kube-system |grep influxdb
+kubectl get ep -n kube-system |grep influxdb
+kubectl get pods -n kube-system |grep influxdb
 
 <span class="c"># 确认grafana是否创建成功</span>
-kubectl get deployment <span class="nt">-n</span> kube-system |grep grafana
-kubectl get svc <span class="nt">-n</span> kube-system |grep grafana
-kubectl get ep <span class="nt">-n</span> kube-system |grep grafana
-kubectl get pods <span class="nt">-n</span> kube-system |grep grafana
+kubectl get deployment -n kube-system |grep grafana
+kubectl get svc -n kube-system |grep grafana
+kubectl get ep -n kube-system |grep grafana
+kubectl get pods -n kube-system |grep grafana
 
 <span class="c"># 查看日志是否有报错</span>
-kubectl logs heapster-1528902802-wcf24 <span class="nt">-n</span> kube-system
-kubectl logs monitoring-grafana-2527507788-jsw1n <span class="nt">-n</span> kube-system
-kubectl logs monitoring-influxdb-3480804314-31h4w <span class="nt">-n</span> kube-system
-</code></pre></div></div>
+kubectl logs heapster-1528902802-wcf24 -n kube-system
+kubectl logs monitoring-grafana-2527507788-jsw1n -n kube-system
+kubectl logs monitoring-influxdb-3480804314-31h4w -n kube-system
+</code></pre>
+</div>
 
 <p>初步确认heapster启动成功，最终确认，需要等ingress创建后访问再看</p>
 
@@ -286,14 +297,16 @@ kubectl logs monitoring-influxdb-3480804314-31h4w <span class="nt">-n</span> kub
 
 <p>1.从<code class="highlighter-rouge">kubernetes</code>官方git下载<a href="https://github.com/kubernetes/ingress.git">最新源码</a></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/ingress.git
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/kubernetes/ingress.git
+</code></pre>
+</div>
 
 <p>2.为你要运行 Ingress 的节点添加label标签：role=frontal</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl label node k8s-node01 <span class="nv">role</span><span class="o">=</span>frontal
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl label node k8s-node01 <span class="nv">role</span><span class="o">=</span>frontal
 kubectl label node k8s-node02 <span class="nv">role</span><span class="o">=</span>frontal
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>3.进入ingress的<code class="highlighter-rouge">examples/daemonset/nginx</code>目录，修改yml文件</p>
 
@@ -305,20 +318,22 @@ kubectl label node k8s-node02 <span class="nv">role</span><span class="o">=</spa
 
 <p>执行创建</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/ingress/examples/daemonset/nginx
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/ingress/examples/daemonset/nginx
 
-kubectl create <span class="nt">-f</span> nginx-ingress-daemonset.yaml
-</code></pre></div></div>
+kubectl create -f nginx-ingress-daemonset.yaml
+</code></pre>
+</div>
 
 <p>4.确认 Ingress controller 是否创建成功</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 确认 ingress 是否创建成功</span>
-kubectl get ds <span class="nt">-n</span> kube-system |grep ing
-kubectl get pods <span class="nt">-n</span> kube-system |grep ingress
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 确认 ingress 是否创建成功</span>
+kubectl get ds -n kube-system |grep ing
+kubectl get pods -n kube-system |grep ingress
 
 <span class="c"># 查看日志是否有报错</span>
-kubectl logs nginx-ingress-lb-mfdh5 <span class="nt">-n</span> kube-system
-</code></pre></div></div>
+kubectl logs nginx-ingress-lb-mfdh5 -n kube-system
+</code></pre>
+</div>
 
 <p>初步确认ingress controller启动成功，最终确认，需要等ingress创建后访问再看</p>
 
@@ -326,63 +341,67 @@ kubectl logs nginx-ingress-lb-mfdh5 <span class="nt">-n</span> kube-system
 
 <p>dashboard-ingress.yml</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">dashboard-ingress</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">rules</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">dashboard.kevinguo.me</span>
-    <span class="na">http</span><span class="pi">:</span>
-      <span class="na">paths</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
-          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
-          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">80</span>
-        <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">dashboard-ingress</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">host</span><span class="pi">:</span> <span class="s">dashboard.kevinguo.me</span>
+    <span class="s">http</span><span class="pi">:</span>
+      <span class="s">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">backend</span><span class="pi">:</span>
+          <span class="s">serviceName</span><span class="pi">:</span> <span class="s">kubernetes-dashboard</span>
+          <span class="s">servicePort</span><span class="pi">:</span> <span class="s">80</span>
+        <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
+</code></pre>
+</div>
 
 <p>kibana-ingress.yml</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">kibana-ingress</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">rules</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">kibana.kevinguo.me</span>
-    <span class="na">http</span><span class="pi">:</span>
-      <span class="na">paths</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
-          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">kibana-logging</span>
-          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">5601</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">kibana-ingress</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">host</span><span class="pi">:</span> <span class="s">kibana.kevinguo.me</span>
+    <span class="s">http</span><span class="pi">:</span>
+      <span class="s">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">backend</span><span class="pi">:</span>
+          <span class="s">serviceName</span><span class="pi">:</span> <span class="s">kibana-logging</span>
+          <span class="s">servicePort</span><span class="pi">:</span> <span class="s">5601</span>
+</code></pre>
+</div>
 
 <p>elasticsearch-ingress.yml</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
-<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
-<span class="na">metadata</span><span class="pi">:</span>
-  <span class="na">name</span><span class="pi">:</span> <span class="s">elasticsearch-ingress</span>
-  <span class="na">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
-<span class="na">spec</span><span class="pi">:</span>
-  <span class="na">rules</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">elasticsearch.kevinguo.me</span>
-    <span class="na">http</span><span class="pi">:</span>
-      <span class="na">paths</span><span class="pi">:</span>
-      <span class="pi">-</span> <span class="na">backend</span><span class="pi">:</span>
-          <span class="na">serviceName</span><span class="pi">:</span> <span class="s">elasticsearch-logging</span>
-          <span class="na">servicePort</span><span class="pi">:</span> <span class="s">9200</span>
-        <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
-</code></pre></div></div>
+<div class="language-yaml highlighter-rouge"><pre class="highlight"><code><span class="s">apiVersion</span><span class="pi">:</span> <span class="s">extensions/v1beta1</span>
+<span class="s">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="s">metadata</span><span class="pi">:</span>
+  <span class="s">name</span><span class="pi">:</span> <span class="s">elasticsearch-ingress</span>
+  <span class="s">namespace</span><span class="pi">:</span> <span class="s">kube-system</span>
+<span class="s">spec</span><span class="pi">:</span>
+  <span class="s">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">host</span><span class="pi">:</span> <span class="s">elasticsearch.kevinguo.me</span>
+    <span class="s">http</span><span class="pi">:</span>
+      <span class="s">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">backend</span><span class="pi">:</span>
+          <span class="s">serviceName</span><span class="pi">:</span> <span class="s">elasticsearch-logging</span>
+          <span class="s">servicePort</span><span class="pi">:</span> <span class="s">9200</span>
+        <span class="s">path</span><span class="pi">:</span> <span class="s">/</span>
+</code></pre>
+</div>
 
 <p>执行创建</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create <span class="nt">-f</span> elasticsearch-ingress.yml
-kubectl create <span class="nt">-f</span> dashboard-ingress.yml
-kubectl create <span class="nt">-f</span> kibana-ingress.yml
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>kubectl create -f elasticsearch-ingress.yml
+kubectl create -f dashboard-ingress.yml
+kubectl create -f kibana-ingress.yml
+</code></pre>
+</div>
 
 <p>创建完成后，我们来看看据诶过如何呢</p>
 
@@ -442,26 +461,15 @@ kubectl create <span class="nt">-f</span> kibana-ingress.yml
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -475,7 +483,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -501,39 +509,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -543,15 +551,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>

@@ -5,25 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>kubernetes ceph 笔记 2 &mdash; KevinGuo</title>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-css/css/primer.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/primer-markdown/dist/user-content.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/octicons/octicons/octicons.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/collection.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/repo-card.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/sections/mini-repo-list.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/components/boxed-group.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/common.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/vendor/share.js/dist/css/share.min.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/responsive.css">
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/posts/index.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
     <!-- Latest compiled and minified CSS -->
     
 
     
     <link rel="canonical" href="https://kevinguo.me/2017/09/12/kubernetes-ceph-2/">
-    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="https://kevinguo.me/feed.xml">
-    <link rel="shortcut icon" href="https://kevinguo.me/favicon.ico">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
     
     <meta property="og:title" content="kubernetes ceph 笔记 2">
       
@@ -44,8 +44,8 @@
     
     <meta property="article:published_time" content="2017-09-12">
     
-    <script src="https://kevinguo.me/assets/vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/jquery-ui.js"></script>
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
     <script type="text/javascript">
     function toggleMenu() {
         var nav = document.getElementsByClassName("site-header-nav")[0];
@@ -60,7 +60,7 @@
 <body class="" data-mz="">
     <header class="site-header">
         <div class="container">
-            <h1><a href="https://kevinguo.me/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
             <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
@@ -68,17 +68,17 @@
             </button>
             <nav class="site-header-nav" role="navigation">
                 
-                <a href="https://kevinguo.me/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
                 
-                <a href="https://kevinguo.me/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
                 
-                <a href="https://kevinguo.me/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
                 
-                <a href="https://kevinguo.me/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
                 
-                <a href="https://kevinguo.me/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
                 
-                <a href="https://kevinguo.me/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
                 
             </nav>
         </div>
@@ -100,12 +100,12 @@
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#kubernetes" title="kubernetes">kubernetes</a>
+            <a href="/categories/#kubernetes" title="kubernetes">kubernetes</a>
           </span>
           
           <span class="meta-info">
             <span class="octicon octicon-file-directory"></span>
-            <a href="https://kevinguo.me/categories/#ceph" title="ceph">ceph</a>
+            <a href="/categories/#ceph" title="ceph">ceph</a>
           </span>
           
         </div>
@@ -193,7 +193,7 @@ data distribution policy由 placement rules组成。rule决定了每个数据对
 
 <p>1.pool 操作</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 列出池</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 列出池</span>
 ceph osd lspools
 
 <span class="c"># 在配置文件中调整默认PG 数量以及副本数</span>
@@ -211,71 +211,77 @@ ceph osd pool get k8s-pool pg_num/pgp_num
 ceph osd pool <span class="nb">set </span>k8s-pool size 10
 
 <span class="c"># 获取对象副本数</span>
-ceph osd dump | <span class="nb">grep</span> <span class="s1">'replicated size'</span>
+ceph osd dump | grep <span class="s1">'replicated size'</span>
 
 <span class="c"># 删除池</span>
-ceph osd pool delete k8s-pool k8s-pool <span class="nt">--yes-i-really-really-mean-it</span>
-</code></pre></div></div>
+ceph osd pool delete k8s-pool k8s-pool --yes-i-really-really-mean-it
+</code></pre>
+</div>
 
 <p>2.object操作</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 将对象放入到池内</span>
-rados put test-object testfile.txt <span class="nt">-p</span> cephfs_data
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 将对象放入到池内</span>
+rados put <span class="nb">test</span>-object testfile.txt -p cephfs_data
 
 <span class="c"># 列出池中对象</span>
-rados <span class="nb">ls</span> <span class="nt">-p</span> cephfs_data
+rados ls -p cephfs_data
 
 <span class="c"># 检查池中对象位置</span>
-ceph osd map cephfs_data test-object
+ceph osd map cephfs_data <span class="nb">test</span>-object
 
 <span class="c"># 删除对象</span>
-rados rm test-object <span class="nt">-p</span> cephfs_data
-</code></pre></div></div>
+rados rm <span class="nb">test</span>-object -p cephfs_data
+</code></pre>
+</div>
 
 <p>3.PG和PGP操作</p>
 
 <p>预设Ceph集群中的PG数至关重要，公式如下:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PG 总数 <span class="o">=</span> <span class="o">(</span>OSD 数 <span class="k">*</span> 100<span class="o">)</span> / 最大副本数
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>PG 总数 <span class="o">=</span> <span class="o">(</span>OSD 数 <span class="k">*</span> 100<span class="o">)</span> / 最大副本数
+</code></pre>
+</div>
 
 <p>集群中单个池的PG数计算公式如下：</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PG 总数 <span class="o">=</span> <span class="o">(</span>OSD 数 <span class="k">*</span> 100<span class="o">)</span> / 最大副本数 / 池数
-</code></pre></div></div>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>PG 总数 <span class="o">=</span> <span class="o">(</span>OSD 数 <span class="k">*</span> 100<span class="o">)</span> / 最大副本数 / 池数
+</code></pre>
+</div>
 
 <p>PGP是为了实现定位而设计的PG，PGP的值应该和PG数量保持一致；pgp_num 数值才是 CRUSH 算法采用的真实值。虽然 pg_num 的增加引起了PG的分割，但是只有当 pgp_num增加以后，数据才会被迁移到新PG中，这样才会重新开始平衡。</p>
 
 <p>获取PG和PGP的方式如下：</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ceph osd pool get cephfs_data pg_num
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ceph osd pool get cephfs_data pg_num
 ceph osd pool get cephfs_data pgp_num
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>调整方式如下：</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ceph osd pool <span class="nb">set </span>cephfs_data pgp_num 32
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>ceph osd pool <span class="nb">set </span>cephfs_data pgp_num 32
 ceph osd pool <span class="nb">set </span>cephfs_data pgp_num 32
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>3.Cluster map 操作</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 查看现有集群布局</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># 查看现有集群布局</span>
 <span class="c"># 基本上一台机器上一个osd</span>
-<span class="nv">$ </span> ceph osd tree
+<span class="gp">$  </span>ceph osd tree
 ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
-<span class="nt">-1</span> 0.28134 root default                                            
-<span class="nt">-2</span> 0.04689     host k8s-master01                                   
+-1 0.28134 root default                                            
+-2 0.04689     host k8s-master01                                   
  0 0.04689         osd.0              up  1.00000          1.00000
-<span class="nt">-3</span> 0.04689     host k8s-master02                                   
+-3 0.04689     host k8s-master02                                   
  1 0.04689         osd.1              up  1.00000          1.00000
-<span class="nt">-4</span> 0.04689     host k8s-master03                                   
+-4 0.04689     host k8s-master03                                   
  2 0.04689         osd.2              up  1.00000          1.00000
-<span class="nt">-5</span> 0.04689     host k8s-node01                                     
+-5 0.04689     host k8s-node01                                     
  3 0.04689         osd.3              up  1.00000          1.00000
-<span class="nt">-6</span> 0.04689     host k8s-node02                                     
+-6 0.04689     host k8s-node02                                     
  4 0.04689         osd.4              up  1.00000          1.00000
-<span class="nt">-7</span> 0.04689     host k8s-registry                                   
+-7 0.04689     host k8s-registry                                   
  5 0.04689         osd.5              up  1.00000          1.00000
 
 
@@ -293,28 +299,30 @@ ceph osd crush move k8s-master03 <span class="nv">rack</span><span class="o">=</
 ceph osd crush move rack01 <span class="nv">root</span><span class="o">=</span>default
 ceph osd crush move rack02 <span class="nv">root</span><span class="o">=</span>default
 ceph osd crush move rack03 <span class="nv">root</span><span class="o">=</span>default
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <p>最终集群整体布局如下，我们可以看到每个机器都被分配到了对应的机架下面，从逻辑上进行了分隔</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ceph osd tree
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ceph osd tree
 ID  WEIGHT  TYPE NAME                 UP/DOWN REWEIGHT PRIMARY-AFFINITY
- <span class="nt">-1</span> 0.28134 root default                                                
- <span class="nt">-5</span> 0.04689     host k8s-node01                                         
+ -1 0.28134 root default                                                
+ -5 0.04689     host k8s-node01                                         
   3 0.04689         osd.3                  up  1.00000          1.00000
- <span class="nt">-6</span> 0.04689     host k8s-node02                                         
+ -6 0.04689     host k8s-node02                                         
   4 0.04689         osd.4                  up  1.00000          1.00000
- <span class="nt">-7</span> 0.04689     host k8s-registry                                       
+ -7 0.04689     host k8s-registry                                       
   5 0.04689         osd.5                  up  1.00000          1.00000
- <span class="nt">-8</span> 0.04689     rack rack01                                             
- <span class="nt">-2</span> 0.04689         host k8s-master01                                   
+ -8 0.04689     rack rack01                                             
+ -2 0.04689         host k8s-master01                                   
   0 0.04689             osd.0              up  1.00000          1.00000
- <span class="nt">-9</span> 0.04689     rack rack02                                             
- <span class="nt">-3</span> 0.04689         host k8s-master02                                   
+ -9 0.04689     rack rack02                                             
+ -3 0.04689         host k8s-master02                                   
   1 0.04689             osd.1              up  1.00000          1.00000
-<span class="nt">-10</span> 0.04689     rack rack03                                             
- <span class="nt">-4</span> 0.04689         host k8s-master03                                   
+-10 0.04689     rack rack03                                             
+ -4 0.04689         host k8s-master03                                   
   2 0.04689             osd.2              up  1.00000          1.00000
-</code></pre></div></div>
+</code></pre>
+</div>
 
 <h3 id="ceph硬件配置">Ceph硬件配置</h3>
 
@@ -378,26 +386,15 @@ ID  WEIGHT  TYPE NAME                 UP/DOWN REWEIGHT PRIMARY-AFFINITY
 <h3>Search</h3>
 <div id="site_search">
     <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
 </div>
 
 <ul id="search_results"></ul>
 
-<link rel="stylesheet" type="text/css" href="https://kevinguo.me/assets/css/modules/sidebar-search.css">
-<script src="https://kevinguo.me/assets/js/simple-jekyll-search.min.js"></script>
-<script src="https://kevinguo.me/assets/js/search.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
 
-<script type="text/javascript">
-SimpleJekyllSearch({
-    searchInput: document.getElementById('search_box'),
-    resultsContainer: document.getElementById('search_results'),
-    json: 'https://kevinguo.me/assets/search_data.json',
-    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
-    noResultsText: 'No results found',
-    limit: ,
-    fuzzy: false,
-    exclude: ['Welcome']
-})
-</script>
 
     
 
@@ -411,7 +408,7 @@ SimpleJekyllSearch({
   </section>
 </div>
 
-<script src="https://kevinguo.me/assets/js/jquery.toc.js"></script>
+<script src="/assets/js/jquery.toc.js"></script>
 
   </div>
 </div>
@@ -437,39 +434,39 @@ SimpleJekyllSearch({
             <ul class="site-footer-links mobile-hidden">
                 
                 <li>
-                    <a href="https://kevinguo.me/" title="首页" target="">首页</a>
+                    <a href="/" title="首页" target="">首页</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/categories/" title="分类" target="">分类</a>
+                    <a href="/categories/" title="分类" target="">分类</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/wiki/" title="维基" target="">维基</a>
+                    <a href="/wiki/" title="维基" target="">维基</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/open-source/" title="开源" target="">开源</a>
+                    <a href="/open-source/" title="开源" target="">开源</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/links/" title="链接" target="">链接</a>
+                    <a href="/links/" title="链接" target="">链接</a>
                 </li>
                 
                 <li>
-                    <a href="https://kevinguo.me/about/" title="关于" target="">关于</a>
+                    <a href="/about/" title="关于" target="">关于</a>
                 </li>
                 
-                <li><a href="https://kevinguo.me/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
             </ul>
 
         </div>
     </footer>
     <!-- / footer -->
-    <script src="https://kevinguo.me/assets/vendor/share.js/dist/js/share.min.js"></script>
-    <script src="https://kevinguo.me/assets/js/geopattern.js"></script>
-    <script src="https://kevinguo.me/assets/js/prism.js"></script>
-    <link rel="stylesheet" href="https://kevinguo.me/assets/css/globals/prism.css">
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
     <script>
       jQuery(document).ready(function($) {
         // geopattern
@@ -479,15 +476,6 @@ SimpleJekyllSearch({
        // hljs.initHighlightingOnLoad();
       });
     </script>
-
-    
-
-    
-
-    
-
-    
-
     
     <div style="display:none">
       <script>
