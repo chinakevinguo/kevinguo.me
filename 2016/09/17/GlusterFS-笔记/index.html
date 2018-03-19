@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//piwik.mritd.me/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//piwik.mritd.me/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GlusterFS 笔记 &mdash; 漠然</title>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/collection.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/common.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://mritd.me/2016/09/17/GlusterFS-%E7%AC%94%E8%AE%B0/">
+    <link rel="alternate" type="application/atom+xml" title="漠然" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="GlusterFS 笔记">
+      
+    <meta name="keywords" content="Linux,GlusterFS">
+    <meta name="og:keywords" content="Linux,GlusterFS">
+      
+    <meta name="description" content="一、简介">
+    <meta name="og:description" content="一、简介">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://mritd.me/2016/09/17/GlusterFS-%E7%AC%94%E8%AE%B0/">
+    <meta property="og:site_name" content="漠然">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2016-09-17">
+    
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="漠然"><span class="octicon octicon-mark-github"></span> 漠然</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="GlusterFS 笔记">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">GlusterFS 笔记</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2016/09/17
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#Linux" title="Linux">Linux</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <h2 id="一简介">一、简介</h2>
+
+<p>GlusterFS 是近年兴起的一个高性能开源分布式文件系统，其目标是全局命名空间、分布式前端的高性能文件系统，目前已被 RedHat 看中，GlusterFS 具有高扩展、高可性、高性能、可横向扩展等特点，并且 GlusterFS 没有元数据服务器的设计，使其没有单点故障问题。</p>
+
+<h2 id="二glusterfs-集群搭建">二、GlusterFS 集群搭建</h2>
+
+<h3 id="21环境准备">2.1、环境准备</h3>
+
+<p>由于资源有限，所以以虚拟机测试，故性能上无法体现，毕竟是一块硬盘，搭建环境如下</p>
+
+<!--more-->
+
+<table>
+  <thead>
+    <tr>
+      <th>主机</th>
+      <th>域名</th>
+      <th>磁盘</th>
+      <th>大小</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>192.168.1.100</td>
+      <td>gfs-server1</td>
+      <td>/dev/sdb</td>
+      <td>50G</td>
+    </tr>
+    <tr>
+      <td>192.168.1.107</td>
+      <td>gfs-server2</td>
+      <td>/dev/sdb</td>
+      <td>50G</td>
+    </tr>
+    <tr>
+      <td>192.168.1.126</td>
+      <td>gfs-server3</td>
+      <td>/dev/sdb</td>
+      <td>50G</td>
+    </tr>
+    <tr>
+      <td>192.168.1.217</td>
+      <td>gfs-server4</td>
+      <td>/dev/sdb</td>
+      <td>50G</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="22安装-glusterfs">2.2、安装 GlusterFS</h3>
+
+<p>CentOS7 默认官方 yum 源中有 GlusterFS 相关的 rpm 包，但是发现没有 server 端的，官方给出的安装命令如下</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 安装 GlusterFS yum 源</span>
+yum install <span class="nt">-y</span> centos-release-gluster <span class="o">&amp;&amp;</span> yum update <span class="nt">-y</span>
+<span class="c"># 安装 GlusterFS 以及客户端</span>
+yum install <span class="nt">-y</span> glusterfs glusterfs-fuse glusterfs-cli glusterfs-server glusterfs-api
+</code></pre></div></div>
+
+<h3 id="23基础环境配置">2.3、基础环境配置</h3>
+
+<h4 id="231ntp-时钟同步">2.3.1、ntp 时钟同步</h4>
+
+<p>由于 GlusterFS 需要进行节点间同步，所以各节点时间要保证一致性，故需要安装 ntp 时钟同步工具</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 安装 ntp</span>
+yum install <span class="nt">-y</span> ntp
+</code></pre></div></div>
+
+<p>安装完成后应进行时钟同步，这里暂时使用 windows 的时钟授权服务器，也可以选择其他时钟授权服务器，安装时测试国内的清华大等全部超时……</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 同步时钟</span>
+ntpdate time.windows.com
+</code></pre></div></div>
+
+<p>同步完成后最好设置定时同步，以下为每天 0 时开始没 3 小时进行一次时钟同步</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 增加 当前用户 cron 任务</span>
+crontab <span class="nt">-e</span>
+<span class="c"># 写入如下任务</span>
+<span class="k">*</span> 0-23/3 <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> root  /usr/sbin/ntpdate time.windows.com &amp;&gt; /dev/null<span class="p">;</span> /usr/sbin/clock <span class="nt">-w</span>
+</code></pre></div></div>
+
+<h4 id="232host-定义">2.3.2、host 定义</h4>
+
+<p>由于使用域名方式访问，所以需要修改本地 hosts 文件，也可以通过自建 dns 服务器来解决，不过据说 dns 服务器方式会有一点点延迟，所以推荐修改本地 hosts(没证明过)</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 修改 hosts</span>
+vim /etc/hosts
+<span class="c"># 增加如下</span>
+192.168.1.100 gfs-server1
+192.168.1.107 gfs-server2
+192.168.1.126 gfs-server3
+192.168.1.217 gfs-server4
+</code></pre></div></div>
+
+<h3 id="24启动并加入节点">2.4、启动并加入节点</h3>
+
+<p>GlusterFS 安装完成后可直接通过 systemd 启动</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl <span class="nb">enable </span>glusterd
+systemctl start glusterd
+</code></pre></div></div>
+
+<p>启动完成后便可在任意节点上将其他节点加入进来，组建集群</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for </span>gfs_host <span class="k">in </span>gfs-server1 gfs-server2 gfs-server3 gfs-server4<span class="p">;</span><span class="k">do
+  </span>gluster peer probe <span class="nv">$gfs_host</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h3 id="25磁盘预处理">2.5、磁盘预处理</h3>
+
+<p>GlusterFS 集群服务启动并加入其他节点后，就需要为下一步创建卷(volume)准备磁盘，以下以一块 50G 的磁盘为例，在每个节点上执行如下</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 首先创建分区</span>
+fdisk /dev/sdb
+<span class="c"># 然后输入 n 创建新分区，再输入 p 选择主分区</span>
+<span class="c"># 最后输入 w 保存分区表，如下所示</span>
+
+欢迎使用 fdisk <span class="o">(</span>util-linux 2.23.2<span class="o">)</span>。
+
+更改将停留在内存中，直到您决定将更改写入磁盘。
+使用写入命令前请三思。
+
+Device does not contain a recognized partition table
+使用磁盘标识符 0x445cdbb5 创建新的 DOS 磁盘标签。
+
+命令<span class="o">(</span>输入 m 获取帮助<span class="o">)</span>：n
+Partition <span class="nb">type</span>:
+   p   primary <span class="o">(</span>0 primary, 0 extended, 4 free<span class="o">)</span>
+   e   extended
+Select <span class="o">(</span>default p<span class="o">)</span>: p
+分区号 <span class="o">(</span>1-4，默认 1<span class="o">)</span>：
+起始 扇区 <span class="o">(</span>2048-104857599，默认为 2048<span class="o">)</span>：
+将使用默认值 2048
+Last 扇区, +扇区 or +size<span class="o">{</span>K,M,G<span class="o">}</span> <span class="o">(</span>2048-104857599，默认为 104857599<span class="o">)</span>：
+将使用默认值 104857599
+分区 1 已设置为 Linux 类型，大小设为 50 GiB
+
+命令<span class="o">(</span>输入 m 获取帮助<span class="o">)</span>：w
+The partition table has been altered!
+
+Calling ioctl<span class="o">()</span> to re-read partition table.
+正在同步磁盘。
+</code></pre></div></div>
+
+<p>分区创建完成后需要对其进行格式化</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkfs.ext4 /dev/sdb
+</code></pre></div></div>
+
+<p>最后准备接下来要使用的相关挂载目录</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建磁盘挂载目录</span>
+mkdir <span class="nt">-p</span> /data/gfs
+<span class="c"># 挂载硬盘</span>
+mount <span class="nt">-t</span> ext4 /dev/sdb /data/gfs
+<span class="c"># 创建 GlusterFS 卷目录</span>
+mkdir <span class="nt">-p</span> /data/gfs/brick0
+</code></pre></div></div>
+
+<p>为了保证磁盘一直挂载，最好设置一下开机自动挂载</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 后面三个选项，defaults 表示使用默认挂载参数，</span>
+<span class="c"># 第一个 1 代表 允许 demp</span>
+<span class="c"># 第二个 1 代表 开机执行挂载分区检查</span>
+<span class="nb">echo</span> <span class="s2">"/dev/sdb /data/gfs ext4 defaults 1 1"</span> <span class="o">&gt;&gt;</span> /etc/fstab
+</code></pre></div></div>
+
+<p>到此集群基本部署完成</p>
+
+<h2 id="三glusterfs-存储卷设置">三、GlusterFS 存储卷设置</h2>
+
+<p>GlusterFS 集群搭建完成后，便需要创建存储卷(volume)来整合各个集群磁盘存储资源，以便后面进行挂载和使用</p>
+
+<h3 id="31创建分布式-hash-卷">3.1、创建分布式 Hash 卷</h3>
+
+<p>分布式 Hash 卷其原理是当向 GlusterFS 写入一个文件时，GlusterFS 通过弹性 Hash 算法对文件名进行计算，然后将其均匀的分布到各个节点上，<strong>因此分布式 Hash 卷没有数据冗余</strong>，创建分布式 Hash 卷命令如下</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gluster volume create gfs_disk<span class="se">\</span>
+  gfs-server1:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server2:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server3:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server4:/data/gfs/brick0
+</code></pre></div></div>
+
+<h3 id="32创建复制卷">3.2、创建复制卷</h3>
+
+<p>复制卷相当于 RAID1，在向 GlusterFS 中存储文件时，GlusterFS 将其拷贝到所有节点，并且是同步的，这会极大降低磁盘性能，并呈线性降低，<strong>但是复制卷随着节点数量增加，起数据冗余能力也在增加，因为每个节点上都有一份数据的完全拷贝</strong>，创建复制卷命令如下</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># replica 参数用于指定数据拷贝有多少份</span>
+<span class="c"># 注意: replica 数量必须与指定的 GlusterFS 集群 brick 数量保持一致</span>
+gluster volume create gfs_disk replica 4 transport tcp <span class="se">\</span>
+  gfs-server1:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server2:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server3:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server4:/data/gfs/brick0
+</code></pre></div></div>
+
+<h3 id="33创建分布式-hash-复制卷">3.3、创建分布式 Hash 复制卷</h3>
+
+<p>顾名思义，分布式 Hash 复制卷就是将 Hash 卷与复制卷整合一下，通过 replica 参数指定复制份数，以下例子为使用4个节点创建，每两个节点组成一个复制卷，然后两对节点再组成 Hash 卷</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建 分布式 Hash 复制卷时，只需要保证集群数量是 replica 数量的整数倍即可</span>
+gluster volume create gfs_disk replica 2 transport tcp <span class="se">\</span>
+  gfs-server1:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server2:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server3:/data/gfs/brick0 <span class="se">\</span>
+  gfs-server4:/data/gfs/brick0
+</code></pre></div></div>
+
+<h3 id="34其他卷">3.4、其他卷</h3>
+
+<ul>
+  <li>条带卷: 条带卷既将文件切分成块，分布存放在各个节点，将 <code class="highlighter-rouge">replica</code> 替换成 <code class="highlighter-rouge">stripe</code> 即可</li>
+  <li>分布式 Hash 条带卷: 同分布式 Hash 复制卷一样，保证节点数量是 <code class="highlighter-rouge">stripe</code> 的整数倍即可</li>
+</ul>
+
+<p>由于条带卷使用并不多，所以不做演示，一般条带卷适用于单个大文件超过磁盘大小时使用</p>
+
+<h2 id="四glusterfs-挂载及测试">四、GlusterFS 挂载及测试</h2>
+
+<p>无论创建的哪种卷，最终创建完成后都可以通过如下命令查看</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gluster volume info
+</code></pre></div></div>
+
+<h3 id="41glusterfs-卷挂载">4.1、GlusterFS 卷挂载</h3>
+
+<p>卷创建完成后，只需要像正常磁盘一样挂载即可使用，<strong>不同的是文件系统类型指定为 <code class="highlighter-rouge">glusterfs</code> 而已</strong>，操作如下</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># mount 时指定任意一个节点即可</span>
+mount <span class="nt">-t</span> glusterfs gfs-server1:gfs_disk /mnt/gfs
+</code></pre></div></div>
+
+<p>为保证一直可用，同样最好设置开机自动挂载</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"gfs-server1:gfs_disk /mnt/gfs glusterfs defaults 0 1"</span> <span class="o">&gt;&gt;</span> /etc/fstab
+</code></pre></div></div>
+
+<h3 id="42测试-glusterfs">4.2、测试 GlusterFS</h3>
+
+<p>以下以分布式 Hash 卷为例，由于准备了 4 各节点，并且 replica 为 2，所以理论上向 GlusterFS 写入一个文件应该会在任意两个节点上都有一份</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 在 gfs-server1 上执行</span>
+cp test.tar.gz /mnt.gfs
+<span class="c"># 最后可以在 gfs-server3、gfs-server4 的磁盘目录中看到</span>
+<span class="nb">ls</span> /data/gfs/brick0
+</code></pre></div></div>
+
+<h2 id="五其他相关">五、其他相关</h2>
+
+<p>没有任何通用的文件系统，通用意味着通通不能用，关于 GlusterFS 适用场景以及缺点可参考 <a href="http://blog.sae.sina.com.cn/archives/5141">换个角度看GlusterFS分布式文件系统</a> 文章，关于 GlusterFS 性能与监控可参考 <a href="https://github.com/jiobxn/one/wiki/00086_GlusterFS%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7&amp;%E9%85%8D%E9%A2%9D">GlusterFS性能监控&amp;配额</a>
+转载请注明出处，本文采用 <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a> 协议授权</p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+
+    </div>
+    <div class="comment">
+      
+    
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+            <div id="disqus_thread"></div>
+            <script>
+                var disqus_config = function () {
+                    this.page.url = 'https://mritd.me/2016/09/17/GlusterFS-%E7%AC%94%E8%AE%B0/';
+                    this.page.identifier = '/2016/09/17/GlusterFS-%E7%AC%94%E8%AE%B0/';
+                    this.page.title = 'GlusterFS 笔记';
+                };
+                (function() { // DON'T EDIT BELOW THIS LINE
+                    var d = document, s = d.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    var shortname = 'mritd';
+                    s.src = '//' + shortname + '.disqus.com/embed.js';
+                    s.setAttribute('data-timestamp', +new Date());
+                    (d.head || d.body).appendChild(s);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="https://mritd.b0.upaiyun.com/assets/css/modules/sidebar-search.css">
+<script src="https://mritd.b0.upaiyun.com/assets/js/lunr.min.js"></script>
+<script src="https://mritd.b0.upaiyun.com/assets/js/search.js"></script>
+
+    
+<h3>Post Directory</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="https://mritd.b0.upaiyun.com/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2017
+                    <span title="漠然">漠然</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a>
+                </li>
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/mritd/mritd.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/geopattern.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-82387173-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

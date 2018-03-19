@@ -1,1 +1,4 @@
-Sitemap: https://kevinguo.me/sitemap.xml
+# robots.txt
+User-agent: *
+Disallow: 
+Sitemap: https://mritd.me/sitemap.xml

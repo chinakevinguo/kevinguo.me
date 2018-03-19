@@ -29,7 +29,6 @@
     }), output = $(this);
     if (!headers.length || headers.length < settings.minimumHeaders || !output.length) {
       $(this).hide();
-      $('.post-directory-title').css('display', 'none');
       return;
     }
 

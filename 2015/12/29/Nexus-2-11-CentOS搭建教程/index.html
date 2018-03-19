@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//piwik.mritd.me/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//piwik.mritd.me/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Nexus 2.11 CentOS搭建教程 &mdash; 漠然</title>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/collection.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/common.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://mritd.me/2015/12/29/Nexus-2-11-CentOS%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+    <link rel="alternate" type="application/atom+xml" title="漠然" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="Nexus 2.11 CentOS搭建教程">
+      
+    <meta name="keywords" content="Nexus,Maven,私服">
+    <meta name="og:keywords" content="Nexus,Maven,私服">
+      
+    <meta name="description" content="">
+    <meta name="og:description" content="">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://mritd.me/2015/12/29/Nexus-2-11-CentOS%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/">
+    <meta property="og:site_name" content="漠然">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2015-12-29">
+    
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="漠然"><span class="octicon octicon-mark-github"></span> 漠然</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="Nexus 2.11 Cent">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">Nexus 2.11 CentOS搭建教程</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2015/12/29
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#Maven" title="Maven">Maven</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <p><img src="https://mritd.b0.upaiyun.com/markdown/Maven-Nexus-logo.png" alt="Nexus Logo" /></p>
+
+<h3 id="一简介">一、简介</h3>
+
+<blockquote>
+  <p>Nexus是一个高效的Maven私有服务器，用过Maven的都知道，一般公司开发都会搭建一个私服；然后项目中通过POM文件或者Maven的setting.xml指向私服地址，这样我们便可以通过私服管理jar包；可自定义jar包坐标，高效的构建项目。</p>
+</blockquote>
+
+<!--more-->
+
+<h3 id="二前期准备">二、前期准备</h3>
+
+<ol>
+  <li>首先，你得有台能连接公网的CentOS系统服务器(可使用虚拟机，但网络必须桥接，保证内网独立IP)。</li>
+  <li>然后下载jdk和 nexus   <a href="http://apache.fayea.com/maven/maven-3/">Nexus下载地址</a></li>
+  <li><strong>注意事项：</strong>Nexus 有其对应的 jdk版本，请参考官网，截至目前最高版本2.11.4-01 需要jdk7</li>
+</ol>
+
+<h3 id="三搭建nexus私服">三、搭建Nexus私服</h3>
+
+<blockquote>
+  <p>啰嗦一句，由于也是刚刚开始搞，以前虽然搞过，但版本比较低，配置已经变了；还有刚刚被一篇博客坑了；算了，不说了，都是眼泪，喝瓶养乐多压压惊……</p>
+</blockquote>
+
+<ol>
+  <li>配置jdk和nexus环境变量</li>
+</ol>
+
+<ul>
+  <li>
+    <p>首先上传jdk到Linux服务器(nexus顺带也传上去)，推荐xshell工具，先执行 <code class="highlighter-rouge">yum install lrzsz</code> ，然后把jdk往命令行一拖就上传成功，当然你有其他办法我也不阻止，反正搞上去就行。
+<img src="https://mritd.b0.upaiyun.com/markdown/Maven-Nexus-uploadfileo.png" alt="Maven-Nexus-uploadfileo" /></p>
+  </li>
+  <li>
+    <p>解压 jdk 和 nexus 执行以下命令</p>
+  </li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#解压 jdk</span>
+<span class="nb">tar</span> <span class="nt">-zxvf</span> jdk-7u79-linux-x64.tar.gz
+<span class="c">#解压 nexus</span>
+<span class="nb">tar</span> <span class="nt">-zxvf</span> nexus-latest-bundle.tar.gz
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p>解压后如下
+<img src="https://mritd.b0.upaiyun.com/markdown/Maven-Nexus-unzipfile1.png" alt="Maven-Nexus-unzipfile1" /></p>
+  </li>
+  <li>创建 并移动 解压后的目录到 /usr/local/java
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> /usr/local
+mkdir java
+<span class="nb">cd</span> ~
+mv jdk1.7.0_79 /usr/local/java
+mv nexus-2.11.4-01 /usr/loca/java
+mv sonatype-work /usr/local/java
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>最终效果如下
+<img src="https://mritd.b0.upaiyun.com/markdown/Maven-Nexus-mvfile.png" alt="Maven-Nexus-mvfile" /></p>
+  </li>
+  <li>
+    <p>编辑 /etc/profile，配置环境变量，在末尾添加以下 变量(vim不会用的下面不用看了)
+<img src="https://mritd.b0.upaiyun.com/markdown/Maven-Nexus-path.png" alt="Maven-Nexus-path" /></p>
+  </li>
+  <li>执行以下命令重新初始化环境变量，并测试是否成功</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">source</span> /etc/profile
+javac <span class="nt">-version</span>
+</code></pre></div></div>
+
+<ul>
+  <li>返回 javac 版本未成功，若出现 “command not found” 说明配置不成功，检查环境变量位置。</li>
+</ul>
+
+<ol>
+  <li>配置nexus</li>
+</ol>
+
+<blockquote>
+  <p>上面的估计玩过Linux的基本都能轻松搞定，说白了Nexus主要是下面的配置</p>
+</blockquote>
+
+<ul>
+  <li>配置nexus启动文件</li>
+</ul>
+
+<blockquote>
+  <p>编辑 /usr/local/java/nexus-2.11.4-01/bin 下的 nexus 可执行文件，主要配置部分样例如下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#-----------------------------------------------------------------------------</span>
+<span class="c"># These settings can be modified to fit the needs of your application</span>
+
+<span class="c"># Set this to the root of the Nexus installation</span>
+<span class="c"># 设置 nexus 主目录，就是解压后的那个 nexus目录绝对路径</span>
+<span class="nv">NEXUS_HOME</span><span class="o">=</span><span class="s2">"/usr/local/java/nexus-2.11.4-01"</span>
+
+<span class="c"># If specified, the Wrapper will be run as the specified user.</span>
+
+<span class="c"># IMPORTANT - Make sure that the user has the required privileges to write into the Nexus installation directory.</span>
+
+<span class="c"># NOTE - This will set the user which is used to run the Wrapper as well as</span>
+<span class="c">#  the JVM and is not useful in situations where a privileged resource or</span>
+<span class="c">#  port needs to be allocated prior to the user being changed.</span>
+<span class="c"># nexus官方不推荐以root 用户运行，如果你非要这么做，下面注释去掉 后面填写root</span>
+<span class="c">#RUN_AS_USER=</span>
+
+<span class="c"># Application</span>
+<span class="nv">APP_NAME</span><span class="o">=</span><span class="s2">"nexus"</span>
+<span class="nv">APP_LONG_NAME</span><span class="o">=</span><span class="s2">"Nexus OSS"</span>
+
+<span class="c"># Priority at which to run the wrapper.  See "man nice" for valid priorities.</span>
+<span class="c">#  nice is only used if a priority is specified.</span>
+<span class="c"># 这块我查了一下 好像是设置运行优先级，默认10，没太搞懂，可不填</span>
+<span class="nv">PRIORITY</span><span class="o">=</span>
+
+<span class="c">#Location of the pid file.</span>
+<span class="c"># nexus pid 文件存放位置 不用改</span>
+<span class="nv">PIDDIR</span><span class="o">=</span><span class="s2">"."</span>
+
+<span class="c"># If uncommented, causes the Wrapper to be shutdown using an anchor file.</span>
+<span class="c">#  When launched with the 'start' command, it will also ignore all INT and</span>
+<span class="c">#  TERM signals.</span>
+<span class="c">#IGNORE_SIGNALS=true</span>
+
+<span class="c"># The following two lines are used by the chkconfig command. Change as is</span>
+<span class="c">#  appropriate for your application.  They should remain commented.</span>
+<span class="c"># chkconfig: 2345 20 80</span>
+<span class="c"># description: Test Wrapper Sample Application</span>
+</code></pre></div></div>
+<ul>
+  <li>配置 /usr/local/java/nexus-2.11.4-01/bin/jsw/conf 下的 wrapper.conf 文件</li>
+</ul>
+
+<blockquote>
+  <p>妈蛋，最坑的就是这货，配置样例如下</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># JSW Configuration file</span>
+<span class="c">#</span>
+<span class="c"># For complete coverage of available configuration, please go here:</span>
+<span class="c"># http://wrapper.tanukisoftware.org/doc/english/properties.html</span>
+<span class="c">#</span>
+<span class="c"># Some "most often used" keywords are added to end of this file</span>
+<span class="c"># to be used as a "guideline". They are NOT the complete list of</span>
+<span class="c"># keywords.</span>
+
+<span class="c"># Set the JSW working directory (used as base for resolving relative paths)</span>
+<span class="c"># 设置wrapper的工作目录 其实也是指向 nexus 主目录即可</span>
+<span class="c"># 妈蛋的地址我就不说了，刚刚一个博主告诉我把他指向 /usr/local/java/nexus-2.11.4-01/bin/jsw/linux-x86-64</span>
+<span class="c"># 我进去一看 里面确实有个wrapper 可执行文件，就特么信了，结果各种报错</span>
+<span class="c"># 不凑巧，我特么居然还看懂了，就是找不到java类，然后我就根据错误各种改底下配置的绝对路径</span>
+<span class="c"># 改了半天我特么感觉不对啊...怎么其实都是基于默认值往上 跳了几层，妈的瞬间领悟...</span>
+wrapper.working.dir<span class="o">=</span>/usr/local/java/nexus-2.11.4-01
+
+<span class="c"># Set the JVM executable</span>
+<span class="c"># (modify this to absolute path if you need a Java that is not on the OS path)</span>
+<span class="c"># 配置 jdk中 java 可执行文件的位置(其实我感觉jre就可以，没测试，有兴趣的测试一下)</span>
+wrapper.java.command<span class="o">=</span>/usr/local/java/jdk1.7.0_79/bin/java
+
+<span class="c"># The main class that JSW will execute within JVM</span>
+<span class="c"># 这货不要动，目测这个玩意应该在下面的 wrapper-3.2.3.jar 里面</span>
+wrapper.java.mainclass<span class="o">=</span>org.sonatype.nexus.bootstrap.jsw.JswLauncher
+
+<span class="c"># The JVM classpath</span>
+<span class="c"># 如果你上面的 wrapper.working.dir 没问题这块就没问题...再次吐槽，坑爹博主，害得我第一次把这都改成绝对路径了</span>
+wrapper.java.classpath.1<span class="o">=</span>bin/jsw/lib/wrapper-3.2.3.jar
+wrapper.java.classpath.2<span class="o">=</span>./lib/<span class="k">*</span>.jar
+wrapper.java.classpath.3<span class="o">=</span>./conf/
+
+<span class="c"># The library path</span>
+<span class="c"># 不需要动，一些依赖jar包 下面有路径配置的，默认值其实都是基于 wrapper.working.dir 的</span>
+<span class="c"># 也就是说一但你 wrapper.working.dir 错了，其他的就都得改</span>
+wrapper.java.library.path.1<span class="o">=</span>bin/jsw/lib
+
+<span class="c"># Additional JVM parameters (tune if needed, but match the sequence of numbers!)</span>
+<span class="c"># 一些 jvm 参数，默认即可，能玩明白的 可以自己调优啥的，下面的有能力可以设置一下，</span>
+<span class="c"># 搞不定的 就不用往下看了......</span>
+wrapper.java.additional.1<span class="o">=</span><span class="nt">-XX</span>:MaxPermSize<span class="o">=</span>192m
+wrapper.java.additional.2<span class="o">=</span><span class="nt">-Djava</span>.io.tmpdir<span class="o">=</span>./tmp
+wrapper.java.additional.3<span class="o">=</span><span class="nt">-Djava</span>.net.preferIPv4Stack<span class="o">=</span><span class="nb">true
+</span>wrapper.java.additional.4<span class="o">=</span><span class="nt">-Dcom</span>.sun.jndi.ldap.connect.pool.protocol<span class="o">=</span><span class="s2">"plain ssl"</span>
+wrapper.java.additional.4.stripquotes<span class="o">=</span>TRUE
+<span class="c">#wrapper.java.additional.5=-Xdebug</span>
+<span class="c">#wrapper.java.additional.6=-Xnoagent</span>
+<span class="c">#wrapper.java.additional.7=-Djava.compiler=NONE</span>
+<span class="c">#wrapper.java.additional.8=-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000</span>
+<span class="c">#wrapper.java.additional.9=-XX:+HeapDumpOnOutOfMemoryError</span>
+
+wrapper.app.parameter.1<span class="o">=</span>./conf/jetty.xml
+wrapper.app.parameter.2<span class="o">=</span>./conf/jetty-requestlog.xml
+
+<span class="c">#下面的都无需更改，暂且省略......</span>
+</code></pre></div></div>
+
+<ul>
+  <li>创建 nexus 用户</li>
+</ul>
+
+<blockquote>
+  <p>nexus 不推荐以root用户运行，所以我们创建一个 nexus 用户，安全性要求高的可以控制其是否可登录什么的，我这里只是自己玩玩，so 允许登录。</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>useradd nexus
+passwd nexus
+<span class="c">#输入2次密码</span>
+</code></pre></div></div>
+
+<ol>
+  <li>启动nexus</li>
+</ol>
+
+<blockquote>
+  <p>首先切换到 nexus 用户，然后启动nexus</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>su - nexus
+<span class="c"># 由于配置了PATH变量，所以可在任意位置执行 nexus命令</span>
+nexus start
+</code></pre></div></div>
+
+<ul>
+  <li>查看是否启动成功&amp;监测日志</li>
+</ul>
+
+<blockquote>
+  <p>访问 ip:8081/nexus ；启动成功的话会进入如下界面</p>
+</blockquote>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/Maven-Nexus-home-1024x436.png" alt="Maven-Nexus-home-1024x436" /></p>
+
+<blockquote>
+  <p>默认登陆账户密码为  admin/admin123 ；如启动不成功可查看日志</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>less /usr/local/java/nexus-2.11.4-01/logs/wrapper.log
+</code></pre></div></div>
+
+<blockquote>
+  <p>到此结束，关于仓库使用啥的不管了…
+转载请注明出处，本文采用 <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a> 协议授权</p>
+</blockquote>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+
+    </div>
+    <div class="comment">
+      
+    
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+            <div id="disqus_thread"></div>
+            <script>
+                var disqus_config = function () {
+                    this.page.url = 'https://mritd.me/2015/12/29/Nexus-2-11-CentOS%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/';
+                    this.page.identifier = '/2015/12/29/Nexus-2-11-CentOS%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B/';
+                    this.page.title = 'Nexus 2.11 CentOS搭建教程';
+                };
+                (function() { // DON'T EDIT BELOW THIS LINE
+                    var d = document, s = d.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    var shortname = 'mritd';
+                    s.src = '//' + shortname + '.disqus.com/embed.js';
+                    s.setAttribute('data-timestamp', +new Date());
+                    (d.head || d.body).appendChild(s);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="https://mritd.b0.upaiyun.com/assets/css/modules/sidebar-search.css">
+<script src="https://mritd.b0.upaiyun.com/assets/js/lunr.min.js"></script>
+<script src="https://mritd.b0.upaiyun.com/assets/js/search.js"></script>
+
+    
+<h3>Post Directory</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="https://mritd.b0.upaiyun.com/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2017
+                    <span title="漠然">漠然</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a>
+                </li>
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/mritd/mritd.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/geopattern.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-82387173-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

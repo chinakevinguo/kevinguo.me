@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//piwik.mritd.me/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//piwik.mritd.me/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>使用 Nexus 搭建 Docker 仓库 &mdash; 漠然</title>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/collection.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/common.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://mritd.me/2017/01/08/set-up-docker-registry-by-nexus/">
+    <link rel="alternate" type="application/atom+xml" title="漠然" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="使用 Nexus 搭建 Docker 仓库">
+      
+    <meta name="keywords" content="Docker Nexus 私服">
+    <meta name="og:keywords" content="Docker Nexus 私服">
+      
+    <meta name="description" content="  nexus 最初用于搭建 maven 私服，提供企业级 maven jar 包管理等功能；2.x 后续支持了 npm、rpm 等包管理；最新版本 3.x 开始支持 Docker 仓库，以下为使用 neuxs 撸一个 docker 仓库的教程">
+    <meta name="og:description" content="  nexus 最初用于搭建 maven 私服，提供企业级 maven jar 包管理等功能；2.x 后续支持了 npm、rpm 等包管理；最新版本 3.x 开始支持 Docker 仓库，以下为使用 neuxs 撸一个 docker 仓库的教程">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://mritd.me/2017/01/08/set-up-docker-registry-by-nexus/">
+    <meta property="og:site_name" content="漠然">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2017-01-08">
+    
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="漠然"><span class="octicon octicon-mark-github"></span> 漠然</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="使用 Nexus 搭建 Doc">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">使用 Nexus 搭建 Docker 仓库</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2017/01/08
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#Docker" title="Docker">Docker</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <blockquote>
+  <p>nexus 最初用于搭建 maven 私服，提供企业级 maven jar 包管理等功能；2.x 后续支持了 npm、rpm 等包管理；最新版本 3.x 开始支持 Docker 仓库，以下为使用 neuxs 撸一个 docker 仓库的教程</p>
+</blockquote>
+
+<h3 id="一环境准备">一、环境准备</h3>
+
+<p>初始环境如下</p>
+
+<ul>
+  <li>Centos 7 x86_64</li>
+  <li>OpenJDK 8</li>
+  <li>Nexus 3.2.0-01</li>
+</ul>
+
+<p>安装 OpenJDK 命令如下</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum install java-1.8.0-openjdk <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p>安装完成后验证是否安装成功</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>➜  ~ java <span class="nt">-version</span>
+openjdk version <span class="s2">"1.8.0_111"</span>
+OpenJDK Runtime Environment <span class="o">(</span>build 1.8.0_111-b15<span class="o">)</span>
+OpenJDK 64-Bit Server VM <span class="o">(</span>build 25.111-b15, mixed mode<span class="o">)</span>
+</code></pre></div></div>
+
+<p>下载 neuxs3 安装包并解压</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget <span class="nt">--no-check-certificate</span> https://download.sonatype.com/nexus/3/nexus-3.2.0-01-unix.tar.gz
+<span class="nb">tar</span> <span class="nt">-zxvf</span> nexus-3.2.0-01-unix.tar.gz
+</code></pre></div></div>
+
+<h3 id="二安装-nexus">二、安装 nexus</h3>
+
+<p>首先将 nexus 移动到任意位置</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code> mv nexus-3.2.0-01 /usr/local
+</code></pre></div></div>
+
+<p>创建 nexus 用户</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>adduser <span class="nt">-r</span> <span class="nt">-s</span> /sbin/nologin <span class="nt">-d</span> /data/nexus-data nexus
+</code></pre></div></div>
+
+<p><strong>默认 nexus 运行后会在同级目录下创建一个 <code class="highlighter-rouge">sonatype-work</code> 工作目录，并将其数据保存在此目录中，所以为了数据持久化先手动创建并设置其数据存储位置</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 创建基本目录结构</span>
+mkdir <span class="nt">-p</span> /usr/local/sonatype-work
+<span class="c"># 创建建数据目录</span>
+mkdir <span class="nt">-p</span> /data/nexus-data/<span class="o">{</span>etc,log,tmp<span class="o">}</span>
+<span class="c"># 将数据目录软连接到工作目录</span>
+ln <span class="nt">-s</span> /data/nexus-data /usr/local/sonatype-work/nexus3
+<span class="c"># 更新所有目录权限</span>
+chmod <span class="nt">-R</span> 755 /usr/local/<span class="o">{</span>sonatype-work,nexus-3.2.0-01<span class="o">}</span> /data/nexus-data
+chown <span class="nt">-R</span> nexus:nexus /usr/local/<span class="o">{</span>sonatype-work,nexus-3.2.0-01<span class="o">}</span> /data/nexus-data
+</code></pre></div></div>
+
+<p>最后启动 nexus 访问 8081 端口即可</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 以前台方式运行</span>
+<span class="nb">sudo</span> <span class="nt">-u</span> nexus /usr/local/nexus-3.2.0-01/bin/nexus run
+<span class="c"># 后台运行</span>
+<span class="nb">sudo</span> <span class="nt">-u</span> nexus /usr/local/nexus-3.2.0-01/bin/nexus start
+</code></pre></div></div>
+
+<p>默认账户 <code class="highlighter-rouge">admin</code> 密码 <code class="highlighter-rouge">admin123</code>，登录如下</p>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/sb9dw.jpg" alt="nexus_homepage" /></p>
+
+<h3 id="三创建-docker-仓库">三、创建 docker 仓库</h3>
+
+<p>在设置 <code class="highlighter-rouge">Repositories</code> 选项卡中中选择 <code class="highlighter-rouge">Create repository</code></p>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/m7m53.jpg" alt="Create repository" /></p>
+
+<p>仓库类型有很多，docker 相关总共有三种类型，其秉承 maven 私服的概念</p>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/pm0r8.jpg" alt="repository type" /></p>
+
+<ul>
+  <li>hosted: 本地存储，即同 docker 官方仓库一样提供本地私服功能</li>
+  <li>proxy: 提供代理其他仓库的类型，如 docker 中央仓库</li>
+  <li>group: 组类型，实质作用是组合多个仓库为一个地址</li>
+</ul>
+
+<h4 id="31创建一个私服">3.1、创建一个私服</h4>
+
+<p>选择 <code class="highlighter-rouge">hosted</code> 类型仓库，然后输入一个仓库名，<strong>并勾选 HTTP 选项，端口任意即可(下面截图失误，不补了)</strong></p>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/972cl.jpg" alt="create hosted repository" /></p>
+
+<h4 id="32测试私服">3.2、测试私服</h4>
+
+<p>创建好以后更改 docker 参数，测试即可</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 增加非安全仓库</span>
+vim /usr/lib/systemd/system/docker.service
+<span class="c"># 在 ExecStart 后面增加(这里改了 host，上面端口用的 8800)</span>
+<span class="nt">--insecure-registry</span> registry.com:8800
+<span class="c"># 重启 docker</span>
+systemctl daemon-reload
+systemctl restart docker
+</code></pre></div></div>
+
+<p>测试 push 和 pull 镜像</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>➜  ~ docker tag mritd/alpine registry.com:8800/alpine
+➜  ~ docker push registry.com:8800/alpine
+The push refers to a repository <span class="o">[</span>registry.com:8800/alpine]
+754684812d65: Pushed
+60ab55d3379d: Pushed
+latest: digest: sha256:28f397aca53eb3e8ea1627f4af9c262fca7db17f0c6db492b53adc7bca7d0f91 size: 739
+➜  ~ docker rmi registry.com:8800/alpine
+Untagged: registry.com:8800/alpine:latest
+Untagged: registry.com:8800/alpine@sha256:28f397aca53eb3e8ea1627f4af9c262fca7db17f0c6db492b53adc7bca7d0f91
+➜  ~ docker rmi mritd/alpine
+Untagged: mritd/alpine:latest
+Untagged: mritd/alpine@sha256:28f397aca53eb3e8ea1627f4af9c262fca7db17f0c6db492b53adc7bca7d0f91
+Deleted: sha256:090c790ee6f28f495d92d5be43641573b0d1b5502b35f7662d88cdbf8d548afd
+Deleted: sha256:378e2b887fcdffcbd113a7cf6f97e9f8a58851b0a205b31a93acdb887912850d
+➜  ~ docker pull registry.com:8800/alpine
+Using default tag: latest
+latest: Pulling from alpine
+
+0a8490d0dfd3: Already exists
+8fb018fb4173: Pull <span class="nb">complete
+</span>Digest: sha256:28f397aca53eb3e8ea1627f4af9c262fca7db17f0c6db492b53adc7bca7d0f91
+Status: Downloaded newer image <span class="k">for </span>registry.com:8800/alpine:latest
+</code></pre></div></div>
+
+<h4 id="32创建代理仓库">3.2、创建代理仓库</h4>
+
+<p>代理仓库参考官方文档 <a href="http://books.sonatype.com/nexus-book/reference3/docker.html#docker-introduction">点这里</a>，本人不才….没成功，有爱探索的可以尝试一下，如果成功可以探讨一下…..个人怀疑是 index 有问题</p>
+
+<p>根据官方文档的这段提示</p>
+
+<blockquote>
+  <p>Just to recap, in order to configure a proxy for Docker Hub you configure the Remote Storage URL to https://registry-1.docker.io, enable Docker V1 API support and for the choice of Docker Index select the Use Docker Hub option.</p>
+</blockquote>
+
+<p>创建仓库类型选择 <code class="highlighter-rouge">proxy</code>，Remote storage 填写 <code class="highlighter-rouge">https://registry-1.docker.io</code>，Docker index 选择 <code class="highlighter-rouge">Use Docker Hub</code>，然后从 代理仓库地址 pull 就可以，但是本人百试不成功，截图如下</p>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/q350r.jpg" alt="proxy registry" /></p>
+
+<h4 id="34创建-group-仓库">3.4、创建 group 仓库</h4>
+
+<p>group 不提供具体存储服务，其主要作用就是类似一个前端反代，可以把多个仓库(比如 hosted 私服和 proxy)组合成一个地址提供访问，创建方法基本相同，主要是添加多个 hosted 或者 proxy 类型的其他仓库即可，这里不再详细阐述，截图如下</p>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/2q1qv.jpg" alt="group registry" /></p>
+
+<h3 id="四其他相关">四、其他相关</h3>
+
+<p>由于 nexus 在 maven jar 管理方面已经是很成熟的产品，增加了 docker 等支持以后基本思想没有太大变化，所以关于其他仓库配置这里不再提及，具体可以参考<a href="http://books.sonatype.com/nexus-book/reference3/index.html">官方文档</a>；2.x 可以通过图形界面上传 jar，3.x 目前只能通过 maven deploy 插件实现，可以参考<a href="https://maven.apache.org/guides/mini/guide-3rd-party-jars-remote.html">这里</a></p>
+
+<p>转载请注明出处，本文采用 <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a> 协议授权</p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+
+    </div>
+    <div class="comment">
+      
+    
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+            <div id="disqus_thread"></div>
+            <script>
+                var disqus_config = function () {
+                    this.page.url = 'https://mritd.me/2017/01/08/set-up-docker-registry-by-nexus/';
+                    this.page.identifier = '/2017/01/08/set-up-docker-registry-by-nexus/';
+                    this.page.title = '使用 Nexus 搭建 Docker 仓库';
+                };
+                (function() { // DON'T EDIT BELOW THIS LINE
+                    var d = document, s = d.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    var shortname = 'mritd';
+                    s.src = '//' + shortname + '.disqus.com/embed.js';
+                    s.setAttribute('data-timestamp', +new Date());
+                    (d.head || d.body).appendChild(s);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="https://mritd.b0.upaiyun.com/assets/css/modules/sidebar-search.css">
+<script src="https://mritd.b0.upaiyun.com/assets/js/lunr.min.js"></script>
+<script src="https://mritd.b0.upaiyun.com/assets/js/search.js"></script>
+
+    
+<h3>Post Directory</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="https://mritd.b0.upaiyun.com/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2017
+                    <span title="漠然">漠然</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a>
+                </li>
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/mritd/mritd.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/geopattern.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-82387173-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

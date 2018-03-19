@@ -45,7 +45,6 @@
     -webkit-transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
     transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
     opacity: 0.8;
-    overflow-x: hidden;
 }
 
 .card .thumbnail:hover{
@@ -79,7 +78,6 @@
 
 .card-text {
   font-size: 0.75em;
-  display: inline;
 }
 
 .card-text .meta-info {

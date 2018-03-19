@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//piwik.mritd.me/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//piwik.mritd.me/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Kubernetes 深度学习笔记 &mdash; 漠然</title>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/collection.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/common.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://mritd.me/2017/11/03/deep-learning-on-kubernetes/">
+    <link rel="alternate" type="application/atom+xml" title="漠然" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="Kubernetes 深度学习笔记">
+      
+    <meta name="keywords" content="Kubenretes 深度学习 Tensorflow DeepLearning">
+    <meta name="og:keywords" content="Kubenretes 深度学习 Tensorflow DeepLearning">
+      
+    <meta name="description" content="  本文主要记录下 Kubernetes 下运行深度学习框架如 Tensorflow、Caffe2 等一些坑，纯总结性文档">
+    <meta name="og:description" content="  本文主要记录下 Kubernetes 下运行深度学习框架如 Tensorflow、Caffe2 等一些坑，纯总结性文档">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://mritd.me/2017/11/03/deep-learning-on-kubernetes/">
+    <meta property="og:site_name" content="漠然">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2017-11-03">
+    
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="漠然"><span class="octicon octicon-mark-github"></span> 漠然</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="Kubernetes 深度学习">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">Kubernetes 深度学习笔记</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2017/11/03
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#Kubernetes" title="Kubernetes">Kubernetes</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#Docker" title="Docker">Docker</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <blockquote>
+  <p>本文主要记录下 Kubernetes 下运行深度学习框架如 Tensorflow、Caffe2 等一些坑，纯总结性文档</p>
+</blockquote>
+
+<h3 id="一先决条件">一、先决条件</h3>
+
+<p>Kubernetes 运行深度学习应用实际上要解决的唯一问题就是 GPU 调用，以下只描述 Nvidia 相关的问题以及解决方法；要想完成 Kubernetes 对 GPU 调用，首先要满足以下条件:</p>
+
+<ul>
+  <li>Nvidia 显卡驱动安装正确</li>
+  <li>CUDA 安装正确</li>
+  <li>Nvidia Docker 安装正确</li>
+</ul>
+
+<p>关于 Nvidia 驱动和 CUDA 请自行查找安装方法，如果这两部都搞不定，那么不用继续了</p>
+
+<p><strong>还有一点需要注意: <code class="highlighter-rouge">/var/lib</code> 这个目录不能处于单独分区中，具体原因下面阐述</strong></p>
+
+<h3 id="二nvidia-docker-安装">二、Nvidia Docker 安装</h3>
+
+<p>在安装 Nvidia Docker 之前，请确保 Nvidia 驱动以及 CUDA 安装成功，并且 <code class="highlighter-rouge">nvidia-smi</code> 能正确显示，如下图所示(来源于网络)</p>
+
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fl3vz0yt6tj30wy0mg4qp.jpg" alt="nvidia-smi" /></p>
+
+<p>Nvidia Docker 安装极其简单，具体可参考 <a href="https://github.com/NVIDIA/nvidia-docker">官方文档</a>，安装完成后请自行按照官方文档描述进行测试，这一步一般不会出现问题</p>
+
+<p>如果测试成功后，<strong>请查看 <code class="highlighter-rouge">/var/lib/nvidia-docker/volumes</code></strong> 目录下是否有文件，<strong>如果没有，那就意味着 Nvidia Docker 并未生成相关的驱动文件成功，需要单独执行 <code class="highlighter-rouge">docker volume create --driver=nvidia-docker --name=nvidia_driver_$(modinfo -F version nvidia)</code> 以生成该文件；该命令生成的方式是将已经安装到系统的相关文件硬链接至此，所以要求 <code class="highlighter-rouge">/var/lib</code> 目录不能在单独的分区</strong>；驱动生成完成后应该会产生类似 <code class="highlighter-rouge">/var/lib/nvidia-docker/volumes/nvidia_driver/375.66</code> 的目录结构</p>
+
+<h3 id="三kubernetes-配置">三、Kubernetes 配置</h3>
+
+<p>当所有基础环境就绪后，最后需要开启 Kubernetes 对 GPU 支持；Kubernetes GPU 文档可以参考 <a href="https://kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus">这里</a>，实际主要就是在 kubelet 启动时增加 <code class="highlighter-rouge">--feature-gates="Accelerators=true"</code> 参数，如下所示</p>
+
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fl4zj170jxj31is0z8ahj.jpg" alt="Accelerators" /></p>
+
+<p>所有节点全部修改完成后重启 kubelet 即可，<strong>如果一台机器上有不同型号的显卡，同时希望 Pod 能区别使用不同的 GPU 则可以按照 <a href="https://kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus/#api">官方文档</a> 增加相应设置</strong></p>
+
+<h3 id="四deployment-设置">四、Deployment 设置</h3>
+
+<p>Deployment 部署采用一个 Tensorflow 镜像作为示例，部署配置如下</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: tensorflow
+  labels:
+    name: tensorflow
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: tensorflow
+    spec:
+      containers:
+        - name: tensorflow
+          image: tensorflow/tensorflow:1.4.0-rc0-gpu
+          imagePullPolicy: IfNotPresent
+          <span class="nb">command</span>: <span class="o">[</span><span class="s2">"bash"</span>,<span class="s2">"-c"</span>,<span class="s2">"sleep 999999"</span><span class="o">]</span>
+          ports:
+            - name: tensorflow
+              containerPort: 8888
+          resources: 
+            limits: 
+              alpha.kubernetes.io/nvidia-gpu: 1
+          volumeMounts:
+            - mountPath: /usr/local/nvidia
+              name: nvidia-driver
+            - mountPath: /dev/nvidia0
+              name: nvidia0
+            - mountPath: /dev/nvidia-uvm
+              name: nvidia-uvm
+            - mountPath: /dev/nvidia-uvm-tools
+              name: nvidia-uvm-tools
+            - mountPath: /dev/nvidiactl
+              name: nvidiactl
+      volumes:
+        - name: nvidia-driver
+          hostPath:
+            path: /var/lib/nvidia-docker/volumes/nvidia_driver/375.66
+        - name: nvidia0
+          hostPath:
+            path: /dev/nvidia0
+        - name: nvidia-uvm
+          hostPath:
+            path: /dev/nvidia-uvm
+        - name: nvidia-uvm-tools
+          hostPath:
+            path: /dev/nvidia-uvm-tools
+        - name: nvidiactl
+          hostPath:
+            path: /dev/nvidiactl
+</code></pre></div></div>
+
+<p><strong>Deployment 中运行的 Pod 需要挂载对应的宿主机设备文件以及驱动文件才能正确的调用宿主机 GPU，所以一定要确保前几步生成的相关驱动文件等没问题；如果有多个 nvidia 显卡的话可能需要挂载多个 nvidia 设备</strong></p>
+
+<p>Pod 运行成功后可执行以下代码测试 GPU 调用</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="n">tf</span>
+<span class="n">hello</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="s">'Hello, TensorFlow!'</span><span class="p">)</span>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">hello</span><span class="p">))</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>成功后截图如下</p>
+
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl501nwxhyj31kw0ti7nd.jpg" alt="Tensorflow" /></p>
+
+<p>转载请注明出处，本文采用 <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a> 协议授权</p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+
+    </div>
+    <div class="comment">
+      
+    
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+            <div id="disqus_thread"></div>
+            <script>
+                var disqus_config = function () {
+                    this.page.url = 'https://mritd.me/2017/11/03/deep-learning-on-kubernetes/';
+                    this.page.identifier = '/2017/11/03/deep-learning-on-kubernetes/';
+                    this.page.title = 'Kubernetes 深度学习笔记';
+                };
+                (function() { // DON'T EDIT BELOW THIS LINE
+                    var d = document, s = d.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    var shortname = 'mritd';
+                    s.src = '//' + shortname + '.disqus.com/embed.js';
+                    s.setAttribute('data-timestamp', +new Date());
+                    (d.head || d.body).appendChild(s);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="https://mritd.b0.upaiyun.com/assets/css/modules/sidebar-search.css">
+<script src="https://mritd.b0.upaiyun.com/assets/js/lunr.min.js"></script>
+<script src="https://mritd.b0.upaiyun.com/assets/js/search.js"></script>
+
+    
+<h3>Post Directory</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="https://mritd.b0.upaiyun.com/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2017
+                    <span title="漠然">漠然</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a>
+                </li>
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/mritd/mritd.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/geopattern.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-82387173-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

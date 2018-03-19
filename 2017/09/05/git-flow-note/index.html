@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//piwik.mritd.me/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//piwik.mritd.me/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>CI/CD Git Flow &mdash; 漠然</title>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/collection.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/common.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://mritd.me/2017/09/05/git-flow-note/">
+    <link rel="alternate" type="application/atom+xml" title="漠然" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="CI/CD Git Flow">
+      
+    <meta name="keywords" content="记录 Git Flow 工作流程">
+    <meta name="og:keywords" content="记录 Git Flow 工作流程">
+      
+    <meta name="description" content="  由于 git 代码管理比较混乱，所以记录一下 Git Flow + GitLab 的整体工作流程">
+    <meta name="og:description" content="  由于 git 代码管理比较混乱，所以记录一下 Git Flow + GitLab 的整体工作流程">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://mritd.me/2017/09/05/git-flow-note/">
+    <meta property="og:site_name" content="漠然">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2017-09-05">
+    
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="漠然"><span class="octicon octicon-mark-github"></span> 漠然</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="CI/CD Git Flow">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">CI/CD Git Flow</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2017/09/05
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#CI/CD" title="CI/CD">CI/CD</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#Git" title="Git">Git</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <blockquote>
+  <p>由于 git 代码管理比较混乱，所以记录一下 Git Flow + GitLab 的整体工作流程</p>
+</blockquote>
+
+<h3 id="一git-flow-简介">一、Git Flow 简介</h3>
+
+<p>Git Flow 定义了一个围绕项目开发发布的严格 git 分支模型，用于管理多人协作的大型项目中实现高效的协作开发；Git Flow 分支模型最早起源于 <a href="http://nvie.com/about/">Vincent Driessen</a> 的 <a href="http://nvie.com/posts/a-successful-git-branching-model/">A successful Git branching model</a> 文章；随着时间发展，Git Flow 大致分为三种:</p>
+
+<ul>
+  <li>Git Flow: 最原始的 Git Flow 分支模型</li>
+  <li>Github Flow: Git Flow 的简化版，专门配合持续发布</li>
+  <li>GitLab Flow: Git Flow 与 Github Flow 的结合版</li>
+</ul>
+
+<p>关于三种 Git Flow 区别详情可参考 <a href="http://www.ruanyifeng.com/blog/2015/12/git-workflow.html">Git 工作流程</a></p>
+
+<h3 id="二-git-flow-流程">二、 Git Flow 流程</h3>
+
+<p>Github Flow 和 GitLab Flow 对于持续发布支持比较好，但是原始版本的 Git Flow 对于传统的按照版本发布更加友好一些，所以以下主要说明以下 Git Flow 的工作流程；Git Flow 主要分支模型如下</p>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/80dio.jpg" alt="git flow" /></p>
+
+<p>在整个分支模型中 <strong>存在两个长期分支: develop 和 master</strong>，其中 develop 分支为开发分支，master 为生产分支；<strong>master 代码始终保持随时可以部署到线上的状态；develop 分支用于合并最新提交的功能性代码</strong>；具体的分支定义如下</p>
+
+<ul>
+  <li>master: 生产代码，始终保持可以直接部署生产的状态</li>
+  <li>develop: 开发分支，每次合并最新功能代码到此分支</li>
+  <li>feature: 新功能分支，所有新开发的功能将采用 <code class="highlighter-rouge">feature/xxxx</code> 形式命名分支</li>
+  <li>hotfixes: 紧急修复补丁分支，当新功能部署到了线上出现了严重 bug 需要紧急修复时，则创建 <code class="highlighter-rouge">hotfixes/xxxx</code> 形式命名的分支</li>
+  <li>release: 稳定版分支，当完成大版本变动后，应该创建 <code class="highlighter-rouge">release/xxxx</code> 分支</li>
+</ul>
+
+<p>在整个分支模型中，develop 分支为最上游分支，会不断有新的 feature 合并入 develop 分支，当功能开发达到完成所有版本需求时，则从 develop 分支创建 release 分支，release 后如没有发现其他问题，最终 release 会被合并到 master 分支以完成线上部署</p>
+
+<h3 id="三git-flow-工具">三、Git Flow 工具</h3>
+
+<p>针对于 Git Flow，其手动操作 git 命令可能过于繁琐，所以后来有了 git-flow 工具；git-flow 是一个 git 扩展集，按 Vincent Driessen 的分支模型提供高层次的库操作；使用 git-flow 工具可以以更加简单的命令完成对 Vincent Driessen 分支模型的实践；
+git-flow 安装以及使用具体请参考 <a href="https://danielkummer.github.io/git-flow-cheatsheet/index.zh_CN.html">git-flow 备忘清单</a>，该文章详细描述了 git-flow 工具的使用方式</p>
+
+<p>还有另一个工具是 <a href="https://github.com/tj/git-extras">git-extras</a>，该工具没有 git-flow 那么简单化，不过其提供更加强大的命令支持</p>
+
+<h3 id="四git-commit-message">四、Git Commit Message</h3>
+
+<p>在整个 Git Flow 中，commit message 也是必不可少的一部分；一个良好且统一的 commit message 有助于代码审计以及 review 等；目前使用最广泛的写法是 <a href="https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.greljkmo14y0">Angular 社区规范</a>，该规范大中 commit message 格式大致如下:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;<span class="nb">type</span><span class="o">&gt;(</span>&lt;scope&gt;<span class="o">)</span>: &lt;subject&gt;
+&lt;BLANK LINE&gt;
+&lt;body&gt;
+&lt;BLANK LINE&gt;
+&lt;footer&gt;
+</code></pre></div></div>
+
+<p>总体格式大致分为 3 部分，首行主要 3 个组成部分:</p>
+
+<ul>
+  <li>type: 本次提交类型</li>
+  <li>scope: 本次提交影响范围，一般标明影响版本号或者具体的范围如 <code class="highlighter-rouge">$browser, $compile, $rootScope, ngHref, ngClick, ngView, etc...</code></li>
+  <li>subject: 本次提交简短说明</li>
+</ul>
+
+<p>关于 type 提交类型，有如下几种值:</p>
+
+<ul>
+  <li>feat：新功能(feature)</li>
+  <li>fix：修补 bug</li>
+  <li>docs：文档(documentation)</li>
+  <li>style： 格式(不影响代码运行的变动)</li>
+  <li>refactor：重构(即不是新增功能，也不是修改 bug 的代码变动)</li>
+  <li>test：增加测试</li>
+  <li>chore：构建过程或辅助工具的变动</li>
+</ul>
+
+<p>中间的 body 部分是对本次提交的详细描述信息，底部的 footer 部分一般分为两种情况:</p>
+
+<ul>
+  <li>不兼容变动: 如果出现不兼容变动，则以 <code class="highlighter-rouge">BREAKING CHANGE:</code> 开头，后面跟上不兼容变动的具体描述和解决办法</li>
+  <li>关闭 issue: 如果该 commit 针对某个 issue，并且可以将其关闭，则可以在其中指定关闭的 issue，如 <code class="highlighter-rouge">Close #9527,#9528</code></li>
+</ul>
+
+<p>不过 footer 部分也有特殊情况，如回滚某次提交，则以 <code class="highlighter-rouge">revert:</code> 开头，后面紧跟 commit 信息和具体描述；还有时某些 commit 只是解决了 某个 issue 的一部分问题，这是可以使用 <code class="highlighter-rouge">refs ISSUE</code> 的方式来引用该 issue</p>
+
+<h3 id="五git-commit-message-工具">五、Git Commit Message 工具</h3>
+
+<p>针对 Git 的 commit message 目前已经有了成熟的生成工具，比较有名的为 <a href="https://github.com/commitizen/cz-cli">commitizen-cli</a> 工具，其采用 node.js 编写，执行 <code class="highlighter-rouge">git cz</code> 命令能够自动生成符合 Angular 社区规范的 commit message；不过由于其使用 node.js 编写，所以安装前需要安装 node.js，因此可能不适合其他非 node.js 的项目使用；这里推荐一个基于 shell 编写的 <a href="https://cimhealth.github.io/git-toolkit">Git-toolkit</a>，安装此工具后执行 <code class="highlighter-rouge">git ci</code> 命令进行提交将会产生交互式生成 Angular git commit message 格式的提交说明，截图如下:</p>
+
+<p><img src="https://mritd.b0.upaiyun.com/markdown/xnonb.jpg" alt="git ci" /></p>
+
+<h3 id="六gitlab-整合">六、GitLab 整合</h3>
+
+<p>以上 Git Flow 所有操作介绍的都是在本地操作，而正常我们在工作中都是基于 GitLab 搭建私有 Git 仓库来进行协同开发的，以下简述以下 Git Flow 配合 GitLab 的流程</p>
+
+<h4 id="61开发-features">6.1、开发 features</h4>
+
+<p>当开发一个新功能时流程如下:</p>
+
+<ul>
+  <li>本地 <code class="highlighter-rouge">git flow feature start xxxx</code> 开启一个 feature 新分支</li>
+  <li><code class="highlighter-rouge">git flow feature publish xxxx</code> 将此分支推送到远端以便他人获取</li>
+  <li>完成开发后 GitLab 上向 <code class="highlighter-rouge">develop</code> 分支发起合并请求</li>
+  <li>CI sonar 等质量检测工具扫描，其他用户 review 代码</li>
+  <li>确认无误后 <code class="highlighter-rouge">master</code> 权限用户合并其到 <code class="highlighter-rouge">develop</code> 分支</li>
+  <li>部署到测试环境以便测试组测试</li>
+  <li>如果测试不通过，则继续基于此分支开发，直到该功能开发完成</li>
+</ul>
+
+<h4 id="62创建-release">6.2、创建 release</h4>
+
+<p>当一定量的 feature 开发完成并合并到 develop 后，如所有 feature 都测试通过并满足版本需求，则可以创建 release 版本分支；release 分支流程如下</p>
+
+<ul>
+  <li>本地 <code class="highlighter-rouge">git flow release start xxxx</code> 开启 release 分支</li>
+  <li><code class="highlighter-rouge">git flow release publish xxxx</code> 将其推送到远端以便他人获取</li>
+  <li>继续进行完整性测试，出现问题继续修复，直到 release 完全稳定</li>
+  <li>从 release 分支向 master、develop 分支分别发起合并请求</li>
+  <li>master 合并后创建对应的 release 标签，并部署生产环境</li>
+  <li>develop 合并 release 的后期修改</li>
+</ul>
+
+<h4 id="63紧急修复">6.3、紧急修复</h4>
+
+<p>当 master 某个 tag 部署到生产环境后，也可能出现不符合预期的问题出现；此时应该基于 master 创建 hotfix 分支进行修复，流程如下</p>
+
+<ul>
+  <li>本地 <code class="highlighter-rouge">git flow hotfix start xxxx</code> 创建紧急修复分支</li>
+  <li>修改代码后将其推送到远端，并像 master、develop 分支发起合并</li>
+  <li>develop 合并紧急修复补丁，如果必要最好再做一下测试</li>
+  <li>master 合并紧急修复补丁，创建紧急修复 tag，并部署生产环境</li>
+</ul>
+
+<p>转载请注明出处，本文采用 <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a> 协议授权</p>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+
+    </div>
+    <div class="comment">
+      
+    
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+            <div id="disqus_thread"></div>
+            <script>
+                var disqus_config = function () {
+                    this.page.url = 'https://mritd.me/2017/09/05/git-flow-note/';
+                    this.page.identifier = '/2017/09/05/git-flow-note/';
+                    this.page.title = 'CI/CD Git Flow';
+                };
+                (function() { // DON'T EDIT BELOW THIS LINE
+                    var d = document, s = d.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    var shortname = 'mritd';
+                    s.src = '//' + shortname + '.disqus.com/embed.js';
+                    s.setAttribute('data-timestamp', +new Date());
+                    (d.head || d.body).appendChild(s);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="https://mritd.b0.upaiyun.com/assets/css/modules/sidebar-search.css">
+<script src="https://mritd.b0.upaiyun.com/assets/js/lunr.min.js"></script>
+<script src="https://mritd.b0.upaiyun.com/assets/js/search.js"></script>
+
+    
+<h3>Post Directory</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="https://mritd.b0.upaiyun.com/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2017
+                    <span title="漠然">漠然</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a>
+                </li>
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/mritd/mritd.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/geopattern.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-82387173-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>

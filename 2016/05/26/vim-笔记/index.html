@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<!-- Piwik -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//piwik.mritd.me/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//piwik.mritd.me/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>vim 笔记 &mdash; 漠然</title>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/collection.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/common.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://mritd.me/2016/05/26/vim-%E7%AC%94%E8%AE%B0/">
+    <link rel="alternate" type="application/atom+xml" title="漠然" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="vim 笔记">
+      
+    <meta name="keywords" content="vim">
+    <meta name="og:keywords" content="vim">
+      
+    <meta name="description" content="">
+    <meta name="og:description" content="">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://mritd.me/2016/05/26/vim-%E7%AC%94%E8%AE%B0/">
+    <meta property="og:site_name" content="漠然">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2016-05-26">
+    
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="漠然"><span class="octicon octicon-mark-github"></span> 漠然</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="vim 笔记">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">vim 笔记</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2016/05/26
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#Linux" title="Linux">Linux</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <p><img src="https://mritd.b0.upaiyun.com/markdown/hexo_vim_logo.png" alt="vim_logo" /></p>
+
+<h2 id="一vim-模式">一、Vim 模式</h2>
+
+<ul>
+  <li>编辑模式 : 键盘操作通常被解析为编辑命令</li>
+  <li>输入模式 : 大部分键盘操作被存储到文档中</li>
+  <li>末行模式 : 用于解释运行 Vim 内置命令</li>
+</ul>
+
+<h2 id="二模式切换">二、模式切换</h2>
+
+<!--more-->
+
+<h3 id="1-编辑模式--输入模式">1、 编辑模式 –&gt; 输入模式</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">i</code> : 在当前光标所在处输入</li>
+  <li><code class="highlighter-rouge">I</code> : 在当前光标所在行的行首输入</li>
+  <li><code class="highlighter-rouge">a</code> : 在当前光标所在处后方输入</li>
+  <li><code class="highlighter-rouge">A</code> : 在当前光标所在行行尾输入</li>
+  <li><code class="highlighter-rouge">o</code> : 在光标所在行的下方新增空白行</li>
+  <li><code class="highlighter-rouge">O</code> : 在当前所在行的上方新增空白行</li>
+</ul>
+
+<h3 id="2输入模式--编辑模式">2、输入模式 –&gt; 编辑模式</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">ESC</code> : 从输入模式返回编辑模式</li>
+</ul>
+
+<h3 id="3编辑模式--末行模式">3、编辑模式 –&gt; 末行模式</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">:</code> : 从编辑模式进入末行模式，两次 ESC 返回到编辑模式</li>
+</ul>
+
+<h2 id="三vim-常用命令">三、Vim 常用命令</h2>
+
+<h3 id="1退出">1、退出</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">:q!</code> : 不保存退出</li>
+  <li><code class="highlighter-rouge">:wq</code> : 保存并退出</li>
+  <li><code class="highlighter-rouge">:x</code> : 保存并退出</li>
+  <li><code class="highlighter-rouge">ZZ</code> : 保存并退出(编辑模式)</li>
+  <li><code class="highlighter-rouge">:wq!</code> : 强制保存并退出</li>
+  <li><code class="highlighter-rouge">:qall</code> : 多文件打开时退出所有文件</li>
+  <li><code class="highlighter-rouge">:wqall</code> : 保存并退出所有文件</li>
+</ul>
+
+<h3 id="2打开">2、打开</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">vim FILE1 FILE2 ...</code> : 打开多个文件
+    <ul>
+      <li><code class="highlighter-rouge">:next</code> : 跳转到下一个文件</li>
+      <li><code class="highlighter-rouge">:first</code> : 跳转到第一个文件</li>
+      <li><code class="highlighter-rouge">:last</code> : 跳转到最后一个文件</li>
+      <li><code class="highlighter-rouge">:prev</code> : 跳转到前一个文件</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">vim -o FILE1 FILE2 ...</code> : 以上下分屏模式打开所有文件</li>
+  <li><code class="highlighter-rouge">vim -O FILE1 FILE2 ...</code> : 一左右分屏方式打开所有文件
+    <ul>
+      <li><code class="highlighter-rouge">Ctrl+W</code> 在按上下/左右箭头 切换编辑区</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">Ctrl+w,s</code> : 对当前文件进行上下分屏显示，类似 <code class="highlighter-rouge">-o</code></li>
+  <li>
+    <p><code class="highlighter-rouge">Ctrl+w,v</code> : 对当前文件进行左右分屏显示，类似 <code class="highlighter-rouge">-O</code></p>
+  </li>
+  <li><code class="highlighter-rouge">vim +# FILE</code> : 打开文件，并将光标定位到 # 行位置，不加数字则代表定位在文档末尾</li>
+</ul>
+
+<h3 id="3光标移动">3、光标移动</h3>
+
+<p><strong>编辑模式下</strong></p>
+
+<ul>
+  <li><code class="highlighter-rouge">[#] h</code> : 向左移动[#]字符，不写默认1</li>
+  <li><code class="highlighter-rouge">[#] l</code> : 向右移动[#]字符，不写默认1</li>
+  <li><code class="highlighter-rouge">[#] j</code> : 向下移动[#]行，不写默认1</li>
+  <li><code class="highlighter-rouge">[#] k</code> ; 向上移动[#]行，不写默认1</li>
+  <li><code class="highlighter-rouge">w</code> : 跳至下一个单词的词首</li>
+  <li><code class="highlighter-rouge">b</code> : 跳至当前/上一个单词词首</li>
+  <li><code class="highlighter-rouge">e</code> : 跳至当前/下一个单词词尾</li>
+  <li><code class="highlighter-rouge">^</code> : 跳转到当前行首</li>
+  <li><code class="highlighter-rouge">$</code> : 跳转到当前行尾(包含空白行)</li>
+  <li><code class="highlighter-rouge">0</code> : 跳转到当前行首(包含空白行)</li>
+  <li><code class="highlighter-rouge">)</code> : 跳转到下一句行尾</li>
+  <li><code class="highlighter-rouge">(</code> : 跳转到上一句行首</li>
+  <li><code class="highlighter-rouge">}</code> : 跳转到下一段行尾</li>
+  <li><code class="highlighter-rouge">{</code> : 跳转到上一段行首</li>
+  <li><code class="highlighter-rouge">[#] G</code> : 跳转到指定行，不写则默认文档最后一行</li>
+  <li><code class="highlighter-rouge">Ctrl+f</code> : 向下翻一屏</li>
+  <li><code class="highlighter-rouge">Ctrl+b</code> : 向上翻一屏</li>
+  <li><code class="highlighter-rouge">Ctrl+d</code> : 向下翻半屛</li>
+  <li><code class="highlighter-rouge">Ctrl+u</code> : 向上翻半屛</li>
+</ul>
+
+<h3 id="4编辑">4、编辑</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">[#] x</code> : 删除光标所在处其后的 # 个字符，不写删除当前字符</li>
+  <li><code class="highlighter-rouge">r 字符</code> : 替换光标所在处为指定字符</li>
+  <li><code class="highlighter-rouge">d [***]</code> : 删除命令，可配合光标跳转命令删除字符
+    <ul>
+      <li><code class="highlighter-rouge">d w</code> : 删除光标后一个单词</li>
+      <li><code class="highlighter-rouge">d b</code> : 删除光标前一个单词</li>
+      <li><code class="highlighter-rouge">d $</code> : 删除光标后到行尾所有内容</li>
+      <li><code class="highlighter-rouge">d ^</code> : 删除光标到行首所有内容</li>
+      <li><code class="highlighter-rouge">[#] d d</code> : 删除光标所在处后 # 行，不写删除当前行</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>末行模式下</strong></p>
+
+<ul>
+  <li><code class="highlighter-rouge">START,END d</code> : 删除 START 到 END 行内容</li>
+  <li><code class="highlighter-rouge">SATRT,+# d</code> : 删除 START 行开始向后的 # 行内容</li>
+  <li><code class="highlighter-rouge">+#,END d</code> : 删除从 END 行开始向上的前 # 行内容</li>
+  <li><code class="highlighter-rouge">$ d</code> : 删除当前行开始到文件末尾</li>
+  <li><code class="highlighter-rouge">. d</code> : 删除当前行</li>
+  <li><code class="highlighter-rouge">.,$-2</code> : <strong>支持组合删除，前面的代表删除当前行开始，到文件末尾-2 行的所有内容</strong></li>
+  <li><code class="highlighter-rouge">% d</code> : 删除全文</li>
+  <li>
+    <p><code class="highlighter-rouge">/pat1/,/pat2/ d</code> : 从光标所在行开始，删除从第一次被 pat1 匹配到的行开始到第一次被 pat2 匹配带的行结束 中间的所有行</p>
+  </li>
+  <li><code class="highlighter-rouge">c [***]</code> : 改变命令，先删除内容再切换到输入模式，同 <code class="highlighter-rouge">d</code> 命令相同，可配合光标跳转命令改变字符
+    <ul>
+      <li><code class="highlighter-rouge">[#] c c</code> : 删除光标所在处 # 行并进入输入模式，不写默认删除当前行并进入输入模式</li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">y [***]</code> : 复制命令，配合光标跳转命令使用，<code class="highlighter-rouge">[#] yy</code> 复制当前行开始的向下 # 行，不写默认复制当前行</li>
+  <li><code class="highlighter-rouge">p</code> : 粘贴当前光标所在位置的后面(可能是行或者单词，取决于复制的内容)</li>
+  <li><code class="highlighter-rouge">P</code> : 粘贴当前光标所在位置的前面(可能是行或者单词，取决于复制的内容)</li>
+  <li><code class="highlighter-rouge">u</code> : 撤销修改</li>
+  <li><code class="highlighter-rouge">Ctrl+r</code> : 撤销此前的撤销命令</li>
+  <li><code class="highlighter-rouge">.</code> : 重复此前命令</li>
+</ul>
+
+<h3 id="5查找">5、查找</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">/keyword</code> : 向下查找</li>
+  <li><code class="highlighter-rouge">?keyword</code> : 向上查找</li>
+  <li><code class="highlighter-rouge">n</code> : 向下循环查找</li>
+  <li>
+    <p><code class="highlighter-rouge">N</code> : 向上循环查找</p>
+  </li>
+  <li><code class="highlighter-rouge">set hlsearch</code> : 开启高亮查找</li>
+  <li><code class="highlighter-rouge">set nohlsearch</code> : 关闭高亮查找</li>
+</ul>
+
+<h3 id="6可视化模式">6、可视化模式</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">v</code> : 进入可视化，按照单词选择</li>
+  <li><code class="highlighter-rouge">V</code> : 进入可视化，按照行选择</li>
+</ul>
+
+<h2 id="四窗口属性设置">四、窗口属性设置</h2>
+
+<ul>
+  <li><code class="highlighter-rouge">set nu</code> : 显示行号</li>
+  <li><code class="highlighter-rouge">set nonu</code> : 取消显示行号</li>
+  <li><code class="highlighter-rouge">set ai</code> : 自动缩进</li>
+  <li><code class="highlighter-rouge">set noai</code> : 取消自动缩进</li>
+  <li><code class="highlighter-rouge">set ic</code> : 搜索忽略大小写</li>
+  <li><code class="highlighter-rouge">set noic</code> : 取消搜索忽略大小写</li>
+  <li><code class="highlighter-rouge">set sm</code> : 显示与之匹配的括号</li>
+  <li><code class="highlighter-rouge">set nosm</code> : 取消与之显示的括号</li>
+  <li><code class="highlighter-rouge">syntax on</code> : 开启语法高亮</li>
+  <li><code class="highlighter-rouge">syntax off</code> : 关闭语法高亮</li>
+  <li><code class="highlighter-rouge">set hlsearch</code> : 开启搜索高亮</li>
+  <li><code class="highlighter-rouge">set nohlsearch</code> : 关闭搜索高亮</li>
+</ul>
+
+<h2 id="五配置文件">五、配置文件</h2>
+
+<ul>
+  <li>全局配置文件存放于 <code class="highlighter-rouge">/etc/vimrc</code></li>
+  <li>用户配置文件存放于 <code class="highlighter-rouge">~/.vimrc</code></li>
+</ul>
+
+<h2 id="六查找替换">六、查找替换</h2>
+
+<p><strong>末行模式下</strong></p>
+
+<ul>
+  <li><code class="highlighter-rouge">命令格式</code> : <code class="highlighter-rouge">地址定界s/查找模式/替换内容/gi</code>
+    <ul>
+      <li><code class="highlighter-rouge">s</code> : 替换命令，可换成删除 <code class="highlighter-rouge">d</code> 等</li>
+      <li><code class="highlighter-rouge">g</code> : global，全局操作，<strong>默认的 vim 搜索替换只匹配每行中的第一个被模式匹配的字符，如果有多个则忽略，g 代表全部替换</strong></li>
+      <li><code class="highlighter-rouge">i</code> : 忽略大小写</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>对于分隔符 <code class="highlighter-rouge">/</code> 可以自定义，默认的 vim 认为紧跟在编辑命令 <code class="highlighter-rouge">s</code> 后的字符即为分隔符，所以为了避免路径替换时对 <code class="highlighter-rouge">/</code> 做转义可以使用自定义格式，如 <code class="highlighter-rouge">地址定界s@匹配模式@替换内容@gi</code></strong></p>
+  </li>
+  <li><code class="highlighter-rouge">&amp;</code> : 用于引用前面 <strong>查找模式</strong> 所匹配到的所有字符，<strong>通常用于插入式替换</strong>，如在非注释行前加入 <code class="highlighter-rouge">#</code> 注释符 : <code class="highlighter-rouge">1,$s/^[^#].*/#&amp;/gi</code>
+转载请注明出处，本文采用 <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a> 协议授权</li>
+</ul>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+
+    </div>
+    <div class="comment">
+      
+    
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+            <div id="disqus_thread"></div>
+            <script>
+                var disqus_config = function () {
+                    this.page.url = 'https://mritd.me/2016/05/26/vim-%E7%AC%94%E8%AE%B0/';
+                    this.page.identifier = '/2016/05/26/vim-%E7%AC%94%E8%AE%B0/';
+                    this.page.title = 'vim 笔记';
+                };
+                (function() { // DON'T EDIT BELOW THIS LINE
+                    var d = document, s = d.createElement('script');
+                    s.type = 'text/javascript';
+                    s.async = true;
+                    var shortname = 'mritd';
+                    s.src = '//' + shortname + '.disqus.com/embed.js';
+                    s.setAttribute('data-timestamp', +new Date());
+                    (d.head || d.body).appendChild(s);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="https://mritd.b0.upaiyun.com/assets/css/modules/sidebar-search.css">
+<script src="https://mritd.b0.upaiyun.com/assets/js/lunr.min.js"></script>
+<script src="https://mritd.b0.upaiyun.com/assets/js/search.js"></script>
+
+    
+<h3>Post Directory</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="https://mritd.b0.upaiyun.com/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2017
+                    <span title="漠然">漠然</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC4.0</a>
+                </li>
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/mritd/mritd.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="https://mritd.b0.upaiyun.com/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/geopattern.js"></script>
+    <script src="https://mritd.b0.upaiyun.com/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="https://mritd.b0.upaiyun.com/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-82387173-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>
