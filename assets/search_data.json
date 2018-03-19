@@ -108,12 +108,6 @@
     "category": "生活"
   },
   
-  "2017-07-06-saltstack-e4-b9-8bpillar": {
-    "title": "saltstack之pillar",
-    "url": " /2017/07/06/saltstack%E4%B9%8Bpillar/",
-    "category": "saltstack"
-  },
-  
   "2017-07-06-kubespray-deploy-kubernetes-3": {
     "title": "kubespray容器化部署kubernetes高可用集群(3)",
     "url": " /2017/07/06/kubespray-deploy-kubernetes-3/",
@@ -676,12 +670,6 @@
     "title": "kubespray容器化部署kubernetes高可用集群(3)",
     "url": "/2017/07/06/kubespray-deploy-kubernetes-3/",
     "category": "[&quot;kubernetes&quot;, &quot;docker&quot;]"
-  },
-  
-  "2017-07-06-saltstack-e4-b9-8bpillar": {
-    "title": "saltstack之pillar",
-    "url": "/2017/07/06/saltstack%E4%B9%8Bpillar/",
-    "category": "[&quot;saltstack&quot;]"
   },
   
   "2017-07-06-video-test": {
