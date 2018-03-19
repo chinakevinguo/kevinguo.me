@@ -788,6 +788,12 @@
     "title": "Linux Top",
     "url": "/2018/02/09/Linux-top/",
     "category": "[]"
+  },
+  
+  "wiki-template": {
+    "title": "Wiki Template",
+    "url": "/wiki/template/",
+    "category": "[&quot;cate1&quot;, &quot;cate2&quot;]"
   }
   
 }
