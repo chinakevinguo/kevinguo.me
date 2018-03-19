@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-03-19T15:32:55+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">Linux top 详解</title><link href="https://kevinguo.me/2018/02/09/Linux-top/" rel="alternate" type="text/html" title="Linux top 详解" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>https://kevinguo.me/2018/02/09/Linux-top</id><content type="html" xml:base="https://kevinguo.me/2018/02/09/Linux-top/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-03-19T15:39:05+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">Linux top 详解</title><link href="https://kevinguo.me/2018/02/09/Linux-top/" rel="alternate" type="text/html" title="Linux top 详解" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>https://kevinguo.me/2018/02/09/Linux-top</id><content type="html" xml:base="https://kevinguo.me/2018/02/09/Linux-top/">&lt;blockquote&gt;
   &lt;p&gt;一直都对服务性能这块的东西不怎么感冒，但是，有一次面试的时候，被问到了，突然发现自己对这些基础的知识点，好匮乏，正好今天在学python的psutil模块的时候，看到了cpu_times，顺便记录下关于top这个命令的内容；top这个命令其实很多人都会用，但是用的好的人却不多，甚至有人会对监控视图中的内容含义有不少曲解。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -163,6 +163,8 @@ CPU总时间1&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;user1+system1+nice1+i
   &lt;p&gt;最近在学python，学到class 多重继承，降到了c3算法，这里记录一下&lt;/p&gt;
 &lt;/blockquote&gt;
 
+&lt;!--more--&gt;
+
 &lt;h3 id=&quot;一什么是拓扑排序&quot;&gt;一、什么是拓扑排序&lt;/h3&gt;
 
 &lt;p&gt;在图论中，&lt;strong&gt;拓扑排序(Topological Sorting)&lt;/strong&gt; 是一个 &lt;strong&gt;有向无环图(DAG,Directed Acyclic Graph)&lt;/strong&gt; 的所有顶点的线性序列。且该序列必须满足下面两个条件：&lt;/p&gt;
@@ -296,6 +298,8 @@ CPU总时间1&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;user1+system1+nice1+i
   &lt;p&gt;jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。&lt;/p&gt;
 &lt;/blockquote&gt;
 
+&lt;!--more--&gt;
+
 &lt;p&gt;该流程包含了 &lt;code class=&quot;highlighter-rouge&quot;&gt;checkout scm&lt;/code&gt; –&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;build artifacts&lt;/code&gt; –&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;build image&lt;/code&gt; –&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;deploy to k8s&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等&lt;/p&gt;
@@ -351,6 +355,8 @@ CPU总时间1&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;user1+system1+nice1+i
 主要是为了避免以后想查看概念的时候找不到位置，望作者见谅
 以下所有内容是 &lt;a href=&quot;https://github.com/xingzhou&quot;&gt;xingzhou&lt;/a&gt; 对 kubernetes 官方文档的翻译，原文地址 https://k8smeetup.github.io/docs/admin/authorization/rbac/&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;!--more--&gt;
 
 &lt;h1 id=&quot;rbac基于角色的访问控制&quot;&gt;RBAC——基于角色的访问控制&lt;/h1&gt;
 
@@ -1045,6 +1051,8 @@ roleRef:
   &lt;p&gt;我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露&lt;/p&gt;
 &lt;/blockquote&gt;
 
+&lt;!--more--&gt;
+
 &lt;h3 id=&quot;一kubernetes-服务暴露介绍&quot;&gt;一、Kubernetes 服务暴露介绍&lt;/h3&gt;
 
 &lt;p&gt;关于服务暴露，常见的有如下几种方式:&lt;/p&gt;
@@ -1392,6 +1400,8 @@ roleRef:
 &lt;p&gt;&lt;img src=&quot;/images/posts/dashboard.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露 一、Kubernetes 服务暴露介绍 关于服务暴露，常见的有如下几种方式: LoadBlancer Service NodePort Service Ingress traefik 1.1、LoadBlancer Service LoandBlancer Service 是kubernetes深度结合云平台的一个组件；当使用LoandBlancer Service暴露服务时，实际上是通过向底层云平台申请创建一个负载均衡器来向外暴露服务；目前LoadBlancer Service支持的云平台已经相对完善，比如国外的GCE、DigitalOcean，国内的阿里云，私有云Openstack等等，由于LoadBlancer Service深度结合了云平台，所以只能在一些云平台使用。 1.2、NodePort Service NodePort Service 顾名思义，实质上就是通过在集群的每个node上暴露一个端口，然后将这个端口隐射到某个具体的service来实现，虽然每个node的端口有很多(0~65535)，但由于安全性和易用性(服务多了，端口记不住，容易混乱)，实际上使用的可能并不多 1.3、Ingress ingress 这东西在1.2后才出现的，大致原理就是通过一个ingress controller来实时感知service、pod的变化，然后结合ingress生成配置，更新内部的反代，刷新配置，达到服务暴露的目的 1.4、traefik traefik 笔者并没有使用过，大致意思是抛弃了ingress controller，因为traefik本身就能和kubernetes API交互，感知后端变化，再根据ingress生成规则，暴露服务。 二、fabio+consul+registrator 实现服务暴露 前面简单的介绍了几种kubernetes中的服务暴露方式，但是我这里一种都没有使用，为什么呢，因为通过service或者Nodeport来实现服务发现都是使用的iptables来进行负载的，性能上总是有些损耗的，所以这里我使用consul+registrator+fabio来实现kubernetes内部服务的暴露 组件介绍： fabio registrator consul 2.1、fabio fabio 是ebay团队用golang开发的一个快速、简单零配置就能够让consul部署的应用快速支持http(s)的负载均衡路由器，支持服务发现，自动生成路由 我们只需要在consul注册服务，提供一个健康检查，fabio就会将流量路由到这些服务上 2.2、registrator registrator(注册器)，能够实时的监听docker的event，动态的注册docker 容器服务到consul、etcd或zookeeper中 2.3、consul Consul 是一个支持多数据中心分布式高可用的服务发现和配置共享的服务软件,由 HashiCorp 公司用 Go 语言开发, 基于 Mozilla Public License 2.0 的协议进行开源. Consul 支持健康检查,并允许 HTTP 和 DNS 协议调用 API 存储键值对 2.4、具体部署过程 具体架构图如下： 首先我们需要部署一套consul server cluster，具体部署过程，这里就不再演示了，请参考Consul 集群搭建 然后，我们所有的节点都需要包含在calico-network范围之内，calico网络部署请参考第一章,将所有fabio所在的节点配置为noscheduler 1.consul client 部署 我们在每个节点上跑一个consul-client，你可以以daemonset的方式部署，也可以直接以二进制的方式部署，用systemd管理起来，这里用二进制的方式 /usr/lib/systemd/system/consul.service [Unit] Description=Consul service discovery agent Requires=network-online.target After=network-online.target [Service] User=consul Group=consul EnvironmentFile=-/etc/default/consul Environment=GOMAXPROCS=2 Restart=on-failure ExecStartPre=[ -f &quot;/opt/consul/run/consul.pid&quot; ] &amp;amp;&amp;amp; /usr/bin/rm -f /opt/consul/run/consul.pid ExecStart=/usr/local/bin/consul agent $CONSUL_FLAGS ExecReload=/bin/kill -HUP $MAINPID KillSignal=SIGTERM TimeoutStopSec=5 [Install] WantedBy=multi-user.target /etc/default/consul CONSUL_FLAGS=&quot;-ui -data-dir=/opt/consul/data -config-dir=/opt/consul/conf -pid-file=/opt/consul/run/consul.pid -client=0.0.0.0 -bind=172.29.151.4 -node=consul-client04 -retry-join=172.30.33.39 -retry-join=172.30.33.40 -retry-join=172.30.33.41 -retry-interval=3s&quot; 2.registrator 部署 我们在每个node 节点上跑一个registrator，同样可以以daemonset的方式部署，或者使用docker container的方式部署，用systemd管理，这里我们通过daemonset的方式部署 registrator.yaml apiVersion: extensions/v1beta1 kind: DaemonSet metadata: creationTimestamp: null labels: run: registrator name: registrator spec: selector: matchLabels: run: registrator template: metadata: creationTimestamp: null labels: run: registrator spec: volumes: - name: docker-sock hostPath: path: /var/run/docker.sock hostNetwork: true containers: - name: registrator volumeMounts: - mountPath: /tmp/docker.sock name: docker-sock image: ganeshkaila/registrator:v7 command: [&quot;/bin/sh&quot;] args: [&quot;-c&quot;, &quot;registrator -useIpFromEnv=POD_IP -internal consul://localhost:8500&quot;] imagePullPolicy: IfNotPresent env: - name: NODE_NAME valueFrom: fieldRef: fieldPath: spec.nodeName 3.fabio 部署 我们在对应的节点上部署fabio，二进制文件部署，通过systemd管理 fabio.service [Unit] Description=fabio Requires=network-online.target After=network-online.target [Service] Environment=GOMAXPROCS=2 Restart=on-failure ExecStart=/usr/local/bin/fabio ExecReload=/bin/kill -HUP $MAINPID KillSignal=SIGTERM [Install] WantedBy=multi-user.target 至此，我们的fabio+consul+registrator就算是部署完成了，那么我们怎么使用呢，这里，我们以kubernetes-dashboard为例 kubernetes-dashboard.yaml apiVersion: v1 kind: Secret metadata: labels: k8s-app: kubernetes-dashboard name: kubernetes-dashboard-certs namespace: kube-system type: Opaque --- apiVersion: v1 kind: ServiceAccount metadata: labels: k8s-app: kubernetes-dashboard name: kubernetes-dashboard namespace: kube-system --- # ------------------- Dashboard Role &amp;amp; Role Binding ------------------- # kind: Role apiVersion: rbac.authorization.k8s.io/v1beta1 metadata: name: kubernetes-dashboard-minimal namespace: kube-system rules: # Allow Dashboard to create and watch for changes of 'kubernetes-dashboard-key-holder' secret. - apiGroups: [&quot;&quot;] resources: [&quot;secrets&quot;] verbs: [&quot;create&quot;, &quot;watch&quot;] # Allow Dashboard to get, update and delete Dashboard exclusive secrets. - apiGroups: [&quot;&quot;] resources: [&quot;secrets&quot;] resourceNames: [&quot;kubernetes-dashboard-key-holder&quot;] verbs: [&quot;get&quot;, &quot;update&quot;, &quot;delete&quot;] # Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map. - apiGroups: [&quot;&quot;] resources: [&quot;configmaps&quot;] resourceNames: [&quot;kubernetes-dashboard-settings&quot;] verbs: [&quot;list&quot;,&quot;get&quot;, &quot;update&quot;] # Allow Dashboard to get metrics from heapster. - apiGroups: [&quot;&quot;] resources: [&quot;services&quot;] resourceNames: [&quot;heapster&quot;] verbs: [&quot;proxy&quot;] --- apiVersion: rbac.authorization.k8s.io/v1beta1 kind: RoleBinding metadata: name: kubernetes-dashboard-minimal namespace: kube-system roleRef: apiGroup: rbac.authorization.k8s.io kind: Role name: kubernetes-dashboard-minimal subjects: - kind: ServiceAccount name: kubernetes-dashboard namespace: kube-system --- # ------------------- Dashboard Deployment ------------------- # kind: Deployment apiVersion: extensions/v1beta1 metadata: labels: k8s-app: kubernetes-dashboard name: kubernetes-dashboard namespace: kube-system spec: replicas: 1 revisionHistoryLimit: 10 selector: matchLabels: k8s-app: kubernetes-dashboard template: metadata: labels: k8s-app: kubernetes-dashboard spec: containers: - name: kubernetes-dashboard image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1 ports: - containerPort: 9090 protocol: TCP # 这里个人添加一些必要的env env: - name: SERVICE_9090_CHECK_HTTP value: &quot;/&quot; - name: SERVICE_9090_CHECK_INTERVAL value: &quot;15s&quot; - name: SERVICE_9090_CHECK_TIME value: &quot;1s&quot; - name: SERVICE_NAME value: kubernetes-dashboard - name: SERVICE_TAGS value: urlprefix-dashboard.quark.com/ # 指定获取pod ip - name: POD_IP valueFrom: fieldRef: fieldPath: status.podIP args: # Uncomment the following line to manually specify Kubernetes API server Host # If not specified, Dashboard will attempt to auto discover the API server and connect # to it. Uncomment only if the default does not work. # - --apiserver-host=http://my-address:port - --authentication-mode=basic # 这里添加一个连接heapster - --heapster-host=http://heapster.kube-system.svc.cluster.local volumeMounts: # Create on-disk volume to store exec logs - mountPath: /tmp name: tmp-volume livenessProbe: httpGet: path: / port: 9090 initialDelaySeconds: 30 timeoutSeconds: 30 volumes: - name: tmp-volume emptyDir: {} # 这里的serviceAccountName改成default serviceAccountName: default # Comment the following tolerations if Dashboard must not be deployed on master tolerations: - key: node-role.kubernetes.io/master effect: NoSchedule 前端LB配置 server { listen 80; server_name dashboard.quark.com; client_max_body_size 0; location / { proxy_pass http://fabio-server; proxy_set_header Host dashboard.quark.com; # 这个位置一定是注册到consul里面的tags部分 proxy_set_header X-Real-IP $remote_addr; # pass on real client's IP proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_read_timeout 900; } } upstream fabio-server { server 172.29.151.4:9999; } 最后看看结果 fabio kubernetes-dashboard</summary></entry><entry><title type="html">Harbor+etcd+docker结合Ceph搭建高可用集群</title><link href="https://kevinguo.me/2017/11/22/harbor-etcd-ceph/" rel="alternate" type="text/html" title="Harbor+etcd+docker结合Ceph搭建高可用集群" /><published>2017-11-22T00:00:00+08:00</published><updated>2017-11-22T00:00:00+08:00</updated><id>https://kevinguo.me/2017/11/22/harbor-etcd-ceph</id><content type="html" xml:base="https://kevinguo.me/2017/11/22/harbor-etcd-ceph/">&lt;blockquote&gt;
   &lt;p&gt;由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;!--more--&gt;
 
 &lt;p&gt;&lt;img src=&quot;/images/posts/overall-structure.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
@@ -2073,6 +2083,8 @@ v1.2.2: digest: sha256:80bfbc20a1ee2bc6b05dfe31f1e082c08961a0f62e94089ef952800e9
 &lt;blockquote&gt;
   &lt;p&gt;该文档参考了诸多大神的文档,&lt;a href=&quot;https://mritd.me/2017/07/21/set-up-kubernetes-ha-cluster-by-binary/&quot;&gt;漠然&lt;/a&gt;、&lt;a href=&quot;http://blog.frognew.com/2017/04/install-ha-kubernetes-1.6-cluster.html&quot;&gt;青蛙小白&lt;/a&gt;，谨请原谅&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;!--more--&gt;
 
 &lt;h3 id=&quot;一环境准备&quot;&gt;一.环境准备&lt;/h3&gt;
 
@@ -4521,6 +4533,8 @@ monitoring-influxdb-3570645011-dp51l       1/1       Running   0          1h
   &lt;p&gt;前面花了两章的时间介绍了ceph存储集群，简单的讲了ceph的组件、架构、寻址过程以及关于rbd,cephfs,cephGW,rados,osd,mon,mds,pool,pg,object等的操作过程，这一章主要记录下kubernetes使用ceph的相关配置过程。&lt;/p&gt;
 &lt;/blockquote&gt;
 
+&lt;!--more--&gt;
+
 &lt;p&gt;通过&lt;a href=&quot;https://kubernetes.io/docs/concepts/storage/persistent-volumes/#ceph-rbd&quot;&gt;官网&lt;/a&gt;，我们发现在kubernetes中使用的是ceph的RBD&lt;/p&gt;
 
 &lt;h3 id=&quot;部署集群&quot;&gt;部署集群&lt;/h3&gt;
@@ -4948,6 +4962,8 @@ Filesystem                                                                      
   &lt;p&gt;其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。&lt;/p&gt;
 &lt;/blockquote&gt;
 
+&lt;!--more--&gt;
+
 &lt;h3 id=&quot;寻址流程&quot;&gt;寻址流程&lt;/h3&gt;
 
 &lt;p&gt;通过对Ceph系统中寻址流程的了解来熟悉Ceph中的几个概念，寻址流程如下图&lt;/p&gt;
@@ -5157,6 +5173,8 @@ ID  WEIGHT  TYPE NAME                 UP/DOWN REWEIGHT PRIMARY-AFFINITY
   &lt;p&gt;该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群
 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;!--more--&gt;
 
 &lt;h3 id=&quot;简介&quot;&gt;简介&lt;/h3&gt;
 

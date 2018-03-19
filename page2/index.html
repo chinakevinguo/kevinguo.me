@@ -116,6 +116,8 @@
                         其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。
 
 
+
+
 寻址流程
 
 通过对Ceph系统中寻址流程的了解来熟悉Ceph中的几个概念，寻址流程如下图
@@ -348,6 +350,8 @@ MDS服务专门为CephFS存储元数据，所以相对于monitor和OSD节点，�
                     <p class="repo-list-description">
                         该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群
 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。
+
+
 
 
 简介
@@ -941,6 +945,8 @@ $ ceph-deploy rgw create k8s-node02
 4.更方便迁移
 
 5.超强的横向扩容能力
+
+
 
 master
 
@@ -2258,6 +2264,8 @@ annotation 和label类似，也是使用 key/value的形式进行定义。不同
   以前了解过一段时间的consul，只知道consul是一个服务发现的工具，但是具体是怎么注册的，又是怎么服务发现的，一点也不清楚，这次趁着研究kubernetes的服务发现，顺带研究了下consul，在此记录下来。
 
 
+
+
 概念
 
 简单来说，consul是一个提供服务注册、服务发现、键值存储、健康检查的工具，并且它支持多数据中心。
@@ -2520,6 +2528,8 @@ PING 172.17.0.3 (172.17.0.3) 56(84) bytes of data.
   由于公司目前有部分业务跑在docker上，但又还没有上诸如:swarm,kubernetes之类的容器编排工具，但是又想要能对docker主机及容器进行一个简单可视化的管理，筛选来，筛选去，发现无论是:DockerUI、Shipyard、portainer还是Daocloud都不能符合我们的心意，最终决定使用rancher来进行管理。
 
 
+
+
 Rancher是什么
 
 借用官方文档里面的话来说，Rancher是一个开源的容器管理平台。
@@ -2704,6 +2714,7 @@ rancher上还有很多功能，感兴趣的同学可以去自行研究下，我�
                     </h3>
                     <p class="repo-list-description">
                         上一篇HTTPS是使用cloudflare进行加密的，所有的请求都交给cloudflare来进行转发，就会出现域名指向的IP不是主机的问题，虽然安全些，但是总感觉怪怪的，所以这一篇，直接通过 nginx+docker+let’s encrypt 搭建HTTPS认证
+
 
 
 

@@ -141,6 +141,8 @@
                         最近在学python，学到class 多重继承，降到了c3算法，这里记录一下
 
 
+
+
 一、什么是拓扑排序
 
 在图论中，拓扑排序(Topological Sorting) 是一个 有向无环图(DAG,Directed Acyclic Graph) 的所有顶点的线性序列。且该序列必须满足下面两个条件：
@@ -293,6 +295,8 @@ if __name__ == '__main__':
                         jenkins CI/CD用了有很长一段时间了，包括现公司的docker container deployment也是通过写pipeline workflow来实现的，但是当我在将jenkins迁往kubernetes的过程中，还是踩了不少的坑，这里记录下来。
 
 
+
+
 该流程包含了 checkout scm –&gt; build artifacts –&gt; build image –&gt; deploy to k8s
 
 流程相对简单，而且并没有涉及到代码分支，集中测试，蓝绿部署等等
@@ -367,6 +371,8 @@ kubernetes cloud的配置相对简单，我们只需要指定Kubernetes URL以�
                         注：全文转载于https://jimmysong.io/kubernetes-handbook/guide/rbac.html
 主要是为了避免以后想查看概念的时候找不到位置，望作者见谅
 以下所有内容是 xingzhou 对 kubernetes 官方文档的翻译，原文地址 https://k8smeetup.github.io/docs/admin/authorization/rbac/
+
+
 
 
 RBAC——基于角色的访问控制
@@ -1085,6 +1091,8 @@ kubectl create clusterrolebinding permissive-binding \
                         我们在第一章的时候，通过手动的方式搭建好了kubernetes集群，并且在上面跑了一些基础的服务，那么我们要如何将这些服务暴露出来呢，这一章重点介绍关于kubernetes的服务暴露
 
 
+
+
 一、Kubernetes 服务暴露介绍
 
 关于服务暴露，常见的有如下几种方式:
@@ -1467,6 +1475,8 @@ upstream fabio-server {
                     </h3>
                     <p class="repo-list-description">
                         由于原有的etcd一直是以单机的环境运行，不仅没有共享存储，也没有集群环境，而且生产上的私有image仓库也是使用的docker private registry，没有任何高可用，存在很大的隐患，所以，这里我搭建了一个套由ceph fs作为共享存储，为harbor和etcd集群提供存储服务的环境，特意在此记录下来，免得以后忘记了。整体架构图如下:
+
+
 
 
 
@@ -2177,6 +2187,8 @@ v1.2.2: digest: sha256:80bfbc20a1ee2bc6b05dfe31f1e082c08961a0f62e94089ef952800e9
 
 
   该文档参考了诸多大神的文档,漠然、青蛙小白，谨请原谅
+
+
 
 
 一.环境准备
@@ -4648,6 +4660,8 @@ ingress 配置
                     </h3>
                     <p class="repo-list-description">
                         前面花了两章的时间介绍了ceph存储集群，简单的讲了ceph的组件、架构、寻址过程以及关于rbd,cephfs,cephGW,rados,osd,mon,mds,pool,pg,object等的操作过程，这一章主要记录下kubernetes使用ceph的相关配置过程。
+
+
 
 
 通过官网，我们发现在kubernetes中使用的是ceph的RBD
