@@ -211,85 +211,85 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 <p>Docker还会为源容器公开的每个端口定义一组环境变量。每个变量在表单中都有一个唯一的前缀：</p>
 
-<name>_PORT_<port>_<protocol>
+<p><code class="highlighter-rouge">&lt;name&gt;_PORT_&lt;port&gt;_&lt;protocol&gt;</code></p>
 
-前缀部分包含如下：
+<p>前缀部分包含如下：</p>
 
-* 通过`--link`指定的别名
-* 公开的端口
-* tcp/udp协议
+<ul>
+  <li>通过<code class="highlighter-rouge">--link</code>指定的别名</li>
+  <li>公开的端口</li>
+  <li>tcp/udp协议</li>
+</ul>
 
-Docker使用这种前缀格式指定了三个不同的环境变量：
+<p>Docker使用这种前缀格式指定了三个不同的环境变量：</p>
 
-* `prefix_ADDR` IP，例：WEBDB_PORT_5432_TCP_ADDR=172.17.0.82
-* `prefix_PORT` 端口，例：WEBDB_PORT_5432_TCP_PORT=5432
-* `prefix_PROTO` 协议，例：WEBDB_PORT_5432_TCP_PROTO=tcp
+<ul>
+  <li><code class="highlighter-rouge">prefix_ADDR</code> IP，例：WEBDB_PORT_5432_TCP_ADDR=172.17.0.82</li>
+  <li><code class="highlighter-rouge">prefix_PORT</code> 端口，例：WEBDB_PORT_5432_TCP_PORT=5432</li>
+  <li><code class="highlighter-rouge">prefix_PROTO</code> 协议，例：WEBDB_PORT_5432_TCP_PROTO=tcp</li>
+</ul>
 
-如果容器公开了多个端口，那么每个端口都要定义一个变量集。这意味着，比如，如果一个容器公开了4个端口，那么我们就需要设置12个环境变量，每个端口三个变量(包含ip，端口，协议)
+<p>如果容器公开了多个端口，那么每个端口都要定义一个变量集。这意味着，比如，如果一个容器公开了4个端口，那么我们就需要设置12个环境变量，每个端口三个变量(包含ip，端口，协议)</p>
 
-另外，docker会创建一个名叫`<alias>_PORT`的环境变量，这个环境变量是源容器的第一个公开端口。这个所谓的`第一`端口，被称之为最低编号的暴露端口。例如：`DB_PORT=tcp://172.17.0.82:5432`
+<p>另外，docker会创建一个名叫<code class="highlighter-rouge">&lt;alias&gt;_PORT</code>的环境变量，这个环境变量是源容器的第一个公开端口。这个所谓的<code class="highlighter-rouge">第一</code>端口，被称之为最低编号的暴露端口。例如：<code class="highlighter-rouge">DB_PORT=tcp://172.17.0.82:5432</code></p>
 
-最后，docker还会将源容器里那些来自docker主机的环境变量暴露为目标容器的变量，这些变量会在目标容器中被创建成 `<alias>_ENV_<name>` 的样子，变量的值来自于源容器
+<p>最后，docker还会将源容器里那些来自docker主机的环境变量暴露为目标容器的变量，这些变量会在目标容器中被创建成 <code class="highlighter-rouge">&lt;alias&gt;_ENV_&lt;name&gt;</code> 的样子，变量的值来自于源容器</p>
 
-我们可以进入web容器，使用`env`命令看看这个目标容器里面的环境变量
+<p>我们可以进入web容器，使用<code class="highlighter-rouge">env</code>命令看看这个目标容器里面的环境变量</p>
 
-```bash
-$ docker exec -ti web env
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker <span class="nb">exec</span> <span class="nt">-ti</span> web env
 
-DB_PORT=tcp://172.17.0.2:5432
-DB_PORT_5432_TCP=tcp://172.17.0.2:5432
-DB_PORT_5432_TCP_ADDR=172.17.0.2
-DB_PORT_5432_TCP_PORT=5432
-DB_PORT_5432_TCP_PROTO=tcp
-DB_NAME=/web/db
-```
-你可以看到docker已经创建了一些列有关源db容器的环境变量，每个变量的前缀都是`DB_`,这个DB就是你在上面指定的别名。如果别名是db1,那么这个前缀就是`DB1_`.你可以使用这些环境变量来配置应用程序连接到db容器上的数据库，连接是安全的，只有目标容器web能够访问源容器db。
+<span class="nv">DB_PORT</span><span class="o">=</span>tcp://172.17.0.2:5432
+<span class="nv">DB_PORT_5432_TCP</span><span class="o">=</span>tcp://172.17.0.2:5432
+<span class="nv">DB_PORT_5432_TCP_ADDR</span><span class="o">=</span>172.17.0.2
+<span class="nv">DB_PORT_5432_TCP_PORT</span><span class="o">=</span>5432
+<span class="nv">DB_PORT_5432_TCP_PROTO</span><span class="o">=</span>tcp
+<span class="nv">DB_NAME</span><span class="o">=</span>/web/db
+</code></pre></div></div>
+<p>你可以看到docker已经创建了一些列有关源db容器的环境变量，每个变量的前缀都是<code class="highlighter-rouge">DB_</code>,这个DB就是你在上面指定的别名。如果别名是db1,那么这个前缀就是<code class="highlighter-rouge">DB1_</code>.你可以使用这些环境变量来配置应用程序连接到db容器上的数据库，连接是安全的，只有目标容器web能够访问源容器db。</p>
 
-#### 有关docker环境变量的重要注意事项
+<h4 id="有关docker环境变量的重要注意事项">有关docker环境变量的重要注意事项</h4>
 
-与`/etc/hosts file`中的host条目不一样，如果重新启动源容器，不会自动更新存储在环境变量中的IP地址，我们建议使用/etc/hosts来解析连接容器的IP地址。
+<p>与<code class="highlighter-rouge">/etc/hosts file</code>中的host条目不一样，如果重新启动源容器，不会自动更新存储在环境变量中的IP地址，我们建议使用/etc/hosts来解析连接容器的IP地址。</p>
 
-#### 更新/etc/hosts配置文件
+<h4 id="更新etchosts配置文件">更新/etc/hosts配置文件</h4>
 
-除了环境变量，Docker还会将源容器的主机条目添加到/etc/hosts文件中：
-```bash
-$ docker exec -ti web cat /etc/hosts
+<p>除了环境变量，Docker还会将源容器的主机条目添加到/etc/hosts文件中：</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker <span class="nb">exec</span> <span class="nt">-ti</span> web <span class="nb">cat</span> /etc/hosts
 
 172.17.0.3	80e0d81d8652
 172.17.0.2	db 60bedbc24041 webdb
-```
-可以看到有两条主机条目。第一条是使用容器ID作为主机名的web容器，第二条是使用容器名和别名来作为主机名的db容器。除了你提供的别名之外，容器本身的容器名也会被添加到/etc/hosts，这两个主机条目你都可以ping通：
-```bash
-$ docker exec -ti web ping db
-PING webdb (172.17.0.2) 56(84) bytes of data.
-64 bytes from webdb (172.17.0.2): icmp_seq=1 ttl=64 time=0.044 ms
+</code></pre></div></div>
+<p>可以看到有两条主机条目。第一条是使用容器ID作为主机名的web容器，第二条是使用容器名和别名来作为主机名的db容器。除了你提供的别名之外，容器本身的容器名也会被添加到/etc/hosts，这两个主机条目你都可以ping通：</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker <span class="nb">exec</span> <span class="nt">-ti</span> web ping db
+PING webdb <span class="o">(</span>172.17.0.2<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from webdb <span class="o">(</span>172.17.0.2<span class="o">)</span>: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.044 ms
 
-$ docker exec -ti web ping webdb
-PING webdb (172.17.0.2) 56(84) bytes of data.
-64 bytes from webdb (172.17.0.2): icmp_seq=1 ttl=64 time=0.044 ms
-```
-&gt; **Note:** 我们可以将当个源容器连接到多个目标容器
+<span class="nv">$ </span>docker <span class="nb">exec</span> <span class="nt">-ti</span> web ping webdb
+PING webdb <span class="o">(</span>172.17.0.2<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+64 bytes from webdb <span class="o">(</span>172.17.0.2<span class="o">)</span>: <span class="nv">icmp_seq</span><span class="o">=</span>1 <span class="nv">ttl</span><span class="o">=</span>64 <span class="nb">time</span><span class="o">=</span>0.044 ms
+</code></pre></div></div>
+<blockquote>
+  <p><strong>Note:</strong> 我们可以将当个源容器连接到多个目标容器</p>
+</blockquote>
 
-如果我们重启了源容器，目标容器的/etc/hosts会自动更新到新的IP地址
-```bash
-$ docker restart db
-$ docker exec -ti web cat /etc/hosts
+<p>如果我们重启了源容器，目标容器的/etc/hosts会自动更新到新的IP地址</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker restart db
+<span class="nv">$ </span>docker <span class="nb">exec</span> <span class="nt">-ti</span> web <span class="nb">cat</span> /etc/hosts
 172.17.0.5	webdb 60bedbc24041 db
 172.17.0.3	80e0d81d8652
-```
-而我们来看看目标容器web的env，发现环境变量并没有更新
-```bash
-$ docker exec -ti web env
+</code></pre></div></div>
+<p>而我们来看看目标容器web的env，发现环境变量并没有更新</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>docker <span class="nb">exec</span> <span class="nt">-ti</span> web env
 
-DB_PORT=tcp://172.17.0.2:5432
-DB_PORT_5432_TCP=tcp://172.17.0.2:5432
-DB_PORT_5432_TCP_ADDR=172.17.0.2
-DB_PORT_5432_TCP_PORT=5432
-DB_PORT_5432_TCP_PROTO=tcp
-DB_NAME=/web/db
-DB_ENV_PG_VERSION=9.3
-```
-</name></alias></alias></protocol></port></name>
+<span class="nv">DB_PORT</span><span class="o">=</span>tcp://172.17.0.2:5432
+<span class="nv">DB_PORT_5432_TCP</span><span class="o">=</span>tcp://172.17.0.2:5432
+<span class="nv">DB_PORT_5432_TCP_ADDR</span><span class="o">=</span>172.17.0.2
+<span class="nv">DB_PORT_5432_TCP_PORT</span><span class="o">=</span>5432
+<span class="nv">DB_PORT_5432_TCP_PROTO</span><span class="o">=</span>tcp
+<span class="nv">DB_NAME</span><span class="o">=</span>/web/db
+<span class="nv">DB_ENV_PG_VERSION</span><span class="o">=</span>9.3
+</code></pre></div></div>
 
     </article>
     <div class="share">
