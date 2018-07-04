@@ -1,4 +1,200 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-06-13T16:46:28+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">Linux top 详解</title><link href="https://kevinguo.me/2018/02/09/Linux-top/" rel="alternate" type="text/html" title="Linux top 详解" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>https://kevinguo.me/2018/02/09/Linux-top</id><content type="html" xml:base="https://kevinguo.me/2018/02/09/Linux-top/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="https://kevinguo.me/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kevinguo.me/" rel="alternate" type="text/html" /><updated>2018-07-04T17:52:16+08:00</updated><id>https://kevinguo.me/</id><title type="html">KevinGuo</title><subtitle>KevinGuo's blog</subtitle><author><name>KevinGuo</name></author><entry><title type="html">docker中的一些组件</title><link href="https://kevinguo.me/2018/07/04/docker-components/" rel="alternate" type="text/html" title="docker中的一些组件" /><published>2018-07-04T00:00:00+08:00</published><updated>2018-07-04T00:00:00+08:00</updated><id>https://kevinguo.me/2018/07/04/docker-components</id><content type="html" xml:base="https://kevinguo.me/2018/07/04/docker-components/">&lt;h3 id=&quot;docker主要组件&quot;&gt;docker主要组件&lt;/h3&gt;
+
+&lt;p&gt;安装docker，实际上就是安装了docker客户端、dockerd等一系列组件，其中比较重要的有下面几个&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/posts/containerd.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;docker-clidocker&quot;&gt;docker CLI(docker)&lt;/h4&gt;
+
+&lt;p&gt;docker 程序是一个客户端工具，用来把用户的请求发送给docker daemon(dockerd)&lt;/p&gt;
+
+&lt;h4 id=&quot;dockerd&quot;&gt;dockerd&lt;/h4&gt;
+
+&lt;p&gt;docker daemon(dockerd)，docker服务端，一般也会被称为docker engine&lt;/p&gt;
+
+&lt;h4 id=&quot;docker-containerd&quot;&gt;docker-containerd&lt;/h4&gt;
+
+&lt;p&gt;带API的容器运行时&lt;/p&gt;
+
+&lt;p&gt;containerd主要职责是镜像管理（镜像、元信息等）、容器执行（调用最终运行时组件执行）。&lt;/p&gt;
+
+&lt;p&gt;containerd向上为Docker Daemon提供了gRPC接口，使得Docker Daemon屏蔽下面的结构变化，确保原有接口向下兼容。&lt;/p&gt;
+
+&lt;p&gt;containerd向下通过containerd-shim结合runC，使得引擎可以独立升级，避免之前Docker Daemon升级会导致所有容器不可用的问题&lt;/p&gt;
+
+&lt;p&gt;当docker daemon启动后，dockerd和docker-containerd进程就一直存在。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo my_container]# ps &lt;span class=&quot;nt&quot;&gt;-ef&lt;/span&gt; |grep docker
+root      5261     1  0 11:48 ?        00:00:03 /usr/bin/dockerd
+root      5266  5261  0 11:48 ?        00:00:10 docker-containerd &lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt; /var/run/docker/containerd/containerd.toml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;当启动容器之后，docker-containerd会创建子进程docker-containerd-shim进程&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root      5261     1  0 11:48 ?        00:00:03 /usr/bin/dockerd
+root      5266  5261  0 11:48 ?        00:00:10 docker-containerd &lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt; /var/run/docker/containerd/containerd.toml
+root      5484  5266  0 11:48 ?        00:00:00 docker-containerd-shim &lt;span class=&quot;nt&quot;&gt;-namespace&lt;/span&gt; moby &lt;span class=&quot;nt&quot;&gt;-workdir&lt;/span&gt; /var/lib/docker/containerd/daemon/io.containerd.runtime.v1.linux/moby/eaad9500e9a03473933179362983dd4615ba075062b184b0c4e8a3a34abacf34 &lt;span class=&quot;nt&quot;&gt;-address&lt;/span&gt; /var/run/docker/containerd/docker-containerd.sock &lt;span class=&quot;nt&quot;&gt;-containerd-binary&lt;/span&gt; /usr/bin/docker-containerd &lt;span class=&quot;nt&quot;&gt;-runtime-root&lt;/span&gt; /var/run/docker/runtime-runc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h5 id=&quot;安装containerd&quot;&gt;安装containerd&lt;/h5&gt;
+
+&lt;p&gt;containerd会调用runc，所以我们在安装containerd之前，需先安装runc&lt;/p&gt;
+
+&lt;p&gt;从&lt;a href=&quot;https://github.com/containerd/containerd/releases/download/v1.1.0/containerd-1.1.0.linux-amd64.tar.gz&quot;&gt;官网&lt;/a&gt;下载最新的稳定版本&lt;/p&gt;
+
+&lt;p&gt;然后把下载的包解压到&lt;code class=&quot;highlighter-rouge&quot;&gt;/usr/local&lt;/code&gt;下&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-C&lt;/span&gt; /usr/local &lt;span class=&quot;nt&quot;&gt;-xf&lt;/span&gt; containerd-1.1.0.linux-amd64.tar.gz
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;配置containerd作为系统服务&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir /etc/containerd
+containerd config default &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; /etc/containerd/config.toml
+
+vi /usr/lib/systemd/system/containerd.service
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Unit]
+&lt;span class=&quot;nv&quot;&gt;Description&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;containerd container runtime
+&lt;span class=&quot;nv&quot;&gt;Documentation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;https://containerd.io
+&lt;span class=&quot;nv&quot;&gt;After&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;network.target
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Service]
+&lt;span class=&quot;nv&quot;&gt;ExecStartPre&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/sbin/modprobe overlay
+&lt;span class=&quot;nv&quot;&gt;ExecStart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/usr/local/bin/containerd
+&lt;span class=&quot;nv&quot;&gt;Delegate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;yes
+&lt;span class=&quot;nv&quot;&gt;KillMode&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;process
+&lt;span class=&quot;nv&quot;&gt;LimitNOFILE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1048576
+&lt;span class=&quot;c&quot;&gt;# Having non-zero Limit*s causes performance problems due to accounting overhead&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# in the kernel. We recommend using cgroups to do container-local accounting.&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;LimitNPROC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;infinity
+&lt;span class=&quot;nv&quot;&gt;LimitCORE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;infinity
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Install]
+&lt;span class=&quot;nv&quot;&gt;WantedBy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;multi-user.target
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;启动服务，然后尝试着用ctr命令来启动容器&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;systemctl daemon-reload containerd
+systemctl start containerd
+
+&lt;span class=&quot;c&quot;&gt;# containerd的默认命令ctr&lt;/span&gt;
+
+ctr images pull docker.io/library/busybox:latest
+ctr run &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; docker.io/library/busybox:latest mybusybox
+
+&lt;span class=&quot;c&quot;&gt;# 列出容器&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo ~]# ctr c &lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;CONTAINER    IMAGE                               RUNTIME
+mybusybox    docker.io/library/busybox:latest    io.containerd.runtime.v1.linux
+
+&lt;span class=&quot;c&quot;&gt;# 列出任务&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo ~]# ctr t &lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;TASK         PID      STATUS
+mybusybox    16359    RUNNING
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;删除容器之前先要kill掉容器进程，然后再用&lt;code class=&quot;highlighter-rouge&quot;&gt;ctr c rm mybusybox&lt;/code&gt;的命令来删除&lt;/p&gt;
+
+&lt;h4 id=&quot;docker-containerd-shim&quot;&gt;docker-containerd-shim&lt;/h4&gt;
+
+&lt;p&gt;它是containerd的一个组件，是容器的运行时载体，我们在宿主机上看到的shim，正是代表着一个个通过containerd启动的docker容器，它允许容器运行时在容器启动之后退出，即便在containerd和dockerd都挂掉的情况下，容器的标准io和其他描述文件都是可用的&lt;/p&gt;
+
+&lt;h4 id=&quot;runc&quot;&gt;runC&lt;/h4&gt;
+
+&lt;p&gt;容器运行时&lt;/p&gt;
+
+&lt;p&gt;RunC 是一个轻量级的工具，它是用来运行容器的，只用来做这一件事，并且这一件事要做好。我们可以认为它就是个命令行小工具，可以不用通过 docker 引擎，直接运行容器。事实上，runC 是标准化的产物，它根据 OCI 标准来创建和运行容器。而 OCI(Open Container Initiative)组织，旨在围绕容器格式和运行时制定一个开放的工业化标准。&lt;/p&gt;
+
+&lt;p&gt;我们可以在运行dockerd的时候使用&lt;code class=&quot;highlighter-rouge&quot;&gt;--add-runtime&lt;/code&gt;来指定其他的运行时&lt;/p&gt;
+
+&lt;p&gt;在容器启动的过程中，docker-runc 进程是作为 docker-containerd-shim 的子进程存在的。docker-runc 进程根据配置找到容器的 rootfs 并创建子进程 bash 作为容器中的第一个进程。当这一切都完成后 docker-runc 进程退出，然后容器进程 bash 由 docker-runc 的父进程 docker-containerd-shim 接管&lt;/p&gt;
+
+&lt;h5 id=&quot;安装runc&quot;&gt;安装runc&lt;/h5&gt;
+
+&lt;p&gt;runc是golan的项目，因此在编译它之前，咱们先安装一下golan，这里我是在centos上，直接用命令安装&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;yum install golan &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/opencontainers/runc&quot;&gt;参考官方文档&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;安装必要的依赖包&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;yum install libseccomp libseccomp-devel &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;在你的golan的src目录下，创建github.com/opencontainers，如果你也是用yum 安装的golan，那么目录如下&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; /usr/lib/golang/src/github.com/opencontainers
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;获取runc的代码，并且编译安装&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/opencontainers/runc
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;runc
+make
+make install
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo src]# runc &lt;span class=&quot;nt&quot;&gt;--version&lt;/span&gt;
+runc version 1.0.0-rc5+dev
+commit: 2c632d1a2de0192c3f18a2542ccb6f30a8719b1f
+spec: 1.0.0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h5 id=&quot;使用runcdocker-runc来运行busybox容器&quot;&gt;使用runC/docker-runc来运行busybox容器&lt;/h5&gt;
+
+&lt;p&gt;先准备一个工作目录，所有的操作都是在该目录下执行&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir mycontainer
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;接着，准备容器镜像的文件系统，我们从docker镜像中获取&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;mycontainer
+mkdir rootfs
+docker &lt;span class=&quot;nb&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;docker create busybox&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt; |tar &lt;span class=&quot;nt&quot;&gt;-C&lt;/span&gt; rootfs &lt;span class=&quot;nt&quot;&gt;-xvf&lt;/span&gt; -
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;有了rootfs之后，我们还需要一个符合OCI标准的配置文件config.json，我们可以使用docker-runc来生成&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker-runc spec
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;接着，我们就可以使用runC来操作了&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker-runc run busybox
+
+&lt;span class=&quot;c&quot;&gt;# 切换到另一个终端来查看&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo ~]# docker-runc list
+ID          PID         STATUS      BUNDLE              CREATED                          OWNER
+busybox     8754        running     /root/mycontainer   2018-07-04T06:39:50.137725285Z   root
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo ~]# docker-runc ps busybox
+UID        PID  PPID  C STIME TTY          TIME CMD
+root      8754  8745  0 15:39 pts/0    00:00:00 sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;我们还可以尝试着修改config.json，让容器后台运行&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s2&quot;&gt;&quot;terminal&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;args&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;sleep&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;20&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo mycontainer]# docker-runc create mybusybox
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo mycontainer]# docker-runc start mybusybox
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;root@kevinguo mycontainer]# docker-runc list
+ID          PID         STATUS      BUNDLE              CREATED                          OWNER
+busybox     8754        running     /root/mycontainer   2018-07-04T06:39:50.137725285Z   root
+mybusybox   8886        running     /root/mycontainer   2018-07-04T06:42:14.404232848Z   root
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;就现状而言，虽然containerd1.1已经可以直接被kubernetes使用了，但是相对而言，我们还是建议先使用docker这个容器运行时，所以不论是cri还是cri-o，简单了解下就好&lt;/p&gt;
+&lt;/blockquote&gt;</content><author><name>KevinGuo</name></author><summary type="html">docker主要组件</summary></entry><entry><title type="html">Linux top 详解</title><link href="https://kevinguo.me/2018/02/09/Linux-top/" rel="alternate" type="text/html" title="Linux top 详解" /><published>2018-02-09T00:00:00+08:00</published><updated>2018-02-09T00:00:00+08:00</updated><id>https://kevinguo.me/2018/02/09/Linux-top</id><content type="html" xml:base="https://kevinguo.me/2018/02/09/Linux-top/">&lt;blockquote&gt;
   &lt;p&gt;一直都对服务性能这块的东西不怎么感冒，但是，有一次面试的时候，被问到了，突然发现自己对这些基础的知识点，好匮乏，正好今天在学python的psutil模块的时候，看到了cpu_times，顺便记录下关于top这个命令的内容；top这个命令其实很多人都会用，但是用的好的人却不多，甚至有人会对监控视图中的内容含义有不少曲解。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -5169,564 +5365,4 @@ ID  WEIGHT  TYPE NAME                 UP/DOWN REWEIGHT PRIMARY-AFFINITY
 
 &lt;h4 id=&quot;mds需求&quot;&gt;MDS需求&lt;/h4&gt;
 
-&lt;p&gt;MDS服务专门为CephFS存储元数据，所以相对于monitor和OSD节点，这个MDS节点的CPU需求会大得多，同时内存占用也是海量的，所以MDS一般会使用一个强劲的物理机单独搭建。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。</summary></entry><entry><title type="html">kubernetes ceph 笔记 1</title><link href="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/" rel="alternate" type="text/html" title="kubernetes ceph 笔记 1" /><published>2017-09-06T00:00:00+08:00</published><updated>2017-09-06T00:00:00+08:00</updated><id>https://kevinguo.me/2017/09/06/kubernetes-ceph-1</id><content type="html" xml:base="https://kevinguo.me/2017/09/06/kubernetes-ceph-1/">&lt;blockquote&gt;
-  &lt;p&gt;该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群
-；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;!--more--&gt;
-
-&lt;h3 id=&quot;简介&quot;&gt;简介&lt;/h3&gt;
-
-&lt;p&gt;Ceph是一个符合POSIX、开源的分布式存储系统，不论你是想提供&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph 对象存储&lt;/code&gt;或&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph 块设备&lt;/code&gt;，还是想部署一个&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph文件系统&lt;/code&gt;或者把ceph作为他用，所有 &lt;code class=&quot;highlighter-rouge&quot;&gt;Ceph存储集群&lt;/code&gt; 的部署都始于部署一个个 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph节点&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;网络&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph存储集群&lt;/code&gt;，ceph 存储集群至少需要一个 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph monitor&lt;/code&gt;和两个&lt;code class=&quot;highlighter-rouge&quot;&gt;osd守护进程&lt;/code&gt;。而运行&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph文件系统客户端&lt;/code&gt;，则必须需要MDS(元数据服务器)。&lt;/p&gt;
-
-&lt;p&gt;基础组件:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;Ceph OSDs: Ceph OSD 守护进程的功能是存储数据，处理数据的复制、恢复、回填、再均衡，并通过检查其他OSD守护进程的心跳来向 Ceph Monitors 提供一些监控信息。当Ceph 存储集群设定为有2个副本时，至少需要2个OSD守护进程，集群才能到到&lt;code class=&quot;highlighter-rouge&quot;&gt;active+clean&lt;/code&gt;状态(Ceph 默认有3个副本，你可以调整&lt;code class=&quot;highlighter-rouge&quot;&gt;osd poll default size&lt;/code&gt;)&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Ceph Monitors: Ceph Monitor基于PAXOS算法维护着 展示集群状态的各种图表，包括监视器图、OSD图、PG图、CRUSH图。Ceph 保存着发生在Monitors、OSD和PG上的每一次状态变更的历史信息(称为 epoch)&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;MDSs：Ceph MDS为 Ceph 文件系统存储元数据(也就是说，Ceph块设备和Ceph对象存储是不是用MDS)。MDS使得POSIX文件系统的用户们，可以在部队Ceph存储集群造成负担的前提下，执行诸如 &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt;等基本命令&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;下图展示了Ceph的基础架构图&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/posts/Ceph-soft-topu.png&quot; alt=&quot;ceph-topu&quot; /&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;1基础存储系统rados&quot;&gt;1.基础存储系统RADOS&lt;/h4&gt;
-
-&lt;p&gt;RADOS (Reliable Autonomic Distributed Object Store),这一层本身就是一个完整的对象存储系统，包括Ceph的基础服务(OSD,MON,MDS)，所有存储在ceph中的用户数据实际上最终都是由这一层来存储的。而Ceph的高可用，高扩展性，高自动化等特性本质上也是有这一层所提供的，因此，RADOS是ceph的核心精华部分。&lt;/p&gt;
-
-&lt;h4 id=&quot;2基础库librados&quot;&gt;2.基础库LibRados&lt;/h4&gt;
-
-&lt;p&gt;这一层是对RADOS进行抽象和封装，并向上层提供不同的API，这样上层的RBD、RGW、CephFS才能访问RADOS，RADOS所提供的原生librados API包括C和C++两种。&lt;/p&gt;
-
-&lt;h4 id=&quot;3高层存储应用接口&quot;&gt;3.高层存储应用接口&lt;/h4&gt;
-
-&lt;p&gt;这一层包含了RGW、RBD和CephFS这几个部分，其作用是在librados库的基础上提供抽象层次更高，更便于应用和用户端使用的上层接口。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;RGW: 是一个提供与S3和Swift兼容的RESTful API的gateway，以供对应的对象存储应用开发使用。通过RGW可以将RADOS响应转化为HTTP响应，同样也可以将外部的HTTP响应状花为RADOS调用。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;RBD：提供一个标准的块设备接口服务。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;CephFS: 提供一个POSIX兼容的分布式文件系统。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;4client层&quot;&gt;4.client层&lt;/h4&gt;
-
-&lt;p&gt;这一层其实就是不同场景下对于ceph各个应用接口的各种应用方式，例如基于librados直接开发的对象存储应用，基于RGW开发的对象存储应用，基于RBD实现的云硬盘等等。&lt;/p&gt;
-
-&lt;h4 id=&quot;5其他&quot;&gt;5.其他&lt;/h4&gt;
-
-&lt;p&gt;一个Cluster逻辑上可以划分为多个Pool，一个Pool由若干个逻辑PG组成。&lt;/p&gt;
-
-&lt;p&gt;一个文件会被切分为多个Object，每个Object会被映射到一个PG，每个PG 会根据CRUSH算法映射到一组OSD，其中第一个OSD（Primary OSD）为主，其余是备，OSD间通过心跳来互相监控存活状态。&lt;/p&gt;
-
-&lt;p&gt;CRUSH： CRUSH是ceph使用的数据分布算法，类似一致性哈希，让数据分配到预期的地方。&lt;/p&gt;
-
-&lt;h3 id=&quot;一快速安装&quot;&gt;一.快速安装&lt;/h3&gt;
-
-&lt;h4 id=&quot;11-安装前准备&quot;&gt;1.1 安装前准备&lt;/h4&gt;
-
-&lt;p&gt;所需机器如下&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: center&quot;&gt;IP&lt;/th&gt;
-      &lt;th style=&quot;text-align: center&quot;&gt;HostName&lt;/th&gt;
-      &lt;th style=&quot;text-align: center&quot;&gt;OS&lt;/th&gt;
-      &lt;th style=&quot;text-align: center&quot;&gt;role&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.31&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;deploy-node&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;deploy node&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.90&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;k8s-master01&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;monitor osd node1&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.91&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;k8s-master02&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;monitor osd node2&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.92&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;k8s-master03&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;monitor osd node3&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.89&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;k8s-registry&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;osd mds&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.93&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;k8s-node01&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;osd mds&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;172.30.33.94&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;k8s-node02&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;centos7.3.1611&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;osd mds&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;h5 id=&quot;在管理节点上操作&quot;&gt;在管理节点上操作&lt;/h5&gt;
-&lt;p&gt;1.添加ceph源&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph-noarch]
-&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;Ceph noarch packages
-&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;https://download.ceph.com/rpm-jewel/el7/noarch
-&lt;span class=&quot;nv&quot;&gt;enabled&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rpm-md
-&lt;span class=&quot;nv&quot;&gt;gpgkey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;https://download.ceph.com/keys/release.asc
-
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;yum update &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; yum install ceph-deploy &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;2.更新并安装&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-deploy&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;yum update &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;yum install ceph-deploy
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;2.配置从部署机器到所有其他节点的免密钥登录，具体参考&lt;a href=&quot;https://kevinguo.me/2017/07/06/ansible-client/&quot;&gt;这里&lt;/a&gt;&lt;/p&gt;
-
-&lt;h5 id=&quot;在节点上操作&quot;&gt;在节点上操作&lt;/h5&gt;
-
-&lt;p&gt;1.安装epel源&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;yum install yum-plugin-priorities
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;yum install epel-release &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;2.校对时间，由于ceph使用Paxos算法保证数据一致性，所以安装前要先保证各个节点的时间同步&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;yum install ntp ntpdate ntp-doc
-
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ntpdate 0.cn.pool.ntp.org
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;3.开放所需端口或关闭防火墙&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;system stop firewalld
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;firewall-cmd &lt;span class=&quot;nt&quot;&gt;--zone&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;public &lt;span class=&quot;nt&quot;&gt;--add-port&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;6789/tcp &lt;span class=&quot;nt&quot;&gt;--permanent&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;4.关闭selinux&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;setenforce 0
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h4 id=&quot;12-创建集群&quot;&gt;1.2 创建集群&lt;/h4&gt;
-
-&lt;p&gt;1.由于ceph-deploy工具部署集群前需要创建一些集群配置信息，其保存在&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph.conf&lt;/code&gt;文件中，这个文件将来会被复制到每个节点的 &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/ceph/ceph.conf&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建集群配置目录&lt;/span&gt;
-mkdir ceph-cluster &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;ceph-cluster
-&lt;span class=&quot;c&quot;&gt;# 创建 monitor-node&lt;/span&gt;
-ceph-deploy new k8s-master01
-&lt;span class=&quot;c&quot;&gt;# 追加 OSD 副本数量(测试虚拟机总共有3台)&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;osd pool default size = 3&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; ceph.conf
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;2.创建集群使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-deploy&lt;/code&gt;工具在部署节点上执行即可&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 安装ceph&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy install k8s-master01 k8s-master02 k8s-master03
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;注意：在部署节点部署的时候，可能会因为网络原因导致无法安装ceph和ceph-radosgw，这时候，我们在各个节点上手动安装一下&lt;/strong&gt;&lt;/p&gt;
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 添加ceph 源&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Ceph]
-&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;Ceph packages &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$basearch&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://download.ceph.com/rpm-jewel/el7/&lt;span class=&quot;nv&quot;&gt;$basearch&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;enabled&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rpm-md
-&lt;span class=&quot;nv&quot;&gt;gpgkey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;https://download.ceph.com/keys/release.asc
-&lt;span class=&quot;nv&quot;&gt;priority&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;Ceph-noarch]
-&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;Ceph noarch packages
-&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://download.ceph.com/rpm-jewel/el7/noarch
-&lt;span class=&quot;nv&quot;&gt;enabled&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rpm-md
-&lt;span class=&quot;nv&quot;&gt;gpgkey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;https://download.ceph.com/keys/release.asc
-&lt;span class=&quot;nv&quot;&gt;priority&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph-source]
-&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;Ceph &lt;span class=&quot;nb&quot;&gt;source &lt;/span&gt;packages
-&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://download.ceph.com/rpm-jewel/el7/SRPMS
-&lt;span class=&quot;nv&quot;&gt;enabled&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rpm-md
-&lt;span class=&quot;nv&quot;&gt;gpgkey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;https://download.ceph.com/keys/release.asc
-&lt;span class=&quot;nv&quot;&gt;priority&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-
-
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;yum install ceph ceph-radosgw &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;3.初始化monitor node 和密钥文件&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy mon create-initial
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;4.在osd节点上创建一个目录作为 osd 存储，并修改其权限,千万别创建在&lt;code class=&quot;highlighter-rouge&quot;&gt;/usr/local&lt;/code&gt;目录下，否则，你的osd可能会无法挂载&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ssh k8s-master01
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;mkdir /data/osd1
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;chown &lt;span class=&quot;nt&quot;&gt;-R&lt;/span&gt; ceph:ceph osd1
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;exit&lt;/span&gt;
-
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ssh k8s-master2
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;mkdir /data/osd2
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;chown &lt;span class=&quot;nt&quot;&gt;-R&lt;/span&gt; ceph:ceph osd2
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;exit&lt;/span&gt;
-
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ssh k8s-master3
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;mkdir /data/osd3
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;chown &lt;span class=&quot;nt&quot;&gt;-R&lt;/span&gt; ceph:ceph osd3
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;exit&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;5.然后，在管理节点上初始化 osd&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy osd prepare k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;6.最后，在管理节点上激活 osd&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy osd activate k8s-master01:/data/osd1 k8s-master02:/data/osd2 k8s-master03:/data/osd3
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;7.在管理节点上部署 ceph cli 工具和密钥文件&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy admin k8s-master01 k8s-master02 k8s-master03
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;8.确保你对 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph.client.admin.keyring&lt;/code&gt;有正确的操作权限，在每个节点上执行&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;chmod +r /etc/ceph/ceph.client.admin.keyring
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;9.最后，检查集群的健康状态&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph health
-HEALTH_OK
-
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph osd tree
-ID WEIGHT  TYPE NAME             UP/DOWN REWEIGHT PRIMARY-AFFINITY
-&lt;span class=&quot;nt&quot;&gt;-1&lt;/span&gt; 0.14067 root default                                            
-&lt;span class=&quot;nt&quot;&gt;-2&lt;/span&gt; 0.04689     host k8s-master01                                   
- 0 0.04689         osd.0              up  1.00000          1.00000
-&lt;span class=&quot;nt&quot;&gt;-3&lt;/span&gt; 0.04689     host k8s-master02                                   
- 1 0.04689         osd.1              up  1.00000          1.00000
-&lt;span class=&quot;nt&quot;&gt;-4&lt;/span&gt; 0.04689     host k8s-master03                                   
- 2 0.04689         osd.2              up  1.00000          1.00000
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;我们看到状态是OK的，而且每个节点上的osd的状态都是up的&lt;/p&gt;
-
-&lt;p&gt;如果在某些地方碰到麻烦，想从头再来，可以用下列命令来清楚配置：&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy purgedata &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}]&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy forgetkeys
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;用下列命令可以连Ceph安装包一起清除：&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy purge &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h3 id=&quot;二操作集群&quot;&gt;二.操作集群&lt;/h3&gt;
-
-&lt;h4 id=&quot;21-基础操作&quot;&gt;2.1 基础操作&lt;/h4&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建MDS&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy mds create &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# 创建RGW&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy rgw create &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# 添加mon&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;public network = 172.30.33.0/24&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; ceph.conf
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy mon add &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;ceph-node&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# 查看仲裁&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph quorum_status &lt;span class=&quot;nt&quot;&gt;--format&lt;/span&gt; json-pretty
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h4 id=&quot;22-对象存储测试&quot;&gt;2.2 对象存储测试&lt;/h4&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建pool&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;# rados mkpool {pool-name}&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rados mkpool test-pool
-
-&lt;span class=&quot;c&quot;&gt;# 创建测试文件&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;testfile &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-
-&lt;span class=&quot;c&quot;&gt;# 创建一个对象(这时候也将对象放入了pool中)&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;# rados put {object-name} {file-path} --pool={pool-name}&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rados put test-object testfile &lt;span class=&quot;nt&quot;&gt;--pool&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;test-pool
-
-&lt;span class=&quot;c&quot;&gt;# 检查存储池，确认ceph存储了此对象&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rados &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; test-pool &lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# 定位对象，会输出对象位置&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph osd map test-pool test-object
-osdmap e42 pool &lt;span class=&quot;s1&quot;&gt;'test-pool'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; object &lt;span class=&quot;s1&quot;&gt;'test-file'&lt;/span&gt; -&amp;gt; pg 3.b79653d4 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;3.4&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; -&amp;gt; up &lt;span class=&quot;o&quot;&gt;([&lt;/span&gt;1,5,2,3,4], p1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; acting &lt;span class=&quot;o&quot;&gt;([&lt;/span&gt;1,5,2,3,4], p1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# 删除对象&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rados &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; data rm test-object
-
-&lt;span class=&quot;c&quot;&gt;# 删除存储池&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rados rmpool test-pool test-pool &lt;span class=&quot;nt&quot;&gt;--yes-i-really-really-mean-it&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;p&gt;随着集群的运行，对象的位置可能会动态改变。Ceph有动态均衡机制，无需手动干预即可完成。&lt;/p&gt;
-
-&lt;h4 id=&quot;23-块存储测试&quot;&gt;2.3 块存储测试&lt;/h4&gt;
-
-&lt;p&gt;&lt;strong&gt;官方建议使用RBD的客户端最好不要和OSD在同一台物理机上(除非它们都是VM)&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;1.确认你使用了合适的内核版本，详情&lt;a href=&quot;http://docs.ceph.com/docs/master/start/os-recommendations/&quot;&gt;参见&lt;/a&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;lab_release &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt;
-uname &lt;span class=&quot;nt&quot;&gt;-a&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;2.在管理节点上用 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-deploy&lt;/code&gt;安装ceph&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ceph-deploy install &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;rbd-client&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;3.在管理节点上部署ceph cli工具和密钥&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ceph-deploy admin &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;rbd-client&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;4.在rbd节点上创建块设备image&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rbd create test-block &lt;span class=&quot;nt&quot;&gt;--size&lt;/span&gt; 4096
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;5.映射image到块设备&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rbd map test-block &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt; client.admin
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;strong&gt;在上面的map映射操作时，会出现如下报错&lt;/strong&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rbd map test-block &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt; client.admin
-rbd: sysfs write failed
-RBD image feature &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;mismatch. You can disable features unsupported by the kernel with &lt;span class=&quot;s2&quot;&gt;&quot;rbd feature disable&quot;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
-In some cases useful info is found &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;syslog - try &lt;span class=&quot;s2&quot;&gt;&quot;dmesg | tail&quot;&lt;/span&gt; or so.
-rbd: map failed: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;6&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; No such device or address
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;strong&gt;大致意思是说features不匹配，可以通过disable features关掉一些特性来让内核支持。这是因为在Ceph高本本进行 map image时，默认ceph在创建image(上文test-block)时，会增加很多features，这些features需要内核支持，centos7上的支持有限，所以，我们需要关掉一些&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;我们可以用 &lt;code class=&quot;highlighter-rouge&quot;&gt;rbd info data&lt;/code&gt; 看看创建的image目前有哪些features&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rbd info test-block
-rbd image &lt;span class=&quot;s1&quot;&gt;'test-block'&lt;/span&gt;:
-	size 4096 MB &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;1024 objects
-	order 22 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4096 kB objects&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-	block_name_prefix: rbd_data.10bb238e1f29
-	format: 2
-	features: layering, exclusive-lock, object-map, fast-diff, deep-flatten
-	flags:
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;在features中，我们可以看到默认开启了很多：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;layering 支持分层&lt;/li&gt;
-  &lt;li&gt;exclusive-lock 支持独占锁&lt;/li&gt;
-  &lt;li&gt;object-map 支持对象映射(依赖exclusive-lock)&lt;/li&gt;
-  &lt;li&gt;fast-diff 快速计算差异(依赖object-map)&lt;/li&gt;
-  &lt;li&gt;deep-flatten 支持快照扁平化操作&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;而实际上在CentOS7的3.10内核中只支持layering，所以我们需要手动关闭一些features，然后重新map；如果想要一劳永逸，可以在 ceph.conf 中加入 rbd_default_features = 1 来设置默认 features(数值仅是 layering 对应的 bit 码所对应的整数值)&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;6.关闭不支持的特性之后重新map&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 关闭不支持的features&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rbd feature disable test-block exclusive-lock, object-map, fast-diff, deep-flatten
-
-&lt;span class=&quot;c&quot;&gt;# 重新map&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rbd map test-block &lt;span class=&quot;nt&quot;&gt;--name&lt;/span&gt; client.admin
-/dev/rbd0
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;7.格式化之后挂载到系统目录&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 格式化&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mkfs.xfs /dev/rbd0
-meta-data&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/rbd0              &lt;span class=&quot;nv&quot;&gt;isize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;512    &lt;span class=&quot;nv&quot;&gt;agcount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;9, &lt;span class=&quot;nv&quot;&gt;agsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;130048 blks
-         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;sectsz&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;512   &lt;span class=&quot;nv&quot;&gt;attr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2, &lt;span class=&quot;nv&quot;&gt;projid32bit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;crc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1        &lt;span class=&quot;nv&quot;&gt;finobt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0, &lt;span class=&quot;nv&quot;&gt;sparse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
-data     &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;bsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096   &lt;span class=&quot;nv&quot;&gt;blocks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1048576, &lt;span class=&quot;nv&quot;&gt;imaxpct&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;25
-         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;sunit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024   &lt;span class=&quot;nv&quot;&gt;swidth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024 blks
-naming   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;version 2              &lt;span class=&quot;nv&quot;&gt;bsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096   ascii-ci&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0 &lt;span class=&quot;nv&quot;&gt;ftype&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-log      &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;internal log           &lt;span class=&quot;nv&quot;&gt;bsize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096   &lt;span class=&quot;nv&quot;&gt;blocks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2560, &lt;span class=&quot;nv&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2
-         &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;                       &lt;span class=&quot;nv&quot;&gt;sectsz&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;512   &lt;span class=&quot;nv&quot;&gt;sunit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;8 blks, lazy-count&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-realtime &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;none                   &lt;span class=&quot;nv&quot;&gt;extsz&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096   &lt;span class=&quot;nv&quot;&gt;blocks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0, &lt;span class=&quot;nv&quot;&gt;rtextents&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
-
-&lt;span class=&quot;c&quot;&gt;# 挂载&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mkdir test-block
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;mount /dev/rbd0 test-block
-
-&lt;span class=&quot;c&quot;&gt;# 写入测试&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;test-block/test-file &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-1+0 records &lt;span class=&quot;k&quot;&gt;in
-&lt;/span&gt;1+0 records out
-1073741824 bytes &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.1 GB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; copied, 2.96071 s, 363 MB/s
-
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls &lt;/span&gt;test-block/
-test-file
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h4 id=&quot;24-cephfs-测试&quot;&gt;2.4 CephFS 测试&lt;/h4&gt;
-
-&lt;p&gt;1.创建MDS&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy mds create k8s-node01 k8s-node02 k8s-registry
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;2.创建pool和fs，创建pool需要指定PG数量&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ceph osd pool create cephfs_data 32
-ceph osd pool create cephfs_metadata 32
-ceph fs new test-fs cephfs_metadata cephfs_data
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;strong&gt;PG 概念：&lt;/strong&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;当Ceph集群接受到存储请求时，ceph会将一个文件会切分为多个Object，每个Object会被映射到一个PG，每个PG 会根据CRUSH算法映射到一组OSD(根据副本数)；一般来说增加PG的数量能降低OSD负载，一般每个OSD大约分配50～100PG，关于PG数量指定，一般遵循以下公式&lt;/p&gt;
-  &lt;ul&gt;
-    &lt;li&gt;集群PG总数 = (OSD总数 * 100)/数据最大副本数&lt;/li&gt;
-    &lt;li&gt;单个存储池PG数 = (OSD总数 * 100)/数据最大副本数/存储池数&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;注意：PG的最终结果应当以最接近以上计算公式的2的N次幂(向上取值)；如我的虚拟机环境的每个存储池 PG数 = 6(OSD) * 100 / 5(副本数) / 4（4个存储池）= 30，向上取2的N次幂为32(即，2的5次方=32，最接近30)&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;3.挂载CephFS有两种方式，一种是使用内核驱动挂载，一种是使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-fuse&lt;/code&gt;用户空间挂载&lt;/p&gt;
-
-&lt;p&gt;内核挂载需要提取ceph管理key，方式如下：&lt;/p&gt;
-
-&lt;p&gt;在密钥文件中找到与某用户对于的密钥&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /etc/ceph/ceph.client.admin.keyring
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;client.admin]
-	key &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;复制密钥到文件中保存，并确保其权限&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;AQBferZZEKXFLxAAhlzElpm2MhhbBGB4TnNVkA==&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; ceph-key
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;创建目录挂载&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir test-fs
-mount &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; ceph 172.30.33.90:6789:/ /root/test-fs &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;admin,secretfile&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ceph-key
-
-&lt;span class=&quot;c&quot;&gt;#写入数据测试&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;test-fs/test-fs &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-1+0 records &lt;span class=&quot;k&quot;&gt;in
-&lt;/span&gt;1+0 records out
-1073741824 bytes &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.1 GB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; copied, 2.77355 s, 387 MB/s
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ceph-fuse&lt;/code&gt;用户空间挂载的方式也比较简单，需要先安装ceph-fuse，同时也需要key&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 按照前面的步骤添加ceph源&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;vi /etc/yum.repos.d/ceph.repo
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph]
-&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ceph
-&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://mirrors.163.com/ceph/rpm-jewel/el7/x86_64/
-&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ceph-noarch]
-&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;cephnoarch
-&lt;span class=&quot;nv&quot;&gt;baseurl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://mirrors.163.com/ceph/rpm-jewel/el7/noarch/
-&lt;span class=&quot;nv&quot;&gt;gpgcheck&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0
-
-&lt;span class=&quot;c&quot;&gt;# 安装ceph-fuse&lt;/span&gt;
-yum install ceph-fuse &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# 复制配置和ceph key到client端&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;mkdir &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; /etc/ceph
-&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;scp root@172.30.33.91:/etc/ceph/ceph.conf /etc/ceph/ceph.conf
-&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;scp root@172.30.33.91:/etc/ceph/ceph.client.admin.keyring /etc/ceph/ceph.client.admin.keyring
-
-&lt;span class=&quot;c&quot;&gt;# 创建目录挂载&lt;/span&gt;
-mkdir test-fs-fuse
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;ceph-fuse &lt;span class=&quot;nt&quot;&gt;-m&lt;/span&gt; 172.30.33.91:6789 test-fs-fuse
-ceph-fuse[60551]: starting ceph client
-2017-09-12 14:47:24.137929 7f63d9719ec0 &lt;span class=&quot;nt&quot;&gt;-1&lt;/span&gt; init, newargv &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 0x7f63e51d4840 &lt;span class=&quot;nv&quot;&gt;newargc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;11
-ceph-fuse[60551]: starting fuse
-
-&lt;span class=&quot;c&quot;&gt;# 写入数据测试&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;dd &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/dev/zero &lt;span class=&quot;nv&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;test-fs-fuse/test-fs-fuse &lt;span class=&quot;nv&quot;&gt;bs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1G &lt;span class=&quot;nv&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-1+0 records &lt;span class=&quot;k&quot;&gt;in
-&lt;/span&gt;1+0 records out
-1073741824 bytes &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1.1 GB&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; copied, 10.5426 s, 102 MB/s
-
-&lt;span class=&quot;c&quot;&gt;# 查看确认，发现我们上面通过内核挂载的文件也还在&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-lh&lt;/span&gt;
-total 2.0G
-&lt;span class=&quot;nt&quot;&gt;-rw-r--r--&lt;/span&gt; 1 root root 1.0G Sep 12 13:59 test-fs
-&lt;span class=&quot;nt&quot;&gt;-rw-r--r--&lt;/span&gt; 1 root root 1.0G Sep 12 14:49 test-fs-fuse
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h4 id=&quot;25-ceph对象网关&quot;&gt;2.5 Ceph对象网关&lt;/h4&gt;
-
-&lt;p&gt;1.对象网关创建&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 创建RGW&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ceph-deploy rgw create k8s-node02
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;2.直接访问&lt;code class=&quot;highlighter-rouge&quot;&gt;http://ceph-node-ip:7480&lt;/code&gt;返回结果如下&lt;/p&gt;
-
-&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;ListAllMyBucketsResult&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;Owner&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;ID&amp;gt;&lt;/span&gt;anonymous&lt;span class=&quot;nt&quot;&gt;&amp;lt;/ID&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;DisplayName/&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/Owner&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;Buckets/&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/ListAllMyBucketsResult&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;这就说明网关OK了，但是因为没有读写环境，所以暂时测不了。&lt;/p&gt;
-
-&lt;p&gt;本文参考了&lt;a href=&quot;http://docs.ceph.com/docs/master/start/&quot;&gt;ceph官方文档&lt;/a&gt;及漠然的&lt;a href=&quot;https://mritd.me/2017/05/27/ceph-note-1/&quot;&gt;ceph笔记(一)&lt;/a&gt;部分&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">该教程主要是为statefulset有状态服务集群提供持久化存储提供基础，在讲statefulset之前，我们先搭建我们的ceph集群 ；具备了极好的可靠性、统一性；经过近几年的发展，ceph开辟了一个全新的数据存储途径。ceph具备了企业级存储的分布式、可大规模扩展、没有当节点故障等特点，越来越受人们的青睐。</summary></entry></feed>
+&lt;p&gt;MDS服务专门为CephFS存储元数据，所以相对于monitor和OSD节点，这个MDS节点的CPU需求会大得多，同时内存占用也是海量的，所以MDS一般会使用一个强劲的物理机单独搭建。&lt;/p&gt;</content><author><name>KevinGuo</name></author><summary type="html">其实我们在上一章的时候，已经简单的介绍了ceph中的基础组件以及其他软体架构，那么这一章，主要是来详细的介绍下ceph的工作原理、流程以及更实际的操作，比如ceph 内部的CRUSH bucket调整，PG/PGP参数调整等。并在最后简单的介绍了些CEPH集群硬件要求等。</summary></entry></feed>

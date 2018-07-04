@@ -110,6 +110,35 @@
                 
                 <li class="repo-list-item">
                     <h3 class="repo-list-name">
+                      <a href="/2017/07/06/Docker-container-communication/">Docker基础-docker容器之间通信</a>
+                    </h3>
+                    <p class="repo-list-description">
+                        本章节主要讲了容器之间是如何在默认网桥上进行通信的，这个bridge网络是在docker安装的时候，系统默认创建的。
+
+  Note: docker允许创建除了默认bridge网络之外的bridge网络
+
+  和外网通信
+  容器能否和外网通信是由两个因素决定的。第一个因素是宿主机是否转发容器的IP包。第二个因素是宿主机的iptables是否允许这个特定的连接。
+IP包转发是由系统参数ip_forward来进行管理的。如果此参数是1，则只允许在容器之间传递数据包，此时容器是不能访问外网的。通常，你只需要保持docker服务器的默认设置(ip-forward=true)即可,并且当服务器启动时，docker会将ip_forward设置为1，并且系统内核已经启用，那么这时候哪怕你设置ip-forward=false也不会起作用。
+检查内核上的设置或手动打开：
+```bash
+$ sysctl net.ipv4.conf.all.forwarding
+                    </p>
+                    <p class="repo-list-meta">
+                        <span class="meta-info">
+                          <span class="octicon octicon-calendar"></span> 2017/07/06
+                        </span>
+                        
+                        <span class="meta-info">
+                          <span class="octicon octicon-file-directory"></span>
+                          <a href="/categories/#docker" title="docker">docker</a>
+                        </span>
+                        
+                    </p>
+                </li>
+                
+                <li class="repo-list-item">
+                    <h3 class="repo-list-name">
                       <a href="/2017/07/06/Docker-configuring-logging-drivers/">Docker基础-docker日志驱动配置</a>
                     </h3>
                     <p class="repo-list-description">
@@ -254,28 +283,6 @@
                     </p>
                 </li>
                 
-                <li class="repo-list-item">
-                    <h3 class="repo-list-name">
-                      <a href="/2017/07/06/Docker-Use-compose-with-swarm/">Docker基础-在swarm上使用docker compose</a>
-                    </h3>
-                    <p class="repo-list-description">
-                        现在看到的是旧版本的独立版的swarm。如果你使用的是docker 1.12或更高的版本，swarm mode已经继承到了docker engine中。大多数用户都使用集成的swarm mode。可参考Getting started with swarm mode和Swarm mode CLI commands，独立的swarm没有集成到docker engine API和CLI commands中。
-
-docker compose和docker swarm旨在实现完全集成，这意味着你可以将一个compose应用程序指向一个swarm集群，并使其全部工作，就像使用单个主机一样。
-                    </p>
-                    <p class="repo-list-meta">
-                        <span class="meta-info">
-                          <span class="octicon octicon-calendar"></span> 2017/07/06
-                        </span>
-                        
-                        <span class="meta-info">
-                          <span class="octicon octicon-file-directory"></span>
-                          <a href="/categories/#docker" title="docker">docker</a>
-                        </span>
-                        
-                    </p>
-                </li>
-                
             </ol>
         </div>
         <div class="column one-third">
@@ -316,9 +323,9 @@ docker compose和docker swarm旨在实现完全集成，这意味着你可以将
                 <span class="meta-info" title="0 forks">
                     <span class="octicon octicon-git-branch"></span> 0
                 </span>
-                <span class="meta-info" title="Last updated：2018-05-14 09:21:04 UTC">
+                <span class="meta-info" title="Last updated：2018-06-20 01:40:36 UTC">
                     <span class="octicon octicon-clock"></span>
-                    <time datetime="2018-05-14 09:21:04 UTC">2018-05-14</time>
+                    <time datetime="2018-06-20 01:40:36 UTC">2018-06-20</time>
                 </span>
             </div>
         </div>
@@ -342,8 +349,8 @@ docker compose和docker swarm旨在实现完全集成，这意味着你可以将
                 <span class="meta-info" title="2 stars">
                     <span class="octicon octicon-star"></span> 2
                 </span>
-                <span class="meta-info" title="1 forks">
-                    <span class="octicon octicon-git-branch"></span> 1
+                <span class="meta-info" title="2 forks">
+                    <span class="octicon octicon-git-branch"></span> 2
                 </span>
                 <span class="meta-info" title="Last updated：2018-05-01 08:49:41 UTC">
                     <span class="octicon octicon-clock"></span>
@@ -412,29 +419,29 @@ docker compose和docker swarm旨在实现完全集成，这意味着你可以将
     </div>
 </a>
 
-<a href="https://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" class="card text-center">
+<a href="https://github.com/chinakevinguo/docker-consul" target="_blank" class="card text-center">
     <div class="thumbnail">
-        <div class="card-image geopattern" data-pattern-id="chinakevinguo.github.io">
+        <div class="card-image geopattern" data-pattern-id="docker-consul">
             <div class="card-image-cell">
                 <h3 class="card-title">
-                    chinakevinguo.github.io
+                    docker-consul
                 </h3>
             </div>
         </div>
         <div class="caption">
             <div class="card-description">
-                <p class="card-text"></p>
+                <p class="card-text">docker+consul+consul-template+registrator+nginx</p>
             </div>
             <div class="card-text">
                 <span class="meta-info" title="1 stars">
                     <span class="octicon octicon-star"></span> 1
                 </span>
-                <span class="meta-info" title="1 forks">
-                    <span class="octicon octicon-git-branch"></span> 1
+                <span class="meta-info" title="3 forks">
+                    <span class="octicon octicon-git-branch"></span> 3
                 </span>
-                <span class="meta-info" title="Last updated：2018-06-13 08:44:14 UTC">
+                <span class="meta-info" title="Last updated：2018-06-20 02:50:26 UTC">
                     <span class="octicon octicon-clock"></span>
-                    <time datetime="2018-06-13 08:44:14 UTC">2018-06-13</time>
+                    <time datetime="2018-06-20 02:50:26 UTC">2018-06-20</time>
                 </span>
             </div>
         </div>

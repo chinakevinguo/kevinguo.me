@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>docker中的一些组件 &mdash; KevinGuo</title>
+    <link rel="stylesheet" href="/assets/vendor/primer-css/css/primer.css">
+    <link rel="stylesheet" href="/assets/vendor/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="/assets/vendor/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="/assets/css/components/collection.css">
+    <link rel="stylesheet" href="/assets/css/components/repo-card.css">
+    <link rel="stylesheet" href="/assets/css/sections/repo-list.css">
+    <link rel="stylesheet" href="/assets/css/sections/mini-repo-list.css">
+    <link rel="stylesheet" href="/assets/css/components/boxed-group.css">
+    <link rel="stylesheet" href="/assets/css/globals/common.css">
+    <link rel="stylesheet" href="/assets/vendor/share.js/dist/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/globals/responsive.css">
+    <link rel="stylesheet" href="/assets/css/posts/index.css">
+    <!-- Latest compiled and minified CSS -->
+    
+
+    
+    <link rel="canonical" href="https://kevinguo.me/2018/07/04/docker-components/">
+    <link rel="alternate" type="application/atom+xml" title="KevinGuo" href="/feed.xml">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <meta property="og:title" content="docker中的一些组件">
+      
+    <meta name="keywords" content="docker,runC,containerd,containerd-shim">
+    <meta name="og:keywords" content="docker,runC,containerd,containerd-shim">
+      
+    <meta name="description" content="docker主要组件">
+    <meta name="og:description" content="docker主要组件">
+      
+    
+    
+        
+    
+    <meta property="og:url" content="https://kevinguo.me/2018/07/04/docker-components/">
+    <meta property="og:site_name" content="KevinGuo">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN" />
+    
+    <meta property="article:published_time" content="2018-07-04">
+    
+    <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    function toggleMenu() {
+        var nav = document.getElementsByClassName("site-header-nav")[0];
+        if (nav.style.display == "inline-flex") {
+          nav.style.display = "none";
+        } else {
+          nav.style.display = "inline-flex";
+        }
+    }
+    </script>
+</head>
+<body class="" data-mz="">
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/" title="KevinGuo"><span class="octicon octicon-mark-github"></span> KevinGuo</a></h1>
+            <button class="collapsed mobile-visible" type="button" onclick="toggleMenu();">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <nav class="site-header-nav" role="navigation">
+                
+                <a href="/" class=" site-header-nav-item" target="" title="首页">首页</a>
+                
+                <a href="/categories/" class=" site-header-nav-item" target="" title="分类">分类</a>
+                
+                <a href="/wiki/" class=" site-header-nav-item" target="" title="维基">维基</a>
+                
+                <a href="/open-source/" class=" site-header-nav-item" target="" title="开源">开源</a>
+                
+                <a href="/links/" class=" site-header-nav-item" target="" title="链接">链接</a>
+                
+                <a href="/about/" class=" site-header-nav-item" target="" title="关于">关于</a>
+                
+            </nav>
+        </div>
+    </header>
+    <!-- / header -->
+
+    <section class="collection-head small geopattern" data-pattern-id="docker中的一些组件">
+<div class="container">
+  <div class="columns">
+    <div class="column three-fourths">
+      <div class="collection-title">
+        <h1 class="collection-header">docker中的一些组件</h1>
+        <div class="collection-info">
+          
+          <span class="meta-info">
+            <span class="octicon octicon-calendar"></span> 2018/07/04
+          </span>
+          
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#docker" title="docker">docker</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#runC" title="runC">runC</a>
+          </span>
+          
+          <span class="meta-info">
+            <span class="octicon octicon-file-directory"></span>
+            <a href="/categories/#containerd" title="containerd">containerd</a>
+          </span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- / .banner -->
+<section class="container content">
+<div class="columns">
+  <div class="column three-fourths" >
+    <article class="article-content markdown-body">
+    <h3 id="docker主要组件">docker主要组件</h3>
+
+<p>安装docker，实际上就是安装了docker客户端、dockerd等一系列组件，其中比较重要的有下面几个</p>
+
+<p><img src="/images/posts/containerd.png" alt="" /></p>
+
+<h4 id="docker-clidocker">docker CLI(docker)</h4>
+
+<p>docker 程序是一个客户端工具，用来把用户的请求发送给docker daemon(dockerd)</p>
+
+<h4 id="dockerd">dockerd</h4>
+
+<p>docker daemon(dockerd)，docker服务端，一般也会被称为docker engine</p>
+
+<h4 id="docker-containerd">docker-containerd</h4>
+
+<p>带API的容器运行时</p>
+
+<p>containerd主要职责是镜像管理（镜像、元信息等）、容器执行（调用最终运行时组件执行）。</p>
+
+<p>containerd向上为Docker Daemon提供了gRPC接口，使得Docker Daemon屏蔽下面的结构变化，确保原有接口向下兼容。</p>
+
+<p>containerd向下通过containerd-shim结合runC，使得引擎可以独立升级，避免之前Docker Daemon升级会导致所有容器不可用的问题</p>
+
+<p>当docker daemon启动后，dockerd和docker-containerd进程就一直存在。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@kevinguo my_container]# ps <span class="nt">-ef</span> |grep docker
+root      5261     1  0 11:48 ?        00:00:03 /usr/bin/dockerd
+root      5266  5261  0 11:48 ?        00:00:10 docker-containerd <span class="nt">--config</span> /var/run/docker/containerd/containerd.toml
+</code></pre></div></div>
+
+<p>当启动容器之后，docker-containerd会创建子进程docker-containerd-shim进程</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root      5261     1  0 11:48 ?        00:00:03 /usr/bin/dockerd
+root      5266  5261  0 11:48 ?        00:00:10 docker-containerd <span class="nt">--config</span> /var/run/docker/containerd/containerd.toml
+root      5484  5266  0 11:48 ?        00:00:00 docker-containerd-shim <span class="nt">-namespace</span> moby <span class="nt">-workdir</span> /var/lib/docker/containerd/daemon/io.containerd.runtime.v1.linux/moby/eaad9500e9a03473933179362983dd4615ba075062b184b0c4e8a3a34abacf34 <span class="nt">-address</span> /var/run/docker/containerd/docker-containerd.sock <span class="nt">-containerd-binary</span> /usr/bin/docker-containerd <span class="nt">-runtime-root</span> /var/run/docker/runtime-runc
+</code></pre></div></div>
+
+<h5 id="安装containerd">安装containerd</h5>
+
+<p>containerd会调用runc，所以我们在安装containerd之前，需先安装runc</p>
+
+<p>从<a href="https://github.com/containerd/containerd/releases/download/v1.1.0/containerd-1.1.0.linux-amd64.tar.gz">官网</a>下载最新的稳定版本</p>
+
+<p>然后把下载的包解压到<code class="highlighter-rouge">/usr/local</code>下</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo tar</span> <span class="nt">-C</span> /usr/local <span class="nt">-xf</span> containerd-1.1.0.linux-amd64.tar.gz
+</code></pre></div></div>
+
+<p>配置containerd作为系统服务</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir /etc/containerd
+containerd config default <span class="o">&gt;</span> /etc/containerd/config.toml
+
+vi /usr/lib/systemd/system/containerd.service
+
+<span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>containerd container runtime
+<span class="nv">Documentation</span><span class="o">=</span>https://containerd.io
+<span class="nv">After</span><span class="o">=</span>network.target
+
+<span class="o">[</span>Service]
+<span class="nv">ExecStartPre</span><span class="o">=</span>/sbin/modprobe overlay
+<span class="nv">ExecStart</span><span class="o">=</span>/usr/local/bin/containerd
+<span class="nv">Delegate</span><span class="o">=</span>yes
+<span class="nv">KillMode</span><span class="o">=</span>process
+<span class="nv">LimitNOFILE</span><span class="o">=</span>1048576
+<span class="c"># Having non-zero Limit*s causes performance problems due to accounting overhead</span>
+<span class="c"># in the kernel. We recommend using cgroups to do container-local accounting.</span>
+<span class="nv">LimitNPROC</span><span class="o">=</span>infinity
+<span class="nv">LimitCORE</span><span class="o">=</span>infinity
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div></div>
+
+<p>启动服务，然后尝试着用ctr命令来启动容器</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl daemon-reload containerd
+systemctl start containerd
+
+<span class="c"># containerd的默认命令ctr</span>
+
+ctr images pull docker.io/library/busybox:latest
+ctr run <span class="nt">-t</span> docker.io/library/busybox:latest mybusybox
+
+<span class="c"># 列出容器</span>
+<span class="o">[</span>root@kevinguo ~]# ctr c <span class="nb">ls
+</span>CONTAINER    IMAGE                               RUNTIME
+mybusybox    docker.io/library/busybox:latest    io.containerd.runtime.v1.linux
+
+<span class="c"># 列出任务</span>
+<span class="o">[</span>root@kevinguo ~]# ctr t <span class="nb">ls
+</span>TASK         PID      STATUS
+mybusybox    16359    RUNNING
+</code></pre></div></div>
+
+<p>删除容器之前先要kill掉容器进程，然后再用<code class="highlighter-rouge">ctr c rm mybusybox</code>的命令来删除</p>
+
+<h4 id="docker-containerd-shim">docker-containerd-shim</h4>
+
+<p>它是containerd的一个组件，是容器的运行时载体，我们在宿主机上看到的shim，正是代表着一个个通过containerd启动的docker容器，它允许容器运行时在容器启动之后退出，即便在containerd和dockerd都挂掉的情况下，容器的标准io和其他描述文件都是可用的</p>
+
+<h4 id="runc">runC</h4>
+
+<p>容器运行时</p>
+
+<p>RunC 是一个轻量级的工具，它是用来运行容器的，只用来做这一件事，并且这一件事要做好。我们可以认为它就是个命令行小工具，可以不用通过 docker 引擎，直接运行容器。事实上，runC 是标准化的产物，它根据 OCI 标准来创建和运行容器。而 OCI(Open Container Initiative)组织，旨在围绕容器格式和运行时制定一个开放的工业化标准。</p>
+
+<p>我们可以在运行dockerd的时候使用<code class="highlighter-rouge">--add-runtime</code>来指定其他的运行时</p>
+
+<p>在容器启动的过程中，docker-runc 进程是作为 docker-containerd-shim 的子进程存在的。docker-runc 进程根据配置找到容器的 rootfs 并创建子进程 bash 作为容器中的第一个进程。当这一切都完成后 docker-runc 进程退出，然后容器进程 bash 由 docker-runc 的父进程 docker-containerd-shim 接管</p>
+
+<h5 id="安装runc">安装runc</h5>
+
+<p>runc是golan的项目，因此在编译它之前，咱们先安装一下golan，这里我是在centos上，直接用命令安装</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum install golan <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p><a href="https://github.com/opencontainers/runc">参考官方文档</a></p>
+
+<p>安装必要的依赖包</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>yum install libseccomp libseccomp-devel <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p>在你的golan的src目录下，创建github.com/opencontainers，如果你也是用yum 安装的golan，那么目录如下</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir <span class="nt">-p</span> /usr/lib/golang/src/github.com/opencontainers
+</code></pre></div></div>
+
+<p>获取runc的代码，并且编译安装</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/opencontainers/runc
+<span class="nb">cd </span>runc
+make
+make install
+
+<span class="o">[</span>root@kevinguo src]# runc <span class="nt">--version</span>
+runc version 1.0.0-rc5+dev
+commit: 2c632d1a2de0192c3f18a2542ccb6f30a8719b1f
+spec: 1.0.0
+</code></pre></div></div>
+
+<h5 id="使用runcdocker-runc来运行busybox容器">使用runC/docker-runc来运行busybox容器</h5>
+
+<p>先准备一个工作目录，所有的操作都是在该目录下执行</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir mycontainer
+</code></pre></div></div>
+
+<p>接着，准备容器镜像的文件系统，我们从docker镜像中获取</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>mycontainer
+mkdir rootfs
+docker <span class="nb">export</span> <span class="k">$(</span>docker create busybox<span class="k">)</span> |tar <span class="nt">-C</span> rootfs <span class="nt">-xvf</span> -
+</code></pre></div></div>
+
+<p>有了rootfs之后，我们还需要一个符合OCI标准的配置文件config.json，我们可以使用docker-runc来生成</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-runc spec
+</code></pre></div></div>
+
+<p>接着，我们就可以使用runC来操作了</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker-runc run busybox
+
+<span class="c"># 切换到另一个终端来查看</span>
+<span class="o">[</span>root@kevinguo ~]# docker-runc list
+ID          PID         STATUS      BUNDLE              CREATED                          OWNER
+busybox     8754        running     /root/mycontainer   2018-07-04T06:39:50.137725285Z   root
+
+<span class="o">[</span>root@kevinguo ~]# docker-runc ps busybox
+UID        PID  PPID  C STIME TTY          TIME CMD
+root      8754  8745  0 15:39 pts/0    00:00:00 sh
+</code></pre></div></div>
+
+<p>我们还可以尝试着修改config.json，让容器后台运行</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"terminal"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+</span><span class="s2">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"sleep"</span><span class="p">,</span><span class="s2">"20"</span><span class="w">
+</span><span class="p">],</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>root@kevinguo mycontainer]# docker-runc create mybusybox
+<span class="o">[</span>root@kevinguo mycontainer]# docker-runc start mybusybox
+<span class="o">[</span>root@kevinguo mycontainer]# docker-runc list
+ID          PID         STATUS      BUNDLE              CREATED                          OWNER
+busybox     8754        running     /root/mycontainer   2018-07-04T06:39:50.137725285Z   root
+mybusybox   8886        running     /root/mycontainer   2018-07-04T06:42:14.404232848Z   root
+</code></pre></div></div>
+
+<blockquote>
+  <p>就现状而言，虽然containerd1.1已经可以直接被kubernetes使用了，但是相对而言，我们还是建议先使用docker这个容器运行时，所以不论是cri还是cri-o，简单了解下就好</p>
+</blockquote>
+
+    </article>
+    <div class="share">
+      <div class="share-component"></div>
+
+    </div>
+    <div class="comment">
+      
+
+  
+
+  
+      
+        
+        <!-- Disqus Protection, see https://github.com/mzlogin/mzlogin.github.io/issues/2 -->
+        
+        
+          <div id="disqus_thread"></div>
+          <script>
+            var disqus_config = function () {
+              this.page.url = 'https://kevinguo.me/2018/07/04/docker-components/';
+              this.page.identifier = '/2018/07/04/docker-components/';
+              this.page.title = 'docker中的一些组件';
+            };
+            (function() { // DON'T EDIT BELOW THIS LINE
+              var d = document, s = d.createElement('script');
+
+              s.type = 'text/javascript';
+              s.async = true;
+              var shortname = 'kevinguo';
+
+              s.src = '//' + shortname + '.disqus.com/embed.js';
+
+              s.setAttribute('data-timestamp', +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        
+      
+    
+
+
+    </div>
+  </div>
+  <div class="column one-fourth">
+    
+<h3>Search</h3>
+<div id="site_search">
+    <input type="text" id="search_box" placeholder="Search">
+    <button class="btn btn-default" id="site_search_do"><span class="octicon octicon-search"></span></button>
+</div>
+
+<ul id="search_results"></ul>
+
+<link rel="stylesheet" type="text/css" href="/assets/css/modules/sidebar-search.css">
+<script src="/assets/js/lunr.min.js"></script>
+<script src="/assets/js/search.js"></script>
+
+    
+
+    
+<h3 class="post-directory-title mobile-hidden">Table of Contents</h3>
+<div id="post-directory-module" class="mobile-hidden">
+  <section class="post-directory">
+  <!-- Links that trigger the jumping -->
+  <!-- Added by javascript below -->
+  <dl></dl>
+  </section>
+</div>
+
+<script src="/assets/js/jquery.toc.js"></script>
+
+  </div>
+</div>
+</section>
+<!-- /section.content -->
+
+    <footer class="container">
+        <div class="site-footer" role="contentinfo">
+            <div class="copyright left mobile-block">
+                    © 2015
+                    <span title="KevinGuo">KevinGuo</span>
+                    <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+            </div>
+
+            <ul class="site-footer-links right mobile-hidden">
+                <li>
+                    <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+                </li>
+            </ul>
+            <a href="http://github.com/chinakevinguo/chinakevinguo.github.io" target="_blank" aria-label="view source code">
+                <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+            </a>
+            <ul class="site-footer-links mobile-hidden">
+                
+                <li>
+                    <a href="/" title="首页" target="">首页</a>
+                </li>
+                
+                <li>
+                    <a href="/categories/" title="分类" target="">分类</a>
+                </li>
+                
+                <li>
+                    <a href="/wiki/" title="维基" target="">维基</a>
+                </li>
+                
+                <li>
+                    <a href="/open-source/" title="开源" target="">开源</a>
+                </li>
+                
+                <li>
+                    <a href="/links/" title="链接" target="">链接</a>
+                </li>
+                
+                <li>
+                    <a href="/about/" title="关于" target="">关于</a>
+                </li>
+                
+                <li><a href="/feed.xml"><span class="octicon octicon-rss" style="color:orange;"></span></a></li>
+            </ul>
+
+        </div>
+    </footer>
+    <!-- / footer -->
+    <script src="/assets/vendor/share.js/dist/js/share.min.js"></script>
+    <script src="/assets/js/geopattern.js"></script>
+    <script src="/assets/js/prism.js"></script>
+    <link rel="stylesheet" href="/assets/css/globals/prism.css">
+    <script>
+      jQuery(document).ready(function($) {
+        // geopattern
+        $('.geopattern').each(function(){
+          $(this).geopattern($(this).data('pattern-id'));
+        });
+       // hljs.initHighlightingOnLoad();
+      });
+    </script>
+    
+    <div style="display:none">
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-80669434-1', 'auto');
+        ga('send', 'pageview');
+
+      </script>
+    </div>
+    
+</body>
+</html>
+
